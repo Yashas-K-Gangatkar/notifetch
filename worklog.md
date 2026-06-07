@@ -62,3 +62,29 @@ Stage Summary:
 - Key legal finding: Uber/Lyft actively cracking down on driver-helper apps in 2025
 - Key legal finding: NOT going to jail (CFAA precedent, hiQ v LinkedIn)
 - Key legal finding: Need to avoid credential-based scraping
+
+---
+Task ID: 3
+Agent: General-Purpose Sub Agent
+Task: Push NotiFetch project to GitHub (Yashas-K-Gangatkar/d2)
+
+Work Log:
+- Checked git status: repo was on branch `main` with no remote configured
+- Added remote origin: https://github.com/Yashas-K-Gangatkar/d2.git
+- Removed `.env` from git tracking (was committed previously despite .gitignore rule)
+- Removed `db/custom.db` from git tracking (local SQLite DB, should not be in repo)
+- Added `db/custom.db` to .gitignore
+- Staged all changes with `git add -A`
+- Committed: "NotiFetch: rename + notification-listener architecture + legal compliance"
+  - 31 files changed, 714 insertions(+), 199 deletions(-)
+  - Key changes: auth/signin page, PostgreSQL schema, legal pages, PWA assets, platform API updates
+- Push attempt failed: `fatal: could not read Username for 'https://github.com': No such device or address`
+  - No GitHub credentials configured in this environment
+  - The commit is saved locally and ready to push once credentials are set up
+
+Stage Summary:
+- Git remote set to Yashas-K-Gangatkar/d2
+- Commit 639b3b9 created locally on branch `main`
+- Push blocked — needs GitHub authentication (PAT or SSH key)
+- Sensitive files (.env, db/custom.db) removed from tracking
+- To push: configure credentials, then run `git push origin main`
