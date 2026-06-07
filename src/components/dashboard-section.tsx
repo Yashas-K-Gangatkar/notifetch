@@ -21,6 +21,7 @@ import {
 import {
   PLATFORMS,
   generateOrder,
+  generateInitialOrders,
   getPlatformById,
   type DeliveryOrder,
 } from "@/lib/data";
@@ -36,15 +37,7 @@ export function DashboardSection({
   onDecline,
   acceptedOrders,
 }: DashboardProps) {
-  const [orders, setOrders] = useState<DeliveryOrder[]>(() => {
-    const initial: DeliveryOrder[] = [];
-    for (let i = 0; i < 5; i++) {
-      const order = generateOrder();
-      order.timeRemaining = Math.floor(Math.random() * 20 + 10);
-      initial.push(order);
-    }
-    return initial;
-  });
+  const [orders, setOrders] = useState<DeliveryOrder[]>(() => generateInitialOrders());
   const [activeFilters, setActiveFilters] = useState<Set<string>>(
     new Set(PLATFORMS.map((p) => p.id))
   );

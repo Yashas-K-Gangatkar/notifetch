@@ -141,6 +141,29 @@ export const LAST_WEEK_EARNINGS: EarningsData[] = [
 
 let orderCounter = 0;
 
+// Deterministic initial orders to avoid hydration mismatch
+const INITIAL_ORDERS: Partial<DeliveryOrder>[] = [
+  { platform: "uber-eats", value: 12.50, distance: 3.2, timeRemaining: 25, pickup: 0, dropoff: 0 },
+  { platform: "doordash", value: 8.75, distance: 1.8, timeRemaining: 18, pickup: 1, dropoff: 3 },
+  { platform: "instacart", value: 22.30, distance: 5.6, timeRemaining: 30, pickup: 3, dropoff: 5 },
+  { platform: "grubhub", value: 15.00, distance: 2.4, timeRemaining: 22, pickup: 5, dropoff: 7 },
+  { platform: "amazon-flex", value: 9.99, distance: 4.1, timeRemaining: 28, pickup: 7, dropoff: 2 },
+];
+
+export function generateInitialOrders(): DeliveryOrder[] {
+  return INITIAL_ORDERS.map((o, i) => ({
+    id: `order-init-${i}`,
+    platform: o.platform!,
+    value: o.value!,
+    distance: o.distance!,
+    timeRemaining: o.timeRemaining!,
+    pickup: PICKUP_LOCATIONS[o.pickup ?? 0],
+    dropoff: DROPOFF_LOCATIONS[o.dropoff ?? 0],
+    accepted: null,
+    timestamp: new Date(),
+  }));
+}
+
 export function generateOrder(): DeliveryOrder {
   const platformIndex = Math.floor(Math.random() * PLATFORMS.length);
   const platform = PLATFORMS[platformIndex];

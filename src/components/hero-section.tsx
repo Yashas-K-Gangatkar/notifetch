@@ -22,20 +22,24 @@ interface FloatingNotification {
 
 export function HeroSection({ onNavigate }: HeroProps) {
   const [notifications] = useState<FloatingNotification[]>(() => {
-    const items: FloatingNotification[] = [];
-    for (let i = 0; i < 12; i++) {
-      const platform = PLATFORMS[i % PLATFORMS.length];
-      items.push({
-        id: i,
-        platform: platform.name,
-        value: `$${(Math.random() * 25 + 5).toFixed(2)}`,
-        x: Math.random() * 80 + 10,
-        y: Math.random() * 80 + 10,
-        delay: i * 0.8,
-        side: i % 2 === 0 ? "left" : "right",
-      });
-    }
-    return items;
+    // Deterministic positions to avoid hydration mismatch
+    const positions = [
+      { x: 15, y: 20, v: 12.50 }, { x: 72, y: 35, v: 8.75 },
+      { x: 25, y: 65, v: 22.30 }, { x: 80, y: 15, v: 15.00 },
+      { x: 10, y: 45, v: 9.99 },  { x: 65, y: 70, v: 18.25 },
+      { x: 35, y: 12, v: 11.40 }, { x: 88, y: 55, v: 7.50 },
+      { x: 20, y: 80, v: 19.80 }, { x: 55, y: 25, v: 14.60 },
+      { x: 45, y: 50, v: 6.30 },  { x: 78, y: 82, v: 16.90 },
+    ];
+    return positions.map((p, i) => ({
+      id: i,
+      platform: PLATFORMS[i % PLATFORMS.length].name,
+      value: `$${p.v.toFixed(2)}`,
+      x: p.x,
+      y: p.y,
+      delay: i * 0.8,
+      side: i % 2 === 0 ? "left" as const : "right" as const,
+    }));
   });
 
   return (
