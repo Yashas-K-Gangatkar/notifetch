@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">NotiFetch</string>
+    <string name="shortcut_short_label">Dashboard</string>
+    <string name="shortcut_long_label">Open NotiFetch Dashboard</string>
+
+    <!-- Asset statements for Digital Asset Links verification -->
+    <string name="asset_statements">
+        [{
+            \"relation\": [\"delegate_permission/common.handle_all_urls\"],
+            \"target\": {
+                \"namespace\": \"web\",
+                \"site\": \"https://d2-liart-nine.vercel.app\"
+            }
+        }]
+    </string>
+</resources>

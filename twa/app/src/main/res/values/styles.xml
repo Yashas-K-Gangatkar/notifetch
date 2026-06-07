@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Launcher theme — shown during splash screen and cold start -->
+    <style name="Theme.NotiFetch.Launcher" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:windowBackground">@drawable/splash_screen</item>
+        <item name="android:statusBarColor">@color/status_bar_color</item>
+        <item name="android:navigationBarColor">@color/navigation_color</item>
+        <item name="colorPrimary">@color/theme_color</item>
+        <item name="colorPrimaryDark">@color/background_color</item>
+    </style>
+</resources>

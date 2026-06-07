@@ -169,38 +169,97 @@ function idbRequestToPromise(request) {
 }
 
 // ─── Push Notifications ─────────────────────────────────────────────────────
+//
+// Handles push events from Firebase Cloud Messaging (FCM).
+// FCM sends two types of payloads:
+//   1. "notification" payload — auto-displayed by the browser (we can't customize)
+//   2. "data" payload — we handle manually and show custom notification
+//
+// When the server sends both notification + data, the browser auto-displays the
+// notification part. When only data is sent, we have full control.
+// Our server-side (firebase-admin) sends both, so the browser handles display,
+// but we also handle data-only messages for flexibility.
+
 self.addEventListener('push', (event) => {
+  // Default notification data
   let data = {
     title: 'NotiFetch',
     body: 'You have a new update!',
     icon: '/icons/icon-192x192.png',
     badge: '/icons/icon-72x72.png',
     url: '/',
+    type: 'general',
+    orderId: null,
+    platform: null,
   };
 
   if (event.data) {
     try {
-      data = { ...data, ...event.data.json() };
+      const payload = event.data.json();
+
+      // FCM can send data in different formats:
+      // 1. Direct data payload: { title, body, ... }
+      // 2. FCM wrapper: { data: { ... }, notification: { title, body } }
+      // 3. FCM background: { data: { ... } }
+
+      if (payload.data && typeof payload.data === 'object') {
+        // FCM data payload — merge into our data object
+        data = {
+          ...data,
+          ...payload.data,
+          // Data payload values are always strings in FCM, keep as-is
+        };
+
+        // If there's also a notification payload, prefer its title/body
+        if (payload.notification) {
+          if (payload.notification.title) data.title = payload.notification.title;
+          if (payload.notification.body) data.body = payload.notification.body;
+        }
+      } else {
+        // Direct payload (non-FCM wrapped)
+        data = { ...data, ...payload };
+      }
     } catch (e) {
+      // If JSON parsing fails, treat as plain text
       data.body = event.data.text();
     }
   }
 
+  // Build notification options
   const options = {
     body: data.body,
-    icon: data.icon,
-    badge: data.badge,
+    icon: data.icon || '/icons/icon-192x192.png',
+    badge: data.badge || '/icons/icon-72x72.png',
     vibrate: [100, 50, 100],
     data: {
-      url: data.url,
+      url: data.url || '/',
+      type: data.type || 'general',
       orderId: data.orderId || null,
       platform: data.platform || null,
+      timestamp: data.timestamp || Date.now().toString(),
     },
-    actions: [
+    actions: [],
+    tag: data.orderId || undefined, // Group notifications by order ID
+    renotify: true, // Re-notify even if tag matches
+  };
+
+  // Add context-specific actions based on notification type
+  if (data.type === 'order' || data.orderId) {
+    options.actions = [
       { action: 'view', title: 'View Order' },
       { action: 'dismiss', title: 'Dismiss' },
-    ],
-  };
+    ];
+  } else if (data.type === 'test') {
+    options.actions = [
+      { action: 'view', title: 'Open NotiFetch' },
+      { action: 'dismiss', title: 'Dismiss' },
+    ];
+  } else {
+    options.actions = [
+      { action: 'view', title: 'View' },
+      { action: 'dismiss', title: 'Dismiss' },
+    ];
+  }
 
   event.waitUntil(
     self.registration.showNotification(data.title, options)
@@ -211,9 +270,34 @@ self.addEventListener('push', (event) => {
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
 
+  // Dismiss action — do nothing
   if (event.action === 'dismiss') return;
 
-  const urlToOpen = event.notification.data?.url || '/';
+  // Determine the URL to open based on notification data
+  const notificationData = event.notification.data || {};
+  let urlToOpen = notificationData.url || '/';
+
+  // Build contextual deep links based on notification type
+  if (notificationData.type === 'order' && notificationData.orderId) {
+    urlToOpen = `/?orderId=${encodeURIComponent(notificationData.orderId)}`;
+  } else if (notificationData.type === 'test') {
+    urlToOpen = '/';
+  }
+
+  // Ensure URL is relative to the origin
+  if (urlToOpen.startsWith('http')) {
+    try {
+      const parsedUrl = new URL(urlToOpen);
+      // Only allow same-origin URLs
+      if (parsedUrl.origin !== self.location.origin) {
+        urlToOpen = '/';
+      } else {
+        urlToOpen = parsedUrl.pathname + parsedUrl.search;
+      }
+    } catch {
+      urlToOpen = '/';
+    }
+  }
 
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
@@ -226,6 +310,26 @@ self.addEventListener('notificationclick', (event) => {
       }
       // Otherwise open a new window
       return self.clients.openWindow(urlToOpen);
+    })
+  );
+});
+
+// ─── Push Subscription Change ───────────────────────────────────────────────
+// When the push subscription changes (e.g., browser updates the endpoint),
+// we should notify the server so it can update the FCM token.
+self.addEventListener('pushsubscriptionchange', (event) => {
+  console.log('[SW] Push subscription changed');
+
+  event.waitUntil(
+    fetch('/api/notifications/register-token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        fcmToken: event.newSubscription ? JSON.stringify(event.newSubscription) : null,
+        subscriptionChanged: true,
+      }),
+    }).catch((err) => {
+      console.error('[SW] Failed to update push subscription on server:', err);
     })
   );
 });

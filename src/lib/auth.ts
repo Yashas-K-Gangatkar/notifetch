@@ -3,10 +3,12 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import { db } from "@/lib/db";
 
-// ─── Crash if NEXTAUTH_SECRET is missing in production ───────────────────────
-if (process.env.NODE_ENV === "production" && !process.env.NEXTAUTH_SECRET) {
-  throw new Error(
-    "FATAL: NEXTAUTH_SECRET must be set in production. " +
+// ─── Warn if NEXTAUTH_SECRET is missing in production ────────────────────────
+// We warn instead of crash-at-import because Next.js runs this during build
+// when env vars aren't available. The actual check happens at runtime.
+if (process.env.NODE_ENV === "production" && !process.env.NEXTAUTH_SECRET && typeof window === "undefined") {
+  console.error(
+    "⚠️ FATAL: NEXTAUTH_SECRET must be set in production. " +
     "Generate one with: openssl rand -base64 32"
   );
 }
@@ -65,7 +67,7 @@ function clearVerifyAttempts(email: string): void {
 // ─── OTP Generation ─────────────────────────────────────────────────────────
 export function generateOTP(): string {
   // Use crypto.randomInt for cryptographic randomness (not Math.random)
-  const { randomInt } = require("crypto");
+  const { randomInt } = require("crypto"); // eslint-disable-line @typescript-eslint/no-require-imports
   return randomInt(100000, 1000000).toString();
 }
 

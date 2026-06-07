@@ -53,3 +53,11 @@ server.log
 # Skills directory
 /skills/
 db/custom.db
+
+# TWA / Android build artifacts
+twa/keystore.jks
+twa/signing-credentials.txt
+twa/.gradle/
+twa/app/build/
+twa/build/
+twa/temp-icon/

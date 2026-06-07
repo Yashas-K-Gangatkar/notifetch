@@ -1,0 +1,33 @@
+{
+  "appVersionName": "1.0.0",
+  "appVersionCode": 1,
+  "shortName": "NotiFetch",
+  "name": "NotiFetch",
+  "launcherName": "NotiFetch",
+  "display": "standalone",
+  "themeColor": "#f59e0b",
+  "navigationColor": "#f59e0b",
+  "backgroundColor": "#0a0a0a",
+  "enableNotifications": true,
+  "startUrl": "/",
+  "iconUrl": "https://d2-liart-nine.vercel.app/icons/icon-512x512.png",
+  "maskableIconUrl": "https://d2-liart-nine.vercel.app/icons/icon-512x512.png",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "keystore.jks",
+    "alias": "notifetch"
+  },
+  "additionalTrustedOrigins": [],
+  "webManifestUrl": "https://d2-liart-nine.vercel.app/manifest.json",
+  "fallbackType": "customtabs",
+  "features": {},
+  "alphaDependencies": {
+    "enabled": false
+  },
+  "enableSiteSettingsShortcut": true,
+  "isChromeOSOnly": false,
+  "scope": "/",
+  "handleLinks": "auto",
+  "navigationFallbackUrl": "/",
+  "packageId": "com.notifetch.app"
+}
