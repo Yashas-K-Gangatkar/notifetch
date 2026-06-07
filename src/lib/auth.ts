@@ -100,7 +100,7 @@ export async function sendOTP(email: string): Promise<{ success: boolean; error?
       method: "POST",
       headers: { Authorization: "Bearer " + RESEND_API_KEY, "Content-Type": "application/json" },
       body: JSON.stringify({
-        from: "NotiFetch <noreply@notifetch.app>",
+        from: "NotiFetch <onboarding@resend.dev>",
         to: [email],
         subject: "Your NotiFetch Login Code",
         html: '<div style="font-family:system-ui,sans-serif;max-width:480px;margin:0 auto;padding:32px;text-align:center"><h1 style="color:#f59e0b;font-size:24px">NotiFetch</h1><p style="color:#9ca3af;font-size:14px">One Feed. All Notifications. Zero Credentials.</p><div style="background:#1f2937;border-radius:12px;padding:32px;margin-top:24px"><p style="color:#d1d5db;font-size:14px">Your login code is:</p><p style="font-size:36px;font-weight:bold;color:#f59e0b;letter-spacing:8px">' + code + '</p><p style="color:#9ca3af;font-size:12px">This code expires in 5 minutes.</p></div><p style="color:#6b7280;font-size:12px;margin-top:24px">If you did not request this code, you can safely ignore this email.</p></div>',
