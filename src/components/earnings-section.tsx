@@ -70,11 +70,11 @@ export function EarningsSection({ acceptedOrders }: EarningsProps) {
   }, [connectedPlatforms.map((p) => p.id).join(",")]);
 
   const totalThisWeek = thisWeekEarnings.reduce(
-    (sum, d) => connectedIds.reduce((s, id) => s + ((d[id] as number) || 0), 0) + sum,
+    (sum, d) => connectedIds.reduce((s, id) => s + (Number(d[id]) || 0), 0) + sum,
     0
   );
   const totalLastWeek = lastWeekEarnings.reduce(
-    (sum, d) => connectedIds.reduce((s, id) => s + ((d[id] as number) || 0), 0) + sum,
+    (sum, d) => connectedIds.reduce((s, id) => s + (Number(d[id]) || 0), 0) + sum,
     0
   );
   const weekChange = totalLastWeek > 0
@@ -91,7 +91,7 @@ export function EarningsSection({ acceptedOrders }: EarningsProps) {
   // Platform breakdown
   const platformBreakdown = connectedPlatforms.map((p, i) => ({
     ...p,
-    weekEarnings: thisWeekEarnings.reduce((sum, d) => sum + ((d[p.id] as number) || 0), 0),
+    weekEarnings: thisWeekEarnings.reduce((sum, d) => sum + (Number(d[p.id]) || 0), 0),
     barColor: BAR_COLORS[i % BAR_COLORS.length],
   })).sort((a, b) => b.weekEarnings - a.weekEarnings);
 
