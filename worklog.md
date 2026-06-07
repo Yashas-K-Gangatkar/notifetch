@@ -28,3 +28,37 @@ Stage Summary:
 - Dev server starts and renders HTTP 200
 - App now covers 80+ platforms, 18 delivery categories, 8 regions, 28 currencies
 - All components updated for worldwide multi-category multi-currency UX
+---
+Task ID: 2
+Agent: Main Agent
+Task: Build full production backend, PWA, deployment, and legal compliance
+
+Work Log:
+- Created PWA manifest.json, service worker (sw.js), pwa-register.tsx component
+- Generated 8 PWA icon sizes (72-512px) + favicon using sharp
+- Updated layout.tsx with PWA metadata, manifest link, apple-touch-icon, viewport
+- Created full Prisma schema: User, Account, Session, VerificationToken, PlatformConnection, AcceptedOrder, EarningRecord, Payment, NotificationLog, AuditLog (10 models)
+- Created next-auth config with Credentials + Google OAuth providers
+- Created 8 protected API routes: /api/user, /api/platforms, /api/orders, /api/earnings, /api/payments, /api/payments/webhook, /api/notifications, /api/notifications/test
+- Created /api/auth/[...nextauth] route handler
+- Created middleware.ts for route protection
+- Created stripe.ts helper (checkout sessions, portal, webhook verification)
+- Created notifications.ts helper (FCM push, multicast)
+- Created Dockerfile (multi-stage Next.js standalone)
+- Created railway.toml and railway.json for Railway deployment
+- Created .env.example with 16 environment variables
+- Created /privacy page (10-section Privacy Policy, GDPR/CCPA compliant)
+- Created /terms page (14-section Terms of Service with arbitration)
+- Created /legal page (legal hub with compliance badges)
+- Ran legal research: trademark, ToS compliance, CFAA, criminal liability
+
+Stage Summary:
+- Build passes cleanly with all 15 routes (8 API + 7 pages)
+- PWA fully configured with offline support and push notifications
+- Full backend with auth, CRUD, payments, and notifications
+- Legal pages live at /privacy, /terms, /legal
+- Railway deployment ready (Dockerfile + config)
+- Legal risk assessment: HIGH for platform ToS, LOW for criminal
+- Key legal finding: Uber/Lyft actively cracking down on driver-helper apps in 2025
+- Key legal finding: NOT going to jail (CFAA precedent, hiQ v LinkedIn)
+- Key legal finding: Need to avoid credential-based scraping
