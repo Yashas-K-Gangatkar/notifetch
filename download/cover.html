@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=794px, initial-scale=1.0">
+<title>NotiFetch Legal Compliance Audit</title>
+<link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --c-accent: #187999;
+    --c-text: #242527;
+    --c-muted: #7d8389;
+    --c-bg: #ffffff;
+  }
+
+  @page {
+    size: 794px 1123px;
+    margin: 0;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html, body {
+    width: 794px;
+    height: 1123px;
+    margin: 0;
+    padding: 0;
+    background: var(--c-bg);
+    font-family: 'Inter', sans-serif;
+  }
+
+  .cover {
+    position: relative;
+    width: 794px;
+    height: 1123px;
+    background: var(--c-bg);
+  }
+
+  /* Layer 1: Background - Left sidebar pillar */
+  .cover-bg-layer {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    z-index: 1;
+  }
+
+  .sidebar-pillar {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 80px;
+    height: 1123px;
+    background: var(--c-accent);
+  }
+
+  .sidebar-watermark {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%) rotate(-90deg);
+    font-family: 'Inter', sans-serif;
+    font-size: 80px;
+    font-weight: 700;
+    color: white;
+    opacity: 0.15;
+    white-space: nowrap;
+    letter-spacing: 8px;
+  }
+
+  /* Layer 2: Structure - bottom horizontal line */
+  .cover-line-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  .bottom-line {
+    position: absolute;
+    bottom: 112px;
+    left: 120px;
+    right: 80px;
+    height: 1px;
+    background: var(--c-accent);
+    opacity: 0.3;
+  }
+
+  /* Layer 3: Content */
+  .cover-text-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    padding-left: 120px;
+    padding-right: 80px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .kicker {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--c-muted);
+    opacity: 0.6;
+    margin-bottom: 20px;
+  }
+
+  .hero-title {
+    font-family: 'Merriweather', serif;
+    font-size: 52px;
+    font-weight: 900;
+    line-height: 1.15;
+    color: var(--c-text);
+    margin-bottom: 16px;
+    max-width: 540px;
+  }
+
+  .hero-title-line2 {
+    display: block;
+  }
+
+  .subtitle {
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    font-weight: 300;
+    color: var(--c-muted);
+    opacity: 0.85;
+    margin-bottom: 40px;
+    max-width: 500px;
+    line-height: 1.6;
+  }
+
+  .summary-block {
+    max-width: 500px;
+    margin-bottom: 60px;
+  }
+
+  .summary-text {
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.6;
+    color: var(--c-text);
+    opacity: 0.85;
+  }
+
+  .meta-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .meta-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--c-accent);
+    opacity: 0.7;
+  }
+
+  .meta-value {
+    font-family: 'Inter', sans-serif;
+    font-size: 18px;
+    font-weight: 400;
+    color: var(--c-text);
+    line-height: 1.8;
+  }
+
+  .footer-section {
+    position: absolute;
+    bottom: 55px;
+    left: 120px;
+    right: 80px;
+    display: flex;
+    justify-content: space-between;
+    z-index: 3;
+  }
+
+  .footer-left {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    color: var(--c-muted);
+    opacity: 0.6;
+  }
+
+  .footer-right {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    color: var(--c-muted);
+    opacity: 0.6;
+    text-align: right;
+  }
+
+  /* Decorative accent line left of content */
+  .content-accent {
+    position: absolute;
+    left: 108px;
+    top: 340px;
+    width: 2px;
+    height: 220px;
+    background: var(--c-accent);
+    opacity: 0.4;
+    z-index: 2;
+  }
+</style>
+</head>
+<body>
+<div class="cover">
+  <!-- Layer 1: Background -->
+  <div class="cover-bg-layer">
+    <div class="sidebar-pillar">
+      <div class="sidebar-watermark">LEGAL</div>
+    </div>
+  </div>
+
+  <!-- Layer 2: Structure lines -->
+  <div class="cover-line-layer">
+    <div class="content-accent"></div>
+    <div class="bottom-line"></div>
+  </div>
+
+  <!-- Layer 3: Content -->
+  <div class="cover-text-layer">
+    <div class="kicker">LEGAL COMPLIANCE AUDIT</div>
+    <div class="hero-title">
+      NotiFetch
+      <span class="hero-title-line2">Legal Compliance</span>
+    </div>
+    <div class="subtitle">Comprehensive analysis of criminal and civil liability exposure across seven legal domains for the NotiFetch notification aggregator application.</div>
+    <div class="summary-block">
+      <p class="summary-text">
+        This audit examines CFAA compliance, platform Terms of Service, trademark law, GDPR/CCPA data privacy, antitrust considerations, and labor law implications. The overall probability of criminal liability is assessed as <strong>Near Zero</strong>, with the notification-listener approach validated as the gold standard for legal safety in the gig-economy tool space.
+      </p>
+    </div>
+    <div class="meta-section">
+      <div class="meta-label">Prepared By</div>
+      <div class="meta-value">Z.ai Legal Compliance Division</div>
+      <div class="meta-label" style="margin-top: 12px;">Date</div>
+      <div class="meta-value">March 4, 2026</div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer-section">
+    <div class="footer-left">Confidential</div>
+    <div class="footer-right">NotiFetch v1.0</div>
+  </div>
+</div>
+</body>
+</html>
