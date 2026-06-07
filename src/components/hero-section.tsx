@@ -134,10 +134,10 @@ export function HeroSection({ onNavigate }: HeroProps) {
         <div className="animate-float-up flex flex-col sm:flex-row items-center justify-center gap-4 mb-12" style={{ animationDelay: "0.4s" }}>
           <Button
             size="lg"
-            onClick={() => onNavigate("pricing")}
+            onClick={() => window.location.href = "/auth/signin"}
             className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold px-8 h-12 text-base shadow-xl shadow-amber-500/25"
           >
-            Start Free Trial
+            Get Started Free
             <ArrowRight className="w-4 h-4 ml-2" />
           </Button>
           <Button

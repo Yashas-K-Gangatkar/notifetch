@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { NAV_ITEMS } from "@/lib/data";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
-import { Zap, Menu, Moon, Sun } from "lucide-react";
+import { Zap, Menu, Moon, Sun, LogIn } from "lucide-react";
 import { useTheme } from "next-themes";
 
 interface NavbarProps {
@@ -86,10 +86,20 @@ export function Navbar({ activeSection, onNavigate }: NavbarProps) {
               </Button>
 
             <Button
-              onClick={() => handleNavClick("pricing")}
+              variant="ghost"
+              size="sm"
+              onClick={() => window.location.href = "/auth/signin"}
+              className="hidden sm:flex text-muted-foreground hover:text-foreground"
+            >
+              <LogIn className="w-4 h-4 mr-1" />
+              Sign In
+            </Button>
+
+            <Button
+              onClick={() => window.location.href = "/auth/signin"}
               className="hidden sm:flex bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-semibold shadow-lg shadow-amber-500/20"
             >
-              Start Free Trial
+              Get Started
             </Button>
 
             {/* Mobile menu */}
@@ -120,12 +130,20 @@ export function Navbar({ activeSection, onNavigate }: NavbarProps) {
                       {item.label}
                     </button>
                   ))}
-                  <div className="mt-4 pt-4 border-t border-border">
+                  <div className="mt-4 pt-4 border-t border-border space-y-2">
                     <Button
-                      onClick={() => handleNavClick("pricing")}
+                      variant="outline"
+                      onClick={() => { window.location.href = "/auth/signin"; setMobileOpen(false); }}
+                      className="w-full"
+                    >
+                      <LogIn className="w-4 h-4 mr-2" />
+                      Sign In
+                    </Button>
+                    <Button
+                      onClick={() => { window.location.href = "/auth/signin"; setMobileOpen(false); }}
                       className="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-semibold"
                     >
-                      Start Free Trial
+                      Get Started
                     </Button>
                   </div>
                 </div>
