@@ -6,8 +6,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy - DeliveryBoost",
-  description: "Learn how DeliveryBoost collects, uses, and protects your personal data.",
+  title: "Privacy Policy - NotiFetch",
+  description: "Learn how NotiFetch collects, uses, and protects your personal data.",
 };
 
 const sections = [
@@ -25,10 +25,11 @@ const sections = [
         ],
       },
       {
-        heading: "Delivery Platform Tokens",
+        heading: "Notification Listener Data",
         items: [
-          "OAuth tokens and session credentials you authorize to connect your delivery platform accounts (Uber Eats, DoorDash, Instacart, etc.)",
-          "These tokens are stored encrypted and used solely to retrieve your order notifications and earnings data on your behalf",
+          "NotiFetch reads notifications from your device using Android's NotificationListenerService API — no credentials, no API access, no login information is ever collected",
+          "Only notification content you receive on your device (such as order details and earnings info from apps you already use) is read locally on your device",
+          "No delivery platform tokens, OAuth credentials, or session cookies are ever requested or stored",
         ],
       },
       {
@@ -43,7 +44,7 @@ const sections = [
       {
         heading: "Earnings & Order Data",
         items: [
-          "Aggregated earnings data from connected platforms for your dashboard and analytics",
+          "Aggregated earnings data from notifications received on your device for your dashboard and analytics",
           "Order details (restaurant, payout, distance, tip) displayed in your real-time feed",
           "Historical earnings trends and performance metrics calculated from your data",
         ],
@@ -55,8 +56,8 @@ const sections = [
     icon: Eye,
     title: "2. How We Use Your Data",
     items: [
-      "Provide, maintain, and improve the DeliveryBoost service including real-time notification aggregation",
-      "Display your combined earnings dashboard and order feed across all connected platforms",
+      "Provide, maintain, and improve the NotiFetch service including notification reading and aggregation from your device",
+      "Display your combined earnings dashboard and order feed from notifications received on your device",
       "Send push notifications about new delivery opportunities matching your preferences",
       "Process premium subscription payments and manage your account",
       "Provide customer support and respond to your inquiries",
@@ -71,7 +72,7 @@ const sections = [
     title: "3. Third-Party Sharing",
     items: [
       "We do NOT sell your personal data to third parties — ever",
-      "Delivery platforms: We interact with Uber Eats, DoorDash, Instacart, and similar services solely through your authorized connections to retrieve your notifications and earnings data",
+      "Delivery platforms: NotiFetch does NOT communicate with any delivery platform in any way. We never access their APIs, servers, or services. We simply read notifications that your phone already receives",
       "Payment processors: Stripe and Razorpay receive only the data necessary to process your subscription payments. We do not share full card details",
       "Push notification services: Firebase Cloud Messaging receives device tokens needed to deliver notifications",
       "Analytics providers: We may use privacy-focused analytics that do not sell or share your data",
@@ -85,7 +86,7 @@ const sections = [
     items: [
       "Account data: Retained while your account is active and for 30 days after deletion to allow recovery",
       "Earnings data: Retained for the duration of your account to provide historical analytics. Deleted within 30 days of account deletion",
-      "Platform tokens: Removed immediately upon disconnection of a delivery platform or account deletion",
+      "Notification listener data: Removed immediately upon revocation of notification listener permission or account deletion",
       "Usage analytics: Anonymized after 90 days and retained in aggregate form only",
       "Payment records: Retained for 7 years as required by financial regulations",
       "You may request early deletion of any data subject to legal retention requirements",
@@ -107,7 +108,7 @@ const sections = [
         heading: "Deletion",
         items: [
           "You may request deletion of your account and all associated data at any time",
-          "Account deletion removes your profile, platform connections, and preferences within 30 days",
+          "Account deletion removes your profile, notification settings, and preferences within 30 days",
           "Some data may be retained in anonymized or aggregate form where it cannot identify you",
         ],
       },
@@ -115,7 +116,7 @@ const sections = [
         heading: "Export",
         items: [
           "You can export your earnings data and account information in a machine-readable format (JSON/CSV)",
-          "Request an export through your account settings or by contacting us at legal@deliveryboost.app",
+          "Request an export through your account settings or by contacting us at legal@notifetch.app",
         ],
       },
       {
@@ -151,7 +152,7 @@ const sections = [
       "Right to opt-out of sale: We do NOT sell your personal information. No action is needed to opt out",
       "Right to non-discrimination: We will not discriminate against you for exercising any of your CCPA rights",
       "Categories of data collected: Identifiers (email, phone), commercial information (earnings, payment), internet activity (usage data), geolocation data, and professional information",
-      "To exercise your CCPA rights, contact us at legal@deliveryboost.app or call 1-800-DELBOOST",
+      "To exercise your CCPA rights, contact us at legal@notifetch.app",
     ],
   },
   {
@@ -160,11 +161,11 @@ const sections = [
     title: "8. Cookies & Tracking",
     items: [
       "Essential cookies: Used for authentication, session management, and security (cannot be disabled)",
-      "Functional cookies: Store your preferences such as theme, notification settings, and platform connections",
+      "Functional cookies: Store your preferences such as theme, notification settings, and app configuration",
       "Analytics cookies: Help us understand how users interact with the app so we can improve the experience",
       "We do NOT use advertising cookies or allow third-party ad tracking",
       "You can manage cookie preferences through your browser settings or our in-app privacy controls",
-      "First-party cookies only: All cookies are set by DeliveryBoost and not by external advertising networks",
+      "First-party cookies only: All cookies are set by NotiFetch and not by external advertising networks",
     ],
   },
   {
@@ -173,13 +174,13 @@ const sections = [
     title: "9. Security Measures",
     items: [
       "Encryption in transit: All data is encrypted using TLS 1.3 during transmission",
-      "Encryption at rest: Sensitive data including platform tokens and payment information is encrypted using AES-256",
+      "Encryption at rest: Sensitive data including payment information is encrypted using AES-256",
       "Access controls: Role-based access with principle of least privilege. Only authorized personnel can access user data",
       "Regular audits: We conduct quarterly security assessments and annual penetration testing",
       "Incident response: We maintain a comprehensive incident response plan with 72-hour breach notification to affected users",
       "Infrastructure: Hosted on secure cloud infrastructure with SOC 2 Type II compliance",
-      "Token security: Delivery platform tokens are stored with individual encryption keys and rotated regularly",
-      "No password storage: We use OAuth and third-party authentication providers — we never store plaintext passwords",
+      "Notification data stays on your device: NotiFetch reads notifications locally and only transmits anonymized, non-PII analytics to our servers. Platform names and order details remain on-device unless you explicitly enable cloud sync",
+      "No password or credential storage: NotiFetch never asks for your passwords or login credentials — we never access delivery platform APIs or authenticate on your behalf",
     ],
   },
   {
@@ -188,9 +189,9 @@ const sections = [
     title: "10. Contact Us",
     items: [
       "For privacy inquiries, data requests, or to exercise your rights, contact:",
-      "Email: legal@deliveryboost.app",
+      "Email: legal@notifetch.app",
       "Response time: We will respond to all verified requests within 30 days (15 days for California residents under CCPA)",
-      "Data Protection Officer: Available at dpo@deliveryboost.app for GDPR-related matters",
+      "Data Protection Officer: Available at dpo@notifetch.app for GDPR-related matters",
     ],
   },
 ];
@@ -212,7 +213,7 @@ export default function PrivacyPolicyPage() {
               <Shield className="w-4 h-4 text-white" />
             </div>
             <span className="font-bold text-sm bg-gradient-to-r from-amber-500 to-orange-600 bg-clip-text text-transparent">
-              DeliveryBoost
+              NotiFetch
             </span>
           </div>
         </div>
@@ -227,7 +228,7 @@ export default function PrivacyPolicyPage() {
           </div>
           <h1 className="text-3xl sm:text-4xl font-bold mb-4">Privacy Policy</h1>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Your privacy matters to us. This policy explains how DeliveryBoost collects, uses, and protects your personal data when you use our service.
+            Your privacy matters to us. This policy explains how NotiFetch collects, uses, and protects your personal data when you use our service.
           </p>
           <p className="text-sm text-muted-foreground mt-3">
             Effective Date: <span className="font-semibold text-foreground">March 4, 2026</span>
@@ -311,8 +312,8 @@ export default function PrivacyPolicyPage() {
             <p className="text-muted-foreground mb-4">
               We&apos;re here to help. Reach out to our team for any privacy-related inquiries or to exercise your data rights.
             </p>
-            <a href="mailto:legal@deliveryboost.app" className="text-amber-500 hover:text-amber-400 font-semibold transition-colors">
-              legal@deliveryboost.app
+            <a href="mailto:legal@notifetch.app" className="text-amber-500 hover:text-amber-400 font-semibold transition-colors">
+              legal@notifetch.app
             </a>
           </CardContent>
         </Card>
@@ -320,7 +321,7 @@ export default function PrivacyPolicyPage() {
         {/* Footer */}
         <footer className="mt-16 pt-8 border-t border-border text-center">
           <p className="text-sm text-muted-foreground">
-            &copy; {new Date().getFullYear()} DeliveryBoost. All rights reserved.
+            &copy; {new Date().getFullYear()} NotiFetch. All rights reserved.
           </p>
           <div className="flex items-center justify-center gap-4 mt-3">
             <Link href="/privacy" className="text-sm text-amber-500 hover:text-amber-400 transition-colors">Privacy Policy</Link>

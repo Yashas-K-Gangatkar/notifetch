@@ -1,4 +1,4 @@
-const CACHE_NAME = 'deliveryboost-v1';
+const CACHE_NAME = 'notifetch-v1';
 
 const STATIC_ASSETS = [
   '/',
@@ -149,7 +149,7 @@ async function syncOfflineOrders() {
  */
 function openDB() {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open('deliveryboost-offline', 1);
+    const request = indexedDB.open('notifetch-offline', 1);
     request.onupgradeneeded = (event) => {
       const db = event.target.result;
       if (!db.objectStoreNames.contains('offline-orders')) {
@@ -171,7 +171,7 @@ function idbRequestToPromise(request) {
 // ─── Push Notifications ─────────────────────────────────────────────────────
 self.addEventListener('push', (event) => {
   let data = {
-    title: 'DeliveryBoost',
+    title: 'NotiFetch',
     body: 'You have a new update!',
     icon: '/icons/icon-192x192.png',
     badge: '/icons/icon-72x72.png',

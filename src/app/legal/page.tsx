@@ -5,15 +5,15 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
 export const metadata: Metadata = {
-  title: "Legal Hub - DeliveryBoost",
-  description: "Access DeliveryBoost legal documents including Privacy Policy and Terms of Service.",
+  title: "Legal Hub - NotiFetch",
+  description: "Access NotiFetch legal documents including Privacy Policy and Terms of Service.",
 };
 
 const legalDocuments = [
   {
     id: "privacy",
     title: "Privacy Policy",
-    description: "Understand how DeliveryBoost collects, uses, and protects your personal data. Covers data collection, third-party sharing, GDPR & CCPA compliance, cookies, and your rights.",
+    description: "Understand how NotiFetch collects, uses, and protects your personal data. Covers data collection, third-party sharing, GDPR & CCPA compliance, cookies, and your rights.",
     href: "/privacy",
     icon: Shield,
     highlights: [
@@ -28,13 +28,13 @@ const legalDocuments = [
   {
     id: "terms",
     title: "Terms of Service",
-    description: "Read the terms and conditions that govern your use of DeliveryBoost. Covers account responsibility, prohibited uses, payment terms, and dispute resolution.",
+    description: "Read the terms and conditions that govern your use of NotiFetch. Covers account responsibility, prohibited uses, payment terms, and dispute resolution.",
     href: "/terms",
     icon: FileText,
     highlights: [
       "Service description & disclaimer",
       "User accounts & responsibility",
-      "Platform connections & authorization",
+      "Notification listening & permissions",
       "Payment terms & refund policy",
       "Limitation of liability",
       "Dispute resolution & arbitration",
@@ -66,7 +66,7 @@ export default function LegalHubPage() {
               <Scale className="w-4 h-4 text-white" />
             </div>
             <span className="font-bold text-sm bg-gradient-to-r from-amber-500 to-orange-600 bg-clip-text text-transparent">
-              DeliveryBoost
+              NotiFetch
             </span>
           </div>
         </div>
@@ -153,7 +153,7 @@ export default function LegalHubPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {[
                 { icon: Lock, title: "We never sell your data", desc: "Your personal information is never sold to third parties for advertising or any other purpose." },
-                { icon: Shield, title: "We don't store passwords", desc: "Platform connections use OAuth tokens only. We never see or store your delivery platform passwords." },
+                { icon: Shield, title: "We never ask for your passwords", desc: "NotiFetch reads notifications on your device — we never access delivery platform APIs or ask for login credentials." },
                 { icon: UserCheck, title: "You own your data", desc: "You can access, export, or delete your data at any time. Full control is always in your hands." },
                 { icon: Clock, title: "30-day data deletion", desc: "When you delete your account, all your data is permanently removed within 30 days." },
               ].map((item) => {
@@ -183,11 +183,11 @@ export default function LegalHubPage() {
               For legal questions, data requests, or to exercise your privacy rights, reach out to our legal team.
             </p>
             <div className="space-y-2">
-              <a href="mailto:legal@deliveryboost.app" className="block text-amber-500 hover:text-amber-400 font-semibold transition-colors">
-                legal@deliveryboost.app
+              <a href="mailto:legal@notifetch.app" className="block text-amber-500 hover:text-amber-400 font-semibold transition-colors">
+                legal@notifetch.app
               </a>
-              <a href="mailto:dpo@deliveryboost.app" className="block text-sm text-muted-foreground hover:text-foreground transition-colors">
-                Data Protection Officer: dpo@deliveryboost.app
+              <a href="mailto:dpo@notifetch.app" className="block text-sm text-muted-foreground hover:text-foreground transition-colors">
+                Data Protection Officer: dpo@notifetch.app
               </a>
             </div>
           </CardContent>
@@ -196,7 +196,7 @@ export default function LegalHubPage() {
         {/* Footer */}
         <footer className="mt-16 pt-8 border-t border-border text-center">
           <p className="text-sm text-muted-foreground">
-            &copy; {new Date().getFullYear()} DeliveryBoost, Inc. All rights reserved.
+            &copy; {new Date().getFullYear()} NotiFetch, Inc. All rights reserved.
           </p>
           <div className="flex items-center justify-center gap-4 mt-3">
             <Link href="/privacy" className="text-sm text-amber-500 hover:text-amber-400 transition-colors">Privacy Policy</Link>

@@ -6,8 +6,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
 export const metadata: Metadata = {
-  title: "Terms of Service - DeliveryBoost",
-  description: "Read the Terms of Service for DeliveryBoost — understand your rights and responsibilities when using our platform.",
+  title: "Terms of Service - NotiFetch",
+  description: "Read the Terms of Service for NotiFetch — understand your rights and responsibilities when using our platform.",
 };
 
 const sections = [
@@ -16,11 +16,11 @@ const sections = [
     icon: Handshake,
     title: "1. Acceptance of Terms",
     items: [
-      'By accessing or using the DeliveryBoost application ("Service"), you agree to be bound by these Terms of Service ("Terms")',
+      'By accessing or using the NotiFetch application ("Service"), you agree to be bound by these Terms of Service ("Terms")',
       "If you do not agree to these Terms, you may not access or use the Service",
       "We reserve the right to modify these Terms at any time. Continued use of the Service after changes constitutes acceptance of the updated Terms",
       "We will notify users of material changes via email or in-app notification at least 30 days before they take effect",
-      "These Terms constitute a legally binding agreement between you and DeliveryBoost, Inc.",
+      "These Terms constitute a legally binding agreement between you and NotiFetch, Inc.",
     ],
   },
   {
@@ -28,10 +28,10 @@ const sections = [
     icon: Briefcase,
     title: "2. Description of Service",
     items: [
-      "DeliveryBoost is a notification aggregation and earnings analytics platform for delivery drivers and gig workers",
-      "The Service connects to your existing delivery platform accounts (such as Uber Eats, DoorDash, Instacart, and others) to consolidate order notifications into a single real-time feed",
-      "DeliveryBoost is NOT a delivery platform. We do not dispatch orders, assign deliveries, or employ drivers",
-      "We aggregate and display information from platforms you authorize — we do not create, modify, or fulfill delivery orders",
+      "NotiFetch is a notification reading and earnings analytics app for delivery drivers and gig workers",
+      "NotiFetch reads delivery notifications from your phone using Android's NotificationListenerService. It does NOT access delivery platform APIs, ask for login credentials, or interact with delivery platforms in any way",
+      "NotiFetch is NOT a delivery platform. We do not dispatch orders, assign deliveries, or employ drivers",
+      "We read and display notifications that your phone already receives — we do not create, modify, or fulfill delivery orders",
       "Premium features include advanced analytics, priority notifications, multi-platform earnings comparison, and historical trend reports",
     ],
   },
@@ -44,22 +44,22 @@ const sections = [
       "You are responsible for maintaining the confidentiality of your account credentials",
       "You must provide accurate and complete information when creating your account",
       "You are responsible for all activities that occur under your account",
-      "You must notify us immediately of any unauthorized use of your account at security@deliveryboost.app",
+      "You must notify us immediately of any unauthorized use of your account at security@notifetch.app",
       "We reserve the right to suspend or terminate accounts that violate these Terms",
-      "One person may maintain only one active DeliveryBoost account",
+      "One person may maintain only one active NotiFetch account",
     ],
   },
   {
-    id: "platform-connections",
+    id: "notification-listening",
     icon: Building2,
-    title: "4. Platform Connections",
+    title: "4. Notification Listening",
     items: [
-      "To use DeliveryBoost, you authorize us to connect to your delivery platform accounts via OAuth or similar authorization protocols",
-      "We do NOT store your delivery platform passwords. We only store access tokens provided through the platform's official authorization flow",
-      "You may revoke platform access at any time through your account settings or directly through the delivery platform's security settings",
-      "You are solely responsible for ensuring your use of DeliveryBoost complies with the terms of each connected delivery platform",
-      "We are not responsible for any actions taken by delivery platforms in response to your use of DeliveryBoost, including account suspension or deactivation",
-      "Platform availability may vary. We do not guarantee uninterrupted access to any specific delivery platform",
+      "NotiFetch reads notifications from your device using Android's NotificationListenerService API. You must grant explicit notification listener permission for this feature to work",
+      "No credentials are shared with NotiFetch. We never ask for your delivery platform passwords, login information, or OAuth tokens. We simply read notifications your phone already receives",
+      "No platform APIs are accessed. NotiFetch does NOT connect to, communicate with, or access any delivery platform's servers, APIs, or services in any way",
+      "You may revoke notification listener permission at any time through your Android device settings. Revoking this permission will disable NotiFetch's core functionality",
+      "NotiFetch is NOT affiliated with, endorsed by, or connected to any delivery platform. We simply read notifications that your phone already receives",
+      "You are solely responsible for ensuring your use of NotiFetch complies with the terms of each delivery app installed on your device",
     ],
   },
   {
@@ -68,7 +68,7 @@ const sections = [
     title: "5. Prohibited Uses",
     items: [
       "Using the Service for any unlawful purpose or in violation of any applicable laws or regulations",
-      "Attempting to gain unauthorized access to other users' accounts, our systems, or connected platforms",
+      "Attempting to gain unauthorized access to other users' accounts or our systems",
       "Using automated scripts, bots, or scraping tools to access the Service beyond what is provided through our API",
       "Reverse engineering, decompiling, or disassembling any part of the Service",
       "Impersonating any person or entity, or falsely representing your affiliation with any person or entity",
@@ -76,6 +76,7 @@ const sections = [
       "Using the Service to spam, harass, or harm other users",
       "Selling, reselling, or redistributing the Service or data derived from it without express written permission",
       "Using the Service in a manner that could damage, disable, or impair any delivery platform's operations",
+      "Using NotiFetch in any way that violates the notification listener permissions granted by the user",
     ],
   },
   {
@@ -86,7 +87,7 @@ const sections = [
       {
         heading: "Premium Subscription",
         items: [
-          "DeliveryBoost offers a free tier and a premium subscription with additional features",
+          "NotiFetch offers a free tier and a premium subscription with additional features",
           "Premium subscription pricing is displayed on our pricing page and may be updated with 30 days' notice",
           "Subscriptions are billed in advance on a monthly or annual basis, depending on your selected plan",
           "Payment is processed securely through Stripe or Razorpay. We do not store your full credit card information",
@@ -98,7 +99,7 @@ const sections = [
           "We offer a 14-day money-back guarantee for new premium subscribers",
           "After the 14-day period, subscriptions are non-refundable but you may cancel at any time",
           "Upon cancellation, you will retain access to premium features until the end of your current billing period",
-          "Partial refunds for annual plans may be considered on a case-by-case basis — contact support@deliveryboost.app",
+          "Partial refunds for annual plans may be considered on a case-by-case basis — contact support@notifetch.app",
         ],
       },
       {
@@ -116,9 +117,9 @@ const sections = [
     icon: Scale,
     title: "7. Intellectual Property",
     items: [
-      'The Service and its original content (excluding user-provided data), features, and functionality are owned by DeliveryBoost, Inc. and are protected by international copyright, trademark, and other intellectual property laws',
-      'Our trademarks and trade dress, including the "DeliveryBoost" name, logo, and app design, may not be used without prior written consent',
-      "You retain ownership of all data you provide, including your earnings data and platform connection information",
+      'The Service and its original content (excluding user-provided data), features, and functionality are owned by NotiFetch, Inc. and are protected by international copyright, trademark, and other intellectual property laws',
+      'Our trademarks and trade dress, including the "NotiFetch" name, logo, and app design, may not be used without prior written consent',
+      "You retain ownership of all data you provide, including your earnings data and notification information",
       "We retain ownership of aggregated, anonymized analytics derived from usage patterns that cannot identify individual users",
       "You grant us a limited, non-exclusive license to process your data solely for the purpose of providing the Service",
     ],
@@ -128,12 +129,12 @@ const sections = [
     icon: AlertTriangle,
     title: "8. Limitation of Liability",
     items: [
-      "TO THE MAXIMUM EXTENT PERMITTED BY LAW, DELIVERYBOOST SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES",
+      "TO THE MAXIMUM EXTENT PERMITTED BY LAW, NOTIFETCH SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES",
       "Our total liability for any claim arising from or related to the Service shall not exceed the amount you paid us in the 12 months preceding the claim",
-      "We are not liable for any loss of earnings, missed deliveries, or account issues on connected platforms",
+      "We are not liable for any loss of earnings, missed deliveries, or account issues on delivery apps installed on your device",
       "We are not liable for any downtime, service interruptions, or data loss caused by circumstances beyond our reasonable control",
-      "We do not guarantee the accuracy of earnings calculations, which are derived from third-party platforms and may contain discrepancies",
-      "We are not responsible for the actions, policies, or changes of any connected delivery platform",
+      "We do not guarantee the accuracy of earnings calculations, which are derived from notifications received on your device and may contain discrepancies",
+      "We are not responsible for the actions, policies, or changes of any delivery platform",
     ],
   },
   {
@@ -143,10 +144,10 @@ const sections = [
     items: [
       'THE SERVICE IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR IMPLIED',
       "We do not warrant that the Service will be uninterrupted, error-free, or free of harmful components",
-      "We are NOT a delivery platform. DeliveryBoost is an independent notification aggregation and analytics tool",
+      "We are NOT a delivery platform. NotiFetch is an independent notification reading and analytics tool that reads notifications already on your device",
       "We do not guarantee specific earnings, delivery volumes, or acceptance rates as a result of using our Service",
       "Any reliance on information provided through the Service is at your own risk",
-      "No advice or information obtained from DeliveryBoost shall create any warranty not expressly stated in these Terms",
+      "No advice or information obtained from NotiFetch shall create any warranty not expressly stated in these Terms",
     ],
   },
   {
@@ -154,7 +155,7 @@ const sections = [
     icon: Gavel,
     title: "10. Indemnification",
     items: [
-      "You agree to indemnify, defend, and hold harmless DeliveryBoost, its officers, directors, employees, agents, and affiliates from any claims, liabilities, damages, losses, or expenses arising from your use of the Service",
+      "You agree to indemnify, defend, and hold harmless NotiFetch, its officers, directors, employees, agents, and affiliates from any claims, liabilities, damages, losses, or expenses arising from your use of the Service",
       "This includes claims arising from your violation of these Terms, your violation of any rights of another party, or any content you submit or transmit through the Service",
       "We reserve the right to assume exclusive defense of any matter subject to indemnification, and you shall cooperate with our defense",
     ],
@@ -176,10 +177,10 @@ const sections = [
     icon: Gavel,
     title: "12. Dispute Resolution",
     items: [
-      "You agree to attempt to resolve any dispute informally by contacting us at legal@deliveryboost.app for at least 30 days before filing any legal claim",
+      "You agree to attempt to resolve any dispute informally by contacting us at legal@notifetch.app for at least 30 days before filing any legal claim",
       "If informal resolution fails, you agree that all disputes shall be resolved by binding arbitration administered by the American Arbitration Association (AAA) under its Consumer Arbitration Rules",
       "Arbitration shall be conducted in San Francisco, California, or at another mutually agreed location, and may be conducted remotely via video conference",
-      "You may opt out of arbitration within 30 days of accepting these Terms by sending written notice to legal@deliveryboost.app",
+      "You may opt out of arbitration within 30 days of accepting these Terms by sending written notice to legal@notifetch.app",
       "Either party may seek injunctive relief in any court of competent jurisdiction for breach of intellectual property or confidentiality obligations",
       "You waive any right to participate in a class action lawsuit or class-wide arbitration",
     ],
@@ -202,10 +203,10 @@ const sections = [
     title: "14. Contact Us",
     items: [
       "For questions about these Terms of Service, please contact us at:",
-      "Email: legal@deliveryboost.app",
-      "General support: support@deliveryboost.app",
-      "Security concerns: security@deliveryboost.app",
-      "DeliveryBoost, Inc. reserves the right to update these Terms as described in Section 1.",
+      "Email: legal@notifetch.app",
+      "General support: support@notifetch.app",
+      "Security concerns: security@notifetch.app",
+      "NotiFetch, Inc. reserves the right to update these Terms as described in Section 1.",
     ],
   },
 ];
@@ -227,7 +228,7 @@ export default function TermsOfServicePage() {
               <FileText className="w-4 h-4 text-white" />
             </div>
             <span className="font-bold text-sm bg-gradient-to-r from-amber-500 to-orange-600 bg-clip-text text-transparent">
-              DeliveryBoost
+              NotiFetch
             </span>
           </div>
         </div>
@@ -242,7 +243,7 @@ export default function TermsOfServicePage() {
           </div>
           <h1 className="text-3xl sm:text-4xl font-bold mb-4">Terms of Service</h1>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Please read these Terms of Service carefully before using DeliveryBoost. By using our service, you agree to these terms.
+            Please read these Terms of Service carefully before using NotiFetch. By using our service, you agree to these terms.
           </p>
           <p className="text-sm text-muted-foreground mt-3">
             Effective Date: <span className="font-semibold text-foreground">March 4, 2026</span>
@@ -258,9 +259,9 @@ export default function TermsOfServicePage() {
               <div>
                 <h3 className="font-semibold mb-1">Important Notice</h3>
                 <p className="text-sm text-muted-foreground">
-                  DeliveryBoost is a notification aggregation and analytics tool — we are NOT a delivery platform. 
-                  We do not dispatch orders, employ drivers, or process deliveries. We help you manage notifications 
-                  and track earnings across platforms you authorize.
+                  NotiFetch reads delivery notifications from your phone using Android's NotificationListenerService — 
+                  we are NOT a delivery platform. We do not access delivery platform APIs, ask for login credentials, 
+                  dispatch orders, employ drivers, or process deliveries. We simply read notifications your phone already receives.
                 </p>
               </div>
             </div>
@@ -343,8 +344,8 @@ export default function TermsOfServicePage() {
             <p className="text-muted-foreground mb-4">
               If you have any questions about these Terms of Service, our team is happy to help clarify.
             </p>
-            <a href="mailto:legal@deliveryboost.app" className="text-amber-500 hover:text-amber-400 font-semibold transition-colors">
-              legal@deliveryboost.app
+            <a href="mailto:legal@notifetch.app" className="text-amber-500 hover:text-amber-400 font-semibold transition-colors">
+              legal@notifetch.app
             </a>
           </CardContent>
         </Card>
@@ -352,7 +353,7 @@ export default function TermsOfServicePage() {
         {/* Footer */}
         <footer className="mt-16 pt-8 border-t border-border text-center">
           <p className="text-sm text-muted-foreground">
-            &copy; {new Date().getFullYear()} DeliveryBoost, Inc. All rights reserved.
+            &copy; {new Date().getFullYear()} NotiFetch, Inc. All rights reserved.
           </p>
           <div className="flex items-center justify-center gap-4 mt-3">
             <Link href="/privacy" className="text-sm text-amber-500 hover:text-amber-400 transition-colors">Privacy Policy</Link>

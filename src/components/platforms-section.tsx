@@ -8,7 +8,6 @@ import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import {
-  Wifi,
   WifiOff,
   Bell,
   RefreshCw,
@@ -137,7 +136,7 @@ export function PlatformsSection() {
         <div className="flex items-center justify-center gap-6 mb-8">
           <div className="text-center">
             <p className="text-3xl font-bold text-amber-500">{connectedCount}</p>
-            <p className="text-sm text-muted-foreground">Connected</p>
+            <p className="text-sm text-muted-foreground">Listening</p>
           </div>
           <Separator orientation="vertical" className="h-10" />
           <div className="text-center">
@@ -261,7 +260,7 @@ export function PlatformsSection() {
                   <div className="flex items-center gap-3">
                     {connectedInCategory > 0 && (
                       <Badge className={`${category.bgColor} ${category.color}`}>
-                        {connectedInCategory} connected
+                        {connectedInCategory} listening
                       </Badge>
                     )}
                     {isExpanded ? (
@@ -293,9 +292,9 @@ export function PlatformsSection() {
                                 <div className="flex items-center gap-1">
                                   {platform.connected ? (
                                     <>
-                                      <Wifi className="w-3 h-3 text-emerald-500" />
+                                      <Bell className="w-3 h-3 text-emerald-500" />
                                       <span className="text-[10px] text-emerald-500 font-medium">
-                                        Connected
+                                        Listening
                                       </span>
                                     </>
                                   ) : (
@@ -379,12 +378,12 @@ export function PlatformsSection() {
                               {connecting === platform.id ? (
                                 <>
                                   <RefreshCw className="w-3 h-3 mr-1 animate-spin" />
-                                  Connecting...
+                                  Enabling...
                                 </>
                               ) : (
                                 <>
-                                  <Wifi className="w-3 h-3 mr-1" />
-                                  Connect
+                                  <Bell className="w-3 h-3 mr-1" />
+                                  Listen
                                 </>
                               )}
                             </Button>

@@ -81,12 +81,12 @@ export default function Home() {
                 <Zap className="w-4 h-4 text-white" />
               </div>
               <span className="font-bold bg-gradient-to-r from-amber-500 to-orange-600 bg-clip-text text-transparent">
-                DeliveryBoost
+                NotiFetch
               </span>
             </div>
             <p className="text-sm text-muted-foreground">
-              &copy; {new Date().getFullYear()} DeliveryBoost. One Feed. All
-              Platforms. Maximum Earnings.
+              &copy; {new Date().getFullYear()} NotiFetch. One Feed. All
+              Notifications. Zero Credentials.
             </p>
           </div>
         </div>

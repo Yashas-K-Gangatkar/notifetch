@@ -5,7 +5,7 @@ import { db } from "@/lib/db";
 
 /**
  * GET /api/platforms
- * List the authenticated user's platform connections.
+ * List the authenticated user's notification sources.
  */
 export async function GET() {
   try {
@@ -15,16 +15,16 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const connections = await db.platformConnection.findMany({
+    const sources = await db.notificationSource.findMany({
       where: { userId: session.user.id },
       orderBy: { createdAt: "desc" },
     });
 
-    return NextResponse.json({ connections });
+    return NextResponse.json({ sources });
   } catch (error) {
-    console.error("[API] Error fetching platforms:", error);
+    console.error("[API] Error fetching notification sources:", error);
     return NextResponse.json(
-      { error: "Failed to fetch platform connections" },
+      { error: "Failed to fetch notification sources" },
       { status: 500 }
     );
   }
@@ -32,9 +32,9 @@ export async function GET() {
 
 /**
  * POST /api/platforms
- * Connect a new platform for the authenticated user.
+ * Enable a notification source for the authenticated user.
  *
- * Body: { platformId, platformName, category, accessToken?, refreshToken? }
+ * Body: { platformId, platformName, category, packageName? }
  */
 export async function POST(request: NextRequest) {
   try {
@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { platformId, platformName, category, accessToken, refreshToken } = body;
+    const { platformId, platformName, category, packageName } = body;
 
     if (!platformId || !platformName || !category) {
       return NextResponse.json(
@@ -54,8 +54,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if already connected
-    const existing = await db.platformConnection.findUnique({
+    // Check if already exists
+    const existing = await db.notificationSource.findUnique({
       where: {
         userId_platformId: {
           userId: session.user.id,
@@ -65,30 +65,28 @@ export async function POST(request: NextRequest) {
     });
 
     if (existing) {
-      // Update existing connection
-      const updated = await db.platformConnection.update({
+      // Update existing source — re-enable listening
+      const updated = await db.notificationSource.update({
         where: { id: existing.id },
         data: {
-          connected: true,
-          accessToken: accessToken ?? existing.accessToken,
-          refreshToken: refreshToken ?? existing.refreshToken,
+          listening: true,
+          packageName: packageName ?? existing.packageName,
           lastSyncAt: new Date(),
         },
       });
 
-      return NextResponse.json({ connection: updated });
+      return NextResponse.json({ source: updated });
     }
 
-    // Create new connection
-    const connection = await db.platformConnection.create({
+    // Create new notification source
+    const source = await db.notificationSource.create({
       data: {
         userId: session.user.id,
         platformId,
         platformName,
         category,
-        connected: true,
-        accessToken,
-        refreshToken,
+        listening: true,
+        packageName,
         lastSyncAt: new Date(),
       },
     });
@@ -97,18 +95,18 @@ export async function POST(request: NextRequest) {
     await db.auditLog.create({
       data: {
         userId: session.user.id,
-        action: "CONNECT_PLATFORM",
-        entity: "PlatformConnection",
-        entityId: connection.id,
-        details: JSON.stringify({ platformId, platformName, category }),
+        action: "ENABLE_NOTIFICATION_SOURCE",
+        entity: "NotificationSource",
+        entityId: source.id,
+        details: JSON.stringify({ platformId, platformName, category, packageName }),
       },
     });
 
-    return NextResponse.json({ connection }, { status: 201 });
+    return NextResponse.json({ source }, { status: 201 });
   } catch (error) {
-    console.error("[API] Error connecting platform:", error);
+    console.error("[API] Error enabling notification source:", error);
     return NextResponse.json(
-      { error: "Failed to connect platform" },
+      { error: "Failed to enable notification source" },
       { status: 500 }
     );
   }
@@ -116,7 +114,7 @@ export async function POST(request: NextRequest) {
 
 /**
  * DELETE /api/platforms
- * Disconnect a platform for the authenticated user.
+ * Disable a notification source for the authenticated user.
  *
  * Body: { platformId } or query param ?platformId=...
  */
@@ -146,7 +144,7 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    const existing = await db.platformConnection.findUnique({
+    const existing = await db.notificationSource.findUnique({
       where: {
         userId_platformId: {
           userId: session.user.id,
@@ -157,17 +155,16 @@ export async function DELETE(request: NextRequest) {
 
     if (!existing) {
       return NextResponse.json(
-        { error: "Platform connection not found" },
+        { error: "Notification source not found" },
         { status: 404 }
       );
     }
 
-    await db.platformConnection.update({
+    // Set listening to false instead of deleting the record
+    await db.notificationSource.update({
       where: { id: existing.id },
       data: {
-        connected: false,
-        accessToken: null,
-        refreshToken: null,
+        listening: false,
       },
     });
 
@@ -175,8 +172,8 @@ export async function DELETE(request: NextRequest) {
     await db.auditLog.create({
       data: {
         userId: session.user.id,
-        action: "DISCONNECT_PLATFORM",
-        entity: "PlatformConnection",
+        action: "DISABLE_NOTIFICATION_SOURCE",
+        entity: "NotificationSource",
         entityId: existing.id,
         details: JSON.stringify({ platformId }),
       },
@@ -184,9 +181,9 @@ export async function DELETE(request: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("[API] Error disconnecting platform:", error);
+    console.error("[API] Error disabling notification source:", error);
     return NextResponse.json(
-      { error: "Failed to disconnect platform" },
+      { error: "Failed to disable notification source" },
       { status: 500 }
     );
   }

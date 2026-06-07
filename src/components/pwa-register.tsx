@@ -45,7 +45,7 @@ export function PWARegister() {
         console.log('[PWA] Service worker registered:', reg.scope);
 
         toast.success('App ready for offline use', {
-          description: 'DeliveryBoost service worker is active.',
+          description: 'NotiFetch service worker is active.',
           duration: 4000,
         });
 
@@ -59,7 +59,7 @@ export function PWARegister() {
               // New version available
               setUpdateAvailable(true);
               toast.info('Update available', {
-                description: 'A new version of DeliveryBoost is available.',
+                description: 'A new version of NotiFetch is available.',
                 action: {
                   label: 'Update',
                   onClick: () => activateUpdate(),
@@ -135,7 +135,7 @@ export function PWARegister() {
 
     if (result.outcome === 'accepted') {
       toast.success('App installed!', {
-        description: 'DeliveryBoost has been added to your home screen.',
+        description: 'NotiFetch has been added to your home screen.',
         duration: 4000,
       });
     }
@@ -151,7 +151,7 @@ export function PWARegister() {
           <div className="flex items-center justify-between gap-3">
             <div className="flex-1">
               <p className="text-sm font-semibold text-amber-400">Update available</p>
-              <p className="text-xs text-amber-200/70">A new version of DeliveryBoost is ready.</p>
+              <p className="text-xs text-amber-200/70">A new version of NotiFetch is ready.</p>
             </div>
             <button
               onClick={activateUpdate}
@@ -168,7 +168,7 @@ export function PWARegister() {
         <div className="fixed bottom-4 left-4 right-4 z-50 mx-auto max-w-md rounded-lg border border-emerald-500/30 bg-emerald-950/90 p-4 shadow-2xl backdrop-blur-sm sm:left-auto sm:right-4">
           <div className="flex items-center justify-between gap-3">
             <div className="flex-1">
-              <p className="text-sm font-semibold text-emerald-400">Install DeliveryBoost</p>
+              <p className="text-sm font-semibold text-emerald-400">Install NotiFetch</p>
               <p className="text-xs text-emerald-200/70">Add to your home screen for the best experience.</p>
             </div>
             <button

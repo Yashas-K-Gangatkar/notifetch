@@ -1,7 +1,7 @@
 {
-  "name": "DeliveryBoost",
-  "short_name": "DeliveryBoost",
-  "description": "One Feed. All Platforms. Every Delivery. Worldwide.",
+  "name": "NotiFetch",
+  "short_name": "NotiFetch",
+  "description": "One Feed. All Notifications. Every Platform. Worldwide.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0a0a0a",
@@ -65,14 +65,14 @@
       "sizes": "1280x720",
       "type": "image/png",
       "form_factor": "wide",
-      "label": "DeliveryBoost Dashboard"
+      "label": "NotiFetch Dashboard"
     },
     {
       "src": "/screenshots/screenshot-narrow.png",
       "sizes": "750x1334",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "DeliveryBoost Mobile View"
+      "label": "NotiFetch Mobile View"
     }
   ],
   "prefer_related_applications": false

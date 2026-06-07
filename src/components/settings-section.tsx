@@ -144,7 +144,7 @@ export function SettingsSection() {
             </span>
           </h2>
           <p className="text-muted-foreground text-lg">
-            Customize your DeliveryBoost experience for your region
+            Customize your NotiFetch experience for your region
           </p>
         </div>
 

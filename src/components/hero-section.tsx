@@ -100,8 +100,8 @@ export function HeroSection({ onNavigate }: HeroProps) {
         {/* Subtitle */}
         <p className="animate-float-up text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-8 leading-relaxed" style={{ animationDelay: "0.2s" }}>
           From food to freight, groceries to pharmacy, same-day to white-glove —
-          DeliveryBoost aggregates every delivery notification from every platform
-          across every continent into one real-time feed.
+          NotiFetch reads your phone's existing delivery notifications and aggregates them
+          into one real-time feed — no login credentials needed, no API access, zero risk.
         </p>
 
         {/* Problem icons */}
@@ -126,7 +126,7 @@ export function HeroSection({ onNavigate }: HeroProps) {
           <ArrowRight className="w-6 h-6 text-amber-500 animate-pulse" />
           <div className="w-14 h-20 sm:w-16 sm:h-24 rounded-xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 border border-amber-500/30 flex flex-col items-center justify-center gap-1 shadow-lg shadow-amber-500/10">
             <Zap className="w-5 h-5 sm:w-6 sm:h-6 text-amber-500" />
-            <span className="text-[10px] text-amber-500 font-bold">Boost</span>
+            <span className="text-[10px] text-amber-500 font-bold">Fetch</span>
           </div>
         </div>
 

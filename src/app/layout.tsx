@@ -24,10 +24,10 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "DeliveryBoost - One Feed. All Platforms. Every Delivery. Worldwide.",
-  description: "Aggregate all your delivery notifications into a single real-time feed. From food to freight, groceries to pharmacy — every platform, every category, every continent.",
-  keywords: ["delivery", "driver", "Uber Eats", "DoorDash", "Swiggy", "Zomato", "Instacart", "notifications", "earnings", "delivery aggregator"],
-  authors: [{ name: "DeliveryBoost" }],
+  title: "NotiFetch — One Feed. All Notifications. Every Platform. Worldwide.",
+  description: "Aggregate all your delivery notifications into a single real-time feed — no credentials needed. From food to freight, groceries to pharmacy — every platform, every category, every continent.",
+  keywords: ["delivery", "driver", "notifications", "notification listener", "earnings", "delivery aggregator", "gig worker", "multi-platform"],
+  authors: [{ name: "NotiFetch" }],
   manifest: "/manifest.json",
   icons: {
     icon: [
@@ -39,12 +39,12 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "DeliveryBoost",
+    title: "NotiFetch",
   },
   openGraph: {
-    title: "DeliveryBoost - One Feed. All Platforms. Every Delivery. Worldwide.",
-    description: "Aggregate all your delivery notifications into a single real-time feed.",
-    siteName: "DeliveryBoost",
+    title: "NotiFetch — One Feed. All Notifications. Every Platform. Worldwide.",
+    description: "Aggregate all your delivery notifications into a single real-time feed — no credentials needed.",
+    siteName: "NotiFetch",
     type: "website",
   },
 };

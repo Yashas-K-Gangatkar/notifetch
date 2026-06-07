@@ -1,5 +1,5 @@
 // =============================================================================
-// DeliveryBoost — Worldwide Data Layer
+// NotiFetch — Worldwide Data Layer
 // A-Z Delivery Categories · 80+ Global Platforms · Multi-Currency · Multi-Region
 // =============================================================================
 
