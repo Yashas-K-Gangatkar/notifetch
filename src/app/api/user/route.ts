@@ -31,7 +31,6 @@ export async function GET() {
         distanceUnit: true,
         role: true,
         plan: true,
-        stripeCustomerId: true,
         trialEndsAt: true,
         rideSafeMode: true,
         soundAlerts: true,

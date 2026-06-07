@@ -45,9 +45,9 @@ self.addEventListener('fetch', (event) => {
   // Skip chrome-extension and other non-http(s) requests
   if (!url.protocol.startsWith('http')) return;
 
-  // Network-first strategy for API calls
+  // Skip API calls entirely — never cache authenticated responses
+  // This prevents session data leakage between users on the same device
   if (url.pathname.startsWith('/api/')) {
-    event.respondWith(networkFirst(request));
     return;
   }
 
