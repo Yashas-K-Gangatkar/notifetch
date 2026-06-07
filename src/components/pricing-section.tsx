@@ -1,9 +1,17 @@
 "use client";
 
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Check,
   X,
@@ -15,9 +23,17 @@ import {
   Mic,
   Shield,
   Filter,
+  Globe,
+  LayoutGrid,
+  Languages,
 } from "lucide-react";
+import { REGIONS, PRICING, formatCurrency, getCurrencySymbol } from "@/lib/data";
 
 export function PricingSection() {
+  const [selectedRegion, setSelectedRegion] = useState("north-america");
+  const pricing = PRICING[selectedRegion] || PRICING["north-america"];
+  const region = REGIONS.find((r) => r.id === selectedRegion);
+
   return (
     <section id="pricing" className="py-16 sm:py-20">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -30,8 +46,25 @@ export function PricingSection() {
             </span>
           </h2>
           <p className="text-muted-foreground text-lg">
-            Start free, upgrade when you&apos;re ready to maximize earnings
+            Start free, upgrade when you&apos;re ready to maximize earnings worldwide
           </p>
+
+          {/* Region selector for pricing */}
+          <div className="mt-6 flex items-center justify-center gap-3">
+            <Globe className="w-4 h-4 text-muted-foreground" />
+            <Select value={selectedRegion} onValueChange={setSelectedRegion}>
+              <SelectTrigger className="w-64 bg-card border-border">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {REGIONS.map((r) => (
+                  <SelectItem key={r.id} value={r.id}>
+                    {r.flag} {r.name} ({getCurrencySymbol(r.currency)})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
@@ -50,7 +83,9 @@ export function PricingSection() {
                 </div>
               </div>
               <div className="mt-4">
-                <span className="text-4xl font-bold">$0</span>
+                <span className="text-4xl font-bold">
+                  {formatCurrency(pricing.free, pricing.currency)}
+                </span>
                 <span className="text-muted-foreground">/month</span>
               </div>
             </CardHeader>
@@ -58,41 +93,16 @@ export function PricingSection() {
               <Separator className="mb-4" />
               <ul className="space-y-3">
                 {[
-                  {
-                    icon: Bell,
-                    text: "2 platform connections",
-                    included: true,
-                  },
-                  {
-                    icon: Filter,
-                    text: "Basic notification feed",
-                    included: true,
-                  },
-                  {
-                    icon: Zap,
-                    text: "Sound alerts",
-                    included: true,
-                  },
-                  {
-                    icon: Shield,
-                    text: "Auto-accept rules",
-                    included: false,
-                  },
-                  {
-                    icon: BarChart3,
-                    text: "Earnings dashboard",
-                    included: false,
-                  },
-                  {
-                    icon: Mic,
-                    text: "Voice alerts",
-                    included: false,
-                  },
-                  {
-                    icon: Crown,
-                    text: "Smart order ranking",
-                    included: false,
-                  },
+                  { icon: Bell, text: "2 platform connections", included: true },
+                  { icon: Filter, text: "Basic notification feed", included: true },
+                  { icon: Zap, text: "Sound alerts", included: true },
+                  { icon: Globe, text: "1 region", included: true },
+                  { icon: Shield, text: "Auto-accept rules", included: false },
+                  { icon: BarChart3, text: "Earnings dashboard", included: false },
+                  { icon: LayoutGrid, text: "All 18 categories", included: false },
+                  { icon: Mic, text: "Voice alerts", included: false },
+                  { icon: Crown, text: "Smart order ranking", included: false },
+                  { icon: Languages, text: "Multi-language support", included: false },
                 ].map((feature) => (
                   <li
                     key={feature.text}
@@ -136,12 +146,14 @@ export function PricingSection() {
                 <div>
                   <CardTitle className="text-xl">Premium</CardTitle>
                   <p className="text-sm text-muted-foreground">
-                    Unlock maximum earnings
+                    Unlock maximum earnings worldwide
                   </p>
                 </div>
               </div>
               <div className="mt-4">
-                <span className="text-4xl font-bold">$9.99</span>
+                <span className="text-4xl font-bold">
+                  {formatCurrency(pricing.premium, pricing.currency)}
+                </span>
                 <span className="text-muted-foreground">/month</span>
                 <p className="text-xs text-amber-500 mt-1 font-medium">
                   7-day free trial included
@@ -152,41 +164,16 @@ export function PricingSection() {
               <Separator className="mb-4" />
               <ul className="space-y-3">
                 {[
-                  {
-                    icon: Bell,
-                    text: "Unlimited platform connections",
-                    included: true,
-                  },
-                  {
-                    icon: Filter,
-                    text: "Advanced notification feed",
-                    included: true,
-                  },
-                  {
-                    icon: Zap,
-                    text: "Sound + vibration alerts",
-                    included: true,
-                  },
-                  {
-                    icon: Shield,
-                    text: "Auto-accept rules",
-                    included: true,
-                  },
-                  {
-                    icon: BarChart3,
-                    text: "Full earnings dashboard",
-                    included: true,
-                  },
-                  {
-                    icon: Mic,
-                    text: "Voice alerts & announcements",
-                    included: true,
-                  },
-                  {
-                    icon: Crown,
-                    text: "Smart order ranking (AI-powered)",
-                    included: true,
-                  },
+                  { icon: Bell, text: "Unlimited platform connections", included: true },
+                  { icon: Filter, text: "Advanced notification feed", included: true },
+                  { icon: Zap, text: "Sound + vibration alerts", included: true },
+                  { icon: Globe, text: "All 8 regions worldwide", included: true },
+                  { icon: Shield, text: "Auto-accept rules", included: true },
+                  { icon: BarChart3, text: "Full earnings dashboard", included: true },
+                  { icon: LayoutGrid, text: "All 18 delivery categories", included: true },
+                  { icon: Mic, text: "Voice alerts & announcements", included: true },
+                  { icon: Crown, text: "Smart order ranking (AI-powered)", included: true },
+                  { icon: Languages, text: "14 languages supported", included: true },
                 ].map((feature) => (
                   <li
                     key={feature.text}

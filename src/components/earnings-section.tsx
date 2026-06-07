@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -17,12 +18,16 @@ import {
   Clock,
   Award,
   ArrowUpRight,
-  ArrowDownRight,
+  Globe,
+  LayoutGrid,
 } from "lucide-react";
 import {
   PLATFORMS,
-  WEEKLY_EARNINGS,
-  LAST_WEEK_EARNINGS,
+  DELIVERY_CATEGORIES,
+  REGIONS,
+  generateWeeklyEarnings,
+  formatCurrency,
+  getCurrencySymbol,
   type DeliveryOrder,
 } from "@/lib/data";
 
@@ -30,46 +35,74 @@ interface EarningsProps {
   acceptedOrders: DeliveryOrder[];
 }
 
-const chartConfig: ChartConfig = {
-  uberEats: { label: "Uber Eats", color: "#34d399" },
-  doorDash: { label: "DoorDash", color: "#f87171" },
-  instacart: { label: "Instacart", color: "#fb923c" },
-  grubhub: { label: "Grubhub", color: "#facc15" },
-  amazonFlex: { label: "Amazon Flex", color: "#2dd4bf" },
-};
+// Color palette for dynamic platform bars
+const BAR_COLORS = [
+  "#34d399", "#f87171", "#fb923c", "#facc15", "#2dd4bf",
+  "#a78bfa", "#f472b6", "#38bdf8", "#818cf8", "#fb7185",
+  "#4ade80", "#fbbf24", "#c084fc", "#22d3ee", "#f97316",
+];
 
 export function EarningsSection({ acceptedOrders }: EarningsProps) {
-  const totalThisWeek = WEEKLY_EARNINGS.reduce(
-    (sum, d) =>
-      sum + d.uberEats + d.doorDash + d.instacart + d.grubhub + d.amazonFlex,
+  // Get connected platforms for chart
+  const connectedPlatforms = PLATFORMS.filter((p) => p.connected);
+  const connectedIds = connectedPlatforms.map((p) => p.id);
+
+  // Generate weekly earnings dynamically
+  const thisWeekEarnings = useMemo(
+    () => generateWeeklyEarnings(connectedIds),
+    [connectedIds.join(",")]
+  );
+  const lastWeekEarnings = useMemo(
+    () => generateWeeklyEarnings(connectedIds),
+    [connectedIds.join(",")]
+  );
+
+  // Dynamic chart config based on connected platforms
+  const chartConfig: ChartConfig = useMemo(() => {
+    const config: ChartConfig = {};
+    connectedPlatforms.forEach((p, i) => {
+      config[p.id] = {
+        label: p.name,
+        color: BAR_COLORS[i % BAR_COLORS.length],
+      };
+    });
+    return config;
+  }, [connectedPlatforms.map((p) => p.id).join(",")]);
+
+  const totalThisWeek = thisWeekEarnings.reduce(
+    (sum, d) => connectedIds.reduce((s, id) => s + ((d[id] as number) || 0), 0) + sum,
     0
   );
-  const totalLastWeek = LAST_WEEK_EARNINGS.reduce(
-    (sum, d) =>
-      sum + d.uberEats + d.doorDash + d.instacart + d.grubhub + d.amazonFlex,
+  const totalLastWeek = lastWeekEarnings.reduce(
+    (sum, d) => connectedIds.reduce((s, id) => s + ((d[id] as number) || 0), 0) + sum,
     0
   );
-  const weekChange = +(
-    ((totalThisWeek - totalLastWeek) / totalLastWeek) *
-    100
-  ).toFixed(1);
+  const weekChange = totalLastWeek > 0
+    ? +(((totalThisWeek - totalLastWeek) / totalLastWeek) * 100).toFixed(1)
+    : 0;
 
   const todayEarned = acceptedOrders.reduce((sum, o) => sum + o.value, 0);
   const completedOrders = acceptedOrders.length;
   const avgPerOrder = completedOrders > 0 ? todayEarned / completedOrders : 0;
 
-  // Find best hour (simulated)
+  // Best hour (simulated)
   const bestHour = "6 PM - 7 PM";
 
   // Platform breakdown
-  const platformBreakdown = PLATFORMS.map((p) => ({
+  const platformBreakdown = connectedPlatforms.map((p, i) => ({
     ...p,
-    weekEarnings: WEEKLY_EARNINGS.reduce((sum, d) => {
-      const key = p.id
-        .replace(/-([a-z])/g, (_, c) => c.toUpperCase()) as keyof typeof d;
-      return sum + (d[key] || 0);
-    }, 0),
+    weekEarnings: thisWeekEarnings.reduce((sum, d) => sum + ((d[p.id] as number) || 0), 0),
+    barColor: BAR_COLORS[i % BAR_COLORS.length],
   })).sort((a, b) => b.weekEarnings - a.weekEarnings);
+
+  // Category breakdown from accepted orders
+  const categoryBreakdown = DELIVERY_CATEGORIES
+    .map((c) => ({
+      ...c,
+      count: acceptedOrders.filter((o) => o.category === c.id).length,
+    }))
+    .filter((c) => c.count > 0)
+    .sort((a, b) => b.count - a.count);
 
   return (
     <section id="earnings" className="py-16 sm:py-20">
@@ -83,12 +116,12 @@ export function EarningsSection({ acceptedOrders }: EarningsProps) {
             </span>
           </h2>
           <p className="text-muted-foreground text-lg">
-            Track your earnings across all platforms in one place
+            Track earnings across all platforms and categories worldwide
           </p>
         </div>
 
         {/* Today stats */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
           <Card className="bg-card border-border">
             <CardContent className="p-4">
               <div className="flex items-center gap-2 mb-2">
@@ -131,6 +164,20 @@ export function EarningsSection({ acceptedOrders }: EarningsProps) {
               <p className="text-2xl font-bold">{bestHour}</p>
             </CardContent>
           </Card>
+          <Card className="bg-card border-border">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Globe className="w-4 h-4 text-violet-500" />
+                <span className="text-sm text-muted-foreground">Regions</span>
+              </div>
+              <p className="text-2xl font-bold">
+                {new Set(acceptedOrders.flatMap((o) => {
+                  const p = PLATFORMS.find((pl) => pl.id === o.platform);
+                  return p?.regions || [];
+                })).size || REGIONS.length} active
+              </p>
+            </CardContent>
+          </Card>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -149,9 +196,7 @@ export function EarningsSection({ acceptedOrders }: EarningsProps) {
                 >
                   {weekChange >= 0 ? (
                     <ArrowUpRight className="w-3 h-3 mr-1" />
-                  ) : (
-                    <ArrowDownRight className="w-3 h-3 mr-1" />
-                  )}
+                  ) : null}
                   {weekChange >= 0 ? "+" : ""}
                   {weekChange}% vs last week
                 </Badge>
@@ -159,7 +204,7 @@ export function EarningsSection({ acceptedOrders }: EarningsProps) {
             </CardHeader>
             <CardContent>
               <ChartContainer config={chartConfig} className="h-[300px] w-full">
-                <BarChart data={WEEKLY_EARNINGS} accessibilityLayer>
+                <BarChart data={thisWeekEarnings} accessibilityLayer>
                   <CartesianGrid vertical={false} />
                   <XAxis
                     dataKey="day"
@@ -175,36 +220,15 @@ export function EarningsSection({ acceptedOrders }: EarningsProps) {
                   />
                   <ChartTooltip content={<ChartTooltipContent />} />
                   <ChartLegend content={<ChartLegendContent />} />
-                  <Bar
-                    dataKey="uberEats"
-                    stackId="a"
-                    fill="var(--color-uberEats)"
-                    radius={[0, 0, 0, 0]}
-                  />
-                  <Bar
-                    dataKey="doorDash"
-                    stackId="a"
-                    fill="var(--color-doorDash)"
-                    radius={[0, 0, 0, 0]}
-                  />
-                  <Bar
-                    dataKey="instacart"
-                    stackId="a"
-                    fill="var(--color-instacart)"
-                    radius={[0, 0, 0, 0]}
-                  />
-                  <Bar
-                    dataKey="grubhub"
-                    stackId="a"
-                    fill="var(--color-grubhub)"
-                    radius={[0, 0, 0, 0]}
-                  />
-                  <Bar
-                    dataKey="amazonFlex"
-                    stackId="a"
-                    fill="var(--color-amazonFlex)"
-                    radius={[4, 4, 0, 0]}
-                  />
+                  {connectedPlatforms.map((p, i) => (
+                    <Bar
+                      key={p.id}
+                      dataKey={p.id}
+                      stackId="a"
+                      fill={BAR_COLORS[i % BAR_COLORS.length]}
+                      radius={i === connectedPlatforms.length - 1 ? [4, 4, 0, 0] : [0, 0, 0, 0]}
+                    />
+                  ))}
                 </BarChart>
               </ChartContainer>
             </CardContent>
@@ -229,19 +253,10 @@ export function EarningsSection({ acceptedOrders }: EarningsProps) {
                   </div>
                   <div className="h-2 bg-muted rounded-full overflow-hidden">
                     <div
-                      className={`h-full rounded-full ${
-                        p.id === "uber-eats"
-                          ? "bg-emerald-400"
-                          : p.id === "doordash"
-                          ? "bg-red-400"
-                          : p.id === "instacart"
-                          ? "bg-orange-400"
-                          : p.id === "grubhub"
-                          ? "bg-yellow-400"
-                          : "bg-teal-400"
-                      }`}
+                      className="h-full rounded-full"
                       style={{
-                        width: `${(p.weekEarnings / totalThisWeek) * 100}%`,
+                        width: `${totalThisWeek > 0 ? (p.weekEarnings / totalThisWeek) * 100 : 0}%`,
+                        backgroundColor: p.barColor,
                       }}
                     />
                   </div>
@@ -267,6 +282,36 @@ export function EarningsSection({ acceptedOrders }: EarningsProps) {
             </CardContent>
           </Card>
         </div>
+
+        {/* Category Breakdown */}
+        {categoryBreakdown.length > 0 && (
+          <Card className="mt-6 bg-card border-border">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <LayoutGrid className="w-5 h-5 text-amber-500" />
+                By Delivery Category
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                {DELIVERY_CATEGORIES.map((c) => {
+                  const count = acceptedOrders.filter((o) => o.category === c.id).length;
+                  if (count === 0) return null;
+                  return (
+                    <div
+                      key={c.id}
+                      className={`rounded-lg border p-3 text-center ${c.bgColor} ${c.borderColor}`}
+                    >
+                      <span className="text-2xl">{c.icon}</span>
+                      <p className={`text-sm font-medium mt-1 ${c.color}`}>{count}</p>
+                      <p className="text-[10px] text-muted-foreground">{c.name}</p>
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </section>
   );

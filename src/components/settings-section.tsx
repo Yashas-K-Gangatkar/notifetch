@@ -9,6 +9,13 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Bell,
   Vibrate,
   Mic,
@@ -20,8 +27,19 @@ import {
   Sun,
   Save,
   Car,
+  Globe,
+  Languages,
+  LayoutGrid,
 } from "lucide-react";
 import { useTheme } from "next-themes";
+import {
+  REGIONS,
+  CURRENCIES,
+  DELIVERY_CATEGORIES,
+  PLATFORMS,
+  PRICING,
+  type Region,
+} from "@/lib/data";
 
 interface Settings {
   soundAlerts: boolean;
@@ -30,9 +48,30 @@ interface Settings {
   autoAccept: boolean;
   minValue: number;
   maxDistance: number;
-  preferredPlatforms: Set<string>;
+  preferredCategories: Set<string>;
   rideSafeMode: boolean;
+  region: string;
+  currency: string;
+  distanceUnit: "mi" | "km";
+  language: string;
 }
+
+const LANGUAGES = [
+  { code: "en", name: "English" },
+  { code: "es", name: "Español" },
+  { code: "pt", name: "Português" },
+  { code: "fr", name: "Français" },
+  { code: "de", name: "Deutsch" },
+  { code: "hi", name: "हिन्दी" },
+  { code: "ja", name: "日本語" },
+  { code: "ko", name: "한국어" },
+  { code: "zh", name: "中文" },
+  { code: "ar", name: "العربية" },
+  { code: "th", name: "ไทย" },
+  { code: "id", name: "Bahasa Indonesia" },
+  { code: "tr", name: "Türkçe" },
+  { code: "he", name: "עברית" },
+];
 
 export function SettingsSection() {
   const { setTheme } = useTheme();
@@ -43,8 +82,12 @@ export function SettingsSection() {
     autoAccept: false,
     minValue: 8,
     maxDistance: 6,
-    preferredPlatforms: new Set(["uber-eats", "doordash"]),
+    preferredCategories: new Set(["food", "grocery", "package"]),
     rideSafeMode: false,
+    region: "north-america",
+    currency: "USD",
+    distanceUnit: "mi",
+    language: "en",
   });
   const [saved, setSaved] = useState(false);
 
@@ -56,16 +99,26 @@ export function SettingsSection() {
     setSaved(false);
   };
 
-  const togglePreferredPlatform = (platformId: string) => {
+  const togglePreferredCategory = (categoryId: string) => {
     setSettings((prev) => {
-      const next = new Set(prev.preferredPlatforms);
-      if (next.has(platformId)) {
-        next.delete(platformId);
-      } else {
-        next.add(platformId);
-      }
-      return { ...prev, preferredPlatforms: next };
+      const next = new Set(prev.preferredCategories);
+      if (next.has(categoryId)) next.delete(categoryId);
+      else next.add(categoryId);
+      return { ...prev, preferredCategories: next };
     });
+    setSaved(false);
+  };
+
+  const handleRegionChange = (regionId: string) => {
+    const region = REGIONS.find((r) => r.id === regionId);
+    if (region) {
+      setSettings((prev) => ({
+        ...prev,
+        region: regionId,
+        currency: region.currency,
+        distanceUnit: region.distanceUnit,
+      }));
+    }
     setSaved(false);
   };
 
@@ -74,13 +127,10 @@ export function SettingsSection() {
     setTimeout(() => setSaved(false), 2000);
   };
 
-  const platformOptions = [
-    { id: "uber-eats", name: "Uber Eats", color: "text-emerald-400" },
-    { id: "doordash", name: "DoorDash", color: "text-red-400" },
-    { id: "instacart", name: "Instacart", color: "text-orange-400" },
-    { id: "grubhub", name: "Grubhub", color: "text-yellow-400" },
-    { id: "amazon-flex", name: "Amazon Flex", color: "text-teal-400" },
-  ];
+  const selectedRegion = REGIONS.find((r) => r.id === settings.region);
+  const availablePlatforms = PLATFORMS.filter((p) =>
+    p.regions.includes(settings.region)
+  );
 
   return (
     <section id="settings" className="py-16 sm:py-20">
@@ -94,11 +144,102 @@ export function SettingsSection() {
             </span>
           </h2>
           <p className="text-muted-foreground text-lg">
-            Customize your DeliveryBoost experience
+            Customize your DeliveryBoost experience for your region
           </p>
         </div>
 
         <div className="space-y-6">
+          {/* Region & Language */}
+          <Card className="bg-card border-border">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Globe className="w-5 h-5 text-amber-500" />
+                Region & Language
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <Label className="font-medium mb-2 block">Region</Label>
+                  <Select
+                    value={settings.region}
+                    onValueChange={handleRegionChange}
+                  >
+                    <SelectTrigger className="bg-background">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {REGIONS.map((r) => (
+                        <SelectItem key={r.id} value={r.id}>
+                          {r.flag} {r.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {availablePlatforms.length} platforms available in this region
+                  </p>
+                </div>
+
+                <div>
+                  <Label className="font-medium mb-2 block">Language</Label>
+                  <Select
+                    value={settings.language}
+                    onValueChange={(v) => updateSetting("language", v)}
+                  >
+                    <SelectTrigger className="bg-background">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {LANGUAGES.map((l) => (
+                        <SelectItem key={l.code} value={l.code}>
+                          {l.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <Label className="font-medium mb-2 block">Currency</Label>
+                  <Select
+                    value={settings.currency}
+                    onValueChange={(v) => updateSetting("currency", v)}
+                  >
+                    <SelectTrigger className="bg-background">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(CURRENCIES).map(([code, c]) => (
+                        <SelectItem key={code} value={code}>
+                          {c.symbol} {c.name} ({code})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label className="font-medium mb-2 block">Distance Unit</Label>
+                  <Select
+                    value={settings.distanceUnit}
+                    onValueChange={(v) => updateSetting("distanceUnit", v as "mi" | "km")}
+                  >
+                    <SelectTrigger className="bg-background">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="mi">Miles (mi)</SelectItem>
+                      <SelectItem value="km">Kilometers (km)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Notification preferences */}
           <Card className="bg-card border-border">
             <CardHeader className="pb-3">
@@ -191,7 +332,7 @@ export function SettingsSection() {
                           Minimum Order Value
                         </Label>
                         <Badge className="bg-amber-500/10 text-amber-500">
-                          ${settings.minValue.toFixed(2)}
+                          {CURRENCIES[settings.currency]?.symbol || "$"}{settings.minValue.toFixed(2)}
                         </Badge>
                       </div>
                       <Slider
@@ -203,8 +344,8 @@ export function SettingsSection() {
                         className="w-full"
                       />
                       <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                        <span>$3.00</span>
-                        <span>$30.00</span>
+                        <span>{CURRENCIES[settings.currency]?.symbol || "$"}3.00</span>
+                        <span>{CURRENCIES[settings.currency]?.symbol || "$"}30.00</span>
                       </div>
                     </div>
 
@@ -215,7 +356,7 @@ export function SettingsSection() {
                           Maximum Distance
                         </Label>
                         <Badge className="bg-amber-500/10 text-amber-500">
-                          {settings.maxDistance} mi
+                          {settings.maxDistance} {settings.distanceUnit}
                         </Badge>
                       </div>
                       <Slider
@@ -227,27 +368,28 @@ export function SettingsSection() {
                         className="w-full"
                       />
                       <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                        <span>1 mi</span>
-                        <span>15 mi</span>
+                        <span>1 {settings.distanceUnit}</span>
+                        <span>15 {settings.distanceUnit}</span>
                       </div>
                     </div>
 
                     <div>
-                      <Label className="font-medium mb-2 block">
-                        Preferred Platforms
+                      <Label className="font-medium mb-2 block flex items-center gap-2">
+                        <LayoutGrid className="w-4 h-4 text-amber-500" />
+                        Preferred Categories
                       </Label>
                       <div className="flex flex-wrap gap-2">
-                        {platformOptions.map((p) => (
+                        {DELIVERY_CATEGORIES.map((c) => (
                           <button
-                            key={p.id}
-                            onClick={() => togglePreferredPlatform(p.id)}
-                            className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
-                              settings.preferredPlatforms.has(p.id)
-                                ? "bg-amber-500/10 text-amber-500 border-amber-500/30"
+                            key={c.id}
+                            onClick={() => togglePreferredCategory(c.id)}
+                            className={`px-2.5 py-1.5 rounded-full text-xs font-medium border transition-all ${
+                              settings.preferredCategories.has(c.id)
+                                ? `${c.bgColor} ${c.color} ${c.borderColor}`
                                 : "bg-muted text-muted-foreground border-transparent"
                             }`}
                           >
-                            {p.name}
+                            {c.icon} {c.name}
                           </button>
                         ))}
                       </div>

@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Bell, ArrowRight, ChevronDown, Smartphone, Zap, TrendingUp } from "lucide-react";
-import { PLATFORMS } from "@/lib/data";
+import { Bell, ArrowRight, ChevronDown, Smartphone, Zap, TrendingUp, Globe } from "lucide-react";
+import { PLATFORMS, DELIVERY_CATEGORIES, REGIONS } from "@/lib/data";
 
 interface HeroProps {
   onNavigate: (sectionId: string) => void;
@@ -22,7 +22,6 @@ interface FloatingNotification {
 
 export function HeroSection({ onNavigate }: HeroProps) {
   const [notifications] = useState<FloatingNotification[]>(() => {
-    // Deterministic positions to avoid hydration mismatch
     const positions = [
       { x: 15, y: 20, v: 12.50 }, { x: 72, y: 35, v: 8.75 },
       { x: 25, y: 65, v: 22.30 }, { x: 80, y: 15, v: 15.00 },
@@ -84,8 +83,8 @@ export function HeroSection({ onNavigate }: HeroProps) {
             variant="secondary"
             className="mb-6 px-4 py-1.5 text-sm bg-amber-500/10 text-amber-500 border-amber-500/20"
           >
-            <Zap className="w-3.5 h-3.5 mr-1.5" />
-            Now aggregating 5+ delivery platforms
+            <Globe className="w-3.5 h-3.5 mr-1.5" />
+            {PLATFORMS.length}+ platforms · {DELIVERY_CATEGORIES.length} categories · {REGIONS.length} regions worldwide
           </Badge>
         </div>
 
@@ -94,27 +93,33 @@ export function HeroSection({ onNavigate }: HeroProps) {
           <span className="block">One Feed.</span>
           <span className="block">All Platforms.</span>
           <span className="block bg-gradient-to-r from-amber-500 to-orange-600 bg-clip-text text-transparent">
-            Maximum Earnings.
+            Every Delivery. Worldwide.
           </span>
         </h1>
 
         {/* Subtitle */}
         <p className="animate-float-up text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-8 leading-relaxed" style={{ animationDelay: "0.2s" }}>
-          Tired of juggling 3 phones, switching between apps, and missing
-          high-paying orders? DeliveryBoost aggregates all your delivery
-          notifications into one real-time feed.
+          From food to freight, groceries to pharmacy, same-day to white-glove —
+          DeliveryBoost aggregates every delivery notification from every platform
+          across every continent into one real-time feed.
         </p>
 
         {/* Problem icons */}
-        <div className="animate-float-up flex items-center justify-center gap-3 sm:gap-4 mb-10" style={{ animationDelay: "0.3s" }}>
-          {[0, 1, 2].map((i) => (
+        <div className="animate-float-up flex items-center justify-center gap-3 sm:gap-4 mb-10 flex-wrap" style={{ animationDelay: "0.3s" }}>
+          {[
+            { icon: "🍕", label: "Food" },
+            { icon: "🛒", label: "Grocery" },
+            { icon: "📦", label: "Package" },
+            { icon: "💊", label: "Pharmacy" },
+            { icon: "🚛", label: "Freight" },
+          ].map((item, i) => (
             <div
               key={i}
               className="w-14 h-20 sm:w-16 sm:h-24 rounded-xl bg-muted/60 border border-border flex flex-col items-center justify-center gap-1 shadow-lg"
             >
-              <Smartphone className="w-5 h-5 sm:w-6 sm:h-6 text-muted-foreground" />
+              <span className="text-xl sm:text-2xl">{item.icon}</span>
               <span className="text-[10px] text-muted-foreground">
-                {["Uber", "Dash", "Cart"][i]}
+                {item.label}
               </span>
             </div>
           ))}
@@ -148,9 +153,10 @@ export function HeroSection({ onNavigate }: HeroProps) {
         {/* Stats bar */}
         <div className="animate-float-up flex flex-wrap items-center justify-center gap-6 sm:gap-10" style={{ animationDelay: "0.5s" }}>
           {[
-            { value: "12K+", label: "Active Drivers", icon: Smartphone },
-            { value: "$2.4M", label: "Earned This Month", icon: TrendingUp },
-            { value: "99.9%", label: "Uptime", icon: Zap },
+            { value: `${PLATFORMS.length}+`, label: "Global Platforms", icon: Globe },
+            { value: DELIVERY_CATEGORIES.length.toString(), label: "Delivery Categories", icon: Zap },
+            { value: "190+", label: "Countries", icon: Globe },
+            { value: "$4.8M", label: "Earned This Month", icon: TrendingUp },
           ].map((stat) => (
             <div key={stat.label} className="flex items-center gap-2 text-center">
               <stat.icon className="w-4 h-4 text-amber-500 hidden sm:block" />
