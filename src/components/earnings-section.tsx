@@ -1,6 +1,5 @@
 "use client";
 
-import { useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -43,22 +42,16 @@ const BAR_COLORS = [
 ];
 
 export function EarningsSection({ acceptedOrders }: EarningsProps) {
-  // Get connected platforms for chart
+  // Get connected platforms for chart — these are static constants
   const connectedPlatforms = PLATFORMS.filter((p) => p.connected);
   const connectedIds = connectedPlatforms.map((p) => p.id);
 
-  // Generate weekly earnings dynamically
-  const thisWeekEarnings = useMemo(
-    () => generateWeeklyEarnings(connectedIds),
-    [connectedIds.join(",")]
-  );
-  const lastWeekEarnings = useMemo(
-    () => generateWeeklyEarnings(connectedIds),
-    [connectedIds.join(",")]
-  );
+  // Generate weekly earnings (based on static platform data, no deps needed)
+  const thisWeekEarnings = generateWeeklyEarnings(connectedIds);
+  const lastWeekEarnings = generateWeeklyEarnings(connectedIds);
 
   // Dynamic chart config based on connected platforms
-  const chartConfig: ChartConfig = useMemo(() => {
+  const chartConfig: ChartConfig = (() => {
     const config: ChartConfig = {};
     connectedPlatforms.forEach((p, i) => {
       config[p.id] = {
@@ -67,7 +60,7 @@ export function EarningsSection({ acceptedOrders }: EarningsProps) {
       };
     });
     return config;
-  }, [connectedPlatforms.map((p) => p.id).join(",")]);
+  })();
 
   const totalThisWeek = thisWeekEarnings.reduce(
     (sum, d) => connectedIds.reduce((s, id) => s + (Number(d[id]) || 0), 0) + sum,

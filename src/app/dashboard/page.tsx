@@ -1,7 +1,6 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import { redirect } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -16,9 +15,9 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      redirect("/auth/signin");
+      router.push("/auth/signin");
     }
-  }, [status]);
+  }, [status, router]);
 
   useEffect(() => {
     if (status === "authenticated" && session?.user?.id) {

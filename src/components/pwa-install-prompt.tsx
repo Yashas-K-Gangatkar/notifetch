@@ -13,15 +13,12 @@ export function PWAInstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showPrompt, setShowPrompt] = useState(false);
   const [showQR, setShowQR] = useState(false);
-  const [isInstalled, setIsInstalled] = useState(false);
+  const [isInstalled, setIsInstalled] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.matchMedia("(display-mode: standalone)").matches;
+  });
 
   useEffect(() => {
-    // Check if already installed
-    if (window.matchMedia("(display-mode: standalone)").matches) {
-      setIsInstalled(true);
-      return;
-    }
-
     const handler = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
@@ -110,7 +107,6 @@ export function PWAInstallPrompt() {
             </Button>
           </div>
           <div className="bg-white rounded-xl p-3 mb-3">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/qr-code.png"
               alt="Scan to install NotiFetch"

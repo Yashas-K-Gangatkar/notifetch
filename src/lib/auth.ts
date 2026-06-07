@@ -65,9 +65,8 @@ function clearVerifyAttempts(email: string): void {
 }
 
 // ─── OTP Generation ─────────────────────────────────────────────────────────
-export function generateOTP(): string {
-  // Use crypto.randomInt for cryptographic randomness (not Math.random)
-  const { randomInt } = require("crypto"); // eslint-disable-line @typescript-eslint/no-require-imports
+export async function generateOTP(): Promise<string> {
+  const { randomInt } = await import("crypto");
   return randomInt(100000, 1000000).toString();
 }
 
@@ -78,7 +77,7 @@ export async function sendOTP(email: string): Promise<{ success: boolean; error?
     return { success: false, error: "Too many OTP requests. Please try again in 15 minutes." };
   }
 
-  const code = generateOTP();
+  const code = await generateOTP();
   const expires = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
 
   // Delete any existing OTP for this email, then create new one

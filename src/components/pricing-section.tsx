@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -27,12 +27,32 @@ import {
   LayoutGrid,
   Languages,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { REGIONS, PRICING, formatCurrency, getCurrencySymbol } from "@/lib/data";
 
 export function PricingSection() {
+  const router = useRouter();
+  const { data: session } = useSession();
   const [selectedRegion, setSelectedRegion] = useState("north-america");
   const pricing = PRICING[selectedRegion] || PRICING["north-america"];
   const region = REGIONS.find((r) => r.id === selectedRegion);
+
+  const handleGetStarted = useCallback(() => {
+    if (!session) {
+      router.push("/auth/signin");
+    } else {
+      router.push("/dashboard");
+    }
+  }, [session, router]);
+
+  const handleUpgrade = useCallback(() => {
+    if (!session) {
+      router.push("/auth/signin");
+    } else {
+      router.push("/dashboard");
+    }
+  }, [session, router]);
 
   return (
     <section id="pricing" className="py-16 sm:py-20">
@@ -123,6 +143,7 @@ export function PricingSection() {
               </ul>
               <Button
                 variant="outline"
+                onClick={handleGetStarted}
                 className="w-full mt-6 h-11 border-border"
               >
                 Get Started Free
@@ -184,7 +205,7 @@ export function PricingSection() {
                   </li>
                 ))}
               </ul>
-              <Button className="w-full mt-6 h-11 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold shadow-lg shadow-amber-500/25">
+              <Button onClick={handleUpgrade} className="w-full mt-6 h-11 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold shadow-lg shadow-amber-500/25">
                 Start 7-Day Free Trial
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button>

@@ -6,6 +6,7 @@ import { getToken } from "next-auth/jwt";
  * NextAuth middleware for route protection.
  *
  * Protected routes:
+ *   - /dashboard
  *   - /api/user
  *   - /api/platforms
  *   - /api/orders
@@ -15,6 +16,8 @@ import { getToken } from "next-auth/jwt";
  *
  * Public routes:
  *   - / (root)
+ *   - /auth/*
+ *   - /legal, /privacy, /terms
  *   - /api/auth/*
  *   - /api/payments/webhook
  */
@@ -26,17 +29,38 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Allow auth routes
-  if (pathname.startsWith("/api/auth")) {
+  // Allow legal pages
+  if (pathname === "/legal" || pathname === "/privacy" || pathname === "/terms") {
     return NextResponse.next();
   }
 
-  // Allow webhook route (Stripe needs unauthenticated access)
+  // Allow auth routes (sign-in page + NextAuth API)
+  if (pathname.startsWith("/auth") || pathname.startsWith("/api/auth")) {
+    return NextResponse.next();
+  }
+
+  // Allow webhook route (Stripe/Razorpay need unauthenticated access)
   if (pathname === "/api/payments/webhook") {
     return NextResponse.next();
   }
 
-  // Check if the path requires authentication
+  // Protect /dashboard page — redirect to sign-in if not authenticated
+  if (pathname.startsWith("/dashboard")) {
+    const token = await getToken({
+      req: request,
+      secret: process.env.NEXTAUTH_SECRET,
+    });
+
+    if (!token) {
+      const signInUrl = new URL("/auth/signin", request.url);
+      signInUrl.searchParams.set("callbackUrl", pathname);
+      return NextResponse.redirect(signInUrl);
+    }
+
+    return NextResponse.next();
+  }
+
+  // Check if the API path requires authentication
   const protectedPrefixes = [
     "/api/user",
     "/api/platforms",
