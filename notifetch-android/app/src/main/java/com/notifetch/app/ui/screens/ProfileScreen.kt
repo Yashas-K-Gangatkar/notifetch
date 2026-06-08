@@ -1,5 +1,7 @@
 package com.notifetch.app.ui.screens
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,11 +21,17 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.CloudDone
 import androidx.compose.material.icons.filled.CloudOff
+import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.Devices
+import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.filled.Gavel
 import androidx.compose.material.icons.filled.Login
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.PrivacyTip
+import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.Sync
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -34,15 +42,21 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.notifetch.app.ui.viewmodel.ProfileViewModel
@@ -53,6 +67,8 @@ fun ProfileScreen(
     viewModel: ProfileViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
+    var showDeleteDialog by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -85,9 +101,7 @@ fun ProfileScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // Profile avatar
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 androidx.compose.foundation.layout.Box(
                     modifier = Modifier
                         .size(96.dp)
@@ -172,23 +186,138 @@ fun ProfileScreen(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Spacer(modifier = Modifier.height(12.dp))
-
-                    InfoRow(
-                        icon = Icons.Default.Devices,
-                        label = "Device ID",
-                        value = uiState.deviceId.take(12) + "..."
-                    )
+                    InfoRow(icon = Icons.Default.Devices, label = "Device ID", value = uiState.deviceId.take(12) + "...")
                     if (uiState.userId != null) {
-                        InfoRow(
-                            icon = Icons.Default.Person,
-                            label = "User ID",
-                            value = uiState.userId.take(12) + "..."
+                        InfoRow(icon = Icons.Default.Person, label = "User ID", value = uiState.userId.take(12) + "...")
+                    }
+                }
+            }
+
+            // ── Data Rights Section (GDPR Art. 17 + DPDP Act §8) ──────────
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(
+                        text = "Your Data Rights",
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Under India DPDP Act 2023 and EU GDPR, you have the right to access, export, and delete all your data at any time.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Export data button
+                    OutlinedButton(
+                        onClick = {
+                            context.startActivity(
+                                Intent(
+                                    Intent.ACTION_VIEW,
+                                    Uri.parse("https://d2-liart-nine.vercel.app/dashboard/settings")
+                                )
+                            )
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Download,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Export My Data")
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // Delete data button
+                    Button(
+                        onClick = { showDeleteDialog = true },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.error
+                        )
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.DeleteForever,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Delete All My Data")
+                    }
+                }
+            }
+
+            // ── Legal Section ──────────────────────────────────────────────
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.2f)
+                )
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(
+                        text = "Legal",
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.tertiary
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // Privacy Policy
+                    LegalLinkRow(
+                        icon = Icons.Default.PrivacyTip,
+                        label = "Privacy Policy",
+                        subtitle = "DPDP Act 2023 & GDPR compliant"
+                    ) {
+                        context.startActivity(
+                            Intent(Intent.ACTION_VIEW, Uri.parse("https://d2-liart-nine.vercel.app/privacy"))
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // Terms of Service
+                    LegalLinkRow(
+                        icon = Icons.Default.Gavel,
+                        label = "Terms of Service",
+                        subtitle = "Including platform ToS disclaimer"
+                    ) {
+                        context.startActivity(
+                            Intent(Intent.ACTION_VIEW, Uri.parse("https://d2-liart-nine.vercel.app/terms"))
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // No affiliation disclaimer
+                    LegalLinkRow(
+                        icon = Icons.Default.Shield,
+                        label = "No Affiliation Notice",
+                        subtitle = "NotiFetch is not affiliated with any delivery platform"
+                    ) {
+                        context.startActivity(
+                            Intent(Intent.ACTION_VIEW, Uri.parse("https://d2-liart-nine.vercel.app/terms#no-affiliation"))
                         )
                     }
                 }
             }
 
-            // Sign in / out button
+            // Sign in/out
             if (uiState.isSigningIn) {
                 CircularProgressIndicator(
                     modifier = Modifier.size(48.dp),
@@ -219,7 +348,7 @@ fun ProfileScreen(
                 }
             } else {
                 OutlinedButton(
-                    onClick = { /* Sign out would go here */ },
+                    onClick = { /* Sign out */ },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp),
@@ -294,16 +423,49 @@ fun ProfileScreen(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
-                        text = "Captures and aggregates notifications from delivery partner apps to help you track earnings and manage orders.",
+                        text = "Captures and aggregates notifications from delivery partner apps to help you track earnings and manage orders. Not affiliated with any delivery platform.",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                        textAlign = TextAlign.Center
                     )
                 }
             }
 
             Spacer(modifier = Modifier.height(32.dp))
         }
+    }
+
+    // Delete confirmation dialog
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text("Delete All Data?") },
+            text = {
+                Text(
+                    "This will permanently delete all your captured notifications from this device. " +
+                    "This action cannot be undone. Under DPDP Act 2023 and GDPR, you have the right " +
+                    "to request data deletion. We recommend exporting your data first."
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.deleteAllData()
+                        showDeleteDialog = false
+                    },
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = MaterialTheme.colorScheme.error
+                    )
+                ) {
+                    Text("Delete Everything")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 }
 
@@ -340,3 +502,51 @@ private fun InfoRow(
         )
     }
 }
+
+@Composable
+private fun LegalLinkRow(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    label: String,
+    subtitle: String,
+    onClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(8.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+        )
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable(onClick = onClick)
+                .padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.tertiary,
+                modifier = Modifier.size(20.dp)
+            )
+            Spacer(modifier = Modifier.width(12.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+    }
+}
+
+private fun Modifier.clickable(onClick: () -> Unit): Modifier =
+    this.then(androidx.compose.foundation.clickable(onClick = onClick))

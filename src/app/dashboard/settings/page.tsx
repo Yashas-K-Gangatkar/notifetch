@@ -12,7 +12,8 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import {
   Zap, Settings, Moon, Sun, Bell, Globe, Info,
-  ShoppingCart, Truck, Pill, Bike, Edit3, RotateCcw, Check, X, Tag
+  ShoppingCart, Truck, Pill, Bike, Edit3, RotateCcw, Check, X, Tag,
+  Shield, Download, Trash2
 } from "lucide-react";
 import { BackButton } from "@/components/back-button";
 import { useTheme } from "next-themes";
@@ -461,6 +462,106 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
 
+        {/* Data Rights — DPDP Act & GDPR */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Shield className="w-5 h-5 text-amber-500" />
+              Your Data Rights
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-xs text-muted-foreground">
+              Under India DPDP Act 2023 (Sections 8-10), EU GDPR (Articles 15-22), and CCPA (Sections 1798.100-125),
+              you have the right to access, export, correct, and delete your personal data at any time.
+            </p>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label className="flex items-center gap-2">
+                    <Download className="w-4 h-4" />
+                    Export My Data
+                  </Label>
+                  <p className="text-xs text-muted-foreground">
+                    Download all your data in JSON format (GDPR Art. 20)
+                  </p>
+                </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={async () => {
+                    try {
+                      const res = await fetch("/api/user/export");
+                      if (res.ok) {
+                        const blob = await res.blob();
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement("a");
+                        a.href = url;
+                        a.download = `notifetch-data-export-${new Date().toISOString().split("T")[0]}.json`;
+                        a.click();
+                        URL.revokeObjectURL(url);
+                      }
+                    } catch {
+                      // Handle error
+                    }
+                  }}
+                >
+                  Export
+                </Button>
+              </div>
+              <Separator />
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label className="flex items-center gap-2 text-red-500">
+                    <Trash2 className="w-4 h-4" />
+                    Delete All My Data
+                  </Label>
+                  <p className="text-xs text-muted-foreground">
+                    Permanently erase everything. This cannot be undone. (DPDP §8(5), GDPR Art. 17)
+                  </p>
+                </div>
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  onClick={async () => {
+                    const confirmed = window.confirm(
+                      "This will permanently delete ALL your data — notifications, settings, account. This cannot be undone.\n\nWe recommend exporting your data first.\n\nType DELETE_MY_DATA to confirm (in the next prompt)."
+                    );
+                    if (!confirmed) return;
+
+                    const confirmation = window.prompt('Type "DELETE_MY_DATA" to confirm permanent deletion:');
+                    if (confirmation !== "DELETE_MY_DATA") {
+                      if (confirmation !== null) {
+                        alert("Confirmation did not match. Your data was NOT deleted.");
+                      }
+                      return;
+                    }
+
+                    try {
+                      const res = await fetch("/api/user/delete", {
+                        method: "DELETE",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ confirm: "DELETE_MY_DATA" }),
+                      });
+                      if (res.ok) {
+                        alert("All your data has been permanently deleted.");
+                        window.location.href = "/auth/signin";
+                      } else {
+                        const data = await res.json();
+                        alert(data.error || "Failed to delete data.");
+                      }
+                    } catch {
+                      alert("Failed to delete data. Please try again or contact dpo@notifetch.app");
+                    }
+                  }}
+                >
+                  Delete
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* About */}
         <Card>
           <CardHeader>
@@ -487,6 +588,15 @@ export default function SettingsPage() {
               <a href="/terms" className="text-amber-500 hover:text-amber-400 text-sm">
                 Terms of Service
               </a>
+            </div>
+            <Separator />
+            <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3">
+              <p className="text-xs text-red-500 font-medium">
+                NotiFetch is NOT affiliated with, endorsed by, or connected to any delivery platform
+                (Swiggy, Zomato, Uber, DoorDash, Amazon, etc.). Platform names are used for identification
+                only and are customizable by the user. You are responsible for complying with each
+                platform&apos;s terms of service.
+              </p>
             </div>
             <p className="text-xs text-muted-foreground mt-2">
               NotiFetch reads delivery notifications from your device using Android&apos;s

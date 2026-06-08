@@ -3,6 +3,7 @@ package com.notifetch.app.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.notifetch.app.data.repository.AuthRepository
+import com.notifetch.app.data.repository.NotificationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,7 +21,8 @@ data class ProfileUiState(
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val notificationRepository: NotificationRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ProfileUiState(deviceId = authRepository.getDeviceId()))
@@ -55,6 +57,23 @@ class ProfileViewModel @Inject constructor(
                 _uiState.value = _uiState.value.copy(
                     isSigningIn = false,
                     error = error.message ?: "Sign-in failed"
+                )
+            }
+        }
+    }
+
+    /**
+     * Delete all user data — DPDP Act 2023 §8 & GDPR Article 17 (Right to Erasure).
+     * Removes all captured notifications from local database.
+     */
+    fun deleteAllData() {
+        viewModelScope.launch {
+            try {
+                notificationRepository.deleteAllNotifications()
+                _uiState.value = _uiState.value.copy(error = null)
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    error = "Failed to delete data: ${e.message}"
                 )
             }
         }
