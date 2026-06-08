@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- NotiFetch brand colors -->
     <color name="notifetch_primary">#FF8F00</color>
     <color name="notifetch_primary_dark">#FFB300</color>
     <color name="notifetch_secondary">#F57C00</color>
@@ -9,19 +10,40 @@
     <color name="notifetch_on_primary">#FFFFFF</color>
     <color name="notifetch_on_background">#1F1B16</color>
 
-    <color name="swiggy_orange">#FC8019</color>
-    <color name="zomato_red">#E23744</color>
-    <color name="amazon_orange">#FF9900</color>
-    <color name="zepto_purple">#8B008B</color>
-    <color name="blinkit_yellow">#F8E71C</color>
-    <color name="bigbasket_green">#84C225</color>
-    <color name="dunzo_green">#00D290</color>
-    <color name="porter_blue">#2E5BFF</color>
-    <color name="rapido_yellow">#FFCC00</color>
-    <color name="ola_green">#36B37E</color>
-    <color name="uber_black">#000000</color>
-    <color name="flipkart_blue">#2874F0</color>
-    <color name="shadowfax_orange">#FF6B35</color>
+    <!-- Category-based colors (NOT brand-specific — legal compliance) -->
+    <!-- Food Delivery — warm oranges -->
+    <color name="category_food_1">#E8751A</color>
+    <color name="category_food_2">#D94F4F</color>
+    <color name="category_food_3">#D4A017</color>
+    <color name="category_food_4">#4DB6AC</color>
+
+    <!-- Grocery — greens -->
+    <color name="category_grocery_1">#66BB6A</color>
+    <color name="category_grocery_2">#E67E22</color>
+    <color name="category_grocery_3">#9C27B0</color>
+
+    <!-- Package — blues/teals -->
+    <color name="category_package_1">#26A69A</color>
+    <color name="category_package_2">#7E57C2</color>
+    <color name="category_package_3">#00BCD4</color>
+
+    <!-- Courier — indigos -->
+    <color name="category_courier_1">#5C6BC0</color>
+    <color name="category_courier_2">#42A5F5</color>
+
+    <!-- Last-Mile — teals -->
+    <color name="category_last_mile_1">#26A69A</color>
+    <color name="category_last_mile_2">#42A5F5</color>
+
+    <!-- Ride — greens/violets -->
+    <color name="category_ride_1">#66BB6A</color>
+    <color name="category_ride_2">#E91E8C</color>
+
+    <!-- Medical — reds -->
+    <color name="category_medical">#D94F4F</color>
+
+    <!-- Freight — ambers -->
+    <color name="category_freight">#E8751A</color>
 
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>

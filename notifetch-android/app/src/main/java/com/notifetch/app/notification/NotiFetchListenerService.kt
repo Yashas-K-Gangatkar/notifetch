@@ -4,27 +4,19 @@ import android.app.Notification
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
 import com.notifetch.app.data.local.CapturedNotification
-import com.notifetch.app.data.remote.NotificationPayload
 import com.notifetch.app.data.repository.AuthRepository
 import com.notifetch.app.data.repository.NotificationRepository
 import com.notifetch.app.util.Constants
 import com.notifetch.app.util.Helpers
-import com.notifetch.app.util.PlatformSource
-import com.squareup.moshi.Moshi
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
-import java.util.TimeZone
 import javax.inject.Inject
 
 /**
@@ -35,37 +27,28 @@ import javax.inject.Inject
  * partner packages, extracts relevant data, saves to local Room database, and
  * forwards to the NotiFetch backend.
  *
- * IMPORTANT: This captures from PARTNER/DRIVER apps, NOT customer apps.
+ * IMPORTANT LEGAL COMPLIANCE:
+ * - This captures from PARTNER/DRIVER apps only, NOT customer apps
+ * - We only store notification content the user can already see (title, text, bigText, subText)
+ * - We do NOT store the raw notification extras bundle (may contain PII, auth tokens)
+ * - We do NOT access delivery platform APIs or store credentials
+ * - Platform names in the app use generic category names, not brand names
+ * - This is protected under Van Buren v. United States (2021): reading data
+ *   the user is authorized to access is not a CFAA violation
  */
 @AndroidEntryPoint
 class NotiFetchListenerService : NotificationListenerService() {
 
     @Inject lateinit var repository: NotificationRepository
     @Inject lateinit var authRepository: AuthRepository
-    @Inject lateinit var moshi: Moshi
 
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val tag = "NotiFetchListener"
 
     companion object {
-        // These are the PARTNER/DRIVER app packages (NOT customer apps)
-        private val PARTNER_PACKAGES = mapOf(
-            "in.swiggy.partner" to "Swiggy Partner",
-            "in.swiggy.deliveryapp" to "Swiggy Delivery",
-            "com.zomato.delivery" to "Zomato Delivery",
-            "com.zomato.deliverypartner" to "Zomato Delivery Partner",
-            "com.amazon.flex" to "Amazon Flex",
-            "com.zepto.cafepartner" to "Zepto Cafe Partner",
-            "com.grofers.partnerapp" to "Blinkit Partner",
-            "com.bigbasket.partnerapp" to "BigBasket Partner",
-            "com.dunzo.partner" to "Dunzo Partner",
-            "com.porter.porterpartner" to "Porter Partner",
-            "com.rapido.captain" to "Rapido Captain",
-            "com.olacabs.driver" to "Ola Driver",
-            "com.ubercab.driver" to "Uber Driver",
-            "com.flipkart.logistics" to "Flipkart Logistics",
-            "com.shadowfax.partner" to "Shadowfax Partner"
-        )
+        // Use the comprehensive package list from Constants
+        private val PARTNER_PACKAGES: Map<String, String>
+            get() = Constants.PARTNER_PACKAGES
 
         /**
          * Check if the notification listener service is enabled.
@@ -91,12 +74,12 @@ class NotiFetchListenerService : NotificationListenerService() {
 
     override fun onCreate() {
         super.onCreate()
-        Log.d(tag, "NotiFetchListenerService created")
+        Log.d(tag, "NotiFetchListenerService created — monitoring ${Constants.PARTNER_PACKAGES.size} partner packages")
     }
 
     override fun onListenerConnected() {
         super.onListenerConnected()
-        Log.d(tag, "Notification listener connected - monitoring ${PARTNER_PACKAGES.size} partner apps")
+        Log.d(tag, "Notification listener connected — monitoring ${Constants.PARTNER_PACKAGES.size} partner packages worldwide")
 
         // Initialize platform configs in database
         serviceScope.launch {
@@ -112,18 +95,17 @@ class NotiFetchListenerService : NotificationListenerService() {
         val packageName = sbn.packageName
 
         // Filter: only process notifications from partner apps
-        if (!PARTNER_PACKAGES.containsKey(packageName)) return
+        val platformName = Constants.PARTNER_PACKAGES[packageName] ?: return
 
-        val platform = PARTNER_PACKAGES[packageName] ?: "Unknown"
         val source = Constants.PLATFORM_SOURCES[packageName] ?: packageName.replace(".", "_")
 
-        Log.d(tag, "Captured notification from $platform ($packageName)")
+        Log.d(tag, "Captured notification from $platformName ($packageName)")
 
         try {
             val notification = sbn.notification
             val extras = notification.extras
 
-            // Extract notification data
+            // Extract only visible notification content (what the user can see)
             val title = extras.getString(Notification.EXTRA_TITLE)?.trim() ?: ""
             val text = extras.getCharSequence(Notification.EXTRA_TEXT)?.toString()?.trim() ?: ""
             val bigText = extras.getCharSequence(Notification.EXTRA_BIG_TEXT)?.toString()?.trim() ?: ""
@@ -131,19 +113,25 @@ class NotiFetchListenerService : NotificationListenerService() {
 
             // Skip empty or group summary notifications
             if (title.isBlank() && text.isBlank() && bigText.isBlank()) {
-                Log.d(tag, "Skipping empty notification from $platform")
+                Log.d(tag, "Skipping empty notification from $platformName")
                 return
             }
 
             // Skip ongoing notifications (like "you are online" persistent notifications)
             if (notification.flags and Notification.FLAG_ONGOING_EVENT != 0) {
-                Log.d(tag, "Skipping ongoing notification from $platform")
+                Log.d(tag, "Skipping ongoing notification from $platformName")
+                return
+            }
+
+            // Skip group summary notifications (they duplicate content)
+            if (notification.flags and Notification.FLAG_GROUP_SUMMARY != 0) {
+                Log.d(tag, "Skipping group summary notification from $platformName")
                 return
             }
 
             // Parse platform-specific data
             val parsed = NotificationParser.parse(
-                platform = platform,
+                platform = platformName,
                 source = source,
                 title = title,
                 text = text,
@@ -152,10 +140,13 @@ class NotiFetchListenerService : NotificationListenerService() {
                 extras = extras
             )
 
-            // Create database entity
+            // Detect currency based on platform region and text content
+            val currency = Helpers.detectCurrency(platformName, "$title $text $bigText")
+
+            // Create database entity (NO extrasJson — data minimization compliance)
             val capturedNotification = CapturedNotification(
                 packageName = packageName,
-                platform = platform,
+                platform = platformName,
                 source = source,
                 title = parsed.title,
                 body = parsed.body,
@@ -165,32 +156,31 @@ class NotiFetchListenerService : NotificationListenerService() {
                 pickupLocation = parsed.pickupLocation,
                 dropoffLocation = parsed.dropoffLocation,
                 distance = parsed.distance,
-                extrasJson = Helpers.extrasToJson(extras),
                 receivedAt = System.currentTimeMillis(),
                 isSynced = false,
-                category = parsed.category
+                category = parsed.category,
+                currency = currency
             )
 
             // Save to local database
             serviceScope.launch {
                 try {
                     val id = repository.insertNotification(capturedNotification)
-                    Log.d(tag, "Saved notification #$id from $platform [${parsed.category}]")
+                    Log.d(tag, "Saved notification #$id from $platformName [${parsed.category}] ($currency)")
 
                     // Try to sync to backend
                     syncToBackend(capturedNotification.copy(id = id))
                 } catch (e: Exception) {
-                    Log.e(tag, "Failed to save notification from $platform", e)
+                    Log.e(tag, "Failed to save notification from $platformName", e)
                 }
             }
         } catch (e: Exception) {
-            Log.e(tag, "Error processing notification from $platform", e)
+            Log.e(tag, "Error processing notification from $platformName", e)
         }
     }
 
     override fun onNotificationRemoved(sbn: StatusBarNotification) {
-        // Notification was dismissed - we don't need to do anything
-        // as we've already captured it in onNotificationPosted
+        // Notification was dismissed — we don't need to do anything
     }
 
     override fun onListenerDisconnected() {
@@ -205,28 +195,8 @@ class NotiFetchListenerService : NotificationListenerService() {
      */
     private suspend fun syncToBackend(notification: CapturedNotification) {
         try {
-            val token = authRepository.getCurrentToken()
-            val authHeader = if (token != null) "Bearer $token" else ""
-
-            val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US)
-            sdf.timeZone = TimeZone.getTimeZone("UTC")
-
-            val payload = NotificationPayload(
-                source = notification.source,
-                platform = notification.platform,
-                title = notification.title,
-                body = notification.body,
-                orderValue = notification.orderValue,
-                pickupLocation = notification.pickupLocation,
-                dropoffLocation = notification.dropoffLocation,
-                distance = notification.distance,
-                receivedAt = sdf.format(Date(notification.receivedAt)),
-                packageName = notification.packageName
-            )
-
-            // Use the API directly through repository's sync mechanism
-            // Individual sync attempts are handled by the sync worker
-            Log.d(tag, "Notification queued for sync: ${notification.platform}")
+            repository.syncPendingNotifications()
+            Log.d(tag, "Synced notification from ${notification.platform}")
         } catch (e: Exception) {
             Log.e(tag, "Failed to sync notification to backend", e)
         }

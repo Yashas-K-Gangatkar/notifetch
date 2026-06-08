@@ -3,7 +3,6 @@ package com.notifetch.app.data.local
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.notifetch.app.util.PlatformSource
 
 @Entity(
     tableName = "captured_notifications",
@@ -28,10 +27,13 @@ data class CapturedNotification(
     val pickupLocation: String?,
     val dropoffLocation: String?,
     val distance: String?,
-    val extrasJson: String,
+    // NOTE: extrasJson removed for legal compliance — storing raw notification
+    // extras could contain PII, auth tokens, or data beyond what the user sees.
+    // Only title, text, bigText, subText are stored (visible notification content).
     val receivedAt: Long,
     val isSynced: Boolean = false,
     val syncedAt: Long? = null,
     val isRead: Boolean = false,
-    val category: String?
+    val category: String?,
+    val currency: String = "INR" // Currency for order value
 )

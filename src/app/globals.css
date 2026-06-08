@@ -218,17 +218,12 @@
   background-clip: text;
 }
 
-/* Platform color utilities */
-.platform-swiggy { --platform-color: #fc8019; }
-.platform-zomato { --platform-color: #ef4f5f; }
-.platform-amazon { --platform-color: #ff9900; }
-.platform-zepto { --platform-color: #8b5cf6; }
-.platform-blinkit { --platform-color: #f8e71c; }
-.platform-bigbasket { --platform-color: #84c225; }
-.platform-dunzo { --platform-color: #00d290; }
-.platform-porter { --platform-color: #2d6bf6; }
-.platform-rapido { --platform-color: #ffcc00; }
-.platform-ola { --platform-color: #37c5aa; }
-.platform-uber { --platform-color: #000000; }
-.platform-flipkart { --platform-color: #2874f0; }
-.platform-shadowfax { --platform-color: #ff6b35; }
+/* Category-based color utilities (NOT brand-specific — legal compliance) */
+.platform-food { --platform-color: #E8751A; }
+.platform-grocery { --platform-color: #66BB6A; }
+.platform-package { --platform-color: #26A69A; }
+.platform-courier { --platform-color: #5C6BC0; }
+.platform-last-mile { --platform-color: #42A5F5; }
+.platform-ride { --platform-color: #66BB6A; }
+.platform-medical { --platform-color: #D94F4F; }
+.platform-freight { --platform-color: #E8751A; }

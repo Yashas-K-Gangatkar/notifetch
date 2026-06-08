@@ -40,21 +40,28 @@ interface NotificationItem {
 }
 
 const PLATFORM_COLORS: Record<string, string> = {
-  "Swiggy Partner": "#fc8019",
-  "Swiggy Delivery": "#fc8019",
-  "Zomato Delivery": "#ef4f5f",
-  "Zomato Delivery Partner": "#ef4f5f",
-  "Amazon Flex": "#ff9900",
-  "Zepto Cafe Partner": "#8b5cf6",
-  "Blinkit Partner": "#f8e71c",
-  "BigBasket Partner": "#84c225",
-  "Dunzo Partner": "#00d290",
-  "Porter Partner": "#2d6bf6",
-  "Rapido Captain": "#ffcc00",
-  "Ola Driver": "#37c5aa",
-  "Uber Driver": "#000000",
-  "Flipkart Logistics": "#2874f0",
-  "Shadowfax Partner": "#ff6b35",
+  // Category-based colors (legal compliance — not brand colors)
+  "Food & Ride Partner": "#E8751A", "Food Dasher": "#D94F4F",
+  "Food Rider EU": "#4DB6AC", "Food Rider Asia": "#E91E8C",
+  "Food Delivery IN": "#E8751A", "Food Delivery IN 2": "#D94F4F",
+  "Food Courier BR": "#9C27B0", "Food Courier LATAM": "#E67E22",
+  "Food Courier Nordics": "#42A5F5", "Food Courier JP": "#D94F4F",
+  "Food Rider MENA": "#E67E22", "Food Courier AU": "#9C27B0",
+  "Grocery Shopper": "#E67E22", "Grocery Quick IN": "#F1C40F",
+  "Quick Grocery IN": "#8B5CF6", "Grocery Shopper US": "#66BB6A",
+  "Package Flex": "#26A69A", "Package Courier US": "#7E57C2",
+  "Package IN": "#00BCD4", "Package Courier Asia": "#E67E22",
+  "Logistics Relay": "#26A69A", "Last Mile IN": "#42A5F5",
+  "Last Mile MENA": "#42A5F5", "Last Mile SEA": "#E67E22",
+  "Ride Partner US": "#E91E8C", "Ride Partner IN": "#F1C40F",
+  "Ride Partner SEA": "#66BB6A", "Ride Partner EU": "#66BB6A",
+  "Logistics IN": "#42A5F5", "Bike Taxi IN": "#F1C40F",
+  "Super App ID": "#66BB6A", "Last Mile IN 3": "#E67E22",
+  // Legacy backward compatibility
+  "Swiggy Partner": "#E8751A", "Swiggy Delivery": "#E8751A",
+  "Zomato Delivery": "#D94F4F", "Amazon Flex": "#26A69A",
+  "Uber Driver": "#E8751A", "Ola Driver": "#F1C40F",
+  "DoorDash Dasher": "#D94F4F", "Instacart Shopper": "#E67E22",
 };
 
 const CATEGORY_ICONS: Record<string, string> = {
