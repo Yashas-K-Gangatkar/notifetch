@@ -181,24 +181,58 @@ model AuditLog {
   createdAt DateTime @default(now())
 }
 
+// ─── Device Authentication ──────────────────────────────────────────────────
+// Used by the Android app to authenticate with the backend.
+// The Android app uses Firebase Anonymous Auth, then exchanges
+// the Firebase token for a session with the NotiFetch backend.
+
+model DeviceAuth {
+  id            String   @id @default(cuid())
+  userId        String?  // Linked to user account (null until linked)
+  deviceId      String   @unique
+  firebaseUid   String?  @unique
+  fcmToken      String?
+  deviceModel   String?
+  androidVersion String?
+  appVersion    String?
+  lastActiveAt  DateTime @default(now())
+  createdAt     DateTime @default(now())
+
+  @@index([deviceId])
+  @@index([firebaseUid])
+}
+
 // ─── Notifications ──────────────────────────────────────────────────────────
 // Individual notification items aggregated from delivery platforms.
 // NotiFetch reads these from the user's device using Android's
 // NotificationListenerService — no API access or credentials needed.
 
 model Notification {
-  id          String   @id @default(cuid())
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  title       String
-  body        String
-  source      String   // "swiggy", "zomato", "amazon", "custom", etc.
-  sourceIcon  String?
-  isRead      Boolean  @default(false)
-  createdAt   DateTime @default(now())
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title           String
+  body            String
+  source          String   // "swiggy_partner", "zomato_delivery", "amazon_flex", etc.
+  sourceIcon      String?
+  platform        String?  // Display name: "Swiggy Partner", "Zomato Delivery", etc.
+  packageName     String?  // Android package: "in.swiggy.partner", etc.
+  bigText         String?  // Expanded notification text
+  subText         String?  // Sub-text from notification
+  orderValue      Float?   // Extracted order/delivery value in rupees
+  pickupLocation  String?  // Extracted pickup location
+  dropoffLocation String?  // Extracted dropoff location
+  distance        String?  // Distance string like "3.2 km"
+  category        String?  // NEW_ORDER, ORDER_UPDATE, COMPLETED, EARNINGS, etc.
+  isRead          Boolean  @default(false)
+  deviceId        String?  // ID of the Android device that captured this
+  receivedAt      DateTime? // When the notification was received on device
+  createdAt       DateTime @default(now())
 
   @@index([userId, createdAt(sort: Desc)])
   @@index([userId, source])
+  @@index([userId, category])
+  @@index([userId, isRead])
 }
 
 // ─── User Preferences ──────────────────────────────────────────────────────

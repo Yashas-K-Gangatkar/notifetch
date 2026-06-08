@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.NotiFetch" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/notifetch_primary</item>
+        <item name="colorOnPrimary">@color/notifetch_on_primary</item>
+        <item name="colorPrimaryContainer">#FFE082</item>
+        <item name="colorOnPrimaryContainer">#3E2500</item>
+        <item name="colorSecondary">@color/notifetch_secondary</item>
+        <item name="colorOnSecondary">@color/notifetch_on_primary</item>
+        <item name="colorTertiary">@color/notifetch_tertiary</item>
+        <item name="colorOnTertiary">@color/notifetch_on_primary</item>
+        <item name="android:colorBackground">@color/notifetch_background</item>
+        <item name="colorOnBackground">@color/notifetch_on_background</item>
+        <item name="colorSurface">@color/notifetch_surface</item>
+        <item name="colorOnSurface">@color/notifetch_on_background</item>
+        <item name="android:statusBarColor">@color/notifetch_primary</item>
+    </style>
+
+    <style name="Theme.NotiFetch.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/notifetch_primary</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+        <item name="postSplashScreenTheme">@style/Theme.NotiFetch</item>
+    </style>
+</resources>

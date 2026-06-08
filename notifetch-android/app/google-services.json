@@ -1,0 +1,23 @@
+{
+  "project_info": {
+    "project_number": "000000000000",
+    "project_id": "notifetch-placeholder",
+    "storage_bucket": "notifetch-placeholder.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:000000000000:android:0000000000000000",
+        "android_client_info": {
+          "package_name": "com.notifetch.app"
+        }
+      },
+      "api_key": [
+        {
+          "current_key": "PLACEHOLDER_API_KEY_REPLACE_WITH_REAL_ONE"
+        }
+      ]
+    }
+  ],
+  "configuration_version": "1"
+}

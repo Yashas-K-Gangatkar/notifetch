@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="notifetch_primary">#FF8F00</color>
+    <color name="notifetch_primary_dark">#FFB300</color>
+    <color name="notifetch_secondary">#F57C00</color>
+    <color name="notifetch_tertiary">#D84315</color>
+    <color name="notifetch_background">#FFFBF5</color>
+    <color name="notifetch_surface">#FFFBF5</color>
+    <color name="notifetch_on_primary">#FFFFFF</color>
+    <color name="notifetch_on_background">#1F1B16</color>
+
+    <color name="swiggy_orange">#FC8019</color>
+    <color name="zomato_red">#E23744</color>
+    <color name="amazon_orange">#FF9900</color>
+    <color name="zepto_purple">#8B008B</color>
+    <color name="blinkit_yellow">#F8E71C</color>
+    <color name="bigbasket_green">#84C225</color>
+    <color name="dunzo_green">#00D290</color>
+    <color name="porter_blue">#2E5BFF</color>
+    <color name="rapido_yellow">#FFCC00</color>
+    <color name="ola_green">#36B37E</color>
+    <color name="uber_black">#000000</color>
+    <color name="flipkart_blue">#2874F0</color>
+    <color name="shadowfax_orange">#FF6B35</color>
+
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+</resources>

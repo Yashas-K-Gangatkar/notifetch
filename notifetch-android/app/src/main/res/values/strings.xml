@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">NotiFetch</string>
+    <string name="app_name_long">NotiFetch - Delivery Notification Aggregator</string>
+    <string name="notification_listener_label">NotiFetch Notification Listener</string>
+    <string name="notification_channel_name">NotiFetch Service</string>
+    <string name="notification_channel_description">Background service for capturing delivery partner notifications</string>
+
+    <!-- Permission screen -->
+    <string name="permission_title">Enable Notification Access</string>
+    <string name="permission_description">NotiFetch needs notification access to capture delivery partner notifications and help you track your earnings.</string>
+    <string name="permission_step_1">Tap the \"Open Settings\" button below</string>
+    <string name="permission_step_2">Find \"NotiFetch\" in the notification access list</string>
+    <string name="permission_step_3">Toggle the switch ON to allow notification access</string>
+    <string name="permission_step_4">Confirm by tapping \"Allow\" on the dialog</string>
+    <string name="permission_step_5">Return to NotiFetch — you\'re all set!</string>
+    <string name="permission_open_settings">Open Notification Settings</string>
+    <string name="permission_alt_settings">Alternative: App Notification Settings</string>
+    <string name="permission_privacy_note">NotiFetch only reads notifications from delivery partner apps. Your personal messages and other app notifications are never accessed.</string>
+    <string name="permission_enabled">Notification access is enabled! You\'re all set.</string>
+
+    <!-- Home screen -->
+    <string name="home_title">NotiFetch</string>
+    <string name="home_empty_title">No notifications yet</string>
+    <string name="home_empty_subtitle">Notifications from delivery partner apps will appear here once captured</string>
+    <string name="home_mark_all_read">Mark all read</string>
+    <string name="home_search_placeholder">Search notifications…</string>
+    <string name="home_today">Today</string>
+    <string name="home_this_week">This Week</string>
+    <string name="home_filter_all">All</string>
+
+    <!-- Settings screen -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_notification_listener">Notification Listener</string>
+    <string name="settings_listener_active">Active — capturing notifications</string>
+    <string name="settings_listener_disabled">Disabled — tap to enable</string>
+    <string name="settings_general">General</string>
+    <string name="settings_dark_mode">Dark Mode</string>
+    <string name="settings_dark_mode_desc">Toggle dark/light theme</string>
+    <string name="settings_auto_sync">Auto Sync</string>
+    <string name="settings_auto_sync_desc">Sync notifications to server</string>
+    <string name="settings_platform_filters">Platform Filters</string>
+    <string name="settings_platform_filters_desc">Toggle which delivery partner apps to monitor</string>
+
+    <!-- Profile screen -->
+    <string name="profile_title">Profile</string>
+    <string name="profile_connected">Connected</string>
+    <string name="profile_not_signed_in">Not Signed In</string>
+    <string name="profile_backend_connected">Backend Connected</string>
+    <string name="profile_backend_disconnected">Not Connected</string>
+    <string name="profile_sign_in">Sign in Anonymously</string>
+    <string name="profile_re_authenticate">Re-authenticate</string>
+
+    <!-- Notification detail -->
+    <string name="detail_title">Notification Details</string>
+    <string name="detail_not_found">Notification not found</string>
+    <string name="detail_delete">Delete</string>
+
+    <!-- Platform names -->
+    <string name="platform_swiggy_partner">Swiggy Partner</string>
+    <string name="platform_zomato_delivery">Zomato Delivery</string>
+    <string name="platform_amazon_flex">Amazon Flex</string>
+    <string name="platform_zepto_partner">Zepto Cafe Partner</string>
+    <string name="platform_blinkit_partner">Blinkit Partner</string>
+    <string name="platform_bigbasket_partner">BigBasket Partner</string>
+    <string name="platform_dunzo_partner">Dunzo Partner</string>
+    <string name="platform_porter_partner">Porter Partner</string>
+    <string name="platform_rapido_captain">Rapido Captain</string>
+    <string name="platform_ola_driver">Ola Driver</string>
+    <string name="platform_uber_driver">Uber Driver</string>
+    <string name="platform_flipkart_logistics">Flipkart Logistics</string>
+    <string name="platform_shadowfax_partner">Shadowfax Partner</string>
+
+    <!-- Categories -->
+    <string name="category_new_order">New Order</string>
+    <string name="category_order_update">Update</string>
+    <string name="category_completed">Completed</string>
+    <string name="category_cancelled">Cancelled</string>
+    <string name="category_earnings">Earnings</string>
+    <string name="category_availability">Status</string>
+    <string name="category_general">General</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_settings">Settings</string>
+    <string name="nav_profile">Profile</string>
+</resources>

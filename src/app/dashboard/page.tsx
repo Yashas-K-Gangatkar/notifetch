@@ -11,7 +11,8 @@ import {
   Zap, LogOut, Bell, TrendingUp, Package, Smartphone,
   ArrowLeft, CreditCard, BellRing, BarChart3, Globe,
   User, Settings, ShieldCheck, Calendar, Activity,
-  ExternalLink, CheckCircle2
+  ExternalLink, CheckCircle2, MapPin, IndianRupee,
+  Clock, Filter, RefreshCw, Wifi
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { RazorpayCheckout } from "@/components/razorpay-checkout";
@@ -34,16 +35,67 @@ interface NotificationItem {
   title: string;
   body: string;
   source: string;
+  platform?: string;
+  packageName?: string;
+  category?: string;
+  orderValue?: number;
+  pickupLocation?: string;
+  dropoffLocation?: string;
+  distance?: string;
   isRead: boolean;
   createdAt: string;
+  receivedAt?: string;
 }
+
+// Platform color mapping
+const PLATFORM_COLORS: Record<string, string> = {
+  "Swiggy Partner": "#fc8019",
+  "Swiggy Delivery": "#fc8019",
+  "Zomato Delivery": "#ef4f5f",
+  "Zomato Delivery Partner": "#ef4f5f",
+  "Amazon Flex": "#ff9900",
+  "Zepto Cafe Partner": "#8b5cf6",
+  "Blinkit Partner": "#f8e71c",
+  "BigBasket Partner": "#84c225",
+  "Dunzo Partner": "#00d290",
+  "Porter Partner": "#2d6bf6",
+  "Rapido Captain": "#ffcc00",
+  "Ola Driver": "#37c5aa",
+  "Uber Driver": "#000000",
+  "Flipkart Logistics": "#2874f0",
+  "Shadowfax Partner": "#ff6b35",
+};
+
+const CATEGORY_ICONS: Record<string, string> = {
+  NEW_ORDER: "🔔",
+  ORDER_UPDATE: "📦",
+  COMPLETED: "✅",
+  CANCELLED: "❌",
+  EARNINGS: "💰",
+  AVAILABILITY: "🟢",
+  GENERAL: "📋",
+};
+
+const CATEGORY_COLORS: Record<string, string> = {
+  NEW_ORDER: "bg-amber-500/10 text-amber-500 border-amber-500/20",
+  ORDER_UPDATE: "bg-blue-500/10 text-blue-500 border-blue-500/20",
+  COMPLETED: "bg-green-500/10 text-green-500 border-green-500/20",
+  CANCELLED: "bg-red-500/10 text-red-500 border-red-500/20",
+  EARNINGS: "bg-purple-500/10 text-purple-500 border-purple-500/20",
+  AVAILABILITY: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
+  GENERAL: "bg-gray-500/10 text-gray-500 border-gray-500/20",
+};
 
 export default function DashboardPage() {
   const { data: session, status } = useSession();
   const [userData, setUserData] = useState<UserData | null>(null);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [todayCount, setTodayCount] = useState(0);
+  const [todayEarnings, setTodayEarnings] = useState(0);
+  const [platformStats, setPlatformStats] = useState<{ platform: string; count: number }[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedPlatform, setSelectedPlatform] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -57,7 +109,7 @@ export default function DashboardPage() {
       try {
         const [userRes, notifRes] = await Promise.all([
           fetch("/api/user"),
-          fetch("/api/notifications?limit=5"),
+          fetch("/api/notifications?limit=10"),
         ]);
         if (userRes.ok) {
           const data = await userRes.json();
@@ -67,6 +119,9 @@ export default function DashboardPage() {
           const data = await notifRes.json();
           setNotifications(data.notifications || []);
           setUnreadCount(data.unreadCount || 0);
+          setTodayCount(data.todayCount || 0);
+          setTodayEarnings(data.todayEarnings || 0);
+          setPlatformStats(data.platformStats || []);
         }
       } catch {
         // Silently handle errors
@@ -83,11 +138,16 @@ export default function DashboardPage() {
   if (status === "loading" || isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center animate-pulse">
-            <Zap className="w-5 h-5 text-white" />
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center animate-glow-pulse">
+            <Zap className="w-8 h-8 text-white" />
           </div>
-          <span className="text-lg font-semibold">Loading NotiFetch...</span>
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-amber-500 animate-bounce" style={{ animationDelay: "0ms" }} />
+            <div className="w-2 h-2 rounded-full bg-orange-500 animate-bounce" style={{ animationDelay: "150ms" }} />
+            <div className="w-2 h-2 rounded-full bg-amber-600 animate-bounce" style={{ animationDelay: "300ms" }} />
+          </div>
+          <span className="text-sm text-muted-foreground">Loading NotiFetch...</span>
         </div>
       </div>
     );
@@ -98,38 +158,42 @@ export default function DashboardPage() {
   const plan = userData?.plan || "free";
   const initials = ((session.user.name || session.user.email || "U")[0] || "U").toUpperCase();
   const memberSince = userData?.createdAt
-    ? new Date(userData.createdAt).toLocaleDateString("en-US", {
+    ? new Date(userData.createdAt).toLocaleDateString("en-IN", {
         year: "numeric",
         month: "long",
         day: "numeric",
       })
     : "Just now";
 
+  const filteredNotifications = selectedPlatform
+    ? notifications.filter((n) => n.platform === selectedPlatform)
+    : notifications;
+
   return (
     <div className="min-h-screen bg-background">
       {/* Top bar */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border">
+      <nav className="fixed top-0 left-0 right-0 z-50 glass bg-background/80 border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
           <div className="flex items-center gap-3">
             <BackButton fallback="/" />
             <a href="/dashboard" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-lg shadow-amber-500/20">
                 <Zap className="w-5 h-5 text-white" />
               </div>
-              <span className="text-lg font-bold bg-gradient-to-r from-amber-500 to-orange-600 bg-clip-text text-transparent hidden sm:inline">
+              <span className="text-xl font-bold gradient-text hidden sm:inline">
                 NotiFetch
               </span>
             </a>
           </div>
           <div className="flex items-center gap-3">
-            <span className="text-xs px-2 py-1 rounded-full bg-amber-500/10 text-amber-500 font-medium capitalize">
+            <span className="text-xs px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-500 font-semibold capitalize border border-amber-500/20">
               {plan}
             </span>
             <div className="flex items-center gap-2">
               {session.user.image ? (
-                <img src={session.user.image} alt="" className="w-8 h-8 rounded-full" />
+                <img src={session.user.image} alt="" className="w-8 h-8 rounded-full ring-2 ring-amber-500/30" />
               ) : (
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center ring-2 ring-amber-500/30">
                   <span className="text-xs text-white font-bold">{initials}</span>
                 </div>
               )}
@@ -154,30 +218,32 @@ export default function DashboardPage() {
         {/* Welcome */}
         <div className="mb-8">
           <h1 className="text-2xl sm:text-3xl font-bold">
-            Welcome back, {session.user.name || session.user.email?.split("@")[0]}!
+            Welcome back, {session.user.name || session.user.email?.split("@")[0]}! 👋
           </h1>
           <p className="text-muted-foreground mt-1">
-            Your delivery notifications are being aggregated in real-time.
+            Your delivery notifications are being aggregated in real-time from all platforms.
           </p>
         </div>
 
         {/* Quick action cards */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
           {[
-            { icon: Bell, label: "Notifications", href: "/dashboard/notifications", color: "text-amber-500", badge: unreadCount > 0 ? unreadCount : undefined },
-            { icon: User, label: "Profile", href: "/dashboard/profile", color: "text-blue-500" },
-            { icon: Settings, label: "Settings", href: "/dashboard/settings", color: "text-gray-500" },
-            { icon: CreditCard, label: "Subscribe", href: "/dashboard/subscribe", color: "text-purple-500" },
+            { icon: Bell, label: "Notifications", href: "/dashboard/notifications", color: "text-amber-500", bg: "bg-amber-500/10", badge: unreadCount > 0 ? unreadCount : undefined },
+            { icon: User, label: "Profile", href: "/dashboard/profile", color: "text-blue-500", bg: "bg-blue-500/10" },
+            { icon: Settings, label: "Settings", href: "/dashboard/settings", color: "text-gray-500", bg: "bg-gray-500/10" },
+            { icon: CreditCard, label: "Subscribe", href: "/dashboard/subscribe", color: "text-purple-500", bg: "bg-purple-500/10" },
           ].map((item) => (
             <button
               key={item.label}
               onClick={() => router.push(item.href)}
-              className="bg-card border border-border rounded-xl p-4 flex items-center gap-3 hover:bg-muted/50 transition-colors text-left relative"
+              className="bg-card border border-border rounded-xl p-4 flex items-center gap-3 hover:bg-muted/50 hover:border-amber-500/20 transition-all text-left relative group"
             >
-              <item.icon className={`w-5 h-5 ${item.color} shrink-0`} />
+              <div className={`w-10 h-10 rounded-lg ${item.bg} flex items-center justify-center group-hover:scale-110 transition-transform`}>
+                <item.icon className={`w-5 h-5 ${item.color} shrink-0`} />
+              </div>
               <span className="text-sm font-medium">{item.label}</span>
               {item.badge && (
-                <span className="absolute top-2 right-2 bg-amber-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                <span className="absolute top-2 right-2 bg-amber-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center animate-pulse">
                   {item.badge > 9 ? "9+" : item.badge}
                 </span>
               )}
@@ -188,36 +254,74 @@ export default function DashboardPage() {
         {/* Quick stats */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {[
-            { icon: Bell, label: "Unread Notifications", value: unreadCount.toString(), color: "text-amber-500" },
-            { icon: Package, label: "Total Notifications", value: notifications.length.toString(), color: "text-blue-500" },
-            { icon: Smartphone, label: "Plan", value: plan.charAt(0).toUpperCase() + plan.slice(1), color: "text-purple-500" },
-            { icon: Calendar, label: "Member Since", value: userData?.createdAt ? new Date(userData.createdAt).toLocaleDateString("en-US", { month: "short", year: "numeric" }) : "Now", color: "text-green-500" },
+            { icon: Bell, label: "Today's Notifications", value: todayCount.toString(), color: "text-amber-500", bg: "from-amber-500/5 to-orange-500/5", border: "border-amber-500/10" },
+            { icon: IndianRupee, label: "Today's Earnings", value: `₹${todayEarnings.toLocaleString("en-IN")}`, color: "text-green-500", bg: "from-green-500/5 to-emerald-500/5", border: "border-green-500/10" },
+            { icon: Package, label: "Unread", value: unreadCount.toString(), color: "text-blue-500", bg: "from-blue-500/5 to-indigo-500/5", border: "border-blue-500/10" },
+            { icon: Smartphone, label: "Plan", value: plan.charAt(0).toUpperCase() + plan.slice(1), color: "text-purple-500", bg: "from-purple-500/5 to-violet-500/5", border: "border-purple-500/10" },
           ].map((stat) => (
-            <div key={stat.label} className="bg-card border border-border rounded-xl p-4">
-              <stat.icon className={`w-5 h-5 ${stat.color} mb-2`} />
-              <p className="text-2xl font-bold">{stat.value}</p>
-              <p className="text-xs text-muted-foreground">{stat.label}</p>
+            <div key={stat.label} className={`bg-gradient-to-br ${stat.bg} border ${stat.border} rounded-xl p-5`}>
+              <stat.icon className={`w-5 h-5 ${stat.color} mb-3`} />
+              <p className="text-2xl sm:text-3xl font-bold">{stat.value}</p>
+              <p className="text-xs text-muted-foreground mt-1">{stat.label}</p>
             </div>
           ))}
         </div>
 
+        {/* Platform Stats */}
+        {platformStats.length > 0 && (
+          <div className="mb-8">
+            <h3 className="text-sm font-semibold text-muted-foreground mb-3 uppercase tracking-wider">Active Platforms</h3>
+            <div className="flex flex-wrap gap-2">
+              {platformStats.map((stat) => (
+                <button
+                  key={stat.platform}
+                  onClick={() => setSelectedPlatform(selectedPlatform === stat.platform ? null : stat.platform)}
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border text-sm transition-all ${
+                    selectedPlatform === stat.platform
+                      ? "border-amber-500/40 bg-amber-500/10 text-amber-500"
+                      : "border-border bg-card hover:bg-muted/50"
+                  }`}
+                >
+                  <div
+                    className="w-2.5 h-2.5 rounded-full"
+                    style={{ backgroundColor: PLATFORM_COLORS[stat.platform] || "#888" }}
+                  />
+                  <span>{stat.platform}</span>
+                  <span className="text-muted-foreground">({stat.count})</span>
+                </button>
+              ))}
+              {selectedPlatform && (
+                <button
+                  onClick={() => setSelectedPlatform(null)}
+                  className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-border bg-card text-sm text-muted-foreground hover:bg-muted/50"
+                >
+                  <Filter className="w-3 h-3" />
+                  Clear filter
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Two columns: Install App + Push Notifications */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           {/* Install Android App */}
-          <div className="bg-amber-500/5 border border-amber-500/20 rounded-xl p-6">
-            <div className="flex items-start gap-3">
-              <Smartphone className="w-6 h-6 text-amber-500 mt-0.5 shrink-0" />
+          <div className="bg-gradient-to-br from-amber-500/5 to-orange-500/5 border border-amber-500/20 rounded-2xl p-6">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-xl bg-amber-500/10 flex items-center justify-center shrink-0">
+                <Smartphone className="w-6 h-6 text-amber-500" />
+              </div>
               <div className="flex-1">
-                <h3 className="font-semibold text-amber-500">Install the App</h3>
+                <h3 className="font-semibold text-lg">Install the App</h3>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Scan the QR code below on your phone and tap &quot;Add to Home Screen&quot; to install NotiFetch as an app.
+                  Scan the QR code below on your phone and tap &quot;Add to Home Screen&quot; to install NotiFetch as an app with real notification capture.
                 </p>
                 <div className="flex justify-center my-4">
-                  <div className="bg-white rounded-xl p-2 inline-block">
+                  <div className="bg-white rounded-2xl p-3 inline-block shadow-lg shadow-black/5">
                     <img
                       src="/qr-code.png"
                       alt="QR code to install NotiFetch"
-                      className="w-32 h-32 rounded-lg"
+                      className="w-36 h-36 rounded-xl"
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
                         target.style.display = "none";
@@ -225,18 +329,24 @@ export default function DashboardPage() {
                     />
                   </div>
                 </div>
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <Wifi className="w-3 h-3" />
+                  <span>Requires Android 7.0+ with Notification Access permission</span>
+                </div>
               </div>
             </div>
           </div>
 
           {/* Push Notifications */}
-          <div className="bg-card border border-border rounded-xl p-6">
-            <div className="flex items-start gap-3 mb-4">
-              <BellRing className="w-6 h-6 text-purple-500 mt-0.5 shrink-0" />
+          <div className="bg-card border border-border rounded-2xl p-6">
+            <div className="flex items-start gap-4 mb-4">
+              <div className="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center shrink-0">
+                <BellRing className="w-6 h-6 text-purple-500" />
+              </div>
               <div className="flex-1">
-                <h3 className="font-semibold">Push Notifications</h3>
+                <h3 className="font-semibold text-lg">Push Notifications</h3>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Enable push notifications to get instant alerts for new delivery notifications.
+                  Enable push notifications to get instant alerts for new delivery notifications from all your platforms.
                 </p>
               </div>
             </div>
@@ -246,11 +356,13 @@ export default function DashboardPage() {
 
         {/* Upgrade Plan */}
         {plan === "free" && (
-          <div className="bg-card border border-border rounded-xl p-6 mb-8">
-            <div className="flex items-start gap-3">
-              <CreditCard className="w-6 h-6 text-purple-500 mt-0.5 shrink-0" />
+          <div className="bg-gradient-to-br from-purple-500/5 to-violet-500/5 border border-purple-500/20 rounded-2xl p-6 mb-8">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center shrink-0">
+                <CreditCard className="w-6 h-6 text-purple-500" />
+              </div>
               <div className="flex-1">
-                <h3 className="font-semibold">Upgrade Your Plan</h3>
+                <h3 className="font-semibold text-lg">Upgrade Your Plan</h3>
                 <p className="text-sm text-muted-foreground mt-1">
                   You&apos;re on the <span className="text-amber-500 font-semibold">Free</span> plan.
                   Upgrade to Pro for unlimited notifications, all platforms, and priority support.
@@ -270,55 +382,129 @@ export default function DashboardPage() {
         )}
 
         {/* Recent Activity */}
-        <Card className="mb-8">
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <Activity className="w-5 h-5 text-amber-500" />
-              Recent Activity
-            </CardTitle>
+        <Card className="mb-8 border-border rounded-2xl overflow-hidden">
+          <CardHeader className="pb-3 bg-muted/30">
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Activity className="w-5 h-5 text-amber-500" />
+                Recent Notifications
+              </CardTitle>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => fetchDashboardData()}
+                className="text-muted-foreground"
+              >
+                <RefreshCw className="w-4 h-4" />
+              </Button>
+            </div>
           </CardHeader>
-          <CardContent>
-            {notifications.length === 0 ? (
-              <div className="text-center py-8">
-                <Bell className="w-10 h-10 text-muted-foreground mx-auto mb-3 opacity-50" />
-                <p className="text-muted-foreground font-medium">No notifications yet</p>
+          <CardContent className="p-4">
+            {filteredNotifications.length === 0 ? (
+              <div className="text-center py-12">
+                <div className="w-16 h-16 rounded-2xl bg-amber-500/10 flex items-center justify-center mx-auto mb-4">
+                  <Bell className="w-8 h-8 text-amber-500 opacity-50" />
+                </div>
+                <p className="text-muted-foreground font-medium">
+                  {selectedPlatform ? `No notifications from ${selectedPlatform}` : "No notifications yet"}
+                </p>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Once you start receiving delivery notifications, they&apos;ll appear here.
+                  Install the NotiFetch Android app to start capturing delivery partner notifications in real-time.
                 </p>
               </div>
             ) : (
-              <div className="space-y-3">
-                {notifications.map((notif) => (
-                  <div
-                    key={notif.id}
-                    className={`flex items-start gap-3 p-3 rounded-lg border border-border/50 ${
-                      notif.isRead ? "opacity-60" : ""
-                    }`}
-                  >
-                    <div className="w-8 h-8 rounded-full bg-amber-500/10 flex items-center justify-center shrink-0 mt-0.5">
-                      <Bell className="w-4 h-4 text-amber-500" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium">{notif.title}</p>
-                      <p className="text-xs text-muted-foreground truncate">{notif.body}</p>
-                      <div className="flex items-center gap-2 mt-1">
-                        <Badge variant="outline" className="text-[10px] h-4">
-                          {notif.source}
-                        </Badge>
-                        <span className="text-[10px] text-muted-foreground">
-                          {new Date(notif.createdAt).toLocaleDateString()}
-                        </span>
+              <div className="space-y-2">
+                {filteredNotifications.map((notif, index) => {
+                  const platformColor = notif.platform ? PLATFORM_COLORS[notif.platform] : undefined;
+                  return (
+                    <div
+                      key={notif.id}
+                      className={`flex items-start gap-3 p-4 rounded-xl border border-border/50 hover:border-amber-500/20 hover:bg-muted/30 transition-all cursor-pointer ${
+                        notif.isRead ? "opacity-60" : ""
+                      } ${!notif.isRead ? "bg-amber-500/[0.02]" : ""}`}
+                      style={{ animationDelay: `${index * 50}ms` }}
+                      onClick={() => router.push("/dashboard/notifications")}
+                    >
+                      {/* Platform indicator */}
+                      <div
+                        className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 text-lg"
+                        style={{ backgroundColor: platformColor ? `${platformColor}15` : undefined }}
+                      >
+                        {notif.category ? CATEGORY_ICONS[notif.category] || "📋" : "📋"}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <p className="text-sm font-semibold truncate">{notif.title}</p>
+                          {!notif.isRead && (
+                            <div className="w-2 h-2 rounded-full bg-amber-500 shrink-0 animate-pulse" />
+                          )}
+                        </div>
+                        <p className="text-xs text-muted-foreground line-clamp-2">{notif.body}</p>
+                        <div className="flex items-center gap-2 mt-2 flex-wrap">
+                          {notif.platform && (
+                            <Badge
+                              variant="outline"
+                              className="text-[10px] h-5 gap-1"
+                              style={{
+                                borderColor: platformColor ? `${platformColor}40` : undefined,
+                                color: platformColor,
+                                backgroundColor: platformColor ? `${platformColor}10` : undefined,
+                              }}
+                            >
+                              <div
+                                className="w-1.5 h-1.5 rounded-full"
+                                style={{ backgroundColor: platformColor }}
+                              />
+                              {notif.platform}
+                            </Badge>
+                          )}
+                          {notif.category && (
+                            <Badge variant="outline" className={`text-[10px] h-5 ${CATEGORY_COLORS[notif.category] || ""}`}>
+                              {notif.category.replace(/_/g, " ")}
+                            </Badge>
+                          )}
+                          {notif.orderValue != null && notif.orderValue > 0 && (
+                            <Badge variant="outline" className="text-[10px] h-5 text-green-500 border-green-500/20 bg-green-500/5">
+                              ₹{notif.orderValue.toLocaleString("en-IN")}
+                            </Badge>
+                          )}
+                          {notif.distance && (
+                            <Badge variant="outline" className="text-[10px] h-5 text-blue-500 border-blue-500/20 bg-blue-500/5">
+                              {notif.distance}
+                            </Badge>
+                          )}
+                          <span className="text-[10px] text-muted-foreground ml-auto">
+                            {new Date(notif.createdAt).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}
+                          </span>
+                        </div>
+                        {/* Show pickup/dropoff if available */}
+                        {(notif.pickupLocation || notif.dropoffLocation) && (
+                          <div className="flex items-center gap-1 mt-2 text-[10px] text-muted-foreground">
+                            {notif.pickupLocation && (
+                              <>
+                                <MapPin className="w-3 h-3 text-green-500" />
+                                <span className="truncate max-w-[100px]">{notif.pickupLocation}</span>
+                              </>
+                            )}
+                            {notif.pickupLocation && notif.dropoffLocation && (
+                              <span className="text-border">→</span>
+                            )}
+                            {notif.dropoffLocation && (
+                              <>
+                                <MapPin className="w-3 h-3 text-red-500" />
+                                <span className="truncate max-w-[100px]">{notif.dropoffLocation}</span>
+                              </>
+                            )}
+                          </div>
+                        )}
                       </div>
                     </div>
-                    {!notif.isRead && (
-                      <div className="w-2 h-2 rounded-full bg-amber-500 mt-2 shrink-0" />
-                    )}
-                  </div>
-                ))}
+                  );
+                })}
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="w-full mt-2 text-amber-500 hover:text-amber-400"
+                  className="w-full mt-3 text-amber-500 hover:text-amber-400 hover:bg-amber-500/5"
                   onClick={() => router.push("/dashboard/notifications")}
                 >
                   View All Notifications
@@ -330,20 +516,20 @@ export default function DashboardPage() {
         </Card>
 
         {/* Account info */}
-        <Card>
-          <CardHeader className="pb-3">
+        <Card className="border-border rounded-2xl overflow-hidden">
+          <CardHeader className="pb-3 bg-muted/30">
             <CardTitle className="flex items-center gap-2 text-lg">
               <ShieldCheck className="w-5 h-5 text-amber-500" />
               Account Information
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-4 mb-4">
-              <Avatar className="w-14 h-14">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-4 mb-6">
+              <Avatar className="w-16 h-16 ring-2 ring-amber-500/20">
                 {session.user.image ? (
                   <AvatarImage src={session.user.image} alt={session.user.name || "User"} />
                 ) : null}
-                <AvatarFallback className="bg-gradient-to-br from-amber-500 to-orange-600 text-white text-lg font-bold">
+                <AvatarFallback className="bg-gradient-to-br from-amber-500 to-orange-600 text-white text-xl font-bold">
                   {initials}
                 </AvatarFallback>
               </Avatar>
@@ -353,16 +539,16 @@ export default function DashboardPage() {
               </div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
-              <div>
-                <span className="text-muted-foreground">Plan</span>
+              <div className="p-3 rounded-lg bg-muted/30">
+                <span className="text-muted-foreground text-xs">Plan</span>
                 <p className="font-medium capitalize">{plan}</p>
               </div>
-              <div>
-                <span className="text-muted-foreground">Member Since</span>
+              <div className="p-3 rounded-lg bg-muted/30">
+                <span className="text-muted-foreground text-xs">Member Since</span>
                 <p className="font-medium">{memberSince}</p>
               </div>
-              <div>
-                <span className="text-muted-foreground">Notifications</span>
+              <div className="p-3 rounded-lg bg-muted/30">
+                <span className="text-muted-foreground text-xs">Notifications</span>
                 <p className="font-medium">
                   {unreadCount > 0 ? `${unreadCount} unread` : "All caught up"}
                   {unreadCount > 0 && <CheckCircle2 className="w-3 h-3 text-amber-500 ml-1 inline" />}
@@ -370,7 +556,7 @@ export default function DashboardPage() {
               </div>
             </div>
             <div className="mt-4 pt-4 border-t border-border flex flex-wrap gap-3">
-              <Button variant="outline" size="sm" onClick={() => router.push("/dashboard/profile")}>
+              <Button variant="outline" size="sm" onClick={() => router.push("/dashboard/profile")} className="hover:border-amber-500/30">
                 <Settings className="w-4 h-4 mr-2" />
                 Edit Profile
               </Button>
