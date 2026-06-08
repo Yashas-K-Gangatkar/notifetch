@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/card_notification"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    app:cardBackgroundColor="@color/notifetch_dark_card"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="0dp"
+    app:strokeWidth="0dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <!-- Unread dot indicator -->
+        <View
+            android:id="@+id/unread_dot"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="6dp"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/circle_amber" />
+
+        <!-- Source emoji -->
+        <TextView
+            android:id="@+id/tv_source_emoji"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_toEndOf="@id/unread_dot"
+            android:layout_alignParentTop="true"
+            android:gravity="center"
+            android:text="📦"
+            android:textSize="24sp" />
+
+        <!-- Source name -->
+        <TextView
+            android:id="@+id/tv_source"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/tv_source_emoji"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="8dp"
+            android:text="Swiggy Partner"
+            android:textColor="@color/notifetch_amber"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+
+        <!-- Timestamp -->
+        <TextView
+            android:id="@+id/tv_timestamp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentTop="true"
+            android:text="2m ago"
+            android:textColor="@color/notifetch_text_secondary"
+            android:textSize="11sp" />
+
+        <!-- Title -->
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tv_source"
+            android:layout_toEndOf="@id/tv_source_emoji"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="4dp"
+            android:layout_toStartOf="@id/tv_timestamp"
+            android:text="New order available!"
+            android:textColor="@color/notifetch_text_primary"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:maxLines="2"
+            android:ellipsize="end" />
+
+        <!-- Body -->
+        <TextView
+            android:id="@+id/tv_body"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tv_title"
+            android:layout_toEndOf="@id/tv_source_emoji"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="4dp"
+            android:text="Pickup: Koramangala → Drop: HSR Layout • ₹45"
+            android:textColor="@color/notifetch_text_secondary"
+            android:textSize="13sp"
+            android:maxLines="3"
+            android:ellipsize="end" />
+
+        <!-- Category chip -->
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chip_category"
+            android:layout_width="wrap_content"
+            android:layout_height="24dp"
+            android:layout_below="@id/tv_body"
+            android:layout_toEndOf="@id/tv_source_emoji"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:text="Food"
+            android:textColor="@color/notifetch_text_secondary"
+            android:textSize="11sp"
+            app:chipBackgroundColor="@color/notifetch_dark_surface"
+            app:chipMinHeight="24dp"
+            app:chipStrokeWidth="0dp"
+            app:ensureMinTouchTargetSize="false" />
+
+    </RelativeLayout>
+
+</com.google.android.material.card.MaterialCardView>

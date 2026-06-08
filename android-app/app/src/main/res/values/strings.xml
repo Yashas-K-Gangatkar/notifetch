@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">NotiFetch</string>
+    <string name="app_name_debug">NotiFetch Debug</string>
+
+    <!-- Permission -->
+    <string name="permission_description">NotiFetch needs notification access to capture delivery partner notifications from apps like Swiggy, Zomato, Amazon Flex, and more.\n\nThis permission allows NotiFetch to read notifications from delivery apps only. Your personal messages and other app notifications are completely ignored.\n\nTap the button below to enable notification access in Android Settings.</string>
+    <string name="permission_granted_description">Notification access is enabled! NotiFetch is now monitoring delivery partner apps for notifications.\n\nYou can close this screen and start using the app.</string>
+
+    <!-- Dashboard -->
+    <string name="dashboard_title">Dashboard</string>
+    <string name="dashboard_empty">No notifications captured yet</string>
+    <string name="dashboard_empty_subtitle">Notifications from delivery apps will appear here when they arrive</string>
+
+    <!-- Notification Listener -->
+    <string name="notification_channel_name">Captured Notifications</string>
+    <string name="notification_channel_description">Shows when NotiFetch captures a delivery notification</string>
+
+    <!-- Bottom Navigation -->
+    <string name="nav_webview">Web App</string>
+    <string name="nav_dashboard">Dashboard</string>
+    <string name="nav_settings">Settings</string>
+
+    <!-- Asset Statements for Digital Asset Links -->
+    <string name="asset_statements">[{\"relation\":[\"delegate_permission/common.handle_all_urls\"],\"target\":{\"namespace\":\"web\",\"site\":\"https://d2-liart-nine.vercel.app\"}}]</string>
+
+    <!-- Supported platforms list -->
+    <string name="supported_platforms">Swiggy Partner, Swiggy Delivery, Zomato Delivery, Amazon Flex, Dunzo, Porter, Zepto Rider, Blinkit Rider, Uber Eats Partner, Ola Partner, Gojek Driver, Rapido Driver</string>
+
+    <!-- About -->
+    <string name="about_description">NotiFetch captures delivery notifications from your delivery partner apps and shows them in one unified dashboard. No login credentials needed, no API access, zero risk.</string>
+    <string name="privacy_note">Your privacy is protected. Only delivery app notifications are captured. Personal messages and other app notifications are completely ignored.</string>
+</resources>

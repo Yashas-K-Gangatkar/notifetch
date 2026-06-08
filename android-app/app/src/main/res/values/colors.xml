@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- NotiFetch Brand Colors -->
+    <color name="notifetch_amber">#f59e0b</color>
+    <color name="notifetch_amber_light">#fbbf24</color>
+    <color name="notifetch_amber_dark">#d97706</color>
+
+    <!-- Dark Theme Background -->
+    <color name="notifetch_dark_bg">#0f0f0f</color>
+    <color name="notifetch_dark_surface">#1a1a1a</color>
+    <color name="notifetch_dark_card">#1e1e1e</color>
+    <color name="notifetch_dark_elevated">#2a2a2a</color>
+
+    <!-- Text Colors -->
+    <color name="notifetch_text_primary">#f5f5f5</color>
+    <color name="notifetch_text_secondary">#a3a3a3</color>
+    <color name="notifetch_text_disabled">#525252</color>
+
+    <!-- Status Colors -->
+    <color name="notifetch_success">#22c55e</color>
+    <color name="notifetch_error">#ef4444</color>
+    <color name="notifetch_warning">#f59e0b</color>
+    <color name="notifetch_info">#3b82f6</color>
+
+    <!-- Category Colors -->
+    <color name="notifetch_category_food">#f59e0b</color>
+    <color name="notifetch_category_grocery">#22c55e</color>
+    <color name="notifetch_category_package">#3b82f6</color>
+    <color name="notifetch_category_ride">#a855f7</color>
+
+    <!-- Standard Android colors -->
+    <color name="white">#ffffff</color>
+    <color name="black">#000000</color>
+    <color name="transparent">@android:color/transparent</color>
+</resources>
