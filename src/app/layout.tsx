@@ -6,6 +6,7 @@ import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "@/components/providers";
 import { PWARegister } from "@/components/pwa-register";
 import { PWAInstallPrompt } from "@/components/pwa-install-prompt";
+import { OfflineIndicator } from "@/components/offline-indicator";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -72,6 +73,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <AuthProvider>
+            <OfflineIndicator />
             {children}
             <Toaster />
             <PWARegister />

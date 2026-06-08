@@ -1,9 +1,13 @@
-const CACHE_NAME = 'notifetch-v1';
+const CACHE_NAME = 'notifetch-v2';
 
 const STATIC_ASSETS = [
   '/',
   '/manifest.json',
   '/logo.svg',
+  '/qr-code.png',
+  '/icons/icon-192x192.png',
+  '/icons/icon-512x512.png',
+  '/favicon.png',
 ];
 
 // ─── Install ────────────────────────────────────────────────────────────────
@@ -48,12 +52,46 @@ self.addEventListener('fetch', (event) => {
   // Skip API calls entirely — never cache authenticated responses
   // This prevents session data leakage between users on the same device
   if (url.pathname.startsWith('/api/')) {
+    // For API requests, use network-first strategy
+    event.respondWith(networkFirst(request));
     return;
   }
 
-  // Cache-first strategy for static assets
+  // For navigation requests (HTML), use network-first
+  if (request.mode === 'navigate') {
+    event.respondWith(networkFirstWithOfflineFallback(request));
+    return;
+  }
+
+  // Cache-first strategy for static assets (images, CSS, JS, fonts)
   event.respondWith(cacheFirst(request));
 });
+
+/**
+ * Network-first: try network, fall back to cache.
+ * Good for HTML pages where fresh content is preferred.
+ */
+async function networkFirstWithOfflineFallback(request) {
+  try {
+    const networkResponse = await fetch(request);
+    if (networkResponse.ok) {
+      const cache = await caches.open(CACHE_NAME);
+      cache.put(request, networkResponse.clone());
+    }
+    return networkResponse;
+  } catch (error) {
+    console.log('[SW] Network failed for navigation, trying cache:', request.url);
+    const cachedResponse = await caches.match(request);
+    if (cachedResponse) {
+      return cachedResponse;
+    }
+    // Return offline fallback page
+    return new Response(offlinePage(), {
+      status: 503,
+      headers: { 'Content-Type': 'text/html' },
+    });
+  }
+}
 
 /**
  * Network-first: try network, fall back to cache.
@@ -103,6 +141,64 @@ async function cacheFirst(request) {
   }
 }
 
+/**
+ * Offline fallback HTML page
+ */
+function offlinePage() {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NotiFetch - Offline</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0a0a0a;
+      color: #fafafa;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 20px;
+    }
+    .container { max-width: 400px; }
+    .icon { font-size: 64px; margin-bottom: 20px; }
+    h1 { font-size: 24px; margin-bottom: 12px; color: #f59e0b; }
+    p { font-size: 14px; color: #a1a1aa; line-height: 1.6; margin-bottom: 20px; }
+    button {
+      background: linear-gradient(to right, #f59e0b, #ea580c);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button:hover { opacity: 0.9; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="icon">📡</div>
+    <h1>You're Offline</h1>
+    <p>NotiFetch needs an internet connection to load the latest notifications. Check your connection and try again.</p>
+    <button onclick="window.location.reload()">Try Again</button>
+  </div>
+</body>
+</html>`;
+}
+
+// ─── Message handler (for skip waiting) ─────────────────────────────────────
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
+
 // ─── Background Sync ────────────────────────────────────────────────────────
 self.addEventListener('sync', (event) => {
   if (event.tag === 'sync-offline-orders') {
@@ -113,7 +209,6 @@ self.addEventListener('sync', (event) => {
 
 async function syncOfflineOrders() {
   try {
-    // Retrieve pending orders from IndexedDB
     const db = await openDB();
     const tx = db.transaction('offline-orders', 'readonly');
     const store = tx.objectStore('offline-orders');
@@ -128,7 +223,6 @@ async function syncOfflineOrders() {
         });
 
         if (response.ok) {
-          // Remove successfully synced order from IndexedDB
           const deleteTx = db.transaction('offline-orders', 'readwrite');
           const deleteStore = deleteTx.objectStore('offline-orders');
           deleteStore.delete(order.id);
@@ -144,9 +238,6 @@ async function syncOfflineOrders() {
   }
 }
 
-/**
- * Minimal IndexedDB helper using raw IDB API
- */
 function openDB() {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open('notifetch-offline', 1);
@@ -169,19 +260,7 @@ function idbRequestToPromise(request) {
 }
 
 // ─── Push Notifications ─────────────────────────────────────────────────────
-//
-// Handles push events from Firebase Cloud Messaging (FCM).
-// FCM sends two types of payloads:
-//   1. "notification" payload — auto-displayed by the browser (we can't customize)
-//   2. "data" payload — we handle manually and show custom notification
-//
-// When the server sends both notification + data, the browser auto-displays the
-// notification part. When only data is sent, we have full control.
-// Our server-side (firebase-admin) sends both, so the browser handles display,
-// but we also handle data-only messages for flexibility.
-
 self.addEventListener('push', (event) => {
-  // Default notification data
   let data = {
     title: 'NotiFetch',
     body: 'You have a new update!',
@@ -196,36 +275,20 @@ self.addEventListener('push', (event) => {
   if (event.data) {
     try {
       const payload = event.data.json();
-
-      // FCM can send data in different formats:
-      // 1. Direct data payload: { title, body, ... }
-      // 2. FCM wrapper: { data: { ... }, notification: { title, body } }
-      // 3. FCM background: { data: { ... } }
-
       if (payload.data && typeof payload.data === 'object') {
-        // FCM data payload — merge into our data object
-        data = {
-          ...data,
-          ...payload.data,
-          // Data payload values are always strings in FCM, keep as-is
-        };
-
-        // If there's also a notification payload, prefer its title/body
+        data = { ...data, ...payload.data };
         if (payload.notification) {
           if (payload.notification.title) data.title = payload.notification.title;
           if (payload.notification.body) data.body = payload.notification.body;
         }
       } else {
-        // Direct payload (non-FCM wrapped)
         data = { ...data, ...payload };
       }
     } catch (e) {
-      // If JSON parsing fails, treat as plain text
       data.body = event.data.text();
     }
   }
 
-  // Build notification options
   const options = {
     body: data.body,
     icon: data.icon || '/icons/icon-192x192.png',
@@ -238,28 +301,13 @@ self.addEventListener('push', (event) => {
       platform: data.platform || null,
       timestamp: data.timestamp || Date.now().toString(),
     },
-    actions: [],
-    tag: data.orderId || undefined, // Group notifications by order ID
-    renotify: true, // Re-notify even if tag matches
-  };
-
-  // Add context-specific actions based on notification type
-  if (data.type === 'order' || data.orderId) {
-    options.actions = [
-      { action: 'view', title: 'View Order' },
-      { action: 'dismiss', title: 'Dismiss' },
-    ];
-  } else if (data.type === 'test') {
-    options.actions = [
-      { action: 'view', title: 'Open NotiFetch' },
-      { action: 'dismiss', title: 'Dismiss' },
-    ];
-  } else {
-    options.actions = [
+    actions: [
       { action: 'view', title: 'View' },
       { action: 'dismiss', title: 'Dismiss' },
-    ];
-  }
+    ],
+    tag: data.orderId || undefined,
+    renotify: true,
+  };
 
   event.waitUntil(
     self.registration.showNotification(data.title, options)
@@ -269,26 +317,14 @@ self.addEventListener('push', (event) => {
 // ─── Notification Click ─────────────────────────────────────────────────────
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-
-  // Dismiss action — do nothing
   if (event.action === 'dismiss') return;
 
-  // Determine the URL to open based on notification data
   const notificationData = event.notification.data || {};
   let urlToOpen = notificationData.url || '/';
 
-  // Build contextual deep links based on notification type
-  if (notificationData.type === 'order' && notificationData.orderId) {
-    urlToOpen = `/?orderId=${encodeURIComponent(notificationData.orderId)}`;
-  } else if (notificationData.type === 'test') {
-    urlToOpen = '/';
-  }
-
-  // Ensure URL is relative to the origin
   if (urlToOpen.startsWith('http')) {
     try {
       const parsedUrl = new URL(urlToOpen);
-      // Only allow same-origin URLs
       if (parsedUrl.origin !== self.location.origin) {
         urlToOpen = '/';
       } else {
@@ -301,25 +337,20 @@ self.addEventListener('notificationclick', (event) => {
 
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
-      // Focus an existing window if one is open
       for (const client of clientList) {
         if (client.url.includes(self.location.origin) && 'focus' in client) {
           client.navigate(urlToOpen);
           return client.focus();
         }
       }
-      // Otherwise open a new window
       return self.clients.openWindow(urlToOpen);
     })
   );
 });
 
 // ─── Push Subscription Change ───────────────────────────────────────────────
-// When the push subscription changes (e.g., browser updates the endpoint),
-// we should notify the server so it can update the FCM token.
 self.addEventListener('pushsubscriptionchange', (event) => {
   console.log('[SW] Push subscription changed');
-
   event.waitUntil(
     fetch('/api/notifications/register-token', {
       method: 'POST',

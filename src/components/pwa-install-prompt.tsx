@@ -2,7 +2,14 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Smartphone, X, Download, QrCode } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { Smartphone, Download } from "lucide-react";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>;
@@ -11,18 +18,27 @@ interface BeforeInstallPromptEvent extends Event {
 
 export function PWAInstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
-  const [showPrompt, setShowPrompt] = useState(false);
-  const [showQR, setShowQR] = useState(false);
+  const [showFab, setShowFab] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const [isInstalled, setIsInstalled] = useState(() => {
     if (typeof window === "undefined") return false;
     return window.matchMedia("(display-mode: standalone)").matches;
   });
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    if (isInstalled) return;
+
+    // Show floating button after 3 seconds
+    const timer = setTimeout(() => {
+      setShowFab(true);
+    }, 3000);
+
+    // Listen for beforeinstallprompt
     const handler = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
-      setShowPrompt(true);
     };
 
     window.addEventListener("beforeinstallprompt", handler);
@@ -30,95 +46,96 @@ export function PWAInstallPrompt() {
     // Listen for successful install
     window.addEventListener("appinstalled", () => {
       setIsInstalled(true);
-      setShowPrompt(false);
+      setShowFab(false);
+      setShowModal(false);
       setDeferredPrompt(null);
     });
 
     return () => {
+      clearTimeout(timer);
       window.removeEventListener("beforeinstallprompt", handler);
     };
-  }, []);
-
-  // Expose deferredPrompt for dashboard install button
-  useEffect(() => {
-    if (deferredPrompt) {
-      // @ts-expect-error custom property
-      window.deferredPrompt = deferredPrompt;
-    }
-  }, [deferredPrompt]);
+  }, [isInstalled]);
 
   const handleInstall = async () => {
-    if (!deferredPrompt) return;
-    await deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === "accepted") {
-      setIsInstalled(true);
-      setShowPrompt(false);
+    if (deferredPrompt) {
+      await deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === "accepted") {
+        setIsInstalled(true);
+        setShowFab(false);
+        setShowModal(false);
+      }
+      setDeferredPrompt(null);
     }
-    setDeferredPrompt(null);
   };
 
-  if (isInstalled || !showPrompt) return null;
+  if (isInstalled || !showFab) return null;
 
   return (
     <>
-      {/* Floating install button */}
-      <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2">
+      {/* Floating Install Button */}
+      <div className="fixed bottom-6 right-6 z-50">
         <Button
-          variant="outline"
+          onClick={() => setShowModal(true)}
+          className="h-14 w-14 rounded-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white shadow-xl shadow-amber-500/25"
           size="icon"
-          onClick={() => setShowQR(!showQR)}
-          className="h-12 w-12 rounded-full border-amber-500/30 bg-background/90 backdrop-blur-xl shadow-lg"
+          aria-label="Install NotiFetch app"
         >
-          <QrCode className="w-5 h-5 text-amber-500" />
-        </Button>
-        <Button
-          onClick={handleInstall}
-          className="h-12 px-5 rounded-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-semibold shadow-xl shadow-amber-500/25 gap-2"
-        >
-          <Download className="w-4 h-4" />
-          Install App
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setShowPrompt(false)}
-          className="h-8 w-8 rounded-full text-muted-foreground"
-        >
-          <X className="w-4 h-4" />
+          <Download className="w-6 h-6" />
         </Button>
       </div>
 
-      {/* QR Code popup */}
-      {showQR && (
-        <div className="fixed bottom-24 right-6 z-50 bg-card border border-border rounded-2xl p-5 shadow-2xl max-w-[280px]">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <Smartphone className="w-4 h-4 text-amber-500" />
-              <span className="text-sm font-semibold">Install on Phone</span>
+      {/* Install Modal */}
+      <Dialog open={showModal} onOpenChange={setShowModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Smartphone className="w-5 h-5 text-amber-500" />
+              Install NotiFetch
+            </DialogTitle>
+            <DialogDescription>
+              Install NotiFetch on your device for the best experience — quick access, offline support, and push notifications.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            {/* QR Code */}
+            <div className="flex justify-center mb-4">
+              <div className="bg-white rounded-xl p-3">
+                <img
+                  src="/qr-code.png"
+                  alt="Scan QR code to install NotiFetch"
+                  className="w-48 h-48 rounded-lg"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = "none";
+                  }}
+                />
+              </div>
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setShowQR(false)}
-              className="h-6 w-6"
-            >
-              <X className="w-3 h-3" />
-            </Button>
+            <p className="text-sm text-muted-foreground text-center mb-4">
+              Scan with your phone camera to open NotiFetch, then tap &quot;Add to Home Screen&quot;.
+            </p>
+
+            {/* Install button (if browser supports it) */}
+            {deferredPrompt ? (
+              <Button
+                onClick={handleInstall}
+                className="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-semibold"
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Install App
+              </Button>
+            ) : (
+              <div className="rounded-lg border border-amber-500/20 bg-amber-500/5 p-3 text-sm text-center">
+                <p className="text-amber-600 dark:text-amber-400 font-medium">
+                  On your phone, open this page in your browser and tap &quot;Add to Home Screen&quot; or &quot;Install App&quot;.
+                </p>
+              </div>
+            )}
           </div>
-          <div className="bg-white rounded-xl p-3 mb-3">
-            <img
-              src="/qr-code.png"
-              alt="Scan to install NotiFetch"
-              className="w-full h-auto rounded-lg"
-            />
-          </div>
-          <p className="text-xs text-muted-foreground text-center leading-relaxed">
-            Scan this QR code on your phone to open NotiFetch, then tap
-            &quot;Add to Home Screen&quot; to install it as an app.
-          </p>
-        </div>
-      )}
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

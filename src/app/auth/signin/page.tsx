@@ -3,12 +3,14 @@
 import { useState, useMemo, Suspense, useCallback, useEffect, useRef } from "react";
 import { signIn } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Zap, Mail, Loader2, ShieldCheck, KeyRound } from "lucide-react";
+import { Zap, Mail, Loader2, ShieldCheck, KeyRound, ArrowLeft } from "lucide-react";
+import { BackButton } from "@/components/back-button";
 
 const ERROR_MESSAGES: Record<string, string> = {
   CredentialsSignin: "Invalid OTP code. Please try again.",
@@ -24,6 +26,7 @@ type Step = "email" | "otp";
 
 function SignInForm() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const errorParam = searchParams.get("error");
   const callbackUrl = searchParams.get("callbackUrl") || "/";
   const [step, setStep] = useState<Step>("email");
@@ -84,7 +87,28 @@ function SignInForm() {
       <div className="absolute inset-0 bg-gradient-to-b from-amber-500/5 via-transparent to-transparent pointer-events-none" />
       <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-amber-500/8 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-orange-500/8 rounded-full blur-3xl pointer-events-none" />
+
+      {/* Back button */}
+      <div className="absolute top-4 left-4 z-10">
+        <BackButton fallback="/" />
+      </div>
+
       <div className="relative z-10 w-full max-w-md">
+        {/* QR Code */}
+        <div className="flex justify-center mb-6">
+          <div className="bg-white rounded-2xl p-2 shadow-xl">
+            <img
+              src="/qr-code.png"
+              alt="Scan to install NotiFetch"
+              className="w-28 h-28 rounded-lg"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.style.display = "none";
+              }}
+            />
+          </div>
+        </div>
+
         <div className="flex flex-col items-center mb-8">
           <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-xl shadow-amber-500/25 mb-4"><Zap className="w-8 h-8 text-white" /></div>
           <h1 className="text-2xl font-bold bg-gradient-to-r from-amber-500 to-orange-600 bg-clip-text text-transparent">NotiFetch</h1>

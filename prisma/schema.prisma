@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -44,6 +44,8 @@ model User {
   orders        AcceptedOrder[]
   earnings      EarningRecord[]
   payments      Payment[]
+  notifications Notification[]
+  preferences   Preferences?
 }
 
 model Account {
@@ -177,4 +179,39 @@ model AuditLog {
   details   String?
   ip        String?
   createdAt DateTime @default(now())
+}
+
+// ─── Notifications ──────────────────────────────────────────────────────────
+// Individual notification items aggregated from delivery platforms.
+// NotiFetch reads these from the user's device using Android's
+// NotificationListenerService — no API access or credentials needed.
+
+model Notification {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title       String
+  body        String
+  source      String   // "swiggy", "zomato", "amazon", "custom", etc.
+  sourceIcon  String?
+  isRead      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([userId, source])
+}
+
+// ─── User Preferences ──────────────────────────────────────────────────────
+
+model Preferences {
+  id                    String   @id @default(cuid())
+  userId                String   @unique
+  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  darkMode              Boolean  @default(true)
+  notificationsEnabled  Boolean  @default(true)
+  swiggyEnabled         Boolean  @default(true)
+  zomatoEnabled         Boolean  @default(true)
+  amazonEnabled         Boolean  @default(true)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
 }

@@ -3,8 +3,15 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Bell, ArrowRight, ChevronDown, Smartphone, Zap, TrendingUp, Globe } from "lucide-react";
+import { Bell, ArrowRight, ChevronDown, Smartphone, Zap, TrendingUp, Globe, QrCode } from "lucide-react";
 import { PLATFORMS, DELIVERY_CATEGORIES, REGIONS } from "@/lib/data";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
 interface HeroProps {
   onNavigate: (sectionId: string) => void;
@@ -21,6 +28,8 @@ interface FloatingNotification {
 }
 
 export function HeroSection({ onNavigate }: HeroProps) {
+  const [showQR, setShowQR] = useState(false);
+
   const [notifications] = useState<FloatingNotification[]>(() => {
     const positions = [
       { x: 15, y: 20, v: 12.50 }, { x: 72, y: 35, v: 8.75 },
@@ -100,7 +109,7 @@ export function HeroSection({ onNavigate }: HeroProps) {
         {/* Subtitle */}
         <p className="animate-float-up text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-8 leading-relaxed" style={{ animationDelay: "0.2s" }}>
           From food to freight, groceries to pharmacy, same-day to white-glove —
-          NotiFetch reads your phone's existing delivery notifications and aggregates them
+          NotiFetch reads your phone&apos;s existing delivery notifications and aggregates them
           into one real-time feed — no login credentials needed, no API access, zero risk.
         </p>
 
@@ -131,7 +140,7 @@ export function HeroSection({ onNavigate }: HeroProps) {
         </div>
 
         {/* CTA Buttons */}
-        <div className="animate-float-up flex flex-col sm:flex-row items-center justify-center gap-4 mb-12" style={{ animationDelay: "0.4s" }}>
+        <div className="animate-float-up flex flex-col sm:flex-row items-center justify-center gap-4 mb-8" style={{ animationDelay: "0.4s" }}>
           <Button
             size="lg"
             onClick={() => window.location.href = "/auth/signin"}
@@ -143,11 +152,27 @@ export function HeroSection({ onNavigate }: HeroProps) {
           <Button
             size="lg"
             variant="outline"
-            onClick={() => onNavigate("dashboard")}
+            onClick={() => setShowQR(true)}
             className="h-12 px-8 text-base border-border hover:bg-muted"
           >
-            See How It Works
+            <QrCode className="w-4 h-4 mr-2" />
+            Scan QR Code
           </Button>
+        </div>
+
+        {/* QR Code inline on hero */}
+        <div className="animate-float-up flex justify-center mb-8" style={{ animationDelay: "0.45s" }}>
+          <div className="bg-white rounded-2xl p-3 shadow-xl border border-border/50 inline-block">
+            <img
+              src="/qr-code.png"
+              alt="Scan QR code to install NotiFetch on your phone"
+              className="w-32 h-32 sm:w-40 sm:h-40 rounded-lg"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.style.display = "none";
+              }}
+            />
+          </div>
         </div>
 
         {/* Stats bar */}
@@ -173,6 +198,39 @@ export function HeroSection({ onNavigate }: HeroProps) {
           <ChevronDown className="w-6 h-6 text-muted-foreground" />
         </div>
       </div>
+
+      {/* QR Code Modal */}
+      <Dialog open={showQR} onOpenChange={setShowQR}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Smartphone className="w-5 h-5 text-amber-500" />
+              Install NotiFetch on Your Phone
+            </DialogTitle>
+            <DialogDescription>
+              Scan this QR code with your phone camera to open NotiFetch, then tap &quot;Add to Home Screen&quot; to install it.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-center py-4">
+            <div className="bg-white rounded-xl p-4">
+              <img
+                src="/qr-code.png"
+                alt="QR code to install NotiFetch"
+                className="w-56 h-56 rounded-lg"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = "none";
+                }}
+              />
+            </div>
+          </div>
+          <div className="text-center">
+            <p className="text-sm text-muted-foreground">
+              Works on Android &amp; iOS browsers
+            </p>
+          </div>
+        </DialogContent>
+      </Dialog>
     </section>
   );
 }
