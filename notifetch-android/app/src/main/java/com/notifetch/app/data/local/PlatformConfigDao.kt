@@ -27,9 +27,19 @@ interface PlatformConfigDao {
     @Query("UPDATE platform_configs SET isEnabled = :isEnabled WHERE packageName = :packageName")
     suspend fun updateEnabled(packageName: String, isEnabled: Boolean)
 
+    @Query("UPDATE platform_configs SET customDisplayName = :customName WHERE packageName = :packageName")
+    suspend fun updateCustomDisplayName(packageName: String, customName: String?)
+
     @Query("UPDATE platform_configs SET notificationCount = notificationCount + 1, lastNotificationAt = :timestamp WHERE packageName = :packageName")
     suspend fun incrementNotificationCount(packageName: String, timestamp: Long)
 
     @Query("DELETE FROM platform_configs")
     suspend fun deleteAll()
+
+    /**
+     * Get the resolved display name for a platform by package name.
+     * Returns custom name if set, otherwise the default brand name.
+     */
+    @Query("SELECT COALESCE(customDisplayName, displayName) FROM platform_configs WHERE packageName = :packageName")
+    suspend fun getResolvedDisplayName(packageName: String): String?
 }

@@ -28,6 +28,10 @@ class NotificationDetailViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(NotificationDetailUiState())
     val uiState: StateFlow<NotificationDetailUiState> = _uiState.asStateFlow()
 
+    // Resolved display name (custom → default) for the notification's platform
+    var resolvedDisplayName: String? = null
+        private set
+
     init {
         loadNotification()
     }
@@ -42,6 +46,10 @@ class NotificationDetailViewModel @Inject constructor(
                 // Mark as read
                 if (notification != null && !notification.isRead) {
                     repository.markAsRead(notification.id)
+                }
+                // Resolve the display name through the PlatformConfig
+                if (notification != null) {
+                    resolvedDisplayName = repository.getResolvedDisplayName(notification.packageName)
                 }
             }
         }

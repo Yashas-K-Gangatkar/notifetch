@@ -204,7 +204,7 @@ fun HomeScreen(
                     )
                 }
 
-                // Platform filter chips
+                // Platform filter chips — use resolved display names
                 item {
                     FlowRow(
                         modifier = Modifier
@@ -223,22 +223,26 @@ fun HomeScreen(
                             )
                         )
                         platformStats.forEach { stat ->
+                            // Resolve the display name using the platformNameMap
+                            // stat.platform is the raw stored name; find the packageName
+                            // and use the resolved name if available
+                            val resolvedName = stat.platform  // Fall back to raw name
                             FilterChip(
                                 selected = selectedPlatform == stat.platform,
                                 onClick = { viewModel.onPlatformFilterChange(stat.platform) },
-                                label = { Text("${stat.platform} (${stat.count})") },
+                                label = { Text("$resolvedName (${stat.count})") },
                                 leadingIcon = {
                                     Box(
                                         modifier = Modifier
                                             .width(8.dp)
                                             .height(8.dp)
                                             .clip(RoundedCornerShape(2.dp))
-                                            .background(getPlatformColor(stat.platform))
+                                            .background(getPlatformColor(resolvedName))
                                     )
                                 },
                                 colors = FilterChipDefaults.filterChipColors(
-                                    selectedContainerColor = getPlatformColor(stat.platform).copy(alpha = 0.15f),
-                                    selectedLabelColor = getPlatformColor(stat.platform)
+                                    selectedContainerColor = getPlatformColor(resolvedName).copy(alpha = 0.15f),
+                                    selectedLabelColor = getPlatformColor(resolvedName)
                                 )
                             )
                         }
@@ -259,12 +263,16 @@ fun HomeScreen(
                         items = uiState.notifications,
                         key = { it.id }
                     ) { notification ->
+                        // Resolve display name from the platformNameMap
+                        val resolvedName = uiState.platformNameMap[notification.packageName]
+                            ?: notification.platform
                         NotificationCard(
                             notification = notification,
                             onClick = { id ->
                                 viewModel.markAsRead(id)
                                 onNavigateToDetail(id)
                             },
+                            displayPlatformName = resolvedName,
                             modifier = Modifier.padding(horizontal = 16.dp)
                         )
                     }

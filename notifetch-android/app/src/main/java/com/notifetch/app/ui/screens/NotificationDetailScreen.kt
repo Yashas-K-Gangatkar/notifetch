@@ -116,7 +116,9 @@ fun NotificationDetailScreen(
                 )
             }
         } else {
-            val platformColor = getPlatformColor(notification.platform)
+            // Use resolved display name (custom → default) via packageName lookup
+            val displayPlatformName = viewModel.resolvedDisplayName ?: notification.platform
+            val platformColor = getPlatformColor(displayPlatformName, notification.packageName)
 
             Column(
                 modifier = Modifier
@@ -140,14 +142,15 @@ fun NotificationDetailScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         PlatformIcon(
-                            platform = notification.platform,
+                            platform = displayPlatformName,
                             color = platformColor,
+                            packageName = notification.packageName,
                             size = 56.dp
                         )
                         Spacer(modifier = Modifier.width(16.dp))
                         Column {
                             Text(
-                                text = notification.platform,
+                                text = displayPlatformName,
                                 style = MaterialTheme.typography.titleLarge,
                                 fontWeight = FontWeight.Bold,
                                 color = platformColor

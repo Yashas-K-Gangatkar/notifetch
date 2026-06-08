@@ -36,9 +36,11 @@ import com.notifetch.app.util.Helpers
 fun NotificationCard(
     notification: CapturedNotification,
     onClick: (Long) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    displayPlatformName: String? = null  // Resolved name (custom → default)
 ) {
-    val platformColor = getPlatformColor(notification.platform)
+    val resolvedName = displayPlatformName ?: notification.platform
+    val platformColor = getPlatformColor(resolvedName, notification.packageName)
     val animatedColor by animateColorAsState(
         targetValue = platformColor,
         animationSpec = tween(300),
@@ -68,8 +70,9 @@ fun NotificationCard(
         ) {
             // Platform icon circle
             PlatformIcon(
-                platform = notification.platform,
+                platform = resolvedName,
                 color = animatedColor,
+                packageName = notification.packageName,
                 modifier = Modifier.size(44.dp)
             )
 
@@ -88,7 +91,7 @@ fun NotificationCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = notification.platform,
+                        text = resolvedName,
                         style = MaterialTheme.typography.labelMedium,
                         color = animatedColor,
                         fontWeight = FontWeight.SemiBold

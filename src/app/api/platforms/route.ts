@@ -6,6 +6,7 @@ import { db } from "@/lib/db";
 /**
  * GET /api/platforms
  * List the authenticated user's notification sources.
+ * Returns customName alongside platformName for display name resolution.
  */
 export async function GET() {
   try {
@@ -20,7 +21,13 @@ export async function GET() {
       orderBy: { createdAt: "desc" },
     });
 
-    return NextResponse.json({ sources });
+    // Add resolvedDisplayName to each source (custom → default)
+    const enrichedSources = sources.map(source => ({
+      ...source,
+      resolvedDisplayName: source.customName || source.platformName,
+    }));
+
+    return NextResponse.json({ sources: enrichedSources });
   } catch (error) {
     console.error("[API] Error fetching notification sources:", error);
     return NextResponse.json(
@@ -75,7 +82,12 @@ export async function POST(request: NextRequest) {
         },
       });
 
-      return NextResponse.json({ source: updated });
+      return NextResponse.json({
+        source: {
+          ...updated,
+          resolvedDisplayName: updated.customName || updated.platformName,
+        }
+      });
     }
 
     // Create new notification source
@@ -102,11 +114,101 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return NextResponse.json({ source }, { status: 201 });
+    return NextResponse.json({
+      source: {
+        ...source,
+        resolvedDisplayName: source.customName || source.platformName,
+      }
+    }, { status: 201 });
   } catch (error) {
     console.error("[API] Error enabling notification source:", error);
     return NextResponse.json(
       { error: "Failed to enable notification source" },
+      { status: 500 }
+    );
+  }
+}
+
+/**
+ * PATCH /api/platforms
+ * Update a notification source — primarily for renaming (customName).
+ *
+ * Body: { platformId, customName? }
+ *
+ * Pass customName to set a user's custom display name.
+ * Pass customName: null to reset to the default brand name.
+ *
+ * This is the core of the "user choice" legal model:
+ * - Default names use real brand names (nominative fair use)
+ * - Users can rename to anything they prefer
+ * - This provides a legal defense: "We gave users the choice"
+ */
+export async function PATCH(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const body = await request.json();
+    const { platformId, customName } = body;
+
+    if (!platformId) {
+      return NextResponse.json(
+        { error: "platformId is required" },
+        { status: 400 }
+      );
+    }
+
+    const existing = await db.notificationSource.findUnique({
+      where: {
+        userId_platformId: {
+          userId: session.user.id,
+          platformId,
+        },
+      },
+    });
+
+    if (!existing) {
+      return NextResponse.json(
+        { error: "Notification source not found" },
+        { status: 404 }
+      );
+    }
+
+    // Build update data
+    const updateData: Record<string, unknown> = {};
+    if (customName !== undefined) {
+      updateData.customName = customName; // null resets to default
+    }
+
+    const updated = await db.notificationSource.update({
+      where: { id: existing.id },
+      data: updateData,
+    });
+
+    // Audit log
+    await db.auditLog.create({
+      data: {
+        userId: session.user.id,
+        action: "UPDATE_NOTIFICATION_SOURCE",
+        entity: "NotificationSource",
+        entityId: updated.id,
+        details: JSON.stringify({ platformId, customName }),
+      },
+    });
+
+    return NextResponse.json({
+      source: {
+        ...updated,
+        resolvedDisplayName: updated.customName || updated.platformName,
+      }
+    });
+  } catch (error) {
+    console.error("[API] Error updating notification source:", error);
+    return NextResponse.json(
+      { error: "Failed to update notification source" },
       { status: 500 }
     );
   }

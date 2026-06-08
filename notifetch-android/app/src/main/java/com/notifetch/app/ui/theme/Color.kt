@@ -1,6 +1,7 @@
 package com.notifetch.app.ui.theme
 
 import androidx.compose.ui.graphics.Color
+import com.notifetch.app.util.Constants
 
 // NotiFetch Brand Colors - Amber/Orange theme
 val Amber50 = Color(0xFFFFF8E1)
@@ -21,15 +22,15 @@ val DeepOrange500 = Color(0xFFFF5722)
 val DeepOrange600 = Color(0xFFF4511E)
 
 // Light theme colors
-val NotiFetchLightPrimary = Color(0xFFFF8F00)       // Amber800
+val NotiFetchLightPrimary = Color(0xFFFF8F00)
 val NotiFetchLightOnPrimary = Color(0xFFFFFFFF)
-val NotiFetchLightPrimaryContainer = Color(0xFFFFE082) // Amber200
+val NotiFetchLightPrimaryContainer = Color(0xFFFFE082)
 val NotiFetchLightOnPrimaryContainer = Color(0xFF3E2500)
-val NotiFetchLightSecondary = Color(0xFFF57C00)      // Orange700
+val NotiFetchLightSecondary = Color(0xFFF57C00)
 val NotiFetchLightOnSecondary = Color(0xFFFFFFFF)
 val NotiFetchLightSecondaryContainer = Color(0xFFFFDDB3)
 val NotiFetchLightOnSecondaryContainer = Color(0xFF2E1500)
-val NotiFetchLightTertiary = Color(0xFFD84315)       // DeepOrange
+val NotiFetchLightTertiary = Color(0xFFD84315)
 val NotiFetchLightOnTertiary = Color(0xFFFFFFFF)
 val NotiFetchLightTertiaryContainer = Color(0xFFFFC4A8)
 val NotiFetchLightOnTertiaryContainer = Color(0xFF3B0900)
@@ -45,9 +46,9 @@ val NotiFetchLightError = Color(0xFFBA1A1A)
 val NotiFetchLightOnError = Color(0xFFFFFFFF)
 
 // Dark theme colors
-val NotiFetchDarkPrimary = Color(0xFFFFB300)         // Amber600
+val NotiFetchDarkPrimary = Color(0xFFFFB300)
 val NotiFetchDarkOnPrimary = Color(0xFF442B00)
-val NotiFetchDarkPrimaryContainer = Color(0xFFFF8F00) // Amber800
+val NotiFetchDarkPrimaryContainer = Color(0xFFFF8F00)
 val NotiFetchDarkOnPrimaryContainer = Color(0xFFFFE082)
 val NotiFetchDarkSecondary = Color(0xFFFFB870)
 val NotiFetchDarkOnSecondary = Color(0xFF4B2800)
@@ -68,36 +69,48 @@ val NotiFetchDarkOutlineVariant = Color(0xFF504539)
 val NotiFetchDarkError = Color(0xFFFFB4AB)
 val NotiFetchDarkOnError = Color(0xFF690005)
 
-// Platform brand colors
-val SwiggyOrange = Color(0xFFFC8019)
-val ZomatoRed = Color(0xFFE23744)
-val AmazonOrange = Color(0xFFFF9900)
-val ZeptoPurple = Color(0xFF8B008B)
-val BlinkitYellow = Color(0xFFF8E71C)
-val BigBasketGreen = Color(0xFF84C225)
-val DunzoGreen = Color(0xFF00D290)
-val PorterBlue = Color(0xFF2E5BFF)
-val RapidoYellow = Color(0xFFFFCC00)
-val OlaGreen = Color(0xFF36B37E)
-val UberBlack = Color(0xFF000000)
-val FlipkartBlue = Color(0xFF2874F0)
-val ShadowfaxOrange = Color(0xFFFF6B35)
+/**
+ * Get the brand color for a platform.
+ *
+ * IMPORTANT: This now resolves by PACKAGE NAME, not display name.
+ * This ensures colors work correctly even when users customize platform names.
+ *
+ * @param platform The display name (may be customized by user)
+ * @param packageName The Android package name (stable identifier)
+ * @return The brand color for the platform
+ */
+fun getPlatformColor(platform: String, packageName: String? = null): Color {
+    // Prefer package name lookup (most reliable — works regardless of user rename)
+    if (packageName != null) {
+        Constants.PLATFORM_COLORS[packageName]?.let { hex ->
+            return parseHexColor(hex)
+        }
+    }
 
-fun getPlatformColor(platform: String): Color {
-    return when {
-        platform.contains("Swiggy", ignoreCase = true) -> SwiggyOrange
-        platform.contains("Zomato", ignoreCase = true) -> ZomatoRed
-        platform.contains("Amazon", ignoreCase = true) -> AmazonOrange
-        platform.contains("Zepto", ignoreCase = true) -> ZeptoPurple
-        platform.contains("Blinkit", ignoreCase = true) -> BlinkitYellow
-        platform.contains("BigBasket", ignoreCase = true) -> BigBasketGreen
-        platform.contains("Dunzo", ignoreCase = true) -> DunzoGreen
-        platform.contains("Porter", ignoreCase = true) -> PorterBlue
-        platform.contains("Rapido", ignoreCase = true) -> RapidoYellow
-        platform.contains("Ola", ignoreCase = true) -> OlaGreen
-        platform.contains("Uber", ignoreCase = true) -> UberBlack
-        platform.contains("Flipkart", ignoreCase = true) -> FlipkartBlue
-        platform.contains("Shadowfax", ignoreCase = true) -> ShadowfaxOrange
-        else -> Amber500
+    // Fallback: try to match by display name (for backward compatibility)
+    // This handles cases where packageName is not available
+    Constants.PLATFORM_COLORS.entries.firstOrNull { (_, _) ->
+        Constants.PARTNER_PACKAGES[packageName ?: ""] == platform
+    }?.value?.let { hex ->
+        return parseHexColor(hex)
+    }
+
+    // Last resort: try matching by display name against PARTNER_PACKAGES values
+    for ((pkg, defaultName) in Constants.PARTNER_PACKAGES) {
+        if (defaultName.equals(platform, ignoreCase = true)) {
+            Constants.PLATFORM_COLORS[pkg]?.let { hex ->
+                return parseHexColor(hex)
+            }
+        }
+    }
+
+    return Amber500
+}
+
+private fun parseHexColor(hex: String): Color {
+    return try {
+        Color(android.graphics.Color.parseColor(hex))
+    } catch (e: Exception) {
+        Amber500
     }
 }

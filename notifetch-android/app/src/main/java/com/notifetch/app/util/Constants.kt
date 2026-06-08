@@ -13,177 +13,191 @@ object Constants {
     // ALL Verified Delivery Partner/Driver App Packages (NOT customer apps)
     // Last verified: June 2026
     // Only includes apps with CONFIRMED package names from Google Play Store
+    //
+    // LEGAL NOTE — Platform Display Names (User Choice Model):
+    // Default display names use the real brand names (e.g., "Swiggy Delivery",
+    // "DoorDash Dasher") because this is nominative fair use — we are identifying
+    // the service the user is already using. Users can customize any platform
+    // name to whatever they prefer. This "user choice" model provides:
+    //   1. Better UX (users want to see the real name they know)
+    //   2. Legal defense (user chose to display the brand name, we just
+    //      provided a tool with customizable labels)
+    //   3. Nominative fair use protection (we must identify the service
+    //      to function; we don't claim endorsement or affiliation)
     // ═══════════════════════════════════════════════════════════════════════
 
     val PARTNER_PACKAGES = mapOf(
         // ── Food Delivery ──────────────────────────────────────────────────
-        "com.ubercab.driver" to "Food & Ride Partner",              // Uber Driver/Eats (Global)
-        "com.doordash.driverapp" to "Food Dasher",                   // DoorDash Dasher (US/CA/AU/JP)
-        "com.grubhub.driver" to "Food Courier US",                   // Grubhub Driver (US)
-        "com.deliveroo.driverapp" to "Food Rider EU",                // Deliveroo Rider (UK/EU/MENA/Asia)
-        "com.justeat.courier.uk" to "Food Courier UK",               // Just Eat Courier UK
-        "com.takeaway.delivered4all" to "Food Courier EU",           // Takeaway.com Courier (EU)
-        "com.lieferando.courier" to "Food Courier DE",               // Lieferando Courier (DE)
-        "com.logistics.rider.foodpanda" to "Food Rider Asia",        // Foodpanda Rider (Asia/EMEA)
-        "in.swiggy.deliveryapp" to "Food Delivery IN",               // Swiggy Delivery Partner (India) — NOT .partner (that's for restaurants!)
-        "com.zomato.delivery" to "Food Delivery IN 2",              // Zomato Delivery (India)
-        "br.com.ifood.driver.app" to "Food Courier BR",              // iFood Entregador (Brazil)
-        "com.rappi.storekeeper" to "Food Courier LATAM",             // Rappi Repartidor (LATAM)
-        "com.wolt.courierapp" to "Food Courier Nordics",             // Wolt Courier (EU/Nordics/Asia)
-        "com.logistics.rider.glovo" to "Food Courier EU 2",         // Glovo Courier (EMEA/LATAM)
-        "com.demaecan.DemaecanDriver" to "Food Courier JP",          // Demae-can Driver (Japan)
-        "com.logistics.rider.talabat" to "Food Rider MENA",          // Talabat Rider (MENA)
-        "com.menulog.courier" to "Food Courier AU",                  // Menulog Courier (AU/NZ)
-        "com.sankuai.sailor.courier" to "Food Rider HK",             // Keeta Rider (HK/Saudi — Meituan Intl)
+        "com.ubercab.driver" to "Uber Driver",                      // Uber Driver/Eats (Global)
+        "com.doordash.driverapp" to "DoorDash Dasher",              // DoorDash Dasher (US/CA/AU/JP)
+        "com.grubhub.driver" to "Grubhub Driver",                   // Grubhub Driver (US)
+        "com.deliveroo.driverapp" to "Deliveroo Rider",             // Deliveroo Rider (UK/EU/MENA/Asia)
+        "com.justeat.courier.uk" to "Just Eat Courier",             // Just Eat Courier UK
+        "com.takeaway.delivered4all" to "Takeaway Courier",         // Takeaway.com Courier (EU)
+        "com.lieferando.courier" to "Lieferando Courier",           // Lieferando Courier (DE)
+        "com.logistics.rider.foodpanda" to "Foodpanda Rider",      // Foodpanda Rider (Asia/EMEA)
+        "in.swiggy.deliveryapp" to "Swiggy Delivery",              // Swiggy Delivery Partner (India)
+        "com.zomato.delivery" to "Zomato Delivery",                // Zomato Delivery (India)
+        "br.com.ifood.driver.app" to "iFood Entregador",           // iFood Entregador (Brazil)
+        "com.rappi.storekeeper" to "Rappi Repartidor",             // Rappi Repartidor (LATAM)
+        "com.wolt.courierapp" to "Wolt Courier",                   // Wolt Courier (EU/Nordics/Asia)
+        "com.logistics.rider.glovo" to "Glovo Courier",            // Glovo Courier (EMEA/LATAM)
+        "com.demaecan.DemaecanDriver" to "Demae-can Driver",       // Demae-can Driver (Japan)
+        "com.logistics.rider.talabat" to "Talabat Rider",          // Talabat Rider (MENA)
+        "com.menulog.courier" to "Menulog Courier",                // Menulog Courier (AU/NZ)
+        "com.sankuai.sailor.courier" to "Keeta Rider",             // Keeta Rider (HK/Saudi — Meituan Intl)
 
         // ── Grocery Delivery ───────────────────────────────────────────────
-        "com.instacart.shopper" to "Grocery Shopper",                // Instacart Shopper (US/CA)
-        "com.gopuff.godrive2.live" to "Grocery Courier",             // Gopuff Driver (US/UK)
-        "app.blinkit.onboarding" to "Grocery Quick IN",              // Blinkit Delivery Partner (India) — NOT .partnerapp
-        "com.bigbasket.dapp.activity" to "Grocery IN",               // BigBasket Delivery Partner (India) — NOT .partnerapp
-        "com.mercadoenvios.crowdsourcing" to "Grocery LATAM",        // Mercado Libre Envios Extra (LATAM)
-        "com.mercadoenvios.driver" to "Grocery LATAM 2",             // Mercado Libre Envios Flex (LATAM)
-        "au.com.woolworths.android.driver" to "Grocery AU",          // WooliesGO (AU)
-        "com.zepto.rider" to "Quick Grocery IN",                     // Zepto Delivery Partner (India) — NOT .cafepartner
-        "com.flink.workforce" to "Grocery EU",                       // Flink Workforce (EU)
+        "com.instacart.shopper" to "Instacart Shopper",            // Instacart Shopper (US/CA)
+        "com.gopuff.godrive2.live" to "Gopuff Driver",             // Gopuff Driver (US/UK)
+        "app.blinkit.onboarding" to "Blinkit Delivery",            // Blinkit Delivery Partner (India)
+        "com.bigbasket.dapp.activity" to "BigBasket Delivery",     // BigBasket Delivery Partner (India)
+        "com.mercadoenvios.crowdsourcing" to "Mercado Envios",     // Mercado Libre Envios Extra (LATAM)
+        "com.mercadoenvios.driver" to "Mercado Flex",              // Mercado Libre Envios Flex (LATAM)
+        "au.com.woolworths.android.driver" to "WooliesGO",         // WooliesGO (AU)
+        "com.zepto.rider" to "Zepto Delivery",                     // Zepto Delivery Partner (India)
+        "com.flink.workforce" to "Flink Rider",                    // Flink Workforce (EU)
+        "com.shipt.shopper" to "Shipt Shopper",                    // Shipt Shopper (US)
 
         // ── Package & Parcel ──────────────────────────────────────────────
-        "com.amazon.flex.rabbit" to "Package Flex",                  // Amazon Flex (Global) — NOT .flex (old package)
-        "com.ups.genesispd" to "Package Courier US",                 // UPS Pickup & Delivery (Global)
-        "com.dunzo.partner" to "Package IN",                         // Dunzo Partner (India)
-        "com.lalamove.global.driver.sea" to "Package Courier Asia",  // Lalamove Driver (Asia/LATAM/ME)
-        "global.dostavista.courier" to "Package Courier IN",         // Borzo/WeFast Courier (India/LATAM/Asia)
+        "com.amazon.flex.rabbit" to "Amazon Flex",                 // Amazon Flex (Global)
+        "com.ups.genesispd" to "UPS Driver",                       // UPS Pickup & Delivery (Global)
+        "com.dunzo.partner" to "Dunzo Partner",                    // Dunzo Partner (India)
+        "com.lalamove.global.driver.sea" to "Lalamove Driver",     // Lalamove Driver (Asia/LATAM/ME)
+        "global.dostavista.courier" to "Borzo Courier",            // Borzo/WeFast Courier (India/LATAM/Asia)
 
         // ── Courier & Express ─────────────────────────────────────────────
-        "com.postmates.android.courier" to "Courier US",             // Postmates Fleet (US — now merged into Uber)
-        "com.roadie.drive.android.app" to "Courier US 2",            // Roadie Driver (US)
-        "com.stuart.courier" to "Courier EU",                        // Stuart Courier (UK/FR/ES)
-        "com.quadx.riderapp" to "Courier PH",                        // GoGo Xpress Rider (Philippines)
+        "com.postmates.android.courier" to "Postmates Fleet",      // Postmates Fleet (US — now merged into Uber)
+        "com.roadie.drive.android.app" to "Roadie Driver",         // Roadie Driver (US)
+        "com.stuart.courier" to "Stuart Courier",                  // Stuart Courier (UK/FR/ES)
+        "com.quadx.riderapp" to "GoGo Xpress",                     // GoGo Xpress Rider (Philippines)
 
         // ── Last-Mile Delivery ────────────────────────────────────────────
-        "com.amazon.relay" to "Logistics Relay",                     // Amazon Relay/Logistics (US — for carriers)
-        "com.ekartkiranaonboarding" to "Last Mile IN",               // Flipkart/Ekart Delivery Partner (India) — NOT .logistics
-        "com.ekart.logistics.app" to "Last Mile IN 2",               // Ekart Field X (India)
-        "id.my.irsyadf.jobdriver" to "Last Mile ID",                 // JOS KURIR/JNE (Indonesia)
-        "com.aramex.ecourier" to "Last Mile MENA",                   // Aramex Courier (MENA/Global)
-
-        // ── Medical & Pharmacy ────────────────────────────────────────────
-        // NOTE: Most pharmacy platforms don't have public driver apps.
-        // They use internal couriers or third-party logistics.
+        "com.amazon.relay" to "Amazon Relay",                      // Amazon Relay/Logistics (US — for carriers)
+        "com.ekartkiranaonboarding" to "Ekart Delivery",           // Flipkart/Ekart Delivery Partner (India)
+        "com.ekart.logistics.app" to "Ekart Field X",              // Ekart Field X (India)
+        "id.my.irsyadf.jobdriver" to "JNE Kurir",                  // JOS KURIR/JNE (Indonesia)
+        "com.aramex.ecourier" to "Aramex Courier",                 // Aramex Courier (MENA/Global)
+        "co.ninjavan.swiftninja_global" to "Ninja Van Driver",     // Ninja Van Driver (SE Asia)
 
         // ── Ride & Transport ──────────────────────────────────────────────
-        "com.lyft.android.driver" to "Ride Partner US",              // Lyft Driver (US/CA)
-        "com.olacabs.oladriver" to "Ride Partner IN",                // Ola Driver (India/AU/NZ/UK) — NOT .driver (old package)
-        "com.grabtaxi.driver2" to "Ride Partner SEA",                // Grab Driver (SE Asia)
-        "com.careem.adma" to "Ride Partner MENA",                    // Careem Captain (MENA)
-        "com.didiglobal.driver" to "Ride Partner LATAM",             // DiDi Driver (AU/NZ/LATAM/JP)
-        "ee.mtakso.driver" to "Ride Partner EU",                     // Bolt Driver (EU/Africa)
+        "com.lyft.android.driver" to "Lyft Driver",                // Lyft Driver (US/CA)
+        "com.olacabs.oladriver" to "Ola Driver",                   // Ola Driver (India/AU/NZ/UK)
+        "com.grabtaxi.driver2" to "Grab Driver",                   // Grab Driver (SE Asia)
+        "com.careem.adma" to "Careem Captain",                     // Careem Captain (MENA)
+        "com.didiglobal.driver" to "DiDi Driver",                  // DiDi Driver (AU/NZ/LATAM/JP)
+        "ee.mtakso.driver" to "Bolt Driver",                       // Bolt Driver (EU/Africa)
 
-        // ── Other Delivery Partners (India-specific) ──────────────────────
-        "com.theporter.android.driverapp" to "Logistics IN",         // Porter Driver (India) — NOT .porterpartner
-        "com.rapido.rider" to "Bike Taxi IN",                        // Rapido Captain (India) — NOT .captain
-        "in.shadowfax.gandalf" to "Last Mile IN 3",                  // Shadowfax Delivery Partner (India) — NOT .partner
-        "com.shipt.shopper" to "Grocery Shopper US",                 // Shipt Shopper (US)
-        "co.ninjavan.swiftninja_global" to "Last Mile SEA",          // Ninja Van Driver (SE Asia)
-
-        // ── Additional Worldwide Platforms ─────────────────────────────────
-        "com.gojek.partner" to "Super App ID",                       // Gojek Driver/GoPartner (Indonesia/SE Asia)
-        "com.delhivery.delhiverypartner" to "Logistics IN 2",        // Delhivery Partner (India)
-        "com.ecomexpress.oneBoarding" to "Logistics IN 3",           // Ecom Express Sathi (India)
-        "com.xpressbees.unified_new_arch" to "Logistics IN 4",       // Xpressbees (India)
-        "in.letstransport.supply" to "Logistics IN 5",               // LetsTransport Partner (India)
-        "net.blowhorn.driverapp" to "Logistics IN 6",                // Blowhorn Driver (India)
-        "com.driveu.partner" to "Driver Partner IN",                 // DriveU Partner (India)
-        "app.yulu.android.partner" to "Mobility IN",                 // Yulu Partner (India)
+        // ── Other Delivery Partners ────────────────────────────────────────
+        "com.theporter.android.driverapp" to "Porter Driver",      // Porter Driver (India)
+        "com.rapido.rider" to "Rapido Captain",                    // Rapido Captain (India)
+        "in.shadowfax.gandalf" to "Shadowfax Delivery",            // Shadowfax Delivery Partner (India)
+        "com.gojek.partner" to "Gojek Driver",                     // Gojek Driver/GoPartner (Indonesia/SE Asia)
+        "com.delhivery.delhiverypartner" to "Delhivery Partner",   // Delhivery Partner (India)
+        "com.ecomexpress.oneBoarding" to "Ecom Express",           // Ecom Express Sathi (India)
+        "com.xpressbees.unified_new_arch" to "Xpressbees",         // Xpressbees (India)
+        "in.letstransport.supply" to "LetsTransport",              // LetsTransport Partner (India)
+        "net.blowhorn.driverapp" to "Blowhorn Driver",             // Blowhorn Driver (India)
+        "com.driveu.partner" to "DriveU Partner",                  // DriveU Partner (India)
+        "app.yulu.android.partner" to "Yulu Partner",              // Yulu Partner (India)
 
         // ── Alternate/legacy packages (for compatibility) ──────────────────
-        "in.swiggy.partner" to "Food Delivery IN",                   // Swiggy Restaurant Partner (may still be used by some)
-        "com.zomato.deliverypartner" to "Food Delivery IN 2",        // Zomato alternate package
-        "com.amazon.flex" to "Package Flex",                         // Amazon Flex old package (redirects to .rabbit)
-        "com.flipkart.logistics" to "Last Mile IN",                  // Flipkart old package
+        "in.swiggy.partner" to "Swiggy Delivery",                  // Swiggy Restaurant Partner (alt package)
+        "com.zomato.deliverypartner" to "Zomato Delivery",         // Zomato alternate package
+        "com.amazon.flex" to "Amazon Flex",                        // Amazon Flex old package (redirects to .rabbit)
+        "com.flipkart.logistics" to "Ekart Delivery",              // Flipkart old package
     )
 
-    // Source identifiers for API (generic, no brand names)
+    // Source identifiers for API (machine-readable, not user-facing)
     val PLATFORM_SOURCES: Map<String, String> = PARTNER_PACKAGES.map { (pkg, _) ->
         pkg to pkg.replace(".", "_").replace("com_", "").replace("in_", "").replace("br_com_", "").replace("global_", "").replace("app_", "").take(40)
     }.toMap()
 
-    // Generic category-based colors (NOT brand colors — legal compliance)
-    // Each platform gets a color based on its delivery category, not its brand
+    // ═══════════════════════════════════════════════════════════════════════
+    // Platform colors keyed by PACKAGE NAME (not display name!)
+    // This ensures colors work regardless of user customizing the display name.
+    // Colors are the actual brand colors used in nominative fair use context.
+    // ═══════════════════════════════════════════════════════════════════════
     val PLATFORM_COLORS = mapOf(
-        // Food Delivery — warm oranges/reds
-        "Food & Ride Partner" to "#E8751A",
-        "Food Dasher" to "#D94F4F",
-        "Food Courier US" to "#D4A017",
-        "Food Rider EU" to "#4DB6AC",
-        "Food Courier UK" to "#E67E22",
-        "Food Courier EU" to "#E67E22",
-        "Food Courier DE" to "#E67E22",
-        "Food Rider Asia" to "#E91E8C",
-        "Food Delivery IN" to "#E8751A",
-        "Food Delivery IN 2" to "#D94F4F",
-        "Food Courier BR" to "#9C27B0",
-        "Food Courier LATAM" to "#E67E22",
-        "Food Courier Nordics" to "#42A5F5",
-        "Food Courier EU 2" to "#F1C40F",
-        "Food Courier JP" to "#D94F4F",
-        "Food Rider MENA" to "#E67E22",
-        "Food Courier AU" to "#9C27B0",
-        "Food Rider HK" to "#F1C40F",
+        // Food Delivery
+        "com.ubercab.driver" to "#000000",              // Uber — Black
+        "com.doordash.driverapp" to "#FF3008",          // DoorDash — Red
+        "com.grubhub.driver" to "#F7871D",              // Grubhub — Orange
+        "com.deliveroo.driverapp" to "#00CCBC",         // Deliveroo — Teal
+        "com.justeat.courier.uk" to "#FF8000",          // Just Eat — Orange
+        "com.takeaway.delivered4all" to "#FF6D00",      // Takeaway — Orange
+        "com.lieferando.courier" to "#FF6D00",          // Lieferando — Orange
+        "com.logistics.rider.foodpanda" to "#D21F3C",   // Foodpanda — Pink/Red
+        "in.swiggy.deliveryapp" to "#FC8019",           // Swiggy — Orange
+        "com.zomato.delivery" to "#E23744",             // Zomato — Red
+        "br.com.ifood.driver.app" to "#EA1D2C",         // iFood — Red
+        "com.rappi.storekeeper" to "#FF4444",           // Rappi — Orange/Red
+        "com.wolt.courierapp" to="#00C7E6",             // Wolt — Cyan
+        "com.logistics.rider.glovo" to="#F5C518",       // Glovo — Yellow
+        "com.demaecan.DemaecanDriver" to "#D94F4F",     // Demae-can — Red
+        "com.logistics.rider.talabat" to "#FF5A00",     // Talabat — Orange
+        "com.menulog.courier" to "#FF8000",             // Menulog — Orange
+        "com.sankuai.sailor.courier" to="#F5C518",      // Keeta — Yellow
 
-        // Grocery — greens
-        "Grocery Shopper" to "#E67E22",
-        "Grocery Courier" to "#9C27B0",
-        "Grocery Quick IN" to "#F1C40F",
-        "Grocery IN" to "#D94F4F",
-        "Grocery LATAM" to "#F1C40F",
-        "Grocery LATAM 2" to "#F1C40F",
-        "Grocery AU" to "#66BB6A",
-        "Quick Grocery IN" to "#8B5CF6",
-        "Grocery EU" to "#66BB6A",
-        "Grocery Shopper US" to "#66BB6A",
+        // Grocery
+        "com.instacart.shopper" to "#43B02A",           // Instacart — Green
+        "com.gopuff.godrive2.live" to "#7B2FF2",        // Gopuff — Purple
+        "app.blinkit.onboarding" to="#F8E71C",          // Blinkit — Yellow
+        "com.bigbasket.dapp.activity" to="#84C225",     // BigBasket — Green
+        "com.mercadoenvios.crowdsourcing" to="#FFE600", // Mercado Libre — Yellow
+        "com.mercadoenvios.driver" to="#FFE600",        // Mercado Flex — Yellow
+        "au.com.woolworths.android.driver" to="#009444", // WooliesGO — Green
+        "com.zepto.rider" to="#8B008B",                 // Zepto — Purple/Magenta
+        "com.flink.workforce" to="#FF6B35",             // Flink — Orange
+        "com.shipt.shopper" to="#33A198",               // Shipt — Teal
 
-        // Package — blues/teals
-        "Package Flex" to "#26A69A",
-        "Package Courier US" to "#7E57C2",
-        "Package IN" to "#00BCD4",
-        "Package Courier Asia" to "#E67E22",
-        "Package Courier IN" to "#66BB6A",
+        // Package
+        "com.amazon.flex.rabbit" to="#FF9900",          // Amazon Flex — Orange
+        "com.ups.genesispd" to="#351C15",               // UPS — Brown
+        "com.dunzo.partner" to="#00D290",               // Dunzo — Green
+        "com.lalamove.global.driver.sea" to="#F5A623",  // Lalamove — Orange
+        "global.dostavista.courier" to="#4CAF50",       // Borzo — Green
 
-        // Courier — indigos
-        "Courier US" to "#F1C40F",
-        "Courier US 2" to "#42A5F5",
-        "Courier EU" to="#5C6BC0",
-        "Courier PH" to "#E67E22",
+        // Courier
+        "com.postmates.android.courier" to="#000000",   // Postmates — Black
+        "com.roadie.drive.android.app" to="#42A5F5",    // Roadie — Blue
+        "com.stuart.courier" to "#5C6BC0",              // Stuart — Indigo
+        "com.quadx.riderapp" to="#E67E22",              // GoGo Xpress — Orange
 
-        // Last-Mile — teals
-        "Logistics Relay" to "#26A69A",
-        "Last Mile IN" to "#42A5F5",
-        "Last Mile IN 2" to "#42A5F5",
-        "Last Mile ID" to "#E67E22",
-        "Last Mile MENA" to "#42A5F5",
-        "Last Mile SEA" to "#E67E22",
-        "Last Mile IN 3" to "#E67E22",
+        // Last-Mile
+        "com.amazon.relay" to="#FF9900",                // Amazon Relay — Orange
+        "com.ekartkiranaonboarding" to="#2874F0",       // Ekart — Blue
+        "com.ekart.logistics.app" to="#2874F0",         // Ekart Field X — Blue
+        "id.my.irsyadf.jobdriver" to="#FF6B35",         // JNE — Orange
+        "com.aramex.ecourier" to "#ED1C24",             // Aramex — Red
+        "co.ninjavan.swiftninja_global" to="#FF6B35",   // Ninja Van — Orange
 
-        // Ride — violets/greens
-        "Ride Partner US" to="#E91E8C",
-        "Ride Partner IN" to="#F1C40F",
-        "Ride Partner SEA" to="#66BB6A",
-        "Ride Partner MENA" to="#66BB6A",
-        "Ride Partner LATAM" to="#E67E22",
-        "Ride Partner EU" to="#66BB6A",
+        // Ride
+        "com.lyft.android.driver" to="#FF00BF",         // Lyft — Pink
+        "com.olacabs.oladriver" to="#36B37E",           // Ola — Green
+        "com.grabtaxi.driver2" to="#00B14F",            // Grab — Green
+        "com.careem.adma" to="#4CB050",                 // Careem — Green
+        "com.didiglobal.driver" to="#FF6B00",           // DiDi — Orange
+        "ee.mtakso.driver" to="#34C759",                // Bolt — Green
 
         // Other
-        "Logistics IN" to "#42A5F5",
-        "Bike Taxi IN" to "#F1C40F",
-        "Driver Partner IN" to="#E67E22",
-        "Mobility IN" to="#26A69A",
-        "Super App ID" to="#66BB6A",
-        "Logistics IN 2" to="#42A5F5",
-        "Logistics IN 3" to="#42A5F5",
-        "Logistics IN 4" to="#42A5F5",
-        "Logistics IN 5" to="#42A5F5",
-        "Logistics IN 6" to="#42A5F5",
+        "com.theporter.android.driverapp" to="#2E5BFF", // Porter — Blue
+        "com.rapido.rider" to="#FFCC00",                // Rapido — Yellow
+        "in.shadowfax.gandalf" to="#FF6B35",            // Shadowfax — Orange
+        "com.gojek.partner" to="#00AA13",               // Gojek — Green
+        "com.delhivery.delhiverypartner" to="#1A73E8",  // Delhivery — Blue
+        "com.ecomexpress.oneBoarding" to="#FF6B00",     // Ecom Express — Orange
+        "com.xpressbees.unified_new_arch" to="#E91E63", // Xpressbees — Pink
+        "in.letstransport.supply" to="#00BCD4",         // LetsTransport — Cyan
+        "net.blowhorn.driverapp" to="#FF5722",          // Blowhorn — Deep Orange
+        "com.driveu.partner" to="#FF9800",              // DriveU — Orange
+        "app.yulu.android.partner" to="#26A69A",        // Yulu — Teal
+
+        // Legacy packages
+        "in.swiggy.partner" to "#FC8019",               // Swiggy alt — Orange
+        "com.zomato.deliverypartner" to "#E23744",      // Zomato alt — Red
+        "com.amazon.flex" to "#FF9900",                 // Amazon Flex old — Orange
+        "com.flipkart.logistics" to "#2874F0",          // Flipkart old — Blue
     )
 
     // Time constants
@@ -193,80 +207,82 @@ object Constants {
     // Legal compliance: NotiFetch does NOT access delivery platform APIs,
     // store credentials, or use OAuth tokens. It only reads notification
     // content that the user can already see on their device.
-    const val LEGAL_DISCLAIMER = "NotiFetch reads notifications you can already see. We never access platform APIs or store credentials."
+    // Platform display names use real brand names under nominative fair use.
+    // Users can customize any display name through the app settings.
+    const val LEGAL_DISCLAIMER = "NotiFetch reads notifications you can already see. We never access platform APIs or store credentials. Platform names are customizable by the user."
 }
 
 enum class PlatformSource(val displayName: String, val packageName: String, val sourceId: String, val category: String) {
     // Food Delivery
-    UBER_DRIVER("Food & Ride Partner", "com.ubercab.driver", "uber_driver", "food"),
-    DOORDASH("Food Dasher", "com.doordash.driverapp", "doordash_dasher", "food"),
-    GRUBHUB("Food Courier US", "com.grubhub.driver", "grubhub_driver", "food"),
-    DELIVEROO("Food Rider EU", "com.deliveroo.driverapp", "deliveroo_rider", "food"),
-    JUSTEAT("Food Courier UK", "com.justeat.courier.uk", "justeat_courier", "food"),
-    TAKEAWAY("Food Courier EU", "com.takeaway.delivered4all", "takeaway_courier", "food"),
-    LIEFERANDO("Food Courier DE", "com.lieferando.courier", "lieferando_courier", "food"),
-    FOODPANDA("Food Rider Asia", "com.logistics.rider.foodpanda", "foodpanda_rider", "food"),
-    SWIGGY("Food Delivery IN", "in.swiggy.deliveryapp", "swiggy_delivery", "food"),
-    ZOMATO("Food Delivery IN 2", "com.zomato.delivery", "zomato_delivery", "food"),
-    IFOOD("Food Courier BR", "br.com.ifood.driver.app", "ifood_entregador", "food"),
-    RAPPI("Food Courier LATAM", "com.rappi.storekeeper", "rappi_repartidor", "food"),
-    WOLT("Food Courier Nordics", "com.wolt.courierapp", "wolt_courier", "food"),
-    GLOVO("Food Courier EU 2", "com.logistics.rider.glovo", "glovo_courier", "food"),
-    DEMAECAN("Food Courier JP", "com.demaecan.DemaecanDriver", "demaecan_driver", "food"),
-    TALABAT("Food Rider MENA", "com.logistics.rider.talabat", "talabat_rider", "food"),
-    MENULOG("Food Courier AU", "com.menulog.courier", "menulog_courier", "food"),
-    KEETA("Food Rider HK", "com.sankuai.sailor.courier", "keeta_rider", "food"),
+    UBER_DRIVER("Uber Driver", "com.ubercab.driver", "uber_driver", "food"),
+    DOORDASH("DoorDash Dasher", "com.doordash.driverapp", "doordash_dasher", "food"),
+    GRUBHUB("Grubhub Driver", "com.grubhub.driver", "grubhub_driver", "food"),
+    DELIVEROO("Deliveroo Rider", "com.deliveroo.driverapp", "deliveroo_rider", "food"),
+    JUSTEAT("Just Eat Courier", "com.justeat.courier.uk", "justeat_courier", "food"),
+    TAKEAWAY("Takeaway Courier", "com.takeaway.delivered4all", "takeaway_courier", "food"),
+    LIEFERANDO("Lieferando Courier", "com.lieferando.courier", "lieferando_courier", "food"),
+    FOODPANDA("Foodpanda Rider", "com.logistics.rider.foodpanda", "foodpanda_rider", "food"),
+    SWIGGY("Swiggy Delivery", "in.swiggy.deliveryapp", "swiggy_delivery", "food"),
+    ZOMATO("Zomato Delivery", "com.zomato.delivery", "zomato_delivery", "food"),
+    IFOOD("iFood Entregador", "br.com.ifood.driver.app", "ifood_entregador", "food"),
+    RAPPI("Rappi Repartidor", "com.rappi.storekeeper", "rappi_repartidor", "food"),
+    WOLT("Wolt Courier", "com.wolt.courierapp", "wolt_courier", "food"),
+    GLOVO("Glovo Courier", "com.logistics.rider.glovo", "glovo_courier", "food"),
+    DEMAECAN("Demae-can Driver", "com.demaecan.DemaecanDriver", "demaecan_driver", "food"),
+    TALABAT("Talabat Rider", "com.logistics.rider.talabat", "talabat_rider", "food"),
+    MENULOG("Menulog Courier", "com.menulog.courier", "menulog_courier", "food"),
+    KEETA("Keeta Rider", "com.sankuai.sailor.courier", "keeta_rider", "food"),
 
     // Grocery
-    INSTACART("Grocery Shopper", "com.instacart.shopper", "instacart_shopper", "grocery"),
-    GOPUFF("Grocery Courier", "com.gopuff.godrive2.live", "gopuff_driver", "grocery"),
-    BLINKIT("Grocery Quick IN", "app.blinkit.onboarding", "blinkit_partner", "grocery"),
-    BIGBASKET("Grocery IN", "com.bigbasket.dapp.activity", "bigbasket_partner", "grocery"),
-    MERCADO("Grocery LATAM", "com.mercadoenvios.crowdsourcing", "mercado_envios", "grocery"),
-    WOOLWORTHS("Grocery AU", "au.com.woolworths.android.driver", "woolworths_driver", "grocery"),
-    ZEPTO("Quick Grocery IN", "com.zepto.rider", "zepto_partner", "grocery"),
-    FLINK("Grocery EU", "com.flink.workforce", "flink_rider", "grocery"),
-    SHIPT("Grocery Shopper US", "com.shipt.shopper", "shipt_shopper", "grocery"),
+    INSTACART("Instacart Shopper", "com.instacart.shopper", "instacart_shopper", "grocery"),
+    GOPUFF("Gopuff Driver", "com.gopuff.godrive2.live", "gopuff_driver", "grocery"),
+    BLINKIT("Blinkit Delivery", "app.blinkit.onboarding", "blinkit_partner", "grocery"),
+    BIGBASKET("BigBasket Delivery", "com.bigbasket.dapp.activity", "bigbasket_partner", "grocery"),
+    MERCADO("Mercado Envios", "com.mercadoenvios.crowdsourcing", "mercado_envios", "grocery"),
+    WOOLWORTHS("WooliesGO", "au.com.woolworths.android.driver", "woolworths_driver", "grocery"),
+    ZEPTO("Zepto Delivery", "com.zepto.rider", "zepto_partner", "grocery"),
+    FLINK("Flink Rider", "com.flink.workforce", "flink_rider", "grocery"),
+    SHIPT("Shipt Shopper", "com.shipt.shopper", "shipt_shopper", "grocery"),
 
     // Package
-    AMAZON_FLEX("Package Flex", "com.amazon.flex.rabbit", "amazon_flex", "package"),
-    UPS("Package Courier US", "com.ups.genesispd", "ups_driver", "package"),
-    DUNZO("Package IN", "com.dunzo.partner", "dunzo_partner", "package"),
-    LALAMOVE("Package Courier Asia", "com.lalamove.global.driver.sea", "lalamove_driver", "package"),
-    BORZO("Package Courier IN", "global.dostavista.courier", "borzo_courier", "package"),
+    AMAZON_FLEX("Amazon Flex", "com.amazon.flex.rabbit", "amazon_flex", "package"),
+    UPS("UPS Driver", "com.ups.genesispd", "ups_driver", "package"),
+    DUNZO("Dunzo Partner", "com.dunzo.partner", "dunzo_partner", "package"),
+    LALAMOVE("Lalamove Driver", "com.lalamove.global.driver.sea", "lalamove_driver", "package"),
+    BORZO("Borzo Courier", "global.dostavista.courier", "borzo_courier", "package"),
 
     // Courier
-    POSTMATES("Courier US", "com.postmates.android.courier", "postmates_fleet", "courier"),
-    ROADIE("Courier US 2", "com.roadie.drive.android.app", "roadie_driver", "courier"),
-    STUART("Courier EU", "com.stuart.courier", "stuart_courier", "courier"),
-    GOGO("Courier PH", "com.quadx.riderapp", "gogo_rider", "courier"),
+    POSTMATES("Postmates Fleet", "com.postmates.android.courier", "postmates_fleet", "courier"),
+    ROADIE("Roadie Driver", "com.roadie.drive.android.app", "roadie_driver", "courier"),
+    STUART("Stuart Courier", "com.stuart.courier", "stuart_courier", "courier"),
+    GOGO("GoGo Xpress", "com.quadx.riderapp", "gogo_rider", "courier"),
 
     // Last-Mile
-    AMAZON_RELAY("Logistics Relay", "com.amazon.relay", "amazon_relay", "last-mile"),
-    EKART("Last Mile IN", "com.ekartkiranaonboarding", "ekart_partner", "last-mile"),
-    EKART_FIELD("Last Mile IN 2", "com.ekart.logistics.app", "ekart_field", "last-mile"),
-    JNE("Last Mile ID", "id.my.irsyadf.jobdriver", "jne_kurir", "last-mile"),
-    ARAMEX("Last Mile MENA", "com.aramex.ecourier", "aramex_courier", "last-mile"),
-    NINJA_VAN("Last Mile SEA", "co.ninjavan.swiftninja_global", "ninja_van_driver", "last-mile"),
+    AMAZON_RELAY("Amazon Relay", "com.amazon.relay", "amazon_relay", "last-mile"),
+    EKART("Ekart Delivery", "com.ekartkiranaonboarding", "ekart_partner", "last-mile"),
+    EKART_FIELD("Ekart Field X", "com.ekart.logistics.app", "ekart_field", "last-mile"),
+    JNE("JNE Kurir", "id.my.irsyadf.jobdriver", "jne_kurir", "last-mile"),
+    ARAMEX("Aramex Courier", "com.aramex.ecourier", "aramex_courier", "last-mile"),
+    NINJA_VAN("Ninja Van Driver", "co.ninjavan.swiftninja_global", "ninja_van_driver", "last-mile"),
 
     // Ride
-    LYFT("Ride Partner US", "com.lyft.android.driver", "lyft_driver", "ride"),
-    OLA("Ride Partner IN", "com.olacabs.oladriver", "ola_driver", "ride"),
-    GRAB("Ride Partner SEA", "com.grabtaxi.driver2", "grab_driver", "ride"),
-    CAREEM("Ride Partner MENA", "com.careem.adma", "careem_captain", "ride"),
-    DIDI("Ride Partner LATAM", "com.didiglobal.driver", "didi_driver", "ride"),
-    BOLT("Ride Partner EU", "ee.mtakso.driver", "bolt_driver", "ride"),
+    LYFT("Lyft Driver", "com.lyft.android.driver", "lyft_driver", "ride"),
+    OLA("Ola Driver", "com.olacabs.oladriver", "ola_driver", "ride"),
+    GRAB("Grab Driver", "com.grabtaxi.driver2", "grab_driver", "ride"),
+    CAREEM("Careem Captain", "com.careem.adma", "careem_captain", "ride"),
+    DIDI("DiDi Driver", "com.didiglobal.driver", "didi_driver", "ride"),
+    BOLT("Bolt Driver", "ee.mtakso.driver", "bolt_driver", "ride"),
 
     // India-specific
-    PORTER("Logistics IN", "com.theporter.android.driverapp", "porter_partner", "package"),
-    RAPIDO("Bike Taxi IN", "com.rapido.rider", "rapido_captain", "ride"),
-    SHADOWFAX("Last Mile IN 3", "in.shadowfax.gandalf", "shadowfax_partner", "last-mile"),
-    DELHIVERY("Logistics IN 2", "com.delhivery.delhiverypartner", "delhivery_partner", "last-mile"),
-    ECOM_EXPRESS("Logistics IN 3", "com.ecomexpress.oneBoarding", "ecom_express", "last-mile"),
-    XPRESSBEES("Logistics IN 4", "com.xpressbees.unified_new_arch", "xpressbees", "last-mile"),
-    LETSTRANSPORT("Logistics IN 5", "in.letstransport.supply", "letstransport_partner", "courier"),
-    BLOWHORN("Logistics IN 6", "net.blowhorn.driverapp", "blowhorn_driver", "courier"),
-    DRIVEU("Driver Partner IN", "com.driveu.partner", "driveu_partner", "ride"),
-    YULU("Mobility IN", "app.yulu.android.partner", "yulu_partner", "ride"),
-    GOJEK("Super App ID", "com.gojek.partner", "gojek_driver", "food"),
+    PORTER("Porter Driver", "com.theporter.android.driverapp", "porter_partner", "package"),
+    RAPIDO("Rapido Captain", "com.rapido.rider", "rapido_captain", "ride"),
+    SHADOWFAX("Shadowfax Delivery", "in.shadowfax.gandalf", "shadowfax_partner", "last-mile"),
+    DELHIVERY("Delhivery Partner", "com.delhivery.delhiverypartner", "delhivery_partner", "last-mile"),
+    ECOM_EXPRESS("Ecom Express", "com.ecomexpress.oneBoarding", "ecom_express", "last-mile"),
+    XPRESSBEES("Xpressbees", "com.xpressbees.unified_new_arch", "xpressbees", "last-mile"),
+    LETSTRANSPORT("LetsTransport", "in.letstransport.supply", "letstransport_partner", "courier"),
+    BLOWHORN("Blowhorn Driver", "net.blowhorn.driverapp", "blowhorn_driver", "courier"),
+    DRIVEU("DriveU Partner", "com.driveu.partner", "driveu_partner", "ride"),
+    YULU("Yulu Partner", "app.yulu.android.partner", "yulu_partner", "ride"),
+    GOJEK("Gojek Driver", "com.gojek.partner", "gojek_driver", "food"),
 }

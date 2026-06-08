@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.notifetch.app.data.local.CapturedNotification
 import com.notifetch.app.data.local.NotificationDao
+import com.notifetch.app.data.local.PlatformConfig
 import com.notifetch.app.data.repository.AuthRepository
 import com.notifetch.app.data.repository.NotificationRepository
 import com.notifetch.app.util.Helpers
@@ -28,7 +29,9 @@ data class HomeUiState(
     val isSyncing: Boolean = false,
     val searchQuery: String = "",
     val selectedPlatform: String? = null,
-    val isRefreshing: Boolean = false
+    val isRefreshing: Boolean = false,
+    // Map of packageName → resolved display name (custom → default)
+    val platformNameMap: Map<String, String> = emptyMap()
 )
 
 @HiltViewModel
@@ -44,6 +47,10 @@ class HomeViewModel @Inject constructor(
     private val _isListenerEnabled = MutableStateFlow(false)
 
     private val allNotifications = repository.getAllNotifications()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    // Platform configs for display name resolution
+    private val platformConfigsFlow = repository.getAllPlatformConfigs()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     private val filteredNotifications = combine(
@@ -91,14 +98,19 @@ class HomeViewModel @Inject constructor(
         unreadCountFlow,
         totalCountFlow,
         todayCountFlow,
-        todayEarningsFlow
-    ) { notifications, unreadCount, totalCount, todayCount, todayEarnings ->
+        todayEarningsFlow,
+        platformConfigsFlow
+    ) { notifications, unreadCount, totalCount, todayCount, todayEarnings, configs ->
+        // Build the package → resolved name map for display name resolution
+        val nameMap = configs.associate { it.packageName to it.resolvedDisplayName }
+
         HomeUiState(
             notifications = notifications,
             unreadCount = unreadCount,
             totalCount = totalCount,
             todayCount = todayCount,
-            todayEarnings = todayEarnings
+            todayEarnings = todayEarnings,
+            platformNameMap = nameMap
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), HomeUiState())
 

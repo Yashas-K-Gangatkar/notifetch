@@ -63,6 +63,42 @@ class NotificationRepository @Inject constructor(
 
     suspend fun deleteAllNotifications() = notificationDao.deleteAll()
 
+    // ═══════════════════════════════════════════════════════════════════════
+    // Platform Display Name Resolution
+    //
+    // Resolution order:
+    //   1. customDisplayName (user's custom name, e.g., "Z" or "My Delivery App")
+    //   2. displayName (default brand name, e.g., "Swiggy Delivery")
+    //
+    // This "user choice" model is the legal defense: we default to the
+    // real brand name under nominative fair use, but the user can change
+    // it to whatever they want.
+    // ═══════════════════════════════════════════════════════════════════════
+
+    /**
+     * Get the resolved display name for a platform.
+     * Returns custom name if set, otherwise the default brand name.
+     */
+    suspend fun getResolvedDisplayName(packageName: String): String {
+        val resolved = platformConfigDao.getResolvedDisplayName(packageName)
+        return resolved ?: Constants.PARTNER_PACKAGES[packageName] ?: packageName
+    }
+
+    /**
+     * Update the custom display name for a platform.
+     * Pass null to reset to the default brand name.
+     */
+    suspend fun updateCustomDisplayName(packageName: String, customName: String?) {
+        platformConfigDao.updateCustomDisplayName(packageName, customName)
+    }
+
+    /**
+     * Reset a platform's display name back to the default brand name.
+     */
+    suspend fun resetDisplayName(packageName: String) {
+        platformConfigDao.updateCustomDisplayName(packageName, null)
+    }
+
     suspend fun syncPendingNotifications(): Result<Int> {
         return try {
             val unsynced = notificationDao.getUnsyncedNotifications()

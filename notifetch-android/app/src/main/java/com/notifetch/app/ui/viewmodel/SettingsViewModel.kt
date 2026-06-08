@@ -56,6 +56,26 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Update the custom display name for a platform.
+     * Pass null to reset to the default brand name.
+     * This is the core of the "user choice" legal model.
+     */
+    fun updateCustomDisplayName(packageName: String, customName: String?) {
+        viewModelScope.launch {
+            repository.updateCustomDisplayName(packageName, customName)
+        }
+    }
+
+    /**
+     * Reset a platform's display name back to the default brand name.
+     */
+    fun resetDisplayName(packageName: String) {
+        viewModelScope.launch {
+            repository.resetDisplayName(packageName)
+        }
+    }
+
     fun setDarkMode(enabled: Boolean) {
         _isDarkMode.value = enabled
     }

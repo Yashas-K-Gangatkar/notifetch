@@ -1,6 +1,7 @@
 package com.notifetch.app.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,30 +15,47 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.NotificationsActive
+import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Sync
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.notifetch.app.data.local.PlatformConfig
 import com.notifetch.app.notification.NotiFetchListenerService
 import com.notifetch.app.ui.components.PlatformIcon
 import com.notifetch.app.ui.theme.getPlatformColor
@@ -51,6 +69,10 @@ fun SettingsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
+
+    // State for the rename dialog
+    var showRenameDialog by remember { mutableStateOf(false) }
+    var renamingPlatform by remember { mutableStateOf<PlatformConfig?>(null) }
 
     Column(
         modifier = Modifier
@@ -210,10 +232,10 @@ fun SettingsScreen(
                 }
             }
 
-            // Platform Filters
+            // Platform Names section
             item {
                 Text(
-                    text = "Platform Filters",
+                    text = "Platform Names",
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -221,68 +243,50 @@ fun SettingsScreen(
                 )
             }
 
+            // Legal disclaimer about user choice model
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Text(
-                        text = "Toggle which delivery partner apps to monitor",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(16.dp, 16.dp, 16.dp, 0.dp)
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.2f)
                     )
+                ) {
+                    Row(
+                        modifier = Modifier.padding(12.dp),
+                        verticalAlignment = Alignment.Top
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Info,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.tertiary,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Default names use real brand names for easy identification. You can rename any platform to whatever you prefer — this is your choice. Tap the edit icon to customize.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
             }
 
-            // Platform list
+            // Platform list with rename capability
             items(
                 items = uiState.platformConfigs,
                 key = { it.packageName }
             ) { config ->
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(12.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        PlatformIcon(
-                            platform = config.displayName,
-                            color = getPlatformColor(config.displayName),
-                            size = 36.dp
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = config.displayName,
-                                style = MaterialTheme.typography.bodyLarge,
-                                fontWeight = FontWeight.Medium
-                            )
-                            Text(
-                                text = config.packageName,
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            if (config.notificationCount > 0) {
-                                Text(
-                                    text = "${config.notificationCount} captured • ${config.lastNotificationAt?.let { Helpers.formatTimeAgo(it) } ?: "Never"}",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                        }
-                        Switch(
-                            checked = config.isEnabled,
-                            onCheckedChange = { enabled ->
-                                viewModel.togglePlatform(config.packageName, enabled)
-                            }
-                        )
+                PlatformNameCard(
+                    config = config,
+                    onToggle = { enabled ->
+                        viewModel.togglePlatform(config.packageName, enabled)
+                    },
+                    onRename = {
+                        renamingPlatform = config
+                        showRenameDialog = true
                     }
-                }
+                )
             }
 
             // Privacy note
@@ -319,4 +323,202 @@ fun SettingsScreen(
             item { Spacer(modifier = Modifier.height(16.dp)) }
         }
     }
+
+    // Rename dialog
+    if (showRenameDialog && renamingPlatform != null) {
+        RenamePlatformDialog(
+            config = renamingPlatform!!,
+            onDismiss = {
+                showRenameDialog = false
+                renamingPlatform = null
+            },
+            onConfirm = { customName ->
+                viewModel.updateCustomDisplayName(
+                    renamingPlatform!!.packageName,
+                    customName
+                )
+                showRenameDialog = false
+                renamingPlatform = null
+            },
+            onReset = {
+                viewModel.resetDisplayName(renamingPlatform!!.packageName)
+                showRenameDialog = false
+                renamingPlatform = null
+            }
+        )
+    }
+}
+
+@Composable
+private fun PlatformNameCard(
+    config: PlatformConfig,
+    onToggle: (Boolean) -> Unit,
+    onRename: () -> Unit
+) {
+    val isCustom = config.customDisplayName != null
+    val displayName = config.resolvedDisplayName
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            PlatformIcon(
+                platform = displayName,
+                color = getPlatformColor(displayName, config.packageName),
+                packageName = config.packageName,
+                size = 36.dp
+            )
+            Spacer(modifier = Modifier.width(12.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text(
+                        text = displayName,
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.Medium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    if (isCustom) {
+                        Card(
+                            shape = RoundedCornerShape(4.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
+                            )
+                        ) {
+                            Text(
+                                text = "custom",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp)
+                            )
+                        }
+                    }
+                }
+                Text(
+                    text = if (isCustom)
+                        "Default: ${config.displayName}"
+                    else
+                        config.packageName,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                if (config.notificationCount > 0) {
+                    Text(
+                        text = "${config.notificationCount} captured • ${config.lastNotificationAt?.let { Helpers.formatTimeAgo(it) } ?: "Never"}",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+            // Edit/rename button
+            IconButton(
+                onClick = onRename,
+                modifier = Modifier.size(36.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Edit,
+                    contentDescription = "Rename",
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(18.dp)
+                )
+            }
+            Switch(
+                checked = config.isEnabled,
+                onCheckedChange = onToggle
+            )
+        }
+    }
+}
+
+@Composable
+private fun RenamePlatformDialog(
+    config: PlatformConfig,
+    onDismiss: () -> Unit,
+    onConfirm: (String?) -> Unit,
+    onReset: () -> Unit
+) {
+    var customName by remember { mutableStateOf(config.customDisplayName ?: config.displayName) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text("Rename Platform")
+        },
+        text = {
+            Column {
+                Text(
+                    text = "Choose how \"${config.displayName}\" appears in your app. You can use the brand name, a short code, or anything you prefer.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                OutlinedTextField(
+                    value = customName,
+                    onValueChange = { customName = it },
+                    label = { Text("Display Name") },
+                    placeholder = { Text(config.displayName) },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(onDone = {
+                        val trimmed = customName.trim()
+                        if (trimmed.isNotBlank() && trimmed != config.displayName) {
+                            onConfirm(trimmed)
+                        } else if (trimmed == config.displayName) {
+                            onConfirm(null) // Reset to default
+                        }
+                    }),
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "This is your personal preference. NotiFetch is not affiliated with any delivery platform.",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    val trimmed = customName.trim()
+                    if (trimmed.isBlank()) {
+                        onConfirm(null)
+                    } else if (trimmed == config.displayName) {
+                        onConfirm(null) // Same as default = reset
+                    } else {
+                        onConfirm(trimmed)
+                    }
+                }
+            ) {
+                Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(modifier = Modifier.width(4.dp))
+                Text("Save")
+            }
+        },
+        dismissButton = {
+            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                if (config.customDisplayName != null) {
+                    FilledTonalButton(onClick = onReset) {
+                        Icon(Icons.Default.RestartAlt, contentDescription = null, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("Reset")
+                    }
+                }
+                TextButton(onClick = onDismiss) {
+                    Text("Cancel")
+                }
+            }
+        }
+    )
 }

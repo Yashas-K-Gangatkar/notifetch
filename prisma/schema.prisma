@@ -93,13 +93,15 @@ model NotificationSource {
   id                  String   @id @default(cuid())
   userId              String
   platformId          String
-  platformName        String
+  platformName        String   // Default brand name (e.g., "Swiggy Delivery", "DoorDash Dasher")
+  customName          String?  // User's custom display name (e.g., "Swiggy", "Z", "My Delivery App")
   category            String
   packageName         String?
   listening           Boolean  @default(false)
   notificationsToday  Int      @default(0)
   earningsToday       Float    @default(0)
   lastNotificationAt  DateTime?
+  lastSyncAt          DateTime?
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 
