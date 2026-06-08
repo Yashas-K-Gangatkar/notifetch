@@ -219,3 +219,45 @@ Stage Summary:
 - UI: Dark theme + amber accent, Material3, WebView + native dashboard
 - Permissions: Proper handling of BIND_NOTIFICATION_LISTENER_SERVICE + POST_NOTIFICATIONS
 - NOT pushed to GitHub — awaiting user review
+
+---
+Task ID: 5
+Agent: Main Agent
+Task: Build native Android app with Compose + improve web theme + backend API for device notifications
+
+Work Log:
+- Created complete notifetch-android/ directory with 55 files using Jetpack Compose
+- Core: NotiFetchListenerService with NotificationListenerService captures from 15 partner apps
+- Core: NotificationParser with platform-specific regex for extracting order values, locations, distances, categories
+- Data: Room database (CapturedNotification, PlatformConfig entities, DAOs with 20+ queries)
+- Data: Retrofit API client (NotiFetchApi) with individual and batch notification endpoints
+- Data: NotificationRepository with local DB + remote API + sync logic (batch first, fallback to individual)
+- Data: AuthRepository with Firebase Anonymous Auth + DataStore token persistence
+- UI: Jetpack Compose + Material 3 with NotiFetch amber/orange brand colors
+- UI: HomeScreen (dashboard with stats, platform filters, notification feed, pull-to-refresh)
+- UI: PermissionScreen (step-by-step guide to enable notification access with visual instructions)
+- UI: NotificationDetailScreen, SettingsScreen, ProfileScreen
+- UI: Reusable components (NotificationCard, PlatformIcon, StatCard, SearchBar, EmptyState, NotiFetchScaffold)
+- DI: Hilt modules (DatabaseModule, NetworkModule, FirebaseModule)
+- Worker: SyncWorker for periodic 15-min sync of pending notifications
+- Firebase: NotiFetchMessagingService for FCM push notifications
+- Theme: Per-platform brand colors (Swiggy orange, Zomato red, Amazon orange, etc.)
+- Updated Prisma schema (SQLite + PostgreSQL) with rich notification fields (orderValue, pickupLocation, dropoffLocation, distance, category, platform, packageName, bigText, subText, deviceId, receivedAt)
+- Added DeviceAuth model for Android device authentication
+- Added Preferences model to PostgreSQL schema
+- Created POST /api/notifications/batch endpoint for batch notifications from Android
+- Created POST /api/auth/token endpoint for device authentication
+- Created POST /api/devices/link endpoint for linking device to user account
+- Updated POST /api/notifications to support both web (NextAuth) and Android (device auth) authentication
+- Updated GET /api/notifications with category, platform filters, today stats, platform stats aggregation
+- Improved web app theme: warmer NotiFetch amber/orange brand colors in dark mode, glass effect, gradient text, glow pulse animation, shimmer animation, platform color utilities
+- Updated dashboard with rich notification cards showing category, order value, pickup/dropoff locations, distance, platform color coding, today stats
+- Updated notifications page with rich notification display, platform badges, category badges, route visualization, today's summary stats
+- Pushed all changes to GitHub: commit e995150
+
+Stage Summary:
+- Native Android app: 55 files in notifetch-android/, Jetpack Compose + Hilt + Room + Retrofit + Firebase
+- Web app: Improved theme with warm NotiFetch colors, rich notification display
+- Backend: 3 new API endpoints for device auth, batch notifications, device linking
+- Database: Notification model expanded with 12 new fields, DeviceAuth model added
+- All changes pushed to GitHub main branch
