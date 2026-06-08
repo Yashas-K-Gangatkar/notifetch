@@ -165,3 +165,57 @@ Stage Summary:
 - Build output: 26 routes (7 static + 19 dynamic)
 - Database: 2 new models (Notification, Preferences) pushed to SQLite
 - GitHub: Force-pushed to Yashas-K-Gangatkar/d2 main branch
+
+---
+Task ID: 4
+Agent: Android Native Developer
+Task: Build native Android app for NotiFetch with NotificationListenerService
+
+Work Log:
+- Cloned repo from GitHub: Yashas-K-Gangatkar/d2 to /tmp/notifetch-android
+- Read existing TWA structure for package name (com.notifetch.app) and signing config reference
+- Created complete android-app/ directory with 36 files
+
+Build System (4 files):
+- Root build.gradle: Kotlin 1.9.22, AGP 8.2.2, Gradle 8.5
+- settings.gradle, gradle.properties, gradle-wrapper.properties
+- App build.gradle: compileSdk 35, targetSdk 35, minSdk 24, ViewBinding, signing config
+
+Kotlin Source Files (9 files):
+- NotificationData.kt: Room Entity, DeliveryPartners registry (25+ platforms with emojis + categories), CategoryInfo, API request/response models
+- NotificationStorage.kt: Room database (NotiFetchDatabase), NotificationDao (15+ queries), NotificationRepository, Converters
+- NotiFetchListenerService.kt: Core NotificationListenerService — filters delivery apps, parses notification content, saves to Room, forwards to backend, shows in-app notification
+- ApiClient.kt: OkHttp client — forwardNotification(), sendTestNotification(), healthCheck(), retryFailedNotifications(), auto device ID
+- MainActivity.kt: WebView (loads d2-liart-nine.vercel.app) + Dashboard tab + Settings tab, BottomNavigationView, first-launch permission dialog, broadcast receiver for listener state
+- DashboardActivity.kt: Full dashboard with RecyclerView, filter chips (All/Category/Source), pull-to-refresh, mark all read, clear all, test notification, listener status
+- PermissionActivity.kt: Notification access guide — status check, system settings launcher, auto-recheck on resume
+- NotificationAdapter.kt: ListAdapter with DiffUtil, emoji icons, unread dots, category chips, click/long-click
+- BootReceiver.kt: BOOT_COMPLETED / MY_PACKAGE_REPLACED handler, retries failed notifications
+
+Layout XML (5 files):
+- activity_main.xml: CoordinatorLayout with WebView + Dashboard + Settings containers + BottomNavigationView
+- activity_dashboard.xml: AppBarLayout, status card, stats, action buttons, ChipGroup filters, SwipeRefreshLayout + RecyclerView, empty state, FAB
+- activity_permission.xml: Permission guide with emoji, status card, how-it-works, privacy card, enable/continue/skip buttons
+- item_notification.xml: MaterialCardView with unread dot, emoji, source, title, body, timestamp, category chip
+- fragment_webview.xml: ProgressBar + WebView
+
+Resources (12+ files):
+- values/strings.xml: App name, permission descriptions, asset_statements for Digital Asset Links
+- values/colors.xml: NotiFetch amber (#f59e0b), dark theme palette, text/status/category colors
+- values/themes.xml: Material3 Dark theme with amber accent
+- values-v31/themes.xml: Android 12+ splash screen
+- drawable/: ic_notification, ic_launcher_foreground, circle_amber, progress_bar_amber, splash_screen
+- color/bottom_nav_color.xml, menu/bottom_nav_menu.xml, xml/notification_listener_config.xml
+- mipmap-anydpi-v26/: Adaptive icons
+
+Documentation:
+- android-app/README.md: Complete build guide, supported platforms table, troubleshooting, architecture overview
+
+Stage Summary:
+- 36 files created in android-app/ directory
+- Core feature: NotificationListenerService captures 25+ delivery partner app notifications
+- Backend forwarding: POST to https://d2-liart-nine.vercel.app/api/notifications
+- Offline-first: Room database with 15+ queries, async retry for failed forwards
+- UI: Dark theme + amber accent, Material3, WebView + native dashboard
+- Permissions: Proper handling of BIND_NOTIFICATION_LISTENER_SERVICE + POST_NOTIFICATIONS
+- NOT pushed to GitHub — awaiting user review
