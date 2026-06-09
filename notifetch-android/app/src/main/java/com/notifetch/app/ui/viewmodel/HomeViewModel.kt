@@ -95,24 +95,30 @@ class HomeViewModel @Inject constructor(
 
     val uiState: StateFlow<HomeUiState> = combine(
         filteredNotifications,
-        unreadCountFlow,
-        totalCountFlow,
-        todayCountFlow,
-        todayEarningsFlow,
+        combine(unreadCountFlow, totalCountFlow, todayCountFlow, todayEarningsFlow) { unread, total, today, earnings ->
+            StatsBundle(unread, total, today, earnings)
+        },
         platformConfigsFlow
-    ) { notifications, unreadCount, totalCount, todayCount, todayEarnings, configs ->
+    ) { notifications, stats, configs ->
         // Build the package → resolved name map for display name resolution
         val nameMap = configs.associate { it.packageName to it.resolvedDisplayName }
 
         HomeUiState(
             notifications = notifications,
-            unreadCount = unreadCount,
-            totalCount = totalCount,
-            todayCount = todayCount,
-            todayEarnings = todayEarnings,
+            unreadCount = stats.unreadCount,
+            totalCount = stats.totalCount,
+            todayCount = stats.todayCount,
+            todayEarnings = stats.todayEarnings,
             platformNameMap = nameMap
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), HomeUiState())
+
+    private data class StatsBundle(
+        val unreadCount: Int,
+        val totalCount: Int,
+        val todayCount: Int,
+        val todayEarnings: Double
+    )
 
     // Additional state flows accessed separately for compose
     val weekEarnings = weekEarningsFlow

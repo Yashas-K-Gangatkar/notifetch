@@ -46,6 +46,9 @@ class NotificationRepository @Inject constructor(
     fun getNotificationsSince(startTime: Long): Flow<List<CapturedNotification>> =
         notificationDao.getNotificationsSince(startTime)
 
+    fun getCountInTimeRange(startTime: Long, endTime: Long): Flow<Int> =
+        notificationDao.getCountInTimeRange(startTime, endTime)
+
     suspend fun insertNotification(notification: CapturedNotification): Long {
         val id = notificationDao.insertNotification(notification)
         platformConfigDao.incrementNotificationCount(

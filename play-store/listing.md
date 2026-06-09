@@ -27,77 +27,60 @@ Track all delivery notifications in one place. Never miss an order update again.
 ```
 NotiFetch — One Feed. All Notifications. Every Platform. Worldwide.
 
-🚀 THE SMART DELIVERY COMPANION FOR GIG WORKERS & ONLINE SHOPPERS
+THE SMART DELIVERY COMPANION FOR GIG WORKERS
 
-Stop switching between apps to track your deliveries. NotiFetch brings all your delivery notifications from every platform into a single, unified dashboard. Whether you're a delivery driver managing orders across Swiggy, Zomato, and Uber Eats, or an online shopper tracking packages from Amazon, Flipkart, and more — NotiFetch keeps everything organized in one place.
+Stop switching between apps to track your deliveries. NotiFetch brings all your delivery notifications from every platform into a single, unified dashboard. Whether you're a delivery driver managing orders across Swiggy, Zomato, and Uber Eats, or a courier handling Amazon Flex and Delhivery — NotiFetch keeps everything organized in one place.
 
-📋 UNIFIED NOTIFICATION DASHBOARD
+UNIFIED NOTIFICATION DASHBOARD
 • Automatically captures delivery notifications from all your apps
-• Smart categorization by platform: food delivery, e-commerce, ride-sharing, logistics
+• Smart categorization by platform: food delivery, grocery, package, courier, last-mile, ride
 • Real-time updates with push notification alerts
 • One-tap access to order details, tracking links, and platform apps
 
-🔔 SMART NOTIFICATION MANAGEMENT
-• Never miss an important delivery update again
-• Custom alert rules — choose which notifications to prioritize
-• Earnings alerts for gig workers — get notified about surge pricing, high-value orders, and bonus opportunities
-• Quiet hours — silence non-critical notifications during your downtime
-• Notification history — search and filter past alerts anytime
+55+ PLATFORMS SUPPORTED WORLDWIDE
+NotiFetch works with delivery partner/driver apps across every continent:
+• Food Delivery: Swiggy, Zomato, Uber Driver, DoorDash, Deliveroo, iFood, Wolt, Glovo, Foodpanda, and more
+• Grocery: Instacart, Blinkit, Zepto, BigBasket, Shipt, and more
+• Package & Parcel: Amazon Flex, UPS, Lalamove, Borzo, and more
+• Last-Mile: Amazon Relay, Ekart, Ninja Van, Aramex, Delhivery, and more
+• Ride & Transport: Lyft, Ola, Grab, Bolt, DiDi, Rapido, and more
 
-💰 EARNINGS TRACKER (FOR GIG WORKERS)
-• Automatic earnings calculation from delivery notifications
-• Daily, weekly, and monthly earnings breakdown
-• Platform-wise earnings comparison
-• Tips and incentives tracking
-• Export earnings reports for tax filing and record-keeping
+CUSTOMIZE PLATFORM NAMES
+• Every platform name is customizable — rename any platform to whatever you prefer
+• Default names use real brand names for easy identification
+• Your choice, your app
 
-📊 PLATFORM SUPPORT
-NotiFetch works with all major delivery and e-commerce platforms:
-
-Food Delivery: Swiggy, Zomato, Uber Eats, DoorDash, Grubhub, Deliveroo, Foodpanda
-E-Commerce: Amazon, Flipkart, Myntra, Ajio, Meesho, Shopify stores
-Ride-Sharing: Uber, Ola, Lyft, Bolt
-Logistics: Delhivery, BlueDart, DTDC, FedEx, DHL, UPS, India Post
-Grocery: Blinkit, Zepto, BigBasket, Instacart
-
-🔒 PRIVACY-FIRST DESIGN
+PRIVACY-FIRST & LEGALLY COMPLIANT
 • We never collect your delivery platform login credentials
 • Works using Android's Notification Listener Service — no account linking needed
-• All notification data is encrypted in transit and at rest
-• You're in complete control — delete your data anytime
-• GDPR and CCPA compliant
+• Explicit consent required before any data collection (DPDP Act 2023 + GDPR)
+• Only reads from verified delivery partner apps — no personal messages or banking apps
+• Data minimization: we store only what you can see on your screen
+• 30-day auto-deletion of all notification data
+• Export or delete all your data anytime (GDPR Art. 17 + DPDP Act §8)
+• Full Privacy Policy and Terms of Service accessible in-app
 
-⚡ LIGHTNING FAST
+NOT AFFILIATED WITH ANY DELIVERY PLATFORM
+NotiFetch is an independent notification management tool. We are not affiliated with, endorsed by, or connected to any delivery platform. Platform names appear for identification purposes only. You are responsible for complying with each platform's terms of service.
+
+LIGHTNING FAST
 • Near-instant notification capture and display
 • Minimal battery and data usage
 • Works offline — view your notification history without internet
 • Lightweight app — small download size, optimized for all Android devices
 
-🌐 GLOBAL COVERAGE
-NotiFetch works with delivery platforms worldwide. No matter where you are or which services you use, your notifications are unified in one dashboard.
-
-📱 EASY SETUP
+EASY SETUP
 1. Download NotiFetch
-2. Grant notification access permission
-3. That's it! NotiFetch automatically starts capturing and organizing your delivery notifications
+2. Read and accept the consent agreement
+3. Grant notification access permission
+4. That's it! NotiFetch automatically starts capturing and organizing your delivery notifications
 
-🎯 PERFECT FOR:
+PERFECT FOR:
 • Delivery drivers managing multiple gig platforms
-• Online shoppers who want a single tracking dashboard
-• Small business owners tracking inventory shipments
+• Couriers tracking orders across different services
 • Anyone who receives delivery notifications regularly
 
-💎 PREMIUM FEATURES
-• Unlimited notification history
-• Advanced earnings analytics
-• Custom alert rules and filters
-• Priority support
-• Ad-free experience
-
-Start using NotiFetch today and never miss a delivery update again!
-
----
-© 2024 NotiFetch. All rights reserved.
+© 2024-2026 NotiFetch. All rights reserved.
 ```
 
 > Character count: ~2,450 ✓ (well within 4000 limit)
@@ -231,28 +214,41 @@ Consider A/B testing:
 
 ---
 
-## Release Notes (Version 1.0.0)
+## Release Notes (Version 2.0.0)
 
 ```
-🎉 Welcome to NotiFetch!
+NotiFetch v2.0.0 — Legal Compliance & Platform Customization Update
 
-• Unified notification dashboard for all delivery platforms
-• Smart categorization by platform type
-• Real-time push notification alerts
-• Earnings tracker for gig workers
-• Privacy-first design — no credentials collected
-• Works with 20+ delivery platforms worldwide
+NEW FEATURES:
+• Platform name customization — rename any platform to your preference
+• Full legal compliance — DPDP Act 2023 & GDPR consent flow
+• Privacy Policy & Terms of Service pages (accessible in-app)
+• Data export and deletion rights (GDPR Art. 17 + DPDP Act §8)
+• No affiliation disclaimer on every screen
+
+IMPROVEMENTS:
+• 55+ delivery partner apps supported worldwide
+• Informed consent screen before any data collection
+• Data minimization — only notification title, text, and order info stored
+• 30-day auto-deletion policy for all notification data
+• Platform colors keyed by package name (stable across renames)
+
+LEGAL:
+• Explicit consent flow with 4 required checkboxes (DPDP Act + GDPR)
+• No affiliation notice with user responsibility disclaimer
+• Privacy-first: we never collect credentials, auth tokens, or raw extras
+• Nominative fair use for platform names (customizable by user)
 ```
 
 ---
 
 ## Checklist Before Submission
 
-- [ ] Privacy policy page live at `/privacy`
+- [x] Privacy policy page live at `/privacy`
 - [ ] Support email configured and monitored
 - [ ] Feature graphic (1024×500) designed
 - [ ] At least 2 phone screenshots captured
-- [ ] assetlinks.json updated with real signing key fingerprint
+- [x] assetlinks.json updated with real signing key fingerprint
 - [ ] AAB tested on a physical Android device
 - [ ] Content rating questionnaire completed
 - [ ] Data safety section filled in Play Console

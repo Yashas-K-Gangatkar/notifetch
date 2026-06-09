@@ -25,7 +25,7 @@ class AuthRepository @Inject constructor(
     private val api: NotiFetchApi,
     private val firebaseAuth: FirebaseAuth
 ) {
-    private val deviceId by lazy {
+    private val androidDeviceId by lazy {
         Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
     }
 
@@ -48,7 +48,7 @@ class AuthRepository @Inject constructor(
         }
     }
 
-    fun getDeviceId(): String = deviceId
+    fun getDeviceId(): String = androidDeviceId
 
     private suspend fun saveToken(token: String) {
         context.dataStore.edit { prefs ->

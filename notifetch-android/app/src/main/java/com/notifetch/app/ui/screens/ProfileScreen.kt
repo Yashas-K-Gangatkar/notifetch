@@ -3,6 +3,7 @@ package com.notifetch.app.ui.screens
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -188,7 +189,8 @@ fun ProfileScreen(
                     Spacer(modifier = Modifier.height(12.dp))
                     InfoRow(icon = Icons.Default.Devices, label = "Device ID", value = uiState.deviceId.take(12) + "...")
                     if (uiState.userId != null) {
-                        InfoRow(icon = Icons.Default.Person, label = "User ID", value = uiState.userId.take(12) + "...")
+                        val uid = uiState.userId!!
+                        InfoRow(icon = Icons.Default.Person, label = "User ID", value = uid.take(12) + "...")
                     }
                 }
             }
@@ -412,7 +414,7 @@ fun ProfileScreen(
                         color = MaterialTheme.colorScheme.primary
                     )
                     Text(
-                        text = "v1.0.0",
+                        text = "v2.0.0",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -548,5 +550,4 @@ private fun LegalLinkRow(
     }
 }
 
-private fun Modifier.clickable(onClick: () -> Unit): Modifier =
-    this.then(androidx.compose.foundation.clickable(onClick = onClick))
+// clickable imported from androidx.compose.foundation.clickable

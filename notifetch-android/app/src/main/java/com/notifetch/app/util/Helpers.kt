@@ -38,7 +38,7 @@ object Helpers {
             "INR" -> "₹${String.format(Locale.getDefault(), "%.0f", value)}"
             "USD", "CAD", "AUD", "SGD" -> "$${String.format(Locale.getDefault(), "%.2f", value)}"
             "EUR" -> "€${String.format(Locale.getDefault(), "%.2f", value)}"
-            "GBP" -> "£${String.format(Locale.getDefault()), "%.2f", value)}"
+            "GBP" -> "£${String.format(Locale.getDefault(), "%.2f", value)}"
             "JPY" -> "¥${String.format(Locale.getDefault(), "%.0f", value)}"
             "BRL" -> "R$${String.format(Locale.getDefault(), "%.2f", value)}"
             "AED", "SAR" -> "${String.format(Locale.getDefault(), "%.2f", value)} ${currency}"

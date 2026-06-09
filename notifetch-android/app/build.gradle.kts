@@ -15,16 +15,31 @@ android {
         applicationId = "com.notifetch.app"
         minSdk = 24
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0.0"
+        versionCode = 2
+        versionName = "2.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    // ─── Release Signing Configuration ─────────────────────────────────
+    // The keystore is generated via scripts/generate-signing-key.sh
+    // Passwords are read from environment variables for CI/CD security:
+    //   NOTIFETCH_STORE_PASSWORD — keystore password
+    //   NOTIFETCH_KEY_PASSWORD   — key alias password
+    signingConfigs {
+        create("release") {
+            storeFile = file("../../twa/keystore.jks")
+            storePassword = System.getenv("NOTIFETCH_STORE_PASSWORD") ?: "changeme_notifetch_store_2024"
+            keyAlias = "notifetch"
+            keyPassword = System.getenv("NOTIFETCH_KEY_PASSWORD") ?: "changeme_notifetch_store_2024"
+        }
     }
 
     buildTypes {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
+            signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -115,4 +130,10 @@ dependencies {
 
     // Coroutines
     implementation(libs.kotlinx.coroutines.android)
+
+    // Material3 XML theme support (for splash screen + activity theme)
+    implementation(libs.material3.non.compose)
+
+    // SplashScreen API
+    implementation(libs.splashscreen)
 }

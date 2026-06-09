@@ -287,8 +287,9 @@ fun PermissionScreen(
         // Alternative method
         OutlinedButton(
             onClick = {
-                val intent = android.content.Intent(android.provider.Settings.ACTION_APPS_NOTIFICATION_SETTINGS)
-                intent.putExtra("app_package", context.packageName)
+                val intent = android.content.Intent(
+                    android.provider.Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS
+                )
                 intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
                 context.startActivity(intent)
             },

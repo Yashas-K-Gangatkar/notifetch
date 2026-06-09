@@ -132,66 +132,66 @@ object Constants {
         "com.zomato.delivery" to "#E23744",             // Zomato — Red
         "br.com.ifood.driver.app" to "#EA1D2C",         // iFood — Red
         "com.rappi.storekeeper" to "#FF4444",           // Rappi — Orange/Red
-        "com.wolt.courierapp" to="#00C7E6",             // Wolt — Cyan
-        "com.logistics.rider.glovo" to="#F5C518",       // Glovo — Yellow
+        "com.wolt.courierapp" to "#00C7E6",             // Wolt — Cyan
+        "com.logistics.rider.glovo" to "#F5C518",       // Glovo — Yellow
         "com.demaecan.DemaecanDriver" to "#D94F4F",     // Demae-can — Red
         "com.logistics.rider.talabat" to "#FF5A00",     // Talabat — Orange
         "com.menulog.courier" to "#FF8000",             // Menulog — Orange
-        "com.sankuai.sailor.courier" to="#F5C518",      // Keeta — Yellow
+        "com.sankuai.sailor.courier" to "#F5C518",      // Keeta — Yellow
 
         // Grocery
         "com.instacart.shopper" to "#43B02A",           // Instacart — Green
         "com.gopuff.godrive2.live" to "#7B2FF2",        // Gopuff — Purple
-        "app.blinkit.onboarding" to="#F8E71C",          // Blinkit — Yellow
-        "com.bigbasket.dapp.activity" to="#84C225",     // BigBasket — Green
-        "com.mercadoenvios.crowdsourcing" to="#FFE600", // Mercado Libre — Yellow
-        "com.mercadoenvios.driver" to="#FFE600",        // Mercado Flex — Yellow
-        "au.com.woolworths.android.driver" to="#009444", // WooliesGO — Green
-        "com.zepto.rider" to="#8B008B",                 // Zepto — Purple/Magenta
-        "com.flink.workforce" to="#FF6B35",             // Flink — Orange
-        "com.shipt.shopper" to="#33A198",               // Shipt — Teal
+        "app.blinkit.onboarding" to "#F8E71C",          // Blinkit — Yellow
+        "com.bigbasket.dapp.activity" to "#84C225",     // BigBasket — Green
+        "com.mercadoenvios.crowdsourcing" to "#FFE600", // Mercado Libre — Yellow
+        "com.mercadoenvios.driver" to "#FFE600",        // Mercado Flex — Yellow
+        "au.com.woolworths.android.driver" to "#009444", // WooliesGO — Green
+        "com.zepto.rider" to "#8B008B",                 // Zepto — Purple/Magenta
+        "com.flink.workforce" to "#FF6B35",             // Flink — Orange
+        "com.shipt.shopper" to "#33A198",               // Shipt — Teal
 
         // Package
-        "com.amazon.flex.rabbit" to="#FF9900",          // Amazon Flex — Orange
-        "com.ups.genesispd" to="#351C15",               // UPS — Brown
-        "com.dunzo.partner" to="#00D290",               // Dunzo — Green
-        "com.lalamove.global.driver.sea" to="#F5A623",  // Lalamove — Orange
-        "global.dostavista.courier" to="#4CAF50",       // Borzo — Green
+        "com.amazon.flex.rabbit" to "#FF9900",          // Amazon Flex — Orange
+        "com.ups.genesispd" to "#351C15",               // UPS — Brown
+        "com.dunzo.partner" to "#00D290",               // Dunzo — Green
+        "com.lalamove.global.driver.sea" to "#F5A623",  // Lalamove — Orange
+        "global.dostavista.courier" to "#4CAF50",       // Borzo — Green
 
         // Courier
-        "com.postmates.android.courier" to="#000000",   // Postmates — Black
-        "com.roadie.drive.android.app" to="#42A5F5",    // Roadie — Blue
+        "com.postmates.android.courier" to "#000000",   // Postmates — Black
+        "com.roadie.drive.android.app" to "#42A5F5",    // Roadie — Blue
         "com.stuart.courier" to "#5C6BC0",              // Stuart — Indigo
-        "com.quadx.riderapp" to="#E67E22",              // GoGo Xpress — Orange
+        "com.quadx.riderapp" to "#E67E22",              // GoGo Xpress — Orange
 
         // Last-Mile
-        "com.amazon.relay" to="#FF9900",                // Amazon Relay — Orange
-        "com.ekartkiranaonboarding" to="#2874F0",       // Ekart — Blue
-        "com.ekart.logistics.app" to="#2874F0",         // Ekart Field X — Blue
-        "id.my.irsyadf.jobdriver" to="#FF6B35",         // JNE — Orange
+        "com.amazon.relay" to "#FF9900",                // Amazon Relay — Orange
+        "com.ekartkiranaonboarding" to "#2874F0",       // Ekart — Blue
+        "com.ekart.logistics.app" to "#2874F0",         // Ekart Field X — Blue
+        "id.my.irsyadf.jobdriver" to "#FF6B35",         // JNE — Orange
         "com.aramex.ecourier" to "#ED1C24",             // Aramex — Red
-        "co.ninjavan.swiftninja_global" to="#FF6B35",   // Ninja Van — Orange
+        "co.ninjavan.swiftninja_global" to "#FF6B35",   // Ninja Van — Orange
 
         // Ride
-        "com.lyft.android.driver" to="#FF00BF",         // Lyft — Pink
-        "com.olacabs.oladriver" to="#36B37E",           // Ola — Green
-        "com.grabtaxi.driver2" to="#00B14F",            // Grab — Green
-        "com.careem.adma" to="#4CB050",                 // Careem — Green
-        "com.didiglobal.driver" to="#FF6B00",           // DiDi — Orange
-        "ee.mtakso.driver" to="#34C759",                // Bolt — Green
+        "com.lyft.android.driver" to "#FF00BF",         // Lyft — Pink
+        "com.olacabs.oladriver" to "#36B37E",           // Ola — Green
+        "com.grabtaxi.driver2" to "#00B14F",            // Grab — Green
+        "com.careem.adma" to "#4CB050",                 // Careem — Green
+        "com.didiglobal.driver" to "#FF6B00",           // DiDi — Orange
+        "ee.mtakso.driver" to "#34C759",                // Bolt — Green
 
         // Other
-        "com.theporter.android.driverapp" to="#2E5BFF", // Porter — Blue
-        "com.rapido.rider" to="#FFCC00",                // Rapido — Yellow
-        "in.shadowfax.gandalf" to="#FF6B35",            // Shadowfax — Orange
-        "com.gojek.partner" to="#00AA13",               // Gojek — Green
-        "com.delhivery.delhiverypartner" to="#1A73E8",  // Delhivery — Blue
-        "com.ecomexpress.oneBoarding" to="#FF6B00",     // Ecom Express — Orange
-        "com.xpressbees.unified_new_arch" to="#E91E63", // Xpressbees — Pink
-        "in.letstransport.supply" to="#00BCD4",         // LetsTransport — Cyan
-        "net.blowhorn.driverapp" to="#FF5722",          // Blowhorn — Deep Orange
-        "com.driveu.partner" to="#FF9800",              // DriveU — Orange
-        "app.yulu.android.partner" to="#26A69A",        // Yulu — Teal
+        "com.theporter.android.driverapp" to "#2E5BFF", // Porter — Blue
+        "com.rapido.rider" to "#FFCC00",                // Rapido — Yellow
+        "in.shadowfax.gandalf" to "#FF6B35",            // Shadowfax — Orange
+        "com.gojek.partner" to "#00AA13",               // Gojek — Green
+        "com.delhivery.delhiverypartner" to "#1A73E8",  // Delhivery — Blue
+        "com.ecomexpress.oneBoarding" to "#FF6B00",     // Ecom Express — Orange
+        "com.xpressbees.unified_new_arch" to "#E91E63", // Xpressbees — Pink
+        "in.letstransport.supply" to "#00BCD4",         // LetsTransport — Cyan
+        "net.blowhorn.driverapp" to "#FF5722",          // Blowhorn — Deep Orange
+        "com.driveu.partner" to "#FF9800",              // DriveU — Orange
+        "app.yulu.android.partner" to "#26A69A",        // Yulu — Teal
 
         // Legacy packages
         "in.swiggy.partner" to "#FC8019",               // Swiggy alt — Orange
