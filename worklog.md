@@ -1,291 +1,36 @@
 ---
 Task ID: 1
 Agent: Main Agent
-Task: Update DeliveryBoost app for worldwide launch with A-Z delivery types
+Task: Prepare NotiFetch v2.0.0 for Google Play Store submission
 
 Work Log:
-- Read all current source files (data.ts, platforms-section, dashboard-section, earnings-section, settings-section, hero-section, pricing-section, navbar, page.tsx)
-- Completely rewrote src/lib/data.ts with:
-  - 28 currencies with symbols
-  - 8 global regions (NA, LATAM, EU, India, East Asia, SEA, MENA, Oceania)
-  - 18 delivery categories A-Z (Alcohol, Bicycle Courier, Cannabis, Courier, Document, Flower, Food, Freight, Furniture, Grocery, Laundry, Last-Mile, Medical, Package, Pet Supplies, Ride/Transport, Same-Day, White-Glove)
-  - 80+ platforms across all categories and regions
-  - Multi-currency support (INR, JPY, CNY, IDR, KRW, PHP, etc.)
-  - Region-specific pickup/dropoff locations
-  - Currency-aware order value generation
-  - Dynamic weekly earnings generation
-  - Multi-currency formatting helpers
-  - Regional pricing tiers
-- Updated platforms-section.tsx: category groups with expand/collapse, region filter pills, category filter pills, search bar, region badges per platform
-- Updated dashboard-section.tsx: category badges on orders, multi-currency display, category filter row, 4-stat summary with global metrics, distance in mi/km
-- Updated earnings-section.tsx: dynamic chart config, 5-stat row (added Regions), platform breakdown with dynamic colors, category breakdown grid
-- Updated settings-section.tsx: Region selector, Language selector (14 languages), Currency selector, Distance unit preference, category-based auto-accept preferences
-- Updated hero-section.tsx: worldwide messaging ("Every Delivery. Worldwide."), 5 delivery category icons, global stats (80+ platforms, 18 categories, 190+ countries)
-- Updated pricing-section.tsx: region selector for pricing, multi-currency display, 14 language support in premium tier, 18 categories in premium tier
+- Generated signing keystore (RSA 2048-bit, 25-year validity) at twa/keystore.jks
+- SHA-256 fingerprint: 81:97:95:57:6B:2F:1C:94:D2:7A:6B:63:E2:3C:7C:C7:D8:58:50:CB:CA:A1:E5:00:7A:23:BB:3B:44:DD:AB:FE
+- Updated assetlinks.json with the signing key fingerprint
+- Added release signing config to notifetch-android/app/build.gradle.kts
+- Bumped version from 1.0.0 (versionCode 1) to 2.0.0 (versionCode 2)
+- Installed Android SDK (platform 35, build-tools 35.0.0) and Gradle 8.9
+- Fixed multiple compilation errors:
+  - Constants.kt: `to=` syntax errors (missing space) on 30+ lines
+  - Helpers.kt: GBP formatting string syntax error
+  - MainActivity.kt: NotiFetchApp composable name conflict with Application class
+  - CategoryBadge.kt: Missing `background` import
+  - NotiFetchScaffold.kt: Wrong `currentDestination` import
+  - PlatformIcon.kt: `platform` out of scope in getBrandInitials
+  - ConsentScreen.kt: Missing `clickable` import
+  - PermissionScreen.kt: ACTION_APPS_NOTIFICATION_SETTINGS API level issue
+  - ProfileScreen.kt: Smart cast issue with nullable userId, missing clickable import
+  - AuthRepository.kt: JVM signature clash between deviceId property and getDeviceId()
+  - HomeViewModel.kt: 6-flow combine exceeds 5-parameter overload
+  - NotificationRepository.kt: Missing getCountInTimeRange passthrough
+- Added Material3 and SplashScreen dependencies to fix resource linking
+- Successfully built release AAB (9.1MB) at download/NotiFetch-v2.0.0-release.aab
+- Updated Play Store listing with v2.0.0 release notes and legal disclosures
+- Pushed all changes to GitHub (commit 4dd53f6)
 
 Stage Summary:
-- Build passes cleanly with `npm run build` - 0 errors
-- Dev server starts and renders HTTP 200
-- App now covers 80+ platforms, 18 delivery categories, 8 regions, 28 currencies
-- All components updated for worldwide multi-category multi-currency UX
----
-Task ID: 2
-Agent: Main Agent
-Task: Build full production backend, PWA, deployment, and legal compliance
-
-Work Log:
-- Created PWA manifest.json, service worker (sw.js), pwa-register.tsx component
-- Generated 8 PWA icon sizes (72-512px) + favicon using sharp
-- Updated layout.tsx with PWA metadata, manifest link, apple-touch-icon, viewport
-- Created full Prisma schema: User, Account, Session, VerificationToken, PlatformConnection, AcceptedOrder, EarningRecord, Payment, NotificationLog, AuditLog (10 models)
-- Created next-auth config with Credentials + Google OAuth providers
-- Created 8 protected API routes: /api/user, /api/platforms, /api/orders, /api/earnings, /api/payments, /api/payments/webhook, /api/notifications, /api/notifications/test
-- Created /api/auth/[...nextauth] route handler
-- Created middleware.ts for route protection
-- Created stripe.ts helper (checkout sessions, portal, webhook verification)
-- Created notifications.ts helper (FCM push, multicast)
-- Created Dockerfile (multi-stage Next.js standalone)
-- Created railway.toml and railway.json for Railway deployment
-- Created .env.example with 16 environment variables
-- Created /privacy page (10-section Privacy Policy, GDPR/CCPA compliant)
-- Created /terms page (14-section Terms of Service with arbitration)
-- Created /legal page (legal hub with compliance badges)
-- Ran legal research: trademark, ToS compliance, CFAA, criminal liability
-
-Stage Summary:
-- Build passes cleanly with all 15 routes (8 API + 7 pages)
-- PWA fully configured with offline support and push notifications
-- Full backend with auth, CRUD, payments, and notifications
-- Legal pages live at /privacy, /terms, /legal
-- Railway deployment ready (Dockerfile + config)
-- Legal risk assessment: HIGH for platform ToS, LOW for criminal
-- Key legal finding: Uber/Lyft actively cracking down on driver-helper apps in 2025
-- Key legal finding: NOT going to jail (CFAA precedent, hiQ v LinkedIn)
-- Key legal finding: Need to avoid credential-based scraping
-
----
-Task ID: 3
-Agent: General-Purpose Sub Agent
-Task: Push NotiFetch project to GitHub (Yashas-K-Gangatkar/d2)
-
-Work Log:
-- Checked git status: repo was on branch `main` with no remote configured
-- Added remote origin: https://github.com/Yashas-K-Gangatkar/d2.git
-- Removed `.env` from git tracking (was committed previously despite .gitignore rule)
-- Removed `db/custom.db` from git tracking (local SQLite DB, should not be in repo)
-- Added `db/custom.db` to .gitignore
-- Staged all changes with `git add -A`
-- Committed: "NotiFetch: rename + notification-listener architecture + legal compliance"
-  - 31 files changed, 714 insertions(+), 199 deletions(-)
-  - Key changes: auth/signin page, PostgreSQL schema, legal pages, PWA assets, platform API updates
-- Push attempt failed: `fatal: could not read Username for 'https://github.com': No such device or address`
-  - No GitHub credentials configured in this environment
-  - The commit is saved locally and ready to push once credentials are set up
-
-Stage Summary:
-- Git remote set to Yashas-K-Gangatkar/d2
-- Commit 639b3b9 created locally on branch `main`
-- Push blocked — needs GitHub authentication (PAT or SSH key)
-- Sensitive files (.env, db/custom.db) removed from tracking
-- To push: configure credentials, then run `git push origin main`
-
----
-Task ID: 4
-Agent: Main Agent
-Task: NotiFetch rebrand + notification-listener architecture + legal compliance + Railway/Play Store prep
-
-Work Log:
-- Renamed DeliveryBoost → NotiFetch across ALL source files (layout, page, navbar, hero, settings, pwa-register, data.ts, manifest.json, sw.js, API routes, legal pages)
-- Changed email domain from deliveryboost.app → notifetch.app
-- Redesigned architecture from "API integration with OAuth tokens" to "notification-listener approach"
-  - Updated PlatformConnection model → NotificationSource model
-  - Removed accessToken, refreshToken, tokenExpiresAt fields
-  - Added packageName field for Android notification matching
-  - Changed "connected" → "listening" in UI
-  - Changed "Connect" button → "Listen" button
-  - Updated hero section messaging: "no login credentials needed, no API access, zero risk"
-- Updated ALL legal documents for notification-listener compliance:
-  - Privacy Policy: Replaced "Delivery Platform Tokens" with "Notification Listener Data" section
-  - Privacy Policy: Removed all OAuth/API access references, added on-device processing emphasis
-  - Terms of Service: Replaced "Platform Connections" with "Notification Listening" section
-  - Terms of Service: Added explicit "NOT affiliated with any delivery platform" disclaimer
-  - Legal Hub: Updated key commitments to reflect notification-listener approach
-- Created PostgreSQL-ready schema (prisma/schema.postgresql.prisma) for Railway
-- Kept SQLite for local dev (prisma/schema.prisma)
-- Updated Dockerfile and railway.json for deployment
-- Generated new NotiFetch app icons (72-512px) using AI image generation
-- Created professional sign-in page at /auth/signin with NextAuth.js
-- Updated .env.example with NotiFetch branding
-- Generated Legal Compliance Audit PDF (13 pages, 224KB) at /home/z/my-project/download/NotiFetch-Legal-Compliance-Audit.pdf
-- Built and verified: npm run build succeeds, all 16 routes compile
-- Tested: All pages return HTTP 200, NotiFetch branding confirmed, zero DeliveryBoost references
-
-Stage Summary:
-- Architecture: Notification-listener approach (ZERO credential sharing, ZERO API access)
-- Legal compliance: NEAR ZERO criminal liability (CFAA, GDPR, CCPA all covered)
-- Branding: Fully renamed to NotiFetch
-- Database: Schema updated (PlatformConnection → NotificationSource)
-- Auth: Sign-in page created
-- Deployment: Dockerfile + railway.json ready for Railway
-- Legal audit PDF: Generated at /home/z/my-project/download/NotiFetch-Legal-Compliance-Audit.pdf
-- GitHub: Committed locally, needs authentication to push
-
----
-Task ID: 3
-Agent: Feature Implementation Agent
-Task: Implement all 10 NotiFetch features (QR code, back button, PWA, Firebase, dashboard, notifications, profile/settings, dark mode, offline, Razorpay)
-
-Work Log:
-- Updated Prisma schema: Added Notification and Preferences models, added relations to User model
-- Changed Prisma provider from PostgreSQL to SQLite for local development
-- Ran db:push successfully, database in sync
-- Created BackButton component (src/components/back-button.tsx)
-- Rewrote HeroSection with: inline QR code image, "Scan QR Code" button, QR code modal dialog
-- Rewrote Navbar with: QR code icon button + modal dialog, theme toggle
-- Rewrote PWAInstallPrompt: floating button after 3s, modal with QR code + install button
-- Rewrote Dashboard page: real user data, notification count, quick actions, recent activity, PushPermission component, QR code, avatar
-- Created /dashboard/notifications page: list with icons, filter by source, search, mark read/unread, delete, empty state, test notification creation
-- Created /dashboard/profile page: edit name, avatar display, account details, delete account with AlertDialog
-- Created /dashboard/settings page: dark/light mode toggle, notification preferences (swiggy/zomato/amazon), language/region, about section
-- Created /dashboard/subscribe page: Free/Pro plans, Razorpay checkout, FAQ section
-- Updated signin page: added BackButton, QR code image above form
-- Updated layout.tsx: added OfflineIndicator component
-- Created /api/notifications/route.ts: GET (list with filters) + POST (create test notification)
-- Created /api/notifications/[id]/route.ts: PATCH (mark read/unread) + DELETE
-- Created /api/preferences/route.ts: GET + PUT (with upsert)
-- Updated /public/sw.js: added offline fallback HTML page, network-first for navigation, improved caching
-- Created OfflineIndicator component (src/components/offline-indicator.tsx)
-- Created .env.local.example with all required env vars
-- Build passes successfully: npm run build completes with all 26 routes
-- Force-pushed to GitHub: main branch updated with all changes
-
-Stage Summary:
-- All 10 features implemented and building successfully
-- 8 new files created, 11 files modified
-- Build output: 26 routes (7 static + 19 dynamic)
-- Database: 2 new models (Notification, Preferences) pushed to SQLite
-- GitHub: Force-pushed to Yashas-K-Gangatkar/d2 main branch
-
----
-Task ID: 4
-Agent: Android Native Developer
-Task: Build native Android app for NotiFetch with NotificationListenerService
-
-Work Log:
-- Cloned repo from GitHub: Yashas-K-Gangatkar/d2 to /tmp/notifetch-android
-- Read existing TWA structure for package name (com.notifetch.app) and signing config reference
-- Created complete android-app/ directory with 36 files
-
-Build System (4 files):
-- Root build.gradle: Kotlin 1.9.22, AGP 8.2.2, Gradle 8.5
-- settings.gradle, gradle.properties, gradle-wrapper.properties
-- App build.gradle: compileSdk 35, targetSdk 35, minSdk 24, ViewBinding, signing config
-
-Kotlin Source Files (9 files):
-- NotificationData.kt: Room Entity, DeliveryPartners registry (25+ platforms with emojis + categories), CategoryInfo, API request/response models
-- NotificationStorage.kt: Room database (NotiFetchDatabase), NotificationDao (15+ queries), NotificationRepository, Converters
-- NotiFetchListenerService.kt: Core NotificationListenerService — filters delivery apps, parses notification content, saves to Room, forwards to backend, shows in-app notification
-- ApiClient.kt: OkHttp client — forwardNotification(), sendTestNotification(), healthCheck(), retryFailedNotifications(), auto device ID
-- MainActivity.kt: WebView (loads d2-liart-nine.vercel.app) + Dashboard tab + Settings tab, BottomNavigationView, first-launch permission dialog, broadcast receiver for listener state
-- DashboardActivity.kt: Full dashboard with RecyclerView, filter chips (All/Category/Source), pull-to-refresh, mark all read, clear all, test notification, listener status
-- PermissionActivity.kt: Notification access guide — status check, system settings launcher, auto-recheck on resume
-- NotificationAdapter.kt: ListAdapter with DiffUtil, emoji icons, unread dots, category chips, click/long-click
-- BootReceiver.kt: BOOT_COMPLETED / MY_PACKAGE_REPLACED handler, retries failed notifications
-
-Layout XML (5 files):
-- activity_main.xml: CoordinatorLayout with WebView + Dashboard + Settings containers + BottomNavigationView
-- activity_dashboard.xml: AppBarLayout, status card, stats, action buttons, ChipGroup filters, SwipeRefreshLayout + RecyclerView, empty state, FAB
-- activity_permission.xml: Permission guide with emoji, status card, how-it-works, privacy card, enable/continue/skip buttons
-- item_notification.xml: MaterialCardView with unread dot, emoji, source, title, body, timestamp, category chip
-- fragment_webview.xml: ProgressBar + WebView
-
-Resources (12+ files):
-- values/strings.xml: App name, permission descriptions, asset_statements for Digital Asset Links
-- values/colors.xml: NotiFetch amber (#f59e0b), dark theme palette, text/status/category colors
-- values/themes.xml: Material3 Dark theme with amber accent
-- values-v31/themes.xml: Android 12+ splash screen
-- drawable/: ic_notification, ic_launcher_foreground, circle_amber, progress_bar_amber, splash_screen
-- color/bottom_nav_color.xml, menu/bottom_nav_menu.xml, xml/notification_listener_config.xml
-- mipmap-anydpi-v26/: Adaptive icons
-
-Documentation:
-- android-app/README.md: Complete build guide, supported platforms table, troubleshooting, architecture overview
-
-Stage Summary:
-- 36 files created in android-app/ directory
-- Core feature: NotificationListenerService captures 25+ delivery partner app notifications
-- Backend forwarding: POST to https://d2-liart-nine.vercel.app/api/notifications
-- Offline-first: Room database with 15+ queries, async retry for failed forwards
-- UI: Dark theme + amber accent, Material3, WebView + native dashboard
-- Permissions: Proper handling of BIND_NOTIFICATION_LISTENER_SERVICE + POST_NOTIFICATIONS
-- NOT pushed to GitHub — awaiting user review
-
----
-Task ID: 5
-Agent: Main Agent
-Task: Build native Android app with Compose + improve web theme + backend API for device notifications
-
-Work Log:
-- Created complete notifetch-android/ directory with 55 files using Jetpack Compose
-- Core: NotiFetchListenerService with NotificationListenerService captures from 15 partner apps
-- Core: NotificationParser with platform-specific regex for extracting order values, locations, distances, categories
-- Data: Room database (CapturedNotification, PlatformConfig entities, DAOs with 20+ queries)
-- Data: Retrofit API client (NotiFetchApi) with individual and batch notification endpoints
-- Data: NotificationRepository with local DB + remote API + sync logic (batch first, fallback to individual)
-- Data: AuthRepository with Firebase Anonymous Auth + DataStore token persistence
-- UI: Jetpack Compose + Material 3 with NotiFetch amber/orange brand colors
-- UI: HomeScreen (dashboard with stats, platform filters, notification feed, pull-to-refresh)
-- UI: PermissionScreen (step-by-step guide to enable notification access with visual instructions)
-- UI: NotificationDetailScreen, SettingsScreen, ProfileScreen
-- UI: Reusable components (NotificationCard, PlatformIcon, StatCard, SearchBar, EmptyState, NotiFetchScaffold)
-- DI: Hilt modules (DatabaseModule, NetworkModule, FirebaseModule)
-- Worker: SyncWorker for periodic 15-min sync of pending notifications
-- Firebase: NotiFetchMessagingService for FCM push notifications
-- Theme: Per-platform brand colors (Swiggy orange, Zomato red, Amazon orange, etc.)
-- Updated Prisma schema (SQLite + PostgreSQL) with rich notification fields (orderValue, pickupLocation, dropoffLocation, distance, category, platform, packageName, bigText, subText, deviceId, receivedAt)
-- Added DeviceAuth model for Android device authentication
-- Added Preferences model to PostgreSQL schema
-- Created POST /api/notifications/batch endpoint for batch notifications from Android
-- Created POST /api/auth/token endpoint for device authentication
-- Created POST /api/devices/link endpoint for linking device to user account
-- Updated POST /api/notifications to support both web (NextAuth) and Android (device auth) authentication
-- Updated GET /api/notifications with category, platform filters, today stats, platform stats aggregation
-- Improved web app theme: warmer NotiFetch amber/orange brand colors in dark mode, glass effect, gradient text, glow pulse animation, shimmer animation, platform color utilities
-- Updated dashboard with rich notification cards showing category, order value, pickup/dropoff locations, distance, platform color coding, today stats
-- Updated notifications page with rich notification display, platform badges, category badges, route visualization, today's summary stats
-- Pushed all changes to GitHub: commit e995150
-
-Stage Summary:
-- Native Android app: 55 files in notifetch-android/, Jetpack Compose + Hilt + Room + Retrofit + Firebase
-- Web app: Improved theme with warm NotiFetch colors, rich notification display
-- Backend: 3 new API endpoints for device auth, batch notifications, device linking
-- Database: Notification model expanded with 12 new fields, DeviceAuth model added
-- All changes pushed to GitHub main branch
-
----
-Task ID: 6
-Agent: Main Agent
-Task: Expand to ALL worldwide platforms + deep legal compliance + fix critical bugs
-
-Work Log:
-- Researched actual Android package names for ALL 78+ delivery partner/driver apps worldwide
-- Found 10 INCORRECT package names in original code (Amazon Flex, Ola, Shadowfax, Rapido, Porter, Blinkit, BigBasket, Zepto, Swiggy, Flipkart)
-- Verified 52 CONFIRMED package names from Google Play Store
-- Added 37 new platforms worldwide (DoorDash, Lyft, Instacart, Grab, Deliveroo, Wolt, iFood, Rappi, Bolt, Careem, DiDi, etc.)
-- Added 15+ India-specific platforms (Delhivery, Ecom Express, Xpressbees, LetsTransport, Blowhorn, DriveU, Yulu, Gojek, etc.)
-- Deep legal compliance research found 3 CRITICAL issues:
-  1. extrasJson storing raw Bundle with PII/auth tokens → REMOVED (GDPR Art. 5(1)(c) violation)
-  2. Brand-specific colors (swiggy_orange, zomato_red, etc.) → REPLACED with category-based colors
-  3. Brand names in display strings → REPLACED with generic category names
-- Updated NotiFetchListenerService with all 52+ packages + fixed group summary skip
-- Updated NotificationParser with multi-language support (Portuguese, Spanish, Japanese, Arabic, Indonesian)
-- Added multi-currency support: 28 currencies with auto-detection based on platform region
-- Updated web app CSS, dashboard, and notifications pages with category-based colors
-- All changes committed and pushed to GitHub (ba4fe09)
-
-Stage Summary:
-- Platform coverage: 15 → 52+ verified packages worldwide
-- Legal compliance: Removed PII storage, replaced brand colors/names, added disclaimers
-- Multi-currency: 28 currencies supported with auto-detection
-- 10 incorrect package names corrected from original code
-- Legal compliance report saved to /home/z/my-project/LEGAL-COMPLIANCE-REPORT.md
+- Release AAB built and saved to /home/z/my-project/download/NotiFetch-v2.0.0-release.aab
+- Signing keystore at /home/z/my-project/twa/keystore.jks (BACKUP THIS!)
+- Keystore password: stored in twa/signing-credentials.txt (for production, change from defaults)
+- SHA-256: 81:97:95:57:6B:2F:1C:94:D2:7A:6B:63:E2:3C:7C:C7:D8:58:50:CB:CA:A1:E5:00:7A:23:BB:3B:44:DD:AB:FE
+- All changes pushed to GitHub
