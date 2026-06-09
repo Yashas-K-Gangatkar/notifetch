@@ -1,36 +1,31 @@
 ---
 Task ID: 1
 Agent: Main Agent
-Task: Prepare NotiFetch v2.0.0 for Google Play Store submission
+Task: Prepare NotiFetch v2.1.0 for Google Play Store submission
 
 Work Log:
-- Generated signing keystore (RSA 2048-bit, 25-year validity) at twa/keystore.jks
-- SHA-256 fingerprint: 81:97:95:57:6B:2F:1C:94:D2:7A:6B:63:E2:3C:7C:C7:D8:58:50:CB:CA:A1:E5:00:7A:23:BB:3B:44:DD:AB:FE
-- Updated assetlinks.json with the signing key fingerprint
-- Added release signing config to notifetch-android/app/build.gradle.kts
-- Bumped version from 1.0.0 (versionCode 1) to 2.0.0 (versionCode 2)
-- Installed Android SDK (platform 35, build-tools 35.0.0) and Gradle 8.9
-- Fixed multiple compilation errors:
-  - Constants.kt: `to=` syntax errors (missing space) on 30+ lines
-  - Helpers.kt: GBP formatting string syntax error
-  - MainActivity.kt: NotiFetchApp composable name conflict with Application class
-  - CategoryBadge.kt: Missing `background` import
-  - NotiFetchScaffold.kt: Wrong `currentDestination` import
-  - PlatformIcon.kt: `platform` out of scope in getBrandInitials
-  - ConsentScreen.kt: Missing `clickable` import
-  - PermissionScreen.kt: ACTION_APPS_NOTIFICATION_SETTINGS API level issue
-  - ProfileScreen.kt: Smart cast issue with nullable userId, missing clickable import
-  - AuthRepository.kt: JVM signature clash between deviceId property and getDeviceId()
-  - HomeViewModel.kt: 6-flow combine exceeds 5-parameter overload
-  - NotificationRepository.kt: Missing getCountInTimeRange passthrough
-- Added Material3 and SplashScreen dependencies to fix resource linking
-- Successfully built release AAB (9.1MB) at download/NotiFetch-v2.0.0-release.aab
-- Updated Play Store listing with v2.0.0 release notes and legal disclosures
-- Pushed all changes to GitHub (commit 4dd53f6)
+- Verified keystore at twa/keystore.jks with SHA-256 fingerprint 81:97:95:57:6B:2F:1C:94:D2:7A:6B:63:E2:3C:7C:C7:D8:58:50:CB:CA:A1:E5:00:7A:23:BB:3B:44:DD:AB:FE
+- Identified google-services.json as placeholder — Firebase setup required before FCM/Auth will work
+- Made FirebaseModule.kt graceful — app won't crash with placeholder Firebase config
+- Bumped version to versionCode=3, versionName="2.1.0" in build.gradle.kts
+- Updated ProfileScreen.kt to use BuildConfig.VERSION_NAME dynamically
+- Added network_security_config.xml (TLS-only, Play Store requirement for API 24+)
+- Added PROPERTY_SPECIAL_USE_FGS_SUBTYPE to manifest for foreground service declaration
+- Added detailed manifest comments explaining notification listener purpose for Play Store reviewers
+- Committed and pushed all changes to GitHub (commit 8a8f94c)
+- Generated comprehensive 14-page Play Store Submission Guide PDF with:
+  - Pre-submission checklist
+  - Firebase project setup (step-by-step with SHA-256)
+  - AAB build instructions
+  - Google Play Console setup
+  - Store listing content (title, descriptions, screenshots)
+  - Data Safety declarations
+  - Content Rating questionnaire answers
+  - Legal compliance URLs
+  - Upload and review process
+  - Quick reference table
 
 Stage Summary:
-- Release AAB built and saved to /home/z/my-project/download/NotiFetch-v2.0.0-release.aab
-- Signing keystore at /home/z/my-project/twa/keystore.jks (BACKUP THIS!)
-- Keystore password: stored in twa/signing-credentials.txt (for production, change from defaults)
-- SHA-256: 81:97:95:57:6B:2F:1C:94:D2:7A:6B:63:E2:3C:7C:C7:D8:58:50:CB:CA:A1:E5:00:7A:23:BB:3B:44:DD:AB:FE
-- All changes pushed to GitHub
+- Code changes committed and pushed to GitHub
+- Play Store Submission Guide PDF saved at /home/z/my-project/download/NotiFetch-PlayStore-Submission-Guide.pdf
+- Next step: User must create Firebase project, set keystore passwords, build AAB on their machine with Android Studio
