@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!--
+        Network Security Config for NotiFetch
+        Required by Google Play for apps targeting API 24+
+
+        - All connections use TLS by default (cleartext traffic not permitted)
+        - Only the NotiFetch backend API is allowed
+    -->
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+
+    <!-- NotiFetch API backend -->
+    <domain-config>
+        <domain includeSubdomains="false">d2-liart-nine.vercel.app</domain>
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </domain-config>
+</network-security-config>
