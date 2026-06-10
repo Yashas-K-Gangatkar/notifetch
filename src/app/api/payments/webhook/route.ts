@@ -334,7 +334,7 @@ async function handleStripeWebhook(
   // Handle Stripe events
   switch (event.type) {
     case "checkout.session.completed": {
-      const session = event.data.object as Record<string, unknown>;
+      const session = event.data.object as unknown as Record<string, unknown>;
       const metadata = session.metadata as Record<string, string> | undefined;
       const userId = (session.client_reference_id as string) ?? metadata?.userId;
 
@@ -376,7 +376,7 @@ async function handleStripeWebhook(
     }
 
     case "customer.subscription.updated": {
-      const subscription = event.data.object as Record<string, unknown>;
+      const subscription = event.data.object as unknown as Record<string, unknown>;
       const customerId = subscription.customer as string;
 
       const user = await db.user.findFirst({
@@ -396,7 +396,7 @@ async function handleStripeWebhook(
     }
 
     case "customer.subscription.deleted": {
-      const subscription = event.data.object as Record<string, unknown>;
+      const subscription = event.data.object as unknown as Record<string, unknown>;
       const customerId = subscription.customer as string;
 
       const user = await db.user.findFirst({
@@ -425,7 +425,7 @@ async function handleStripeWebhook(
     }
 
     case "invoice.payment_succeeded": {
-      const invoice = event.data.object as Record<string, unknown>;
+      const invoice = event.data.object as unknown as Record<string, unknown>;
       const customerId = invoice.customer as string;
 
       const user = await db.user.findFirst({
@@ -449,7 +449,7 @@ async function handleStripeWebhook(
     }
 
     case "invoice.payment_failed": {
-      const invoice = event.data.object as Record<string, unknown>;
+      const invoice = event.data.object as unknown as Record<string, unknown>;
       const customerId = invoice.customer as string;
 
       const user = await db.user.findFirst({

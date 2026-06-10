@@ -34,7 +34,7 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   typescript: {
-    ignoreBuildErrors: true, // TODO: Fix all TS errors and remove this
+    ignoreBuildErrors: false,
   },
   reactStrictMode: true,
   async headers() {

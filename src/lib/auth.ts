@@ -3,6 +3,8 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import { db } from "@/lib/db";
 
+// Type augmentations for NextAuth are in src/types/next-auth.d.ts
+
 // ─── Warn if NEXTAUTH_SECRET is missing in production ────────────────────────
 // We warn instead of crash-at-import because Next.js runs this during build
 // when env vars aren't available. The actual check happens at runtime.
@@ -191,9 +193,9 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user, account }) {
       // Initial sign-in: set claims from DB
       if (user) {
-        token.id = user.id;
-        token.plan = (user as Record<string, unknown>).plan ?? "free";
-        token.role = (user as Record<string, unknown>).role ?? "driver";
+        token.id = user.id ?? "";
+        token.plan = (user as Record<string, unknown>).plan as string ?? "free";
+        token.role = (user as Record<string, unknown>).role as string ?? "driver";
       }
 
       // Google OAuth: link or create user
@@ -263,9 +265,9 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       if (session.user) {
-        session.user.id = token.id as string;
-        (session.user as Record<string, unknown>).plan = token.plan;
-        (session.user as Record<string, unknown>).role = token.role;
+        session.user.id = token.id;
+        session.user.plan = token.plan;
+        session.user.role = token.role;
       }
       return session;
     },

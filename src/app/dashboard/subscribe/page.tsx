@@ -400,7 +400,7 @@ export default function SubscribePage() {
                         >
                           <Checkbox
                             checked={isSelected}
-                            disabled={isDisabled && selectedPlan !== "premium"}
+                            disabled={isDisabled}
                             className="pointer-events-none"
                           />
                           <span className="truncate text-xs">{platform.name}</span>

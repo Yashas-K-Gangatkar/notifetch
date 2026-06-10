@@ -61,3 +61,76 @@ Stage Summary:
 - Comprehensive fix for Razorpay script loading failures
 - Files changed: razorpay-checkout.tsx, subscribe/page.tsx, create-order/route.ts, next.config.ts
 - Key improvements: preloading, retry logic, better UX feedback, CSP fixes, early warning
+
+---
+Task ID: 2-a
+Agent: Main
+Task: Fix critical bugs and security issues in NotiFetch app
+
+Work Log:
+- Read worklog.md and all relevant source files
+- Fix 1: Updated profile delete handler in src/app/dashboard/profile/page.tsx
+  - Changed endpoint from DELETE /api/user to DELETE /api/user/delete
+  - Added Content-Type header and confirmation body { confirm: "DELETE_MY_DATA" }
+  - Added response check before signing out (only signOut on successful delete)
+- Fix 2: Created 4 React error boundary files:
+  - src/app/error.tsx - Global error boundary with "Try again" button
+  - src/app/not-found.tsx - 404 page with "Go Home" link
+  - src/app/dashboard/error.tsx - Dashboard-specific error boundary with AlertTriangle icon
+  - src/app/dashboard/notifications/error.tsx - Notifications-specific error boundary
+- Fix 3: Added Android secrets to .gitignore
+  - Added google-services.json, **/google-services.json, *.jks, *.keystore
+- Fix 4: Created 2 loading.tsx files:
+  - src/app/loading.tsx - Global loading with animated logo
+  - src/app/dashboard/loading.tsx - Dashboard-specific loading state
+- Verified build passes: ✓ Compiled successfully, ✓ Generating static pages (32/32)
+
+Stage Summary:
+- Fixed profile delete endpoint (wrong URL + missing confirmation body)
+- Added comprehensive error boundaries at global, dashboard, and notifications levels
+- Protected Android secrets from being committed (google-services.json, keystores)
+- Added loading states for better UX during navigation
+- All 4 fixes verified with successful build
+- Files changed: profile/page.tsx, .gitignore, 6 new files (error.tsx ×4, loading.tsx ×2)
+
+---
+Task ID: 2-b
+Agent: Main
+Task: Fix critical TypeScript build errors and service worker security issue
+
+Work Log:
+- Read worklog.md and all relevant source files (sw.js, auth.ts, razorpay.ts, next.config.ts)
+- Fix 1: Service Worker API caching security fix (public/sw.js)
+  - Replaced the `networkFirst` function (which cached API responses) with `networkFirstNoCache`
+  - API responses are never cached — prevents session data leakage between users on shared devices
+  - Added defense-in-depth checks for authorization/cookie/vary headers
+  - Offline API calls return 503 JSON error instead of stale cached user data
+- Fix 2: TypeScript errors in auth.ts
+  - Discovered existing type augmentations in src/types/next-auth.d.ts (JWT.id, Session.user.id, plan, role)
+  - Removed duplicate/conflicting type augmentation from auth.ts that was causing build failures
+  - Changed `token.id = user.id` to `token.id = user.id ?? ""` to handle optional User.id
+  - Session callback now uses proper types from next-auth.d.ts: `session.user.plan = token.plan`
+- Fix 3: TypeScript error in razorpay.ts
+  - Changed `amount: order.amount` to `amount: Number(order.amount)` — Razorpay SDK returns string|number
+- Fix 4: Removed ignoreBuildErrors in next.config.ts
+  - Changed `ignoreBuildErrors: true` to `ignoreBuildErrors: false`
+- Additional fixes discovered during build verification:
+  - Added `download`, `examples`, `notifetch-auth`, `skills` to tsconfig.json exclude list
+    (these directories contain unrelated projects causing TS compilation errors)
+  - Fixed webhook/route.ts: Changed `event.data.object as Record<string, unknown>` to
+    `event.data.object as unknown as Record<string, unknown>` (5 occurrences) — Stripe Session
+    type conflicts with augmented next-auth Session type
+  - Fixed subscribe/page.tsx: Removed redundant `selectedPlan !== "premium"` in disabled prop
+    (TypeScript correctly identified it as always-true after narrowing)
+  - Fixed razorpay-checkout.tsx: 3 type errors:
+    - `globalStatusListeners` type: `((status) => void)` → `((status) => void)[]`
+    - `window as Record<string, unknown>` → `window as unknown as Record<string, unknown>` (2 occurrences)
+    - `(existing as HTMLScriptElement).readyState` → added `& { readyState?: string }` intersection type
+- Verified build passes: ✓ Compiled successfully, TypeScript check passes, 32/32 static pages generated
+
+Stage Summary:
+- Fixed service worker to never cache API responses (security: prevents data leakage)
+- Fixed all TypeScript errors enabling ignoreBuildErrors: false
+- Key files changed: public/sw.js, src/lib/auth.ts, src/lib/razorpay.ts, next.config.ts, tsconfig.json,
+  src/app/api/payments/webhook/route.ts, src/app/dashboard/subscribe/page.tsx, src/components/razorpay-checkout.tsx
+- Build now fully passes with strict TypeScript checking enabled

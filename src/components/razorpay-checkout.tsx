@@ -40,7 +40,7 @@ const RETRY_DELAYS = [1500, 3000]; // Backoff delays in ms
 // ─── Global script status (shared across component instances) ───────────────
 
 let globalScriptStatus: ScriptStatus = "idle";
-let globalStatusListeners: ((status: ScriptStatus) => void) = [];
+let globalStatusListeners: ((status: ScriptStatus) => void)[] = [];
 
 function setGlobalScriptStatus(status: ScriptStatus) {
   globalScriptStatus = status;
@@ -97,7 +97,7 @@ interface RazorpayInstance {
 // ─── Script Loading Logic ──────────────────────────────────────────────────
 
 function isRazorpayOnWindow(): boolean {
-  return typeof window !== "undefined" && !!(window as Record<string, unknown>).Razorpay;
+  return typeof window !== "undefined" && !!(window as unknown as Record<string, unknown>).Razorpay;
 }
 
 /**
@@ -133,7 +133,7 @@ function injectScript(url: string = RAZORPAY_CDN_URL): Promise<boolean> {
       // Check if the script already loaded (readyState = 'complete' or 'loaded')
       // but Razorpay isn't on window — this means the script executed but failed
       // to initialize, or it hasn't been processed yet.
-      const readyState = (existing as HTMLScriptElement).readyState;
+      const readyState = (existing as HTMLScriptElement & { readyState?: string }).readyState;
       if (readyState === "complete" || readyState === "loaded") {
         // Script already downloaded and executed — check if Razorpay appeared
         // Use a polling approach since the SDK might need a moment
@@ -376,7 +376,7 @@ export function RazorpayCheckout({
         setGlobalScriptStatus("ready");
       }
 
-      const RazorpayConstructor = (window as Record<string, unknown>).Razorpay as new (
+      const RazorpayConstructor = (window as unknown as Record<string, unknown>).Razorpay as new (
         options: RazorpayOptions
       ) => RazorpayInstance;
 
