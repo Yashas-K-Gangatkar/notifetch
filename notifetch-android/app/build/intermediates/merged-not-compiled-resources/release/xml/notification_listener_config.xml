@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<notification-listener-config xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Supported packages for notification listening -->
+    <package name="in.swiggy.partner"/>
+    <package name="in.swiggy.deliveryapp"/>
+    <package name="com.zomato.delivery"/>
+    <package name="com.zomato.deliverypartner"/>
+    <package name="com.amazon.flex"/>
+    <package name="com.zepto.cafepartner"/>
+    <package name="com.grofers.partnerapp"/>
+    <package name="com.bigbasket.partnerapp"/>
+    <package name="com.dunzo.partner"/>
+    <package name="com.porter.porterpartner"/>
+    <package name="com.rapido.captain"/>
+    <package name="com.olacabs.driver"/>
+    <package name="com.ubercab.driver"/>
+    <package name="com.flipkart.logistics"/>
+    <package name="com.shadowfax.partner"/>
+</notification-listener-config>

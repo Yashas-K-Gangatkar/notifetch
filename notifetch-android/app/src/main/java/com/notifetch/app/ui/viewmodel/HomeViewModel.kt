@@ -25,12 +25,11 @@ data class HomeUiState(
     val todayEarnings: Double = 0.0,
     val weekEarnings: Double = 0.0,
     val platformStats: List<NotificationDao.PlatformStat> = emptyList(),
-    val isListenerEnabled: Boolean = false,
+    val isListenerEnabled: Boolean = true,
     val isSyncing: Boolean = false,
     val searchQuery: String = "",
     val selectedPlatform: String? = null,
     val isRefreshing: Boolean = false,
-    // Map of packageName → resolved display name (custom → default)
     val platformNameMap: Map<String, String> = emptyMap()
 )
 
@@ -44,12 +43,12 @@ class HomeViewModel @Inject constructor(
     private val _selectedPlatform = MutableStateFlow<String?>(null)
     private val _isSyncing = MutableStateFlow(false)
     private val _isRefreshing = MutableStateFlow(false)
-    private val _isListenerEnabled = MutableStateFlow(false)
+    private val _isListenerEnabled = MutableStateFlow(true)
 
+    // Room flows — StateFlow from stateIn already deduplicates
     private val allNotifications = repository.getAllNotifications()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    // Platform configs for display name resolution
     private val platformConfigsFlow = repository.getAllPlatformConfigs()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
@@ -93,35 +92,77 @@ class HomeViewModel @Inject constructor(
     private val platformStatsFlow = repository.getNotificationCountByPlatform()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    val uiState: StateFlow<HomeUiState> = combine(
+    // Consolidate all state into a SINGLE uiState to prevent cascading recompositions.
+    // Use nested combines since Kotlin combine() supports max 5 flows directly.
+    // Step 1: Combine Room data flows
+    private val dataState = combine(
         filteredNotifications,
         unreadCountFlow,
         totalCountFlow,
         todayCountFlow,
-        todayEarningsFlow,
-        platformConfigsFlow
-    ) { notifications, unreadCount, totalCount, todayCount, todayEarnings, configs ->
-        // Build the package → resolved name map for display name resolution
-        val nameMap = configs.associate { it.packageName to it.resolvedDisplayName }
-
-        HomeUiState(
+        todayEarningsFlow
+    ) { notifications, unreadCount, totalCount, todayCount, todayEarnings ->
+        DataState(
             notifications = notifications,
             unreadCount = unreadCount,
             totalCount = totalCount,
             todayCount = todayCount,
-            todayEarnings = todayEarnings,
-            platformNameMap = nameMap
+            todayEarnings = todayEarnings
+        )
+    }
+
+    // Step 2: Combine secondary data flows
+    private val secondaryState = combine(
+        weekEarningsFlow,
+        platformStatsFlow,
+        platformConfigsFlow
+    ) { weekEarnings, platformStats, configs ->
+        SecondaryState(
+            weekEarnings = weekEarnings,
+            platformStats = platformStats,
+            platformNameMap = configs.associate { it.packageName to it.resolvedDisplayName }
+        )
+    }
+
+    // Step 3: Combine UI state flows
+    private val uiControlState = combine(
+        _isSyncing,
+        _isRefreshing,
+        _isListenerEnabled,
+        _searchQuery,
+        _selectedPlatform
+    ) { isSyncing, isRefreshing, isListenerEnabled, searchQuery, selectedPlatform ->
+        UIControlState(
+            isSyncing = isSyncing,
+            isRefreshing = isRefreshing,
+            isListenerEnabled = isListenerEnabled,
+            searchQuery = searchQuery,
+            selectedPlatform = selectedPlatform
+        )
+    }
+
+    // Step 4: Final combine into HomeUiState
+    val uiState: StateFlow<HomeUiState> = combine(
+        dataState,
+        secondaryState,
+        uiControlState
+    ) { data, secondary, uiControl ->
+        HomeUiState(
+            notifications = data.notifications,
+            unreadCount = data.unreadCount,
+            totalCount = data.totalCount,
+            todayCount = data.todayCount,
+            todayEarnings = data.todayEarnings,
+            weekEarnings = secondary.weekEarnings,
+            platformStats = secondary.platformStats,
+            platformNameMap = secondary.platformNameMap,
+            isSyncing = uiControl.isSyncing,
+            isRefreshing = uiControl.isRefreshing,
+            isListenerEnabled = uiControl.isListenerEnabled,
+            searchQuery = uiControl.searchQuery,
+            selectedPlatform = uiControl.selectedPlatform
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), HomeUiState())
-
-    // Additional state flows accessed separately for compose
-    val weekEarnings = weekEarningsFlow
-    val platformStats = platformStatsFlow
-    val isSyncing = _isSyncing.asStateFlow()
-    val isRefreshing = _isRefreshing.asStateFlow()
-    val isListenerEnabled = _isListenerEnabled.asStateFlow()
-    val searchQuery = _searchQuery.asStateFlow()
-    val selectedPlatform = _selectedPlatform.asStateFlow()
 
     init {
         viewModelScope.launch {
@@ -151,9 +192,14 @@ class HomeViewModel @Inject constructor(
 
     fun syncNow() {
         viewModelScope.launch {
-            _isSyncing.value = true
-            repository.syncPendingNotifications()
-            _isSyncing.value = false
+            try {
+                _isSyncing.value = true
+                repository.syncPendingNotifications()
+            } catch (_: Exception) {
+                // Silently handle sync errors
+            } finally {
+                _isSyncing.value = false
+            }
         }
     }
 
@@ -164,9 +210,32 @@ class HomeViewModel @Inject constructor(
     fun refresh() {
         viewModelScope.launch {
             _isRefreshing.value = true
+            // Allow Room flows to emit before turning off refresh indicator
+            kotlinx.coroutines.delay(300)
             _isRefreshing.value = false
         }
     }
 }
 
-private fun <T> MutableStateFlow<T>.asStateFlow(): StateFlow<T> = this
+// Intermediate state holders for nested combine
+private data class DataState(
+    val notifications: List<CapturedNotification>,
+    val unreadCount: Int,
+    val totalCount: Int,
+    val todayCount: Int,
+    val todayEarnings: Double
+)
+
+private data class SecondaryState(
+    val weekEarnings: Double,
+    val platformStats: List<NotificationDao.PlatformStat>,
+    val platformNameMap: Map<String, String>
+)
+
+private data class UIControlState(
+    val isSyncing: Boolean,
+    val isRefreshing: Boolean,
+    val isListenerEnabled: Boolean,
+    val searchQuery: String,
+    val selectedPlatform: String?
+)

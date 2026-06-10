@@ -39,6 +39,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -62,26 +65,31 @@ fun HomeScreen(
     onNavigateToPermission: () -> Unit,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
+    // SINGLE uiState — no separate collectAsState calls
     val uiState by viewModel.uiState.collectAsState()
-    val weekEarnings by viewModel.weekEarnings.collectAsState()
-    val platformStats by viewModel.platformStats.collectAsState()
-    val isSyncing by viewModel.isSyncing.collectAsState()
-    val isRefreshing by viewModel.isRefreshing.collectAsState()
-    val isListenerEnabled by viewModel.isListenerEnabled.collectAsState()
-    val searchQuery by viewModel.searchQuery.collectAsState()
-    val selectedPlatform by viewModel.selectedPlatform.collectAsState()
     val context = LocalContext.current
 
-    // Check notification listener status
+    // Check notification listener status — only once
     LaunchedEffect(Unit) {
         val isEnabled = NotiFetchListenerService.isListenerEnabled(context)
         viewModel.updateListenerEnabled(isEnabled)
     }
 
-    // If listener is not enabled, show permission screen
-    LaunchedEffect(isListenerEnabled) {
-        if (!isListenerEnabled) {
+    // If listener is not enabled, navigate to permission — but only once
+    // Use a flag to prevent navigation loop
+    var hasNavigatedToPermission by remember { mutableStateOf(false) }
+
+    LaunchedEffect(uiState.isListenerEnabled) {
+        if (!uiState.isListenerEnabled && !hasNavigatedToPermission) {
+            hasNavigatedToPermission = true
             onNavigateToPermission()
+        }
+    }
+
+    // Reset navigation flag when listener becomes enabled again
+    LaunchedEffect(uiState.isListenerEnabled) {
+        if (uiState.isListenerEnabled) {
+            hasNavigatedToPermission = false
         }
     }
 
@@ -116,7 +124,7 @@ fun HomeScreen(
                     Icon(
                         imageVector = Icons.Default.Sync,
                         contentDescription = "Sync",
-                        tint = if (isSyncing)
+                        tint = if (uiState.isSyncing)
                             MaterialTheme.colorScheme.primary
                         else
                             MaterialTheme.colorScheme.onSurfaceVariant
@@ -129,7 +137,7 @@ fun HomeScreen(
         )
 
         PullToRefreshBox(
-            isRefreshing = isRefreshing,
+            isRefreshing = uiState.isRefreshing,
             onRefresh = { viewModel.refresh() },
             modifier = Modifier.fillMaxSize()
         ) {
@@ -154,7 +162,7 @@ fun HomeScreen(
                         )
                         StatCard(
                             title = "This Week",
-                            value = Helpers.formatCurrency(weekEarnings),
+                            value = Helpers.formatCurrency(uiState.weekEarnings),
                             icon = Icons.Default.Payments,
                             modifier = Modifier.weight(1f)
                         )
@@ -198,7 +206,7 @@ fun HomeScreen(
                 // Search bar
                 item {
                     SearchBar(
-                        query = searchQuery,
+                        query = uiState.searchQuery,
                         onQueryChange = { viewModel.onSearchQueryChange(it) },
                         modifier = Modifier.padding(horizontal = 16.dp)
                     )
@@ -214,7 +222,7 @@ fun HomeScreen(
                         verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         FilterChip(
-                            selected = selectedPlatform == null,
+                            selected = uiState.selectedPlatform == null,
                             onClick = { viewModel.onPlatformFilterChange(null) },
                             label = { Text("All") },
                             colors = FilterChipDefaults.filterChipColors(
@@ -222,13 +230,10 @@ fun HomeScreen(
                                 selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
                             )
                         )
-                        platformStats.forEach { stat ->
-                            // Resolve the display name using the platformNameMap
-                            // stat.platform is the raw stored name; find the packageName
-                            // and use the resolved name if available
-                            val resolvedName = stat.platform  // Fall back to raw name
+                        uiState.platformStats.forEach { stat ->
+                            val resolvedName = stat.platform
                             FilterChip(
-                                selected = selectedPlatform == stat.platform,
+                                selected = uiState.selectedPlatform == stat.platform,
                                 onClick = { viewModel.onPlatformFilterChange(stat.platform) },
                                 label = { Text("$resolvedName (${stat.count})") },
                                 leadingIcon = {
@@ -266,12 +271,17 @@ fun HomeScreen(
                         // Resolve display name from the platformNameMap
                         val resolvedName = uiState.platformNameMap[notification.packageName]
                             ?: notification.platform
-                        NotificationCard(
-                            notification = notification,
-                            onClick = { id ->
+                        // Stable onClick lambda — remembered per notification ID
+                        val notificationId = notification.id
+                        val onClick = remember(notificationId) {
+                            { id: Long ->
                                 viewModel.markAsRead(id)
                                 onNavigateToDetail(id)
-                            },
+                            }
+                        }
+                        NotificationCard(
+                            notification = notification,
+                            onClick = onClick,
                             displayPlatformName = resolvedName,
                             modifier = Modifier.padding(horizontal = 16.dp)
                         )

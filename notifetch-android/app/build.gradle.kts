@@ -15,16 +15,26 @@ android {
         applicationId = "com.notifetch.app"
         minSdk = 24
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0.0"
+        versionCode = 6
+        versionName = "2.2.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    signingConfigs {
+        create("release") {
+            storeFile = file("../../twa/keystore.jks")
+            storePassword = System.getenv("NOTIFETCH_STORE_PASSWORD") ?: ""
+            keyAlias = "notifetch"
+            keyPassword = System.getenv("NOTIFETCH_KEY_PASSWORD") ?: ""
+        }
     }
 
     buildTypes {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
+            signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -104,6 +114,9 @@ dependencies {
     implementation(libs.firebase.auth)
     implementation(libs.firebase.messaging)
     implementation(libs.firebase.analytics)
+
+    // Google Sign-In
+    implementation(libs.play.services.auth)
 
     // WorkManager
     implementation(libs.work.runtime.ktx)

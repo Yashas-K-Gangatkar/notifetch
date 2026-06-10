@@ -1,9 +1,14 @@
 package com.notifetch.app.ui.screens
 
+import android.app.Activity
 import android.content.Intent
 import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -27,10 +32,10 @@ import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Gavel
 import androidx.compose.material.icons.filled.Login
+import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PrivacyTip
 import androidx.compose.material.icons.filled.Shield
-import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -59,6 +64,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.notifetch.app.BuildConfig
 import com.notifetch.app.ui.viewmodel.ProfileViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -69,6 +75,14 @@ fun ProfileScreen(
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
     var showDeleteDialog by remember { mutableStateOf(false) }
+    var showSignOutDialog by remember { mutableStateOf(false) }
+
+    // Google Sign-In launcher
+    val googleSignInLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        viewModel.handleGoogleSignInResult(result)
+    }
 
     Column(
         modifier = Modifier
@@ -102,7 +116,7 @@ fun ProfileScreen(
         ) {
             // Profile avatar
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                androidx.compose.foundation.layout.Box(
+                Box(
                     modifier = Modifier
                         .size(96.dp)
                         .clip(CircleShape)
@@ -118,7 +132,11 @@ fun ProfileScreen(
                 }
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
-                    text = if (uiState.isSignedIn) "Connected" else "Not Signed In",
+                    text = when {
+                        uiState.isSignedIn && !uiState.isAnonymous -> uiState.userDisplayName ?: "Signed In"
+                        uiState.isSignedIn && uiState.isAnonymous -> "Connected (Anonymous)"
+                        else -> "Not Signed In"
+                    },
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
                     color = if (uiState.isSignedIn)
@@ -126,6 +144,14 @@ fun ProfileScreen(
                     else
                         MaterialTheme.colorScheme.onSurfaceVariant
                 )
+                val userEmail = uiState.userEmail
+                if (userEmail != null) {
+                    Text(
+                        text = userEmail,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
 
             // Connection status card
@@ -157,15 +183,20 @@ fun ProfileScreen(
                     Spacer(modifier = Modifier.width(16.dp))
                     Column {
                         Text(
-                            text = if (uiState.isSignedIn) "Backend Connected" else "Not Connected",
+                            text = when {
+                                uiState.isSignedIn && !uiState.isAnonymous -> "Backend Connected"
+                                uiState.isSignedIn && uiState.isAnonymous -> "Connected (Anonymous)"
+                                else -> "Not Connected"
+                            },
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.SemiBold
                         )
                         Text(
-                            text = if (uiState.isSignedIn)
-                                "Your notifications are being synced to the NotiFetch server"
-                            else
-                                "Sign in to sync notifications across devices",
+                            text = when {
+                                uiState.isSignedIn && !uiState.isAnonymous -> "Signed in with Google. Notifications sync across devices."
+                                uiState.isSignedIn && uiState.isAnonymous -> "Connected anonymously. Sign in with Google for full sync."
+                                else -> "Sign in with Google to sync notifications across devices"
+                            },
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -187,13 +218,14 @@ fun ProfileScreen(
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                     InfoRow(icon = Icons.Default.Devices, label = "Device ID", value = uiState.deviceId.take(12) + "...")
-                    if (uiState.userId != null) {
-                        InfoRow(icon = Icons.Default.Person, label = "User ID", value = uiState.userId.take(12) + "...")
+                    val userId = uiState.userId
+                    if (userId != null) {
+                        InfoRow(icon = Icons.Default.Person, label = "User ID", value = userId.take(12) + "...")
                     }
                 }
             }
 
-            // ── Data Rights Section (GDPR Art. 17 + DPDP Act §8) ──────────
+            // Data Rights Section (GDPR Art. 17 + DPDP Act §8)
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp)
@@ -261,7 +293,7 @@ fun ProfileScreen(
                 }
             }
 
-            // ── Legal Section ──────────────────────────────────────────────
+            // Legal Section
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
@@ -278,7 +310,6 @@ fun ProfileScreen(
                     )
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    // Privacy Policy
                     LegalLinkRow(
                         icon = Icons.Default.PrivacyTip,
                         label = "Privacy Policy",
@@ -291,7 +322,6 @@ fun ProfileScreen(
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    // Terms of Service
                     LegalLinkRow(
                         icon = Icons.Default.Gavel,
                         label = "Terms of Service",
@@ -304,7 +334,6 @@ fun ProfileScreen(
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    // No affiliation disclaimer
                     LegalLinkRow(
                         icon = Icons.Default.Shield,
                         label = "No Affiliation Notice",
@@ -317,15 +346,19 @@ fun ProfileScreen(
                 }
             }
 
-            // Sign in/out
+            // Sign in/out buttons
             if (uiState.isSigningIn) {
                 CircularProgressIndicator(
                     modifier = Modifier.size(48.dp),
                     color = MaterialTheme.colorScheme.primary
                 )
             } else if (!uiState.isSignedIn) {
+                // Google Sign-In button
                 Button(
-                    onClick = { viewModel.signInAnonymously() },
+                    onClick = {
+                        val signInIntent = viewModel.getSignInIntent()
+                        googleSignInLauncher.launch(signInIntent)
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp),
@@ -341,26 +374,73 @@ fun ProfileScreen(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Sign in Anonymously",
+                        text = "Continue with Google",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold
                     )
                 }
-            } else {
+            } else if (uiState.isAnonymous) {
+                // Upgrade from anonymous to Google Sign-In
+                Button(
+                    onClick = {
+                        val signInIntent = viewModel.getSignInIntent()
+                        googleSignInLauncher.launch(signInIntent)
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary
+                    )
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Login,
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Sign in with Google",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                // Sign out from anonymous
                 OutlinedButton(
-                    onClick = { /* Sign out */ },
+                    onClick = { showSignOutDialog = true },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp),
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Sync,
+                        imageVector = Icons.Default.Logout,
                         contentDescription = null,
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Re-authenticate")
+                    Text("Sign Out")
+                }
+            } else {
+                // Already signed in with Google — sign out
+                OutlinedButton(
+                    onClick = { showSignOutDialog = true },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Logout,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Sign Out")
                 }
             }
 
@@ -412,7 +492,7 @@ fun ProfileScreen(
                         color = MaterialTheme.colorScheme.primary
                     )
                     Text(
-                        text = "v1.0.0",
+                        text = "v${BuildConfig.VERSION_NAME}",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -462,6 +542,35 @@ fun ProfileScreen(
             },
             dismissButton = {
                 TextButton(onClick = { showDeleteDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
+    // Sign out confirmation dialog
+    if (showSignOutDialog) {
+        AlertDialog(
+            onDismissRequest = { showSignOutDialog = false },
+            title = { Text("Sign Out?") },
+            text = {
+                Text("You will be signed out of your account. You can sign in again anytime.")
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.signOut()
+                        showSignOutDialog = false
+                    },
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = MaterialTheme.colorScheme.error
+                    )
+                ) {
+                    Text("Sign Out")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showSignOutDialog = false }) {
                     Text("Cancel")
                 }
             }
@@ -548,5 +657,3 @@ private fun LegalLinkRow(
     }
 }
 
-private fun Modifier.clickable(onClick: () -> Unit): Modifier =
-    this.then(androidx.compose.foundation.clickable(onClick = onClick))

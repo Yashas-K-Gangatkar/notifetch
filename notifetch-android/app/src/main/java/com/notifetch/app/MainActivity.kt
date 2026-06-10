@@ -42,7 +42,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    NotiFetchApp()
+                    NotiFetchNavHost()
                 }
             }
         }
@@ -50,7 +50,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun NotiFetchApp() {
+fun NotiFetchNavHost() {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route ?: "home"

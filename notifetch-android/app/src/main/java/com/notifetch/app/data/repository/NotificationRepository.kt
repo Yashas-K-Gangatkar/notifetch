@@ -40,6 +40,9 @@ class NotificationRepository @Inject constructor(
     fun getNotificationCountByPlatform(): Flow<List<NotificationDao.PlatformStat>> =
         notificationDao.getNotificationCountByPlatform()
 
+    fun getCountInTimeRange(startTime: Long, endTime: Long): Flow<Int> =
+        notificationDao.getCountInTimeRange(startTime, endTime)
+
     fun getTotalOrderValueSince(startTime: Long): Flow<Double> =
         notificationDao.getTotalOrderValueSince(startTime)
 

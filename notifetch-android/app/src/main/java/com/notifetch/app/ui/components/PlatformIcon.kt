@@ -162,6 +162,6 @@ private fun getBrandInitials(packageName: String): String {
         "com.amazon.flex" -> "AF"
         "com.flipkart.logistics" -> "FK"
 
-        else -> platform.take(2).uppercase()
+        else -> packageName.take(2).uppercase()
     }
 }

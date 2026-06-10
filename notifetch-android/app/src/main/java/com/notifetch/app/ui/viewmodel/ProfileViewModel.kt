@@ -1,7 +1,13 @@
 package com.notifetch.app.ui.viewmodel
 
+import android.app.Application
+import android.content.Intent
+import androidx.activity.result.ActivityResult
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.firebase.auth.FirebaseAuth
 import com.notifetch.app.data.repository.AuthRepository
 import com.notifetch.app.data.repository.NotificationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -13,7 +19,10 @@ import javax.inject.Inject
 
 data class ProfileUiState(
     val isSignedIn: Boolean = false,
+    val isAnonymous: Boolean = true,
     val userId: String? = null,
+    val userEmail: String? = null,
+    val userDisplayName: String? = null,
     val deviceId: String = "",
     val isSigningIn: Boolean = false,
     val error: String? = null
@@ -22,7 +31,9 @@ data class ProfileUiState(
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     private val authRepository: AuthRepository,
-    private val notificationRepository: NotificationRepository
+    private val notificationRepository: NotificationRepository,
+    private val googleSignInClient: GoogleSignInClient,
+    private val firebaseAuth: FirebaseAuth
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ProfileUiState(deviceId = authRepository.getDeviceId()))
@@ -35,28 +46,76 @@ class ProfileViewModel @Inject constructor(
     private fun checkAuthState() {
         _uiState.value = _uiState.value.copy(
             isSignedIn = authRepository.isSignedIn(),
-            deviceId = authRepository.getDeviceId()
+            isAnonymous = authRepository.isAnonymous(),
+            deviceId = authRepository.getDeviceId(),
+            userId = authRepository.getUserId(),
+            userEmail = authRepository.getUserEmail(),
+            userDisplayName = authRepository.getUserDisplayName()
         )
+    }
+
+    /**
+     * Get the Google Sign-In intent to launch from the Activity.
+     */
+    fun getSignInIntent(): Intent = googleSignInClient.signInIntent
+
+    /**
+     * Handle Google Sign-In result from the Activity.
+     */
+    fun handleGoogleSignInResult(result: ActivityResult) {
         viewModelScope.launch {
-            val uid = authRepository.getUserId()
-            _uiState.value = _uiState.value.copy(userId = uid)
+            _uiState.value = _uiState.value.copy(isSigningIn = true, error = null)
+            try {
+                val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+                val account = task.getResult(com.google.android.gms.common.api.ApiException::class.java)
+                val idToken = account.idToken
+                    ?: throw Exception("No ID token received from Google")
+
+                val signInResult = authRepository.signInWithGoogle(idToken)
+                signInResult.onSuccess {
+                    _uiState.value = _uiState.value.copy(
+                        isSignedIn = true,
+                        isAnonymous = false,
+                        isSigningIn = false,
+                        userId = authRepository.getUserId(),
+                        userEmail = authRepository.getUserEmail(),
+                        userDisplayName = authRepository.getUserDisplayName(),
+                        error = null
+                    )
+                }.onFailure { error ->
+                    _uiState.value = _uiState.value.copy(
+                        isSigningIn = false,
+                        error = error.message ?: "Google Sign-In failed"
+                    )
+                }
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    isSigningIn = false,
+                    error = e.message ?: "Google Sign-In failed"
+                )
+            }
         }
     }
 
-    fun signInAnonymously() {
+    /**
+     * Sign out from Firebase and Google.
+     */
+    fun signOut() {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isSigningIn = true, error = null)
-            val result = authRepository.signInAnonymously()
-            result.onSuccess { token ->
+            try {
+                authRepository.signOut()
+                googleSignInClient.signOut()
                 _uiState.value = _uiState.value.copy(
-                    isSignedIn = true,
-                    isSigningIn = false,
-                    userId = authRepository.isSignedIn().toString()
+                    isSignedIn = false,
+                    isAnonymous = true,
+                    userId = null,
+                    userEmail = null,
+                    userDisplayName = null,
+                    error = null
                 )
-            }.onFailure { error ->
+            } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
-                    isSigningIn = false,
-                    error = error.message ?: "Sign-in failed"
+                    error = "Sign out failed: ${e.message}"
                 )
             }
         }
