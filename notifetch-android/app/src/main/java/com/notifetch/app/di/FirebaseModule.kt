@@ -27,8 +27,8 @@ object FirebaseModule {
     fun provideGoogleSignInClient(
         @ApplicationContext context: Context
     ): GoogleSignInClient {
-        // Use the web client ID from google-services.json (client_type 3)
-        val webClientId = "895827826409-4k5eqvhsve0n3504tk6lb62ijbkhsi7o.apps.googleusercontent.com"
+        // Read web client ID from string resources (synced with google-services.json)
+        val webClientId = context.getString(com.notifetch.app.R.string.default_web_client_id)
 
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(webClientId)

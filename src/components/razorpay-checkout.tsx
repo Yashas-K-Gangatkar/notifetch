@@ -7,12 +7,14 @@ import { Loader2, CheckCircle2, XCircle, CreditCard } from "lucide-react";
 // ─── Types ──────────────────────────────────────────────────────────────────
 
 interface RazorpayCheckoutProps {
-  /** Plan to upgrade to: "pro" | "premium" */
-  plan: "pro" | "premium";
+  /** Plan to upgrade to: "starter" | "pro" | "premium" */
+  plan: "starter" | "pro" | "premium";
   /** Billing period: "monthly" | "yearly" */
   period: "monthly" | "yearly";
   /** Current plan of the user */
   currentPlan?: string;
+  /** Selected platform IDs to enable after payment */
+  selectedPlatforms?: string[];
   /** Called when payment succeeds */
   onSuccess?: () => void;
   /** Optional label override for the button */
@@ -41,7 +43,14 @@ function loadRazorpayScript(): Promise<boolean> {
     const script = document.createElement("script");
     script.src = "https://checkout.razorpay.com/v1/checkout.js";
     script.async = true;
-    script.onload = () => resolve(true);
+    script.onload = () => {
+      // Double-check Razorpay is actually available
+      const available = !!(window as Record<string, unknown>).Razorpay;
+      if (!available) {
+        scriptLoadPromise = null;
+      }
+      resolve(available);
+    };
     script.onerror = () => {
       scriptLoadPromise = null;
       resolve(false);
@@ -93,6 +102,7 @@ export function RazorpayCheckout({
   plan,
   period,
   currentPlan,
+  selectedPlatforms,
   onSuccess,
   label,
   className,
@@ -103,7 +113,8 @@ export function RazorpayCheckout({
 
   const isAlreadyOnPlan = currentPlan === plan;
   const isHigherPlan =
-    currentPlan === "premium" && plan === "pro";
+    (currentPlan === "premium") ||
+    (currentPlan === "pro" && plan === "starter");
 
   const getButtonLabel = useCallback((): string => {
     if (isAlreadyOnPlan) return "Current Plan";
@@ -146,22 +157,40 @@ export function RazorpayCheckout({
     setErrorMessage(null);
 
     try {
-      // ── Step 1: Load Razorpay script ────────────────────────────────────
+      // ── Step 1: Load Razorpay script with retry ─────────────────────────
       const scriptLoaded = await loadRazorpayScript();
+
       if (!scriptLoaded) {
-        throw new Error("Failed to load Razorpay. Please check your internet connection.");
+        // Retry once after a short delay
+        await new Promise(r => setTimeout(r, 1500));
+        const retryLoaded = await loadRazorpayScript();
+        if (!retryLoaded) {
+          throw new Error(
+            "Failed to load Razorpay. Please check your internet connection and try again. " +
+            "If the issue persists, try refreshing the page."
+          );
+        }
       }
 
       // ── Step 2: Create Razorpay order via API ──────────────────────────
       const orderResponse = await fetch("/api/payments/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plan, period }),
+        body: JSON.stringify({ plan, period, selectedPlatforms }),
       });
 
       if (!orderResponse.ok) {
-        const errorData = await orderResponse.json();
-        throw new Error(errorData.error || "Failed to create order");
+        const errorData = await orderResponse.json().catch(() => ({}));
+        const errorMsg = errorData.error || `Failed to create order (${orderResponse.status})`;
+
+        // Provide a more helpful message when Razorpay is not configured
+        if (orderResponse.status === 503 || errorMsg.toLowerCase().includes("not configured")) {
+          throw new Error(
+            "Razorpay is not configured yet. Please add your Razorpay API keys (RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET) in the .env file and Vercel environment variables."
+          );
+        }
+
+        throw new Error(errorMsg);
       }
 
       const orderData = await orderResponse.json();
@@ -169,10 +198,18 @@ export function RazorpayCheckout({
       // ── Step 3: Open Razorpay checkout ──────────────────────────────────
       setState("paying");
 
+      const RazorpayConstructor = (window as Record<string, unknown>).Razorpay as new (
+        options: RazorpayOptions
+      ) => RazorpayInstance;
+
+      if (!RazorpayConstructor) {
+        throw new Error("Razorpay SDK not available. Please refresh the page and try again.");
+      }
+
       const options: RazorpayOptions = {
         key: orderData.key,
         amount: orderData.amount,
-        currency: orderData.currency,
+        currency: orderData.currency || "INR",
         name: "NotiFetch",
         description: `${plan.charAt(0).toUpperCase() + plan.slice(1)} Plan - ${period === "yearly" ? "Yearly" : "Monthly"}`,
         order_id: orderData.orderId,
@@ -190,11 +227,12 @@ export function RazorpayCheckout({
                 razorpay_signature: response.razorpay_signature,
                 plan,
                 period,
+                selectedPlatforms,
               }),
             });
 
             if (!verifyResponse.ok) {
-              const errorData = await verifyResponse.json();
+              const errorData = await verifyResponse.json().catch(() => ({}));
               throw new Error(errorData.error || "Payment verification failed");
             }
 
@@ -208,9 +246,7 @@ export function RazorpayCheckout({
             );
           }
         },
-        prefill: {
-          // These could be populated from user session
-        },
+        prefill: {},
         notes: {
           plan,
           period,
@@ -220,17 +256,11 @@ export function RazorpayCheckout({
         },
         modal: {
           ondismiss: () => {
-            if (state === "paying") {
-              setState("idle");
-              setErrorMessage("Payment was cancelled.");
-            }
+            setState("idle");
+            setErrorMessage("Payment was cancelled.");
           },
         },
       };
-
-      const RazorpayConstructor = (window as Record<string, unknown>).Razorpay as new (
-        options: RazorpayOptions
-      ) => RazorpayInstance;
 
       const rzp = new RazorpayConstructor(options);
       rzp.open();
@@ -238,10 +268,10 @@ export function RazorpayCheckout({
       console.error("[RazorpayCheckout] Error:", err);
       setState("error");
       setErrorMessage(
-        err instanceof Error ? err.message : "Something went wrong"
+        err instanceof Error ? err.message : "Something went wrong. Please try again."
       );
     }
-  }, [plan, period, state, onSuccess]);
+  }, [plan, period, selectedPlatforms, onSuccess]);
 
   const isDisabled =
     isAlreadyOnPlan ||

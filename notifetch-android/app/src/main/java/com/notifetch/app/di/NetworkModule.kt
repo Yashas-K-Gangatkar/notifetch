@@ -1,5 +1,6 @@
 package com.notifetch.app.di
 
+import com.notifetch.app.BuildConfig
 import com.notifetch.app.data.remote.NotiFetchApi
 import com.notifetch.app.util.Constants
 import com.squareup.moshi.Moshi
@@ -31,7 +32,7 @@ object NetworkModule {
     @Singleton
     fun provideOkHttpClient(): OkHttpClient {
         val loggingInterceptor = HttpLoggingInterceptor().apply {
-            level = HttpLoggingInterceptor.Level.BODY
+            level = if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY else HttpLoggingInterceptor.Level.NONE
         }
         return OkHttpClient.Builder()
             .addInterceptor(loggingInterceptor)

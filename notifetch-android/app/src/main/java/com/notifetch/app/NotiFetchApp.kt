@@ -6,21 +6,26 @@ import android.app.NotificationManager
 import android.os.Build
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
-import androidx.work.Constraints
-import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.NetworkType
-import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import com.notifetch.app.data.repository.dataStore
 import com.notifetch.app.util.Constants
+import com.notifetch.app.ui.viewmodel.SettingsViewModel
 import com.notifetch.app.worker.SyncWorker
 import dagger.hilt.android.HiltAndroidApp
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 
 @HiltAndroidApp
 class NotiFetchApp : Application(), Configuration.Provider {
 
     @Inject lateinit var workerFactory: HiltWorkerFactory
+
+    private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder()
@@ -30,7 +35,7 @@ class NotiFetchApp : Application(), Configuration.Provider {
     override fun onCreate() {
         super.onCreate()
         createNotificationChannels()
-        schedulePeriodicSync()
+        schedulePeriodicSyncIfEnabled()
     }
 
     private fun createNotificationChannels() {
@@ -49,28 +54,28 @@ class NotiFetchApp : Application(), Configuration.Provider {
         }
     }
 
-    private fun schedulePeriodicSync() {
-        val constraints = Constraints.Builder()
-            .setRequiredNetworkType(NetworkType.CONNECTED)
-            .setRequiresBatteryNotLow(true)
-            .build()
+    /**
+     * Schedule periodic sync only if the user hasn't disabled it (BUG #7/16 fix).
+     * Reads the sync_enabled preference from DataStore.
+     */
+    private fun schedulePeriodicSyncIfEnabled() {
+        val workManager = WorkManager.getInstance(this)
+        appScope.launch {
+            val syncEnabled = try {
+                dataStore.data.map { prefs ->
+                    prefs[SettingsViewModel.SYNC_ENABLED_KEY] ?: true
+                }.first()
+            } catch (_: Exception) { true } // Default to enabled if read fails
 
-        val syncWork = PeriodicWorkRequestBuilder<SyncWorker>(
-            Constants.SYNC_INTERVAL_MINUTES,
-            TimeUnit.MINUTES
-        )
-            .setConstraints(constraints)
-            .setBackoffCriteria(
-                androidx.work.BackoffPolicy.EXPONENTIAL,
-                30,
-                TimeUnit.SECONDS
-            )
-            .build()
+            if (syncEnabled) {
+                val intervalMinutes = try {
+                    dataStore.data.map { prefs ->
+                        prefs[SettingsViewModel.SYNC_INTERVAL_KEY] ?: 15L
+                    }.first()
+                } catch (_: Exception) { Constants.SYNC_INTERVAL_MINUTES }
 
-        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
-            Constants.SYNC_WORK_NAME,
-            ExistingPeriodicWorkPolicy.KEEP,
-            syncWork
-        )
+                SettingsViewModel.scheduleSyncWork(workManager, intervalMinutes)
+            }
+        }
     }
 }

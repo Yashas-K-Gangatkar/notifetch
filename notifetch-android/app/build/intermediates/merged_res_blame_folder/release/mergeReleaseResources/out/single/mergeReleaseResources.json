@@ -156,6 +156,10 @@
         "source": "/home/z/.gradle/daemon/8.9/com.notifetch.app-main-82:/xml/notification_listener_config.xml"
     },
     {
+        "merged": "com.notifetch.app-release-81:/xml_notification_listener_config.xml.flat",
+        "source": "com.notifetch.app-main-82:/xml/notification_listener_config.xml"
+    },
+    {
         "merged": "/home/z/.gradle/daemon/8.9/com.notifetch.app-release-81:/layout_ime_secondary_split_test_activity.xml.flat",
         "source": "/home/z/.gradle/daemon/8.9/com.notifetch.app-core-1.15.0-68:/layout/ime_secondary_split_test_activity.xml"
     },

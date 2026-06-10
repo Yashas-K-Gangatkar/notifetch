@@ -43,3 +43,9 @@ data class AuthResponse(
     @Json(name = "uid") val uid: String?,
     @Json(name = "message") val message: String?
 )
+
+@JsonClass(generateAdapter = true)
+data class FcmTokenPayload(
+    @Json(name = "token") val token: String,
+    @Json(name = "deviceId") val deviceId: String?
+)

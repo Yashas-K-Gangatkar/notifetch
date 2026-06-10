@@ -13,6 +13,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -31,9 +35,48 @@ data class HomeUiState(
     val selectedPlatform: String? = null,
     val isRefreshing: Boolean = false,
     val platformNameMap: Map<String, String> = emptyMap()
-)
+) {
+    // Explicit equality check to make distinctUntilChanged() work properly.
+    // Without this, data class copy() with same values still creates a new object
+    // that Compose treats as different, causing unnecessary recompositions.
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is HomeUiState) return false
+        return notifications == other.notifications &&
+                unreadCount == other.unreadCount &&
+                totalCount == other.totalCount &&
+                todayCount == other.todayCount &&
+                todayEarnings == other.todayEarnings &&
+                weekEarnings == other.weekEarnings &&
+                platformStats == other.platformStats &&
+                isListenerEnabled == other.isListenerEnabled &&
+                isSyncing == other.isSyncing &&
+                searchQuery == other.searchQuery &&
+                selectedPlatform == other.selectedPlatform &&
+                isRefreshing == other.isRefreshing &&
+                platformNameMap == other.platformNameMap
+    }
+
+    override fun hashCode(): Int {
+        var result = notifications.hashCode()
+        result = 31 * result + unreadCount
+        result = 31 * result + totalCount
+        result = 31 * result + todayCount
+        result = 31 * result + todayEarnings.hashCode()
+        result = 31 * result + weekEarnings.hashCode()
+        result = 31 * result + platformStats.hashCode()
+        result = 31 * result + isListenerEnabled.hashCode()
+        result = 31 * result + isSyncing.hashCode()
+        result = 31 * result + searchQuery.hashCode()
+        result = 31 * result + (selectedPlatform?.hashCode() ?: 0)
+        result = 31 * result + isRefreshing.hashCode()
+        result = 31 * result + platformNameMap.hashCode()
+        return result
+    }
+}
 
 @HiltViewModel
+@OptIn(kotlinx.coroutines.FlowPreview::class)
 class HomeViewModel @Inject constructor(
     private val repository: NotificationRepository,
     private val authRepository: AuthRepository
@@ -45,7 +88,29 @@ class HomeViewModel @Inject constructor(
     private val _isRefreshing = MutableStateFlow(false)
     private val _isListenerEnabled = MutableStateFlow(true)
 
-    // Room flows — StateFlow from stateIn already deduplicates
+    // ── Room flows ──────────────────────────────────────────────────────────
+    // Each flow is stateIn'd with a 5-second timeout so it stays alive briefly
+    // after the UI stops collecting (avoids re-query on rapid screen switches).
+    //
+    // FLUTTERING FIX STRATEGY:
+    // The previous approach used 7+ separate Room Flow subscriptions. A single
+    // DB write (insertNotification + incrementNotificationCount + markAsSynced)
+    // triggered 7+ emissions, each causing a separate recomposition.
+    //
+    // New approach:
+    //   1. Removed incrementNotificationCount from insertNotification (BUG #2)
+    //   2. Debounced sync in the listener (already 5s — kept)
+    //   3. markAsSynced is now a batch DAO call that fires once per sync
+    //   4. Consolidated all flows into a SINGLE combined state
+    //   5. Added 200ms debounce to coalesce any remaining rapid emissions
+    //   6. Added proper equals/hashCode to HomeUiState for distinctUntilChanged
+    //
+    // This means a notification capture causes:
+    //   - 1 emission from insertNotification (notifications + counts update)
+    //   - 5 seconds later: 1 emission from markAsSynced (isSynced field changes)
+    // Instead of 7+ emissions in rapid succession.
+    // ─────────────────────────────────────────────────────────────────────────
+
     private val allNotifications = repository.getAllNotifications()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
@@ -58,8 +123,10 @@ class HomeViewModel @Inject constructor(
         _selectedPlatform
     ) { notifications, query, platform ->
         var result = notifications
+        // Filter by packageName (stable identifier, not display name)
+        // This ensures filtering works correctly even when users rename platforms
         if (platform != null) {
-            result = result.filter { it.platform == platform }
+            result = result.filter { it.packageName == platform }
         }
         if (query.isNotBlank()) {
             result = result.filter {
@@ -77,24 +144,51 @@ class HomeViewModel @Inject constructor(
     private val totalCountFlow = repository.getTotalCount()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
-    private val todayCountFlow = repository.getCountInTimeRange(
-        Helpers.startOfDayTimestamp(), System.currentTimeMillis()
-    ).stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
+    // ── Reactive time-range flows (BUG #24 fix) ─────────────────────────────
+    // Previously, timestamps were captured once at ViewModel creation. If the app
+    // stayed open past midnight, "today" stats would still show yesterday's data.
+    // Now, these flows automatically recalculate timestamps at midnight.
+    private val dayRangeFlow = flow {
+        while (true) {
+            val startOfDay = Helpers.startOfDayTimestamp()
+            val now = System.currentTimeMillis()
+            emit(startOfDay to now)
+            // Sleep until next midnight, then re-emit
+            val nextMidnight = startOfDay + 86_400_000L // 24 hours
+            val delayMs = (nextMidnight - now).coerceAtLeast(60_000L) // at least 1 min
+            kotlinx.coroutines.delay(delayMs)
+        }
+    }
 
-    private val todayEarningsFlow = repository.getTotalOrderValueSince(
-        Helpers.startOfDayTimestamp()
-    ).stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
+    private val todayCountFlow = dayRangeFlow.flatMapLatest { (start, end) ->
+        repository.getCountInTimeRange(start, end)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
-    private val weekEarningsFlow = repository.getTotalOrderValueSince(
-        Helpers.startOfWeekTimestamp()
-    ).stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
+    private val todayEarningsFlow = dayRangeFlow.flatMapLatest { (start, _) ->
+        repository.getTotalOrderValueSince(start)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
+
+    private val weekStartFlow = flow {
+        while (true) {
+            val startOfWeek = Helpers.startOfWeekTimestamp()
+            emit(startOfWeek)
+            // Sleep until next Monday midnight
+            val now = System.currentTimeMillis()
+            val nextWeek = startOfWeek + 7 * 86_400_000L
+            val delayMs = (nextWeek - now).coerceAtLeast(60_000L)
+            kotlinx.coroutines.delay(delayMs)
+        }
+    }
+
+    private val weekEarningsFlow = weekStartFlow.flatMapLatest { startOfWeek ->
+        repository.getTotalOrderValueSince(startOfWeek)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
 
     private val platformStatsFlow = repository.getNotificationCountByPlatform()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    // Consolidate all state into a SINGLE uiState to prevent cascading recompositions.
-    // Use nested combines since Kotlin combine() supports max 5 flows directly.
-    // Step 1: Combine Room data flows
+    // ── Consolidated state ──────────────────────────────────────────────────
+
     private val dataState = combine(
         filteredNotifications,
         unreadCountFlow,
@@ -111,7 +205,6 @@ class HomeViewModel @Inject constructor(
         )
     }
 
-    // Step 2: Combine secondary data flows
     private val secondaryState = combine(
         weekEarningsFlow,
         platformStatsFlow,
@@ -124,7 +217,6 @@ class HomeViewModel @Inject constructor(
         )
     }
 
-    // Step 3: Combine UI state flows
     private val uiControlState = combine(
         _isSyncing,
         _isRefreshing,
@@ -141,7 +233,9 @@ class HomeViewModel @Inject constructor(
         )
     }
 
-    // Step 4: Final combine into HomeUiState
+    // Final combined state → 200ms debounce → distinctUntilChanged → StateFlow
+    // 200ms is the sweet spot: long enough to coalesce Room's rapid re-emissions
+    // after a write, short enough that the user perceives instant UI updates.
     val uiState: StateFlow<HomeUiState> = combine(
         dataState,
         secondaryState,
@@ -162,7 +256,10 @@ class HomeViewModel @Inject constructor(
             searchQuery = uiControl.searchQuery,
             selectedPlatform = uiControl.selectedPlatform
         )
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), HomeUiState())
+    }
+        .debounce(200)
+        .distinctUntilChanged()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), HomeUiState())
 
     init {
         viewModelScope.launch {
@@ -210,8 +307,12 @@ class HomeViewModel @Inject constructor(
     fun refresh() {
         viewModelScope.launch {
             _isRefreshing.value = true
-            // Allow Room flows to emit before turning off refresh indicator
-            kotlinx.coroutines.delay(300)
+            // Trigger a real sync and wait for it
+            try {
+                repository.syncPendingNotifications()
+            } catch (_: Exception) { }
+            // Brief delay to let Room flows emit updated data
+            kotlinx.coroutines.delay(100)
             _isRefreshing.value = false
         }
     }

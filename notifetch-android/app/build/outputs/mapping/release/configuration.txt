@@ -837,21 +837,6 @@
 }
 
 # End of content from /home/z/.gradle/caches/8.9/transforms/283f8382dc9e8cddee611cd91b1d3cbb/transformed/rules/lib/META-INF/proguard/androidx-annotations.pro
-# The proguard configuration file for the following section is /home/z/.gradle/caches/8.9/transforms/cc46bb47d3713b2a04551ebed10b0b31/transformed/rules/lib/META-INF/com.android.tools/r8/kotlinx-serialization-r8.pro
-# Rule to save runtime annotations on serializable class.
-# If the R8 full mode is used, annotations are removed from classes-files.
-#
-# For the annotation serializer, it is necessary to read the `Serializable` annotation inside the serializer<T>() function - if it is present,
-# then `SealedClassSerializer` is used, if absent, then `PolymorphicSerializer'.
-#
-# When using R8 full mode, all interfaces will be serialized using `PolymorphicSerializer`.
-#
-# see https://github.com/Kotlin/kotlinx.serialization/issues/2050
-
- -if @kotlinx.serialization.Serializable class **
- -keep, allowshrinking, allowoptimization, allowobfuscation, allowaccessmodification class <1>
-
-# End of content from /home/z/.gradle/caches/8.9/transforms/cc46bb47d3713b2a04551ebed10b0b31/transformed/rules/lib/META-INF/com.android.tools/r8/kotlinx-serialization-r8.pro
 # The proguard configuration file for the following section is /home/z/.gradle/caches/8.9/transforms/cc46bb47d3713b2a04551ebed10b0b31/transformed/rules/lib/META-INF/com.android.tools/r8/kotlinx-serialization-common.pro
 # Keep `Companion` object fields of serializable classes.
 # This avoids serializer lookup through `getDeclaredClasses` as done for named companion objects.
@@ -890,6 +875,21 @@
 -dontwarn kotlinx.serialization.internal.ClassValueReferences
 
 # End of content from /home/z/.gradle/caches/8.9/transforms/cc46bb47d3713b2a04551ebed10b0b31/transformed/rules/lib/META-INF/com.android.tools/r8/kotlinx-serialization-common.pro
+# The proguard configuration file for the following section is /home/z/.gradle/caches/8.9/transforms/cc46bb47d3713b2a04551ebed10b0b31/transformed/rules/lib/META-INF/com.android.tools/r8/kotlinx-serialization-r8.pro
+# Rule to save runtime annotations on serializable class.
+# If the R8 full mode is used, annotations are removed from classes-files.
+#
+# For the annotation serializer, it is necessary to read the `Serializable` annotation inside the serializer<T>() function - if it is present,
+# then `SealedClassSerializer` is used, if absent, then `PolymorphicSerializer'.
+#
+# When using R8 full mode, all interfaces will be serialized using `PolymorphicSerializer`.
+#
+# see https://github.com/Kotlin/kotlinx.serialization/issues/2050
+
+ -if @kotlinx.serialization.Serializable class **
+ -keep, allowshrinking, allowoptimization, allowobfuscation, allowaccessmodification class <1>
+
+# End of content from /home/z/.gradle/caches/8.9/transforms/cc46bb47d3713b2a04551ebed10b0b31/transformed/rules/lib/META-INF/com.android.tools/r8/kotlinx-serialization-r8.pro
 # The proguard configuration file for the following section is /home/z/.gradle/caches/8.9/transforms/9411024466aed02c94f8e2e3dd33d036/transformed/rules/lib/META-INF/proguard/moshi.pro
 # JSR 305 annotations are for embedding nullability information.
 -dontwarn javax.annotation.**
@@ -995,47 +995,47 @@
 
 # End of content from /home/z/.gradle/caches/8.9/transforms/7198eff35ae20bcc4c6a6cf938804af6/transformed/rules/lib/META-INF/com.android.tools/r8/r8.pro
 # The proguard configuration file for the following section is /home/z/my-project/notifetch-android/app/build/intermediates/generated_proguard_file/release/mergeReleaseGeneratedProguardFiles/proguard.txt
--keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.SettingsViewModel
--keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.SettingsViewModel
--keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.NotificationDetailViewModel
--keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.NotificationDetailViewModel
+-keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.ProfileViewModel
+-keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.ProfileViewModel
 -keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.HomeViewModel
 
--keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.SettingsViewModel
--keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.SettingsViewModel
--keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.NotificationDetailViewModel
--keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.NotificationDetailViewModel
+-keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.ProfileViewModel
+-keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.ProfileViewModel
 -keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.HomeViewModel
 -keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.HomeViewModel
 
+-keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.ProfileViewModel
+-keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.ProfileViewModel
+-keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.HomeViewModel
+-keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.HomeViewModel
 -keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.SettingsViewModel
 -keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.SettingsViewModel
 -keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.NotificationDetailViewModel
 
+-keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.ProfileViewModel
+-keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.ProfileViewModel
+-keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.HomeViewModel
+-keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.HomeViewModel
 -keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.SettingsViewModel
 -keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.SettingsViewModel
 -keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.NotificationDetailViewModel
 -keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.NotificationDetailViewModel
 
--keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.SettingsViewModel
--keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.SettingsViewModel
--keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.NotificationDetailViewModel
--keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.NotificationDetailViewModel
--keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.HomeViewModel
--keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.HomeViewModel
 -keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.ProfileViewModel
 
--keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.SettingsViewModel
--keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.SettingsViewModel
--keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.NotificationDetailViewModel
--keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.NotificationDetailViewModel
--keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.HomeViewModel
--keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.HomeViewModel
 -keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.ProfileViewModel
 -keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.ProfileViewModel
 
+-keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.ProfileViewModel
+-keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.ProfileViewModel
+-keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.HomeViewModel
+-keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.HomeViewModel
 -keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.SettingsViewModel
 
+-keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.ProfileViewModel
+-keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.ProfileViewModel
+-keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.HomeViewModel
+-keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.HomeViewModel
 -keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.SettingsViewModel
 -keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.SettingsViewModel
 

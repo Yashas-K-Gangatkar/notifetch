@@ -16,6 +16,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -44,6 +46,13 @@ class NotiFetchListenerService : NotificationListenerService() {
 
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val tag = "NotiFetchListener"
+
+    // Debounce sync — wait 5 seconds after the last notification before syncing
+    private var syncJob: kotlinx.coroutines.Job? = null
+    // Debounce platform count increment — batch updates to reduce DB writes
+    private var countIncrementJob: kotlinx.coroutines.Job? = null
+    // Track which packages need count increments for batching
+    private val pendingCountIncrements = mutableSetOf<String>()
 
     companion object {
         // Use the comprehensive package list from Constants
@@ -141,7 +150,7 @@ class NotiFetchListenerService : NotificationListenerService() {
             )
 
             // Detect currency based on platform region and text content
-            val currency = Helpers.detectCurrency(platformName, "$title $text $bigText")
+            val currency = Helpers.detectCurrency(packageName, platformName, "$title $text $bigText")
 
             // Create database entity (NO extrasJson — data minimization compliance)
             val capturedNotification = CapturedNotification(
@@ -168,8 +177,37 @@ class NotiFetchListenerService : NotificationListenerService() {
                     val id = repository.insertNotification(capturedNotification)
                     Log.d(tag, "Saved notification #$id from $platformName [${parsed.category}] ($currency)")
 
-                    // Try to sync to backend
-                    syncToBackend(capturedNotification.copy(id = id))
+                    // Debounced platform count increment — batch multiple notifications
+                    // from the same package to reduce DB writes (BUG #2 fix).
+                    // Previously, incrementNotificationCount was called inside
+                    // insertNotification, causing a second DB write per notification
+                    // that triggered cascading Room Flow emissions → UI fluttering.
+                    synchronized(pendingCountIncrements) {
+                        pendingCountIncrements.add(packageName)
+                    }
+                    countIncrementJob?.cancel()
+                    countIncrementJob = serviceScope.launch {
+                        delay(2000) // Batch increments over 2-second window
+                        val packagesToIncrement = synchronized(pendingCountIncrements) {
+                            val copy = pendingCountIncrements.toList()
+                            pendingCountIncrements.clear()
+                            copy
+                        }
+                        for (pkg in packagesToIncrement) {
+                            try {
+                                repository.incrementPlatformNotificationCount(pkg)
+                            } catch (e: Exception) {
+                                Log.e(tag, "Failed to increment count for $pkg", e)
+                            }
+                        }
+                    }
+
+                    // Debounced sync — cancel previous, wait 5s, then sync all pending
+                    syncJob?.cancel()
+                    syncJob = serviceScope.launch {
+                        delay(5000)
+                        syncToBackend()
+                    }
                 } catch (e: Exception) {
                     Log.e(tag, "Failed to save notification from $platformName", e)
                 }
@@ -185,20 +223,25 @@ class NotiFetchListenerService : NotificationListenerService() {
 
     override fun onListenerDisconnected() {
         super.onListenerDisconnected()
+        serviceScope.cancel()
         Log.w(tag, "Notification listener disconnected")
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        serviceScope.cancel()
+    }
+
     /**
-     * Attempt to forward the captured notification to the NotiFetch backend.
-     * If it fails, it will remain marked as unsynced and be picked up
-     * by the periodic sync WorkManager task.
+     * Attempt to forward all unsynced notifications to the NotiFetch backend.
+     * Debounced — called 5 seconds after the last notification capture.
      */
-    private suspend fun syncToBackend(notification: CapturedNotification) {
+    private suspend fun syncToBackend() {
         try {
             repository.syncPendingNotifications()
-            Log.d(tag, "Synced notification from ${notification.platform}")
+            Log.d(tag, "Debounced sync completed")
         } catch (e: Exception) {
-            Log.e(tag, "Failed to sync notification to backend", e)
+            Log.e(tag, "Failed to sync notifications to backend", e)
         }
     }
 }

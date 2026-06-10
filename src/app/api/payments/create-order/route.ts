@@ -9,7 +9,7 @@ import { createOrder, isRazorpayConfigured, getPlanPrice } from "@/lib/razorpay"
  * Creates a Razorpay order for subscription payment.
  * Requires authentication.
  *
- * Body: { plan: "pro" | "premium", period: "monthly" | "yearly" }
+ * Body: { plan: "starter" | "pro" | "premium", period: "monthly" | "yearly" }
  * Returns: { orderId, amount, currency, key }
  */
 export async function POST(request: Request) {
@@ -24,14 +24,14 @@ export async function POST(request: Request) {
     // ── Razorpay config check ───────────────────────────────────────────────
     if (!isRazorpayConfigured()) {
       return NextResponse.json(
-        { error: "Razorpay is not configured. Please set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET environment variables." },
+        { error: "Razorpay is not configured. Please set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET environment variables in your Vercel dashboard." },
         { status: 503 }
       );
     }
 
     // ── Parse and validate body ─────────────────────────────────────────────
     const body = await request.json();
-    const { plan, period } = body;
+    const { plan, period, selectedPlatforms } = body;
 
     if (!plan || !["starter", "pro", "premium"].includes(plan)) {
       return NextResponse.json(
@@ -56,6 +56,15 @@ export async function POST(request: Request) {
       );
     }
 
+    // Prevent downgrades through this endpoint
+    const planOrder: Record<string, number> = { free: 0, starter: 1, pro: 2, premium: 3 };
+    if (userPlan && planOrder[userPlan] > planOrder[plan]) {
+      return NextResponse.json(
+        { error: `You are already on a higher plan (${userPlan}). Downgrade is not supported through this endpoint.` },
+        { status: 400 }
+      );
+    }
+
     // ── Create Razorpay order ───────────────────────────────────────────────
     const amount = getPlanPrice(plan, period);
 
@@ -65,6 +74,7 @@ export async function POST(request: Request) {
       plan,
       period,
       userId: session.user.id,
+      selectedPlatforms: Array.isArray(selectedPlatforms) ? selectedPlatforms : [],
     });
 
     // ── Return order details + public key for client ────────────────────────

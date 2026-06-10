@@ -9,6 +9,7 @@ import com.notifetch.app.data.remote.NotiFetchApi
 import com.notifetch.app.data.remote.NotificationPayload
 import com.notifetch.app.util.Constants
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -51,11 +52,20 @@ class NotificationRepository @Inject constructor(
 
     suspend fun insertNotification(notification: CapturedNotification): Long {
         val id = notificationDao.insertNotification(notification)
-        platformConfigDao.incrementNotificationCount(
-            notification.packageName,
-            System.currentTimeMillis()
-        )
+        // NOTE: incrementNotificationCount moved OUT of insertNotification (BUG #2 fix).
+        // Previously, this caused a second DB write that triggered platformConfigs Flow
+        // to re-emit, cascading into 7+ Room Flow emissions per notification capture.
+        // Now it's called separately with debouncing in NotiFetchListenerService.
         return id
+    }
+
+    /**
+     * Increment the notification count for a platform package.
+     * Called separately from insertNotification to allow debouncing
+     * and prevent cascading Room Flow emissions that cause UI fluttering.
+     */
+    suspend fun incrementPlatformNotificationCount(packageName: String) {
+        platformConfigDao.incrementNotificationCount(packageName, System.currentTimeMillis())
     }
 
     suspend fun markAsRead(id: Long) = notificationDao.markAsRead(id)
@@ -65,6 +75,33 @@ class NotificationRepository @Inject constructor(
     suspend fun deleteNotification(id: Long) = notificationDao.deleteById(id)
 
     suspend fun deleteAllNotifications() = notificationDao.deleteAll()
+
+    /**
+     * Delete all data: local DB + best-effort server-side deletion (BUG #26 fix).
+     * Under DPDP Act §8 and GDPR Art. 17, users have the right to erasure.
+     * Server deletion is best-effort — local data is always deleted regardless.
+     */
+    suspend fun deleteAllDataIncludingServer() {
+        // 1. Always delete local data
+        notificationDao.deleteAll()
+
+        // 2. Best-effort: attempt server-side deletion
+        try {
+            val token = authRepository.getCurrentToken()
+            if (token != null) {
+                val authHeader = "Bearer $token"
+                val response = api.deleteAllServerData(authHeader)
+                if (response.success) {
+                    android.util.Log.d("NotiFetchRepo", "Server-side data deletion succeeded")
+                } else {
+                    android.util.Log.w("NotiFetchRepo", "Server-side deletion returned: ${response.message}")
+                }
+            }
+        } catch (e: Exception) {
+            // Server unreachable or endpoint not implemented yet — not critical
+            android.util.Log.w("NotiFetchRepo", "Server-side data deletion failed (local data already deleted): ${e.message}")
+        }
+    }
 
     // ═══════════════════════════════════════════════════════════════════════
     // Platform Display Name Resolution
@@ -167,19 +204,21 @@ class NotificationRepository @Inject constructor(
         platformConfigDao.updateEnabled(packageName, isEnabled)
 
     suspend fun initializePlatformConfigs() {
-        val existing = platformConfigDao.getConfigByPackage(
-            Constants.PARTNER_PACKAGES.keys.first()
-        )
-        if (existing != null) return
-
-        val configs = Constants.PARTNER_PACKAGES.map { (packageName, displayName) ->
-            PlatformConfig(
-                packageName = packageName,
-                displayName = displayName,
-                isEnabled = true
-            )
+        // Add any NEW platforms that don't already exist in the database
+        // This ensures platforms added in app updates are created
+        val existingPackages = platformConfigDao.getAllConfigs().first().map { it.packageName }.toSet()
+        val newConfigs = Constants.PARTNER_PACKAGES
+            .filterKeys { it !in existingPackages }
+            .map { (packageName, displayName) ->
+                PlatformConfig(
+                    packageName = packageName,
+                    displayName = displayName,
+                    isEnabled = true
+                )
+            }
+        if (newConfigs.isNotEmpty()) {
+            platformConfigDao.upsertConfigs(newConfigs)
         }
-        platformConfigDao.upsertConfigs(configs)
     }
 
     private fun CapturedNotification.toPayload(): NotificationPayload {

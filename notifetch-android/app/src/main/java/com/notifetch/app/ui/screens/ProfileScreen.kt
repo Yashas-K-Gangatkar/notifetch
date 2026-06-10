@@ -66,6 +66,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.notifetch.app.BuildConfig
 import com.notifetch.app.ui.viewmodel.ProfileViewModel
+import com.notifetch.app.util.Constants
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -248,12 +249,23 @@ fun ProfileScreen(
                     // Export data button
                     OutlinedButton(
                         onClick = {
-                            context.startActivity(
-                                Intent(
-                                    Intent.ACTION_VIEW,
-                                    Uri.parse("https://d2-liart-nine.vercel.app/dashboard/settings")
+                            // Open the web dashboard where user can export their synced data.
+                            // If not signed in, the web page will prompt for sign-in.
+                            try {
+                                context.startActivity(
+                                    Intent(
+                                        Intent.ACTION_VIEW,
+                                        Uri.parse("${Constants.BASE_URL}dashboard/settings")
+                                    )
                                 )
-                            )
+                            } catch (e: Exception) {
+                                // No browser available
+                                android.widget.Toast.makeText(
+                                    context,
+                                    "Please visit ${Constants.BASE_URL} to export your data",
+                                    android.widget.Toast.LENGTH_LONG
+                                ).show()
+                            }
                         },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -316,7 +328,7 @@ fun ProfileScreen(
                         subtitle = "DPDP Act 2023 & GDPR compliant"
                     ) {
                         context.startActivity(
-                            Intent(Intent.ACTION_VIEW, Uri.parse("https://d2-liart-nine.vercel.app/privacy"))
+                            Intent(Intent.ACTION_VIEW, Uri.parse("${Constants.BASE_URL}privacy"))
                         )
                     }
 
@@ -328,7 +340,7 @@ fun ProfileScreen(
                         subtitle = "Including platform ToS disclaimer"
                     ) {
                         context.startActivity(
-                            Intent(Intent.ACTION_VIEW, Uri.parse("https://d2-liart-nine.vercel.app/terms"))
+                            Intent(Intent.ACTION_VIEW, Uri.parse("${Constants.BASE_URL}terms"))
                         )
                     }
 
@@ -340,7 +352,7 @@ fun ProfileScreen(
                         subtitle = "NotiFetch is not affiliated with any delivery platform"
                     ) {
                         context.startActivity(
-                            Intent(Intent.ACTION_VIEW, Uri.parse("https://d2-liart-nine.vercel.app/terms#no-affiliation"))
+                            Intent(Intent.ACTION_VIEW, Uri.parse("${Constants.BASE_URL}terms#no-affiliation"))
                         )
                     }
                 }
@@ -522,9 +534,10 @@ fun ProfileScreen(
             title = { Text("Delete All Data?") },
             text = {
                 Text(
-                    "This will permanently delete all your captured notifications from this device. " +
-                    "This action cannot be undone. Under DPDP Act 2023 and GDPR, you have the right " +
-                    "to request data deletion. We recommend exporting your data first."
+                    "This will permanently delete all your captured notifications from this device " +
+                    "and request deletion from our servers. If you're signed in, your synced data " +
+                    "will also be removed. This action cannot be undone. We recommend exporting " +
+                    "your data first."
                 )
             },
             confirmButton = {

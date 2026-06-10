@@ -101,7 +101,7 @@ export function PWAInstallPrompt() {
           <div className="py-4">
             {/* QR Code */}
             <div className="flex justify-center mb-4">
-              <div className="bg-white rounded-xl p-3">
+              <div className="bg-card rounded-xl p-3">
                 <img
                   src="/qr-code.png"
                   alt="Scan QR code to install NotiFetch"

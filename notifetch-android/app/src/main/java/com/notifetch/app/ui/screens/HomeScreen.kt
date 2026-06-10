@@ -69,26 +69,27 @@ fun HomeScreen(
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
 
-    // Check notification listener status — only once
+    // Check notification listener status and navigate to permission if needed.
+    // Uses a flag to prevent navigation loops (BUG #18 cleanup).
+    // Previously there were two LaunchedEffects watching isListenerEnabled which
+    // could race — now consolidated into a single check.
+    var hasNavigatedToPermission by remember { mutableStateOf(false) }
+
     LaunchedEffect(Unit) {
         val isEnabled = NotiFetchListenerService.isListenerEnabled(context)
         viewModel.updateListenerEnabled(isEnabled)
-    }
-
-    // If listener is not enabled, navigate to permission — but only once
-    // Use a flag to prevent navigation loop
-    var hasNavigatedToPermission by remember { mutableStateOf(false) }
-
-    LaunchedEffect(uiState.isListenerEnabled) {
-        if (!uiState.isListenerEnabled && !hasNavigatedToPermission) {
+        if (!isEnabled) {
             hasNavigatedToPermission = true
             onNavigateToPermission()
         }
     }
 
-    // Reset navigation flag when listener becomes enabled again
+    // Re-check when screen resumes (user may have disabled listener externally)
     LaunchedEffect(uiState.isListenerEnabled) {
-        if (uiState.isListenerEnabled) {
+        if (!uiState.isListenerEnabled && !hasNavigatedToPermission) {
+            hasNavigatedToPermission = true
+            onNavigateToPermission()
+        } else if (uiState.isListenerEnabled) {
             hasNavigatedToPermission = false
         }
     }
@@ -212,7 +213,7 @@ fun HomeScreen(
                     )
                 }
 
-                // Platform filter chips — use resolved display names
+                // Platform filter chips — use packageName for stable identification
                 item {
                     FlowRow(
                         modifier = Modifier
@@ -231,10 +232,13 @@ fun HomeScreen(
                             )
                         )
                         uiState.platformStats.forEach { stat ->
-                            val resolvedName = stat.platform
+                            // Resolve display name from platformNameMap (custom → default)
+                            val resolvedName = uiState.platformNameMap[stat.packageName]
+                                ?: stat.platform
+                            val chipColor = getPlatformColor(resolvedName, stat.packageName)
                             FilterChip(
-                                selected = uiState.selectedPlatform == stat.platform,
-                                onClick = { viewModel.onPlatformFilterChange(stat.platform) },
+                                selected = uiState.selectedPlatform == stat.packageName,
+                                onClick = { viewModel.onPlatformFilterChange(stat.packageName) },
                                 label = { Text("$resolvedName (${stat.count})") },
                                 leadingIcon = {
                                     Box(
@@ -242,12 +246,12 @@ fun HomeScreen(
                                             .width(8.dp)
                                             .height(8.dp)
                                             .clip(RoundedCornerShape(2.dp))
-                                            .background(getPlatformColor(resolvedName))
+                                            .background(chipColor)
                                     )
                                 },
                                 colors = FilterChipDefaults.filterChipColors(
-                                    selectedContainerColor = getPlatformColor(resolvedName).copy(alpha = 0.15f),
-                                    selectedLabelColor = getPlatformColor(resolvedName)
+                                    selectedContainerColor = chipColor.copy(alpha = 0.15f),
+                                    selectedLabelColor = chipColor
                                 )
                             )
                         }

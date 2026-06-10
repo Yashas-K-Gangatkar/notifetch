@@ -117,7 +117,7 @@ fun NotificationDetailScreen(
             }
         } else {
             // Use resolved display name (custom → default) via packageName lookup
-            val displayPlatformName = viewModel.resolvedDisplayName ?: notification.platform
+            val displayPlatformName = uiState.resolvedDisplayName ?: notification.platform
             val platformColor = getPlatformColor(displayPlatformName, notification.packageName)
 
             Column(
@@ -277,7 +277,7 @@ fun NotificationDetailScreen(
                         InfoDetailCard(
                             icon = Icons.Default.Payments,
                             label = "Order Value",
-                            value = Helpers.formatCurrency(notification.orderValue),
+                            value = Helpers.formatCurrency(notification.orderValue, notification.currency),
                             modifier = Modifier.weight(1f)
                         )
                     }

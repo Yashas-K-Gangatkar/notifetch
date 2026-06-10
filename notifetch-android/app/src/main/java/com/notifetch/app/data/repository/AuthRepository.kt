@@ -34,8 +34,10 @@ class AuthRepository @Inject constructor(
         return try {
             val credential = GoogleAuthProvider.getCredential(idToken, null)
             val result = firebaseAuth.signInWithCredential(credential).await()
-            val uid = result.user?.uid ?: ""
-            val token = result.user?.getIdToken(true)?.await()?.token ?: ""
+            val uid = result.user?.uid
+                ?: return Result.failure(Exception("User ID is null after sign-in"))
+            val token = result.user?.getIdToken(true)?.await()?.token
+                ?: return Result.failure(Exception("Auth token is null after sign-in"))
             saveToken(token)
             saveUserId(uid)
             Result.success(uid)
@@ -45,42 +47,14 @@ class AuthRepository @Inject constructor(
     }
 
     /**
-     * Sign in with Firebase email link (for "Send login code" flow).
+     * Sign out from Firebase and clear stored credentials.
      */
-    suspend fun signInWithEmailLink(email: String, emailLink: String): Result<String> {
-        return try {
-            val result = firebaseAuth.signInWithEmailLink(email, emailLink).await()
-            val uid = result.user?.uid ?: ""
-            val token = result.user?.getIdToken(true)?.await()?.token ?: ""
-            saveToken(token)
-            saveUserId(uid)
-            Result.success(uid)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
-
-    /**
-     * Anonymous sign-in — used as fallback or for users who don't want to authenticate.
-     */
-    suspend fun signInAnonymously(): Result<String> {
-        return try {
-            val result = firebaseAuth.signInAnonymously().await()
-            val uid = result.user?.uid ?: ""
-            val token = result.user?.getIdToken(true)?.await()?.token ?: ""
-            saveToken(token)
-            saveUserId(uid)
-            Result.success(uid)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
-
-    /**
-     * Sign out from Firebase.
-     */
-    fun signOut() {
+    suspend fun signOut() {
         firebaseAuth.signOut()
+        context.dataStore.edit { prefs ->
+            prefs.remove(TOKEN_KEY)
+            prefs.remove(USER_ID_KEY)
+        }
     }
 
     suspend fun getCurrentToken(): String? {
@@ -123,8 +97,18 @@ class AuthRepository @Inject constructor(
         }
     }
 
+    /**
+     * Delete all user data from local DataStore.
+     * Called as part of the "Delete All My Data" flow.
+     */
+    suspend fun clearAllLocalData() {
+        context.dataStore.edit { prefs ->
+            prefs.clear()
+        }
+    }
+
     companion object {
-        private val TOKEN_KEY = stringPreferencesKey("auth_token")
-        private val USER_ID_KEY = stringPreferencesKey("user_id")
+        val TOKEN_KEY = stringPreferencesKey("auth_token")
+        val USER_ID_KEY = stringPreferencesKey("user_id")
     }
 }

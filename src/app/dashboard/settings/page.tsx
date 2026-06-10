@@ -10,13 +10,15 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
-  Zap, Settings, Moon, Sun, Bell, Globe, Info,
+  Zap, Moon, Sun, Bell, Globe, Info,
   ShoppingCart, Truck, Pill, Bike, Edit3, RotateCcw, Check, X, Tag,
-  Shield, Download, Trash2
+  Shield, Download, Trash2, CreditCard
 } from "lucide-react";
 import { BackButton } from "@/components/back-button";
 import { useTheme } from "next-themes";
+import { PLATFORMS, type PlanId } from "@/lib/data";
 
 interface NotificationSource {
   id: string;
@@ -36,6 +38,10 @@ interface Preferences {
   swiggyEnabled: boolean;
   zomatoEnabled: boolean;
   amazonEnabled: boolean;
+}
+
+interface UserData {
+  plan: string;
 }
 
 // Category icons mapping
@@ -59,16 +65,31 @@ const categoryColors: Record<string, string> = {
   medical: "text-red-500",
 };
 
+// Plan platform limits
+const PLAN_LIMITS: Record<string, number> = {
+  free: 2,
+  starter: 5,
+  pro: 8,
+  premium: 999,
+};
+
 export default function SettingsPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const { setTheme, theme } = useTheme();
+  const { setTheme, theme, resolvedTheme } = useTheme();
   const [prefs, setPrefs] = useState<Preferences | null>(null);
   const [platforms, setPlatforms] = useState<NotificationSource[]>([]);
+  const [userData, setUserData] = useState<UserData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [editingPlatform, setEditingPlatform] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
+  const [mounted, setMounted] = useState(false);
+
+  // Ensure theme is properly mounted before rendering
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -100,11 +121,23 @@ export default function SettingsPage() {
     }
   }, []);
 
+  const fetchUser = useCallback(async () => {
+    try {
+      const res = await fetch("/api/user");
+      if (res.ok) {
+        const data = await res.json();
+        setUserData(data.user);
+      }
+    } catch {
+      // Silently handle
+    }
+  }, []);
+
   useEffect(() => {
     if (status === "authenticated") {
-      Promise.all([fetchPrefs(), fetchPlatforms()]).finally(() => setIsLoading(false));
+      Promise.all([fetchPrefs(), fetchPlatforms(), fetchUser()]).finally(() => setIsLoading(false));
     }
-  }, [status, fetchPrefs, fetchPlatforms]);
+  }, [status, fetchPrefs, fetchPlatforms, fetchUser]);
 
   const updatePref = async (key: string, value: boolean) => {
     setIsSaving(true);
@@ -167,7 +200,6 @@ export default function SettingsPage() {
       cancelEditing();
       return;
     }
-    // If same as default, reset to null
     const platform = platforms.find(p => p.platformId === editingPlatform);
     if (platform && trimmed === platform.platformName) {
       handleRenamePlatform(editingPlatform!, null);
@@ -175,6 +207,11 @@ export default function SettingsPage() {
       handleRenamePlatform(editingPlatform!, trimmed);
     }
   };
+
+  const currentPlan = userData?.plan || "free";
+  const platformLimit = PLAN_LIMITS[currentPlan] || 2;
+  const enabledCount = platforms.filter(p => p.listening).length;
+  const isDark = mounted ? (resolvedTheme || theme) === "dark" : true;
 
   if (status === "loading" || isLoading) {
     return (
@@ -200,6 +237,9 @@ export default function SettingsPage() {
             <BackButton fallback="/dashboard" />
             <h1 className="text-lg font-bold">Settings</h1>
           </div>
+          <Badge className="bg-amber-500/10 text-amber-500 border-amber-500/20 capitalize">
+            {currentPlan} Plan
+          </Badge>
         </div>
       </nav>
 
@@ -208,7 +248,7 @@ export default function SettingsPage() {
         <Card className="mb-6">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
-              <Moon className="w-5 h-5 text-amber-500" />
+              {isDark ? <Moon className="w-5 h-5 text-amber-500" /> : <Sun className="w-5 h-5 text-amber-500" />}
               Appearance
             </CardTitle>
           </CardHeader>
@@ -216,20 +256,21 @@ export default function SettingsPage() {
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
                 <Label className="flex items-center gap-2">
-                  {theme === "dark" ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
+                  {isDark ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
                   Dark Mode
                 </Label>
                 <p className="text-xs text-muted-foreground">
-                  Toggle between light and dark themes
+                  Easier on the eyes during night deliveries
                 </p>
               </div>
               <Switch
-                checked={theme === "dark"}
+                checked={isDark}
                 onCheckedChange={(checked) => {
                   setTheme(checked ? "dark" : "light");
                   updatePref("darkMode", checked);
                 }}
                 disabled={isSaving}
+                className="data-[state=checked]:bg-amber-500 data-[state=unchecked]:bg-muted-foreground/30"
               />
             </div>
           </CardContent>
@@ -258,31 +299,35 @@ export default function SettingsPage() {
                 checked={prefs.notificationsEnabled}
                 onCheckedChange={(checked) => updatePref("notificationsEnabled", checked)}
                 disabled={isSaving}
+                className="data-[state=checked]:bg-amber-500 data-[state=unchecked]:bg-muted-foreground/30"
               />
             </div>
             <Separator />
-            <p className="text-sm font-medium text-muted-foreground">Platform Filters</p>
-            <p className="text-xs text-muted-foreground">
-              Choose which platforms you want to receive notifications from.
-            </p>
-            <div className="space-y-3">
-              {[
-                { key: "swiggyEnabled", label: "Swiggy", icon: Zap, color: "text-amber-500" },
-                { key: "zomatoEnabled", label: "Zomato", icon: ShoppingCart, color: "text-red-500" },
-                { key: "amazonEnabled", label: "Amazon", icon: Truck, color: "text-teal-500" },
-              ].map((item) => (
-                <div key={item.key} className="flex items-center justify-between">
-                  <Label className="flex items-center gap-2">
-                    <item.icon className={`w-4 h-4 ${item.color}`} />
-                    {item.label}
-                  </Label>
-                  <Switch
-                    checked={prefs[item.key as keyof Preferences] as boolean}
-                    onCheckedChange={(checked) => updatePref(item.key, checked)}
-                    disabled={isSaving}
-                  />
-                </div>
-              ))}
+            <div>
+              <p className="text-sm font-medium">Platform Filters</p>
+              <p className="text-xs text-muted-foreground mb-3">
+                Choose which platforms you want to receive notifications from.
+              </p>
+              <div className="space-y-3">
+                {[
+                  { key: "swiggyEnabled", label: "Swiggy", icon: Zap, color: "text-amber-500" },
+                  { key: "zomatoEnabled", label: "Zomato", icon: ShoppingCart, color: "text-red-500" },
+                  { key: "amazonEnabled", label: "Amazon", icon: Truck, color: "text-teal-500" },
+                ].map((item) => (
+                  <div key={item.key} className="flex items-center justify-between">
+                    <Label className="flex items-center gap-2">
+                      <item.icon className={`w-4 h-4 ${item.color}`} />
+                      {item.label}
+                    </Label>
+                    <Switch
+                      checked={prefs[item.key as keyof Preferences] as boolean}
+                      onCheckedChange={(checked) => updatePref(item.key, checked)}
+                      disabled={isSaving}
+                      className="data-[state=checked]:bg-amber-500 data-[state=unchecked]:bg-muted-foreground/30"
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -306,6 +351,33 @@ export default function SettingsPage() {
               </p>
             </div>
 
+            {/* Platform limit info */}
+            <div className="bg-amber-500/5 border border-amber-500/20 rounded-lg p-3 flex items-center justify-between">
+              <div>
+                <p className="text-xs font-medium">
+                  {currentPlan === "premium"
+                    ? "Unlimited platforms available"
+                    : `${enabledCount} / ${platformLimit} platforms enabled`}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {currentPlan !== "premium" && enabledCount >= platformLimit
+                    ? "Upgrade your plan for more platforms"
+                    : "Toggle platforms on/off to manage notifications"}
+                </p>
+              </div>
+              {currentPlan !== "premium" && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-amber-500 border-amber-500/20 hover:bg-amber-500/10"
+                  onClick={() => router.push("/dashboard/subscribe")}
+                >
+                  <CreditCard className="w-3 h-3 mr-1" />
+                  Upgrade
+                </Button>
+              )}
+            </div>
+
             {platforms.length === 0 ? (
               <p className="text-sm text-muted-foreground py-4 text-center">
                 No platforms enabled yet. Enable platforms from the dashboard to customize their names.
@@ -317,6 +389,7 @@ export default function SettingsPage() {
                   const colorClass = categoryColors[platform.category] || "text-amber-500";
                   const isCustom = platform.customName !== null;
                   const isEditing = editingPlatform === platform.platformId;
+                  const isAtLimit = enabledCount >= platformLimit;
 
                   return (
                     <div
@@ -404,6 +477,10 @@ export default function SettingsPage() {
                             checked={platform.listening}
                             onCheckedChange={(checked) => {
                               if (checked) {
+                                // Check platform limit
+                                if (isAtLimit && !platform.listening) {
+                                  return; // Can't enable more
+                                }
                                 fetch("/api/platforms", {
                                   method: "POST",
                                   headers: { "Content-Type": "application/json" },
@@ -420,6 +497,8 @@ export default function SettingsPage() {
                                 }).then(() => fetchPlatforms());
                               }
                             }}
+                            disabled={isSaving || (!platform.listening && isAtLimit)}
+                            className="data-[state=checked]:bg-amber-500 data-[state=unchecked]:bg-muted-foreground/30"
                           />
                         </div>
                       )}
@@ -573,7 +652,7 @@ export default function SettingsPage() {
           <CardContent className="space-y-3 text-sm">
             <div className="flex justify-between">
               <span className="text-muted-foreground">Version</span>
-              <span>1.0.0</span>
+              <span>2.2.1</span>
             </div>
             <Separator />
             <div className="flex justify-between">

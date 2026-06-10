@@ -38,6 +38,7 @@ export async function POST(request: Request) {
       razorpay_signature,
       plan,
       period,
+      selectedPlatforms,
     } = body;
 
     if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
@@ -47,9 +48,9 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!plan || !["pro", "premium"].includes(plan)) {
+    if (!plan || !["starter", "pro", "premium"].includes(plan)) {
       return NextResponse.json(
-        { error: "Invalid plan. Must be 'pro' or 'premium'." },
+        { error: "Invalid plan. Must be 'starter', 'pro', or 'premium'." },
         { status: 400 }
       );
     }
@@ -125,6 +126,44 @@ export async function POST(request: Request) {
         }),
       },
     });
+
+    // ── Enable selected platforms as NotificationSource records ────────────
+    if (Array.isArray(selectedPlatforms) && selectedPlatforms.length > 0) {
+      const { PLATFORMS } = await import("@/lib/data");
+      for (const platformId of selectedPlatforms) {
+        const platform = PLATFORMS.find(p => p.id === platformId);
+        if (!platform) continue;
+
+        // Upsert: create if not exists, enable if exists
+        const existing = await db.notificationSource.findUnique({
+          where: {
+            userId_platformId: {
+              userId: session.user.id,
+              platformId,
+            },
+          },
+        });
+
+        if (existing) {
+          await db.notificationSource.update({
+            where: { id: existing.id },
+            data: { listening: true, lastSyncAt: new Date() },
+          });
+        } else {
+          await db.notificationSource.create({
+            data: {
+              userId: session.user.id,
+              platformId,
+              platformName: platform.name,
+              category: platform.category,
+              packageName: platform.packageName,
+              listening: true,
+              lastSyncAt: new Date(),
+            },
+          });
+        }
+      }
+    }
 
     console.log("[API] Razorpay payment verified successfully", {
       userId: session.user.id,

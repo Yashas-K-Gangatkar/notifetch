@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -23,21 +24,45 @@ import androidx.navigation.navArgument
 import com.notifetch.app.notification.NotiFetchListenerService
 import com.notifetch.app.ui.components.NotiFetchScaffold
 import com.notifetch.app.ui.screens.ConsentScreen
+import com.notifetch.app.ui.screens.hasConsented
 import com.notifetch.app.ui.screens.HomeScreen
 import com.notifetch.app.ui.screens.NotificationDetailScreen
 import com.notifetch.app.ui.screens.PermissionScreen
 import com.notifetch.app.ui.screens.ProfileScreen
 import com.notifetch.app.ui.screens.SettingsScreen
 import com.notifetch.app.ui.theme.NotiFetchTheme
+import com.notifetch.app.ui.viewmodel.SettingsViewModel
+import com.notifetch.app.data.repository.dataStore
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.runBlocking
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        // Read dark mode preference synchronously BEFORE setContent to prevent
+        // the light→dark flash on cold start (BUG #6 fix).
+        val savedDarkMode = runCatching {
+            runBlocking {
+                val prefs = this@MainActivity.dataStore.data.first()
+                prefs[SettingsViewModel.DARK_MODE_KEY] ?: false
+            }
+        }.getOrDefault(false)
+
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            NotiFetchTheme {
+            val activityContext = this@MainActivity
+            // Observe dark mode changes while the activity is alive
+            var darkMode by remember { mutableStateOf(savedDarkMode) }
+            LaunchedEffect(Unit) {
+                activityContext.dataStore.data.map { prefs ->
+                    prefs[SettingsViewModel.DARK_MODE_KEY] ?: false
+                }.collect { darkMode = it }
+            }
+            NotiFetchTheme(darkTheme = darkMode) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
@@ -55,6 +80,23 @@ fun NotiFetchNavHost() {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route ?: "home"
     val context = LocalContext.current
+    var startDestination by remember { mutableStateOf<String?>(null) }
+
+    // Check consent and notification status to determine start destination
+    LaunchedEffect(Unit) {
+        val consented = hasConsented(context)
+        val listenerEnabled = NotiFetchListenerService.isListenerEnabled(context)
+        startDestination = when {
+            !consented -> "consent"
+            !listenerEnabled -> "permission"
+            else -> "home"
+        }
+    }
+
+    if (startDestination == null) {
+        // Loading state while checking consent
+        return
+    }
 
     val showBottomBar = currentRoute in listOf("home", "settings", "profile")
 
@@ -62,7 +104,10 @@ fun NotiFetchNavHost() {
         currentRoute = currentRoute,
         onNavigate = { route ->
             navController.navigate(route) {
-                popUpTo(navController.graph.startDestinationId) {
+                // Pop up to "home" instead of the dynamic startDestination.
+                // This prevents showing consent/permission screens when navigating
+                // via bottom bar after the user has already passed them (BUG #20 fix).
+                popUpTo("home") {
                     saveState = true
                 }
                 launchSingleTop = true
@@ -73,7 +118,7 @@ fun NotiFetchNavHost() {
     ) {
         NavHost(
             navController = navController,
-            startDestination = "consent",
+            startDestination = startDestination!!,
             modifier = Modifier.fillMaxSize()
         ) {
             // ── Consent screen (FIRST — shown before any data collection) ──

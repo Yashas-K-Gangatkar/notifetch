@@ -16,13 +16,14 @@ type Period = "monthly" | "yearly";
 interface PlanPrice {
   monthly: number;
   yearly: number;
+  platformLimit: number;
 }
 
 const PLAN_PRICES: Record<Plan, PlanPrice> = {
-  free: { monthly: 0, yearly: 0 },
-  starter: { monthly: 19900, yearly: 199000 },   // ₹199/month, ₹1990/year
-  pro: { monthly: 39900, yearly: 399000 },       // ₹399/month, ₹3990/year
-  premium: { monthly: 59900, yearly: 599000 },   // ₹599/month, ₹5990/year
+  free: { monthly: 0, yearly: 0, platformLimit: 2 },
+  starter: { monthly: 19900, yearly: 199000, platformLimit: 5 },     // ₹199/month, ₹1990/year
+  pro: { monthly: 39900, yearly: 399000, platformLimit: 8 },         // ₹399/month, ₹3990/year
+  premium: { monthly: 59900, yearly: 599000, platformLimit: 999 },   // ₹599/month, ₹5990/year
 };
 
 /**
@@ -34,6 +35,15 @@ export function getPlanPrice(plan: string, period: string = "monthly"): number {
     throw new Error(`Invalid plan: ${plan}. Must be one of: free, starter, pro, premium`);
   }
   return planPrices[period as Period] ?? planPrices.monthly;
+}
+
+/**
+ * Get the platform limit for a given plan.
+ */
+export function getPlanPlatformLimit(plan: string): number {
+  const planPrices = PLAN_PRICES[plan as Plan];
+  if (!planPrices) return 2;
+  return planPrices.platformLimit;
 }
 
 /**
@@ -89,6 +99,7 @@ interface CreateOrderParams {
   plan: string;
   period: string;
   userId: string;
+  selectedPlatforms?: string[];
 }
 
 interface RazorpayOrderResult {
@@ -120,6 +131,9 @@ export async function createOrder(params: CreateOrderParams): Promise<RazorpayOr
       userId: params.userId,
       plan: params.plan,
       period: params.period,
+      ...(params.selectedPlatforms && params.selectedPlatforms.length > 0
+        ? { platforms: params.selectedPlatforms.join(",") }
+        : {}),
     },
   });
 
