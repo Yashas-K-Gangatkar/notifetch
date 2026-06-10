@@ -1,6 +1,6 @@
 -- Merging decision tree log ---
 provider#androidx.startup.InitializationProvider
-INJECTED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:64:9-73:20
+INJECTED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:61:9-70:20
 MERGED from [androidx.work:work-runtime:2.10.0] /home/z/.gradle/caches/8.9/transforms/e506d927ba8ca986f218895a2d83998d/transformed/work-runtime-2.10.0/AndroidManifest.xml:29:9-37:20
 MERGED from [androidx.work:work-runtime:2.10.0] /home/z/.gradle/caches/8.9/transforms/e506d927ba8ca986f218895a2d83998d/transformed/work-runtime-2.10.0/AndroidManifest.xml:29:9-37:20
 MERGED from [androidx.emoji2:emoji2:1.3.0] /home/z/.gradle/caches/8.9/transforms/0878f5657badd799b604448f1fb08900/transformed/emoji2-1.3.0/AndroidManifest.xml:24:9-32:20
@@ -12,19 +12,19 @@ MERGED from [androidx.profileinstaller:profileinstaller:1.3.1] /home/z/.gradle/c
 MERGED from [androidx.startup:startup-runtime:1.1.1] /home/z/.gradle/caches/8.9/transforms/8e95e1d6f142360cfe22481208dbcefc/transformed/startup-runtime-1.1.1/AndroidManifest.xml:26:9-30:34
 MERGED from [androidx.startup:startup-runtime:1.1.1] /home/z/.gradle/caches/8.9/transforms/8e95e1d6f142360cfe22481208dbcefc/transformed/startup-runtime-1.1.1/AndroidManifest.xml:26:9-30:34
 	tools:node
-		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:68:13-31
+		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:65:13-31
 	android:authorities
 		INJECTED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml
-		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:66:13-68
+		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:63:13-68
 	android:exported
-		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:67:13-37
+		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:64:13-37
 	android:name
-		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:65:13-67
+		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:62:13-67
 manifest
-ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:2:1-77:12
-INJECTED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:2:1-77:12
-INJECTED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:2:1-77:12
-INJECTED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:2:1-77:12
+ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:2:1-74:12
+INJECTED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:2:1-74:12
+INJECTED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:2:1-74:12
+INJECTED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:2:1-74:12
 MERGED from [com.google.firebase:firebase-auth:23.1.0] /home/z/.gradle/caches/8.9/transforms/0673c8d95c85149a61f06d6b10855646/transformed/firebase-auth-23.1.0/AndroidManifest.xml:17:1-75:12
 MERGED from [androidx.credentials:credentials:1.2.0-rc01] /home/z/.gradle/caches/8.9/transforms/24d2042069e2d085083849096ad71dd6/transformed/credentials-1.2.0-rc01/AndroidManifest.xml:2:1-7:12
 MERGED from [androidx.credentials:credentials-play-services-auth:1.2.0-rc01] /home/z/.gradle/caches/8.9/transforms/1712d572009fe7cc576c8d22ec98ee5d/transformed/credentials-play-services-auth-1.2.0-rc01/AndroidManifest.xml:17:1-44:12
@@ -225,19 +225,9 @@ uses-permission#android.permission.FOREGROUND_SERVICE_SPECIAL_USE
 ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:11:5-89
 	android:name
 		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:11:22-86
-uses-permission#com.google.android.gms.permission.AD_ID
-ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:14:5-99
-REJECTED from [com.google.android.gms:play-services-measurement-impl:22.1.2] /home/z/.gradle/caches/8.9/transforms/d55bb6839963caa8c275c98239f51740/transformed/play-services-measurement-impl-22.1.2/AndroidManifest.xml:27:5-79
-REJECTED from [com.google.android.gms:play-services-measurement-api:22.1.2] /home/z/.gradle/caches/8.9/transforms/2c7a1a616a159f30d941d8cd0562e070/transformed/play-services-measurement-api-22.1.2/AndroidManifest.xml:25:5-79
-REJECTED from [com.google.android.gms:play-services-ads-identifier:18.0.0] /home/z/.gradle/caches/8.9/transforms/5739a50019fe0fbb0250236c92e4f78a/transformed/play-services-ads-identifier-18.0.0/AndroidManifest.xml:23:5-79
-REJECTED from [com.google.android.gms:play-services-measurement-sdk-api:22.1.2] /home/z/.gradle/caches/8.9/transforms/4dd21a49c8fdf681a473b9e0770fa21c/transformed/play-services-measurement-sdk-api-22.1.2/AndroidManifest.xml:26:5-79
-	tools:node
-		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:14:77-96
-	android:name
-		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:14:22-76
 application
-ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:16:5-75:19
-INJECTED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:16:5-75:19
+ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:13:5-72:19
+INJECTED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:13:5-72:19
 MERGED from [com.google.firebase:firebase-auth:23.1.0] /home/z/.gradle/caches/8.9/transforms/0673c8d95c85149a61f06d6b10855646/transformed/firebase-auth-23.1.0/AndroidManifest.xml:28:5-73:19
 MERGED from [com.google.firebase:firebase-auth:23.1.0] /home/z/.gradle/caches/8.9/transforms/0673c8d95c85149a61f06d6b10855646/transformed/firebase-auth-23.1.0/AndroidManifest.xml:28:5-73:19
 MERGED from [androidx.credentials:credentials-play-services-auth:1.2.0-rc01] /home/z/.gradle/caches/8.9/transforms/1712d572009fe7cc576c8d22ec98ee5d/transformed/credentials-play-services-auth-1.2.0-rc01/AndroidManifest.xml:23:5-42:19
@@ -317,88 +307,88 @@ MERGED from [com.google.android.play:core-common:2.0.3] /home/z/.gradle/caches/8
 	android:appComponentFactory
 		ADDED from [androidx.core:core:1.15.0] /home/z/.gradle/caches/8.9/transforms/f5320c63108c4b5252faef541091e786/transformed/core-1.15.0/AndroidManifest.xml:28:18-86
 	android:supportsRtl
-		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:22:9-35
+		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:19:9-35
 	android:label
-		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:20:9-41
+		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:17:9-41
 	android:roundIcon
-		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:21:9-54
+		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:18:9-54
 	tools:targetApi
-		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:24:9-29
+		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:21:9-29
 	android:icon
-		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:19:9-43
+		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:16:9-43
 	android:allowBackup
-		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:18:9-35
+		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:15:9-35
 	android:theme
-		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:23:9-47
+		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:20:9-47
 	android:name
-		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:17:9-37
+		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:14:9-37
 activity#com.notifetch.app.MainActivity
-ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:27:9-35:20
+ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:24:9-32:20
 	android:exported
-		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:29:13-36
+		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:26:13-36
 	android:theme
-		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:30:13-51
+		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:27:13-51
 	android:name
-		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:28:13-41
+		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:25:13-41
 intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
-ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:31:13-34:29
+ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:28:13-31:29
 action#android.intent.action.MAIN
-ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:32:17-69
+ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:29:17-69
 	android:name
-		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:32:25-66
+		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:29:25-66
 category#android.intent.category.LAUNCHER
-ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:33:17-77
+ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:30:17-77
 	android:name
-		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:33:27-74
+		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:30:27-74
 service#com.notifetch.app.notification.NotiFetchListenerService
-ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:38:9-52:19
+ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:35:9-49:19
 	android:exported
-		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:40:13-36
+		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:37:13-36
 	android:permission
-		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:42:13-87
+		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:39:13-87
 	android:foregroundServiceType
-		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:41:13-55
+		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:38:13-55
 	android:name
-		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:39:13-66
+		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:36:13-66
 intent-filter#action:name:android.service.notification.NotificationListenerService
-ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:43:13-45:29
+ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:40:13-42:29
 action#android.service.notification.NotificationListenerService
-ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:44:17-99
+ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:41:17-99
 	android:name
-		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:44:25-96
+		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:41:25-96
 meta-data#android.service.notification.default_filter_types
-ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:46:13-48:58
+ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:43:13-45:58
 	android:value
-		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:48:17-55
+		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:45:17-55
 	android:name
-		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:47:17-81
+		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:44:17-81
 meta-data#android.service.notification.default_rule_types
-ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:49:13-51:49
+ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:46:13-48:49
 	android:value
-		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:51:17-46
+		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:48:17-46
 	android:name
-		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:50:17-79
+		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:47:17-79
 service#com.notifetch.app.firebase.NotiFetchMessagingService
-ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:55:9-61:19
+ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:52:9-58:19
 	android:exported
-		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:57:13-37
+		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:54:13-37
 	android:name
-		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:56:13-63
+		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:53:13-63
 intent-filter#action:name:com.google.firebase.MESSAGING_EVENT
-ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:58:13-60:29
+ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:55:13-57:29
 action#com.google.firebase.MESSAGING_EVENT
-ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:59:17-78
+ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:56:17-78
 	android:name
-		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:59:25-75
+		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:56:25-75
 meta-data#androidx.work.WorkManagerInitializer
-ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:69:13-72:39
+ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:66:13-69:39
 REJECTED from [androidx.work:work-runtime:2.10.0] /home/z/.gradle/caches/8.9/transforms/e506d927ba8ca986f218895a2d83998d/transformed/work-runtime-2.10.0/AndroidManifest.xml:34:13-36:52
 	tools:node
-		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:72:17-36
+		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:69:17-36
 	android:value
-		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:71:17-49
+		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:68:17-49
 	android:name
-		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:70:17-68
+		ADDED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml:67:17-68
 uses-sdk
 INJECTED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from /home/z/my-project/notifetch-android/app/src/main/AndroidManifest.xml
@@ -865,6 +855,16 @@ ADDED from [com.google.android.gms:play-services-measurement:22.1.2] /home/z/.gr
 		ADDED from [com.google.android.gms:play-services-measurement:22.1.2] /home/z/.gradle/caches/8.9/transforms/a545a1649ce28c9791ce994299325c10/transformed/play-services-measurement-22.1.2/AndroidManifest.xml:43:13-69
 	android:name
 		ADDED from [com.google.android.gms:play-services-measurement:22.1.2] /home/z/.gradle/caches/8.9/transforms/a545a1649ce28c9791ce994299325c10/transformed/play-services-measurement-22.1.2/AndroidManifest.xml:40:13-87
+uses-permission#com.google.android.gms.permission.AD_ID
+ADDED from [com.google.android.gms:play-services-measurement-impl:22.1.2] /home/z/.gradle/caches/8.9/transforms/d55bb6839963caa8c275c98239f51740/transformed/play-services-measurement-impl-22.1.2/AndroidManifest.xml:27:5-79
+MERGED from [com.google.android.gms:play-services-measurement-api:22.1.2] /home/z/.gradle/caches/8.9/transforms/2c7a1a616a159f30d941d8cd0562e070/transformed/play-services-measurement-api-22.1.2/AndroidManifest.xml:25:5-79
+MERGED from [com.google.android.gms:play-services-measurement-api:22.1.2] /home/z/.gradle/caches/8.9/transforms/2c7a1a616a159f30d941d8cd0562e070/transformed/play-services-measurement-api-22.1.2/AndroidManifest.xml:25:5-79
+MERGED from [com.google.android.gms:play-services-ads-identifier:18.0.0] /home/z/.gradle/caches/8.9/transforms/5739a50019fe0fbb0250236c92e4f78a/transformed/play-services-ads-identifier-18.0.0/AndroidManifest.xml:23:5-79
+MERGED from [com.google.android.gms:play-services-ads-identifier:18.0.0] /home/z/.gradle/caches/8.9/transforms/5739a50019fe0fbb0250236c92e4f78a/transformed/play-services-ads-identifier-18.0.0/AndroidManifest.xml:23:5-79
+MERGED from [com.google.android.gms:play-services-measurement-sdk-api:22.1.2] /home/z/.gradle/caches/8.9/transforms/4dd21a49c8fdf681a473b9e0770fa21c/transformed/play-services-measurement-sdk-api-22.1.2/AndroidManifest.xml:26:5-79
+MERGED from [com.google.android.gms:play-services-measurement-sdk-api:22.1.2] /home/z/.gradle/caches/8.9/transforms/4dd21a49c8fdf681a473b9e0770fa21c/transformed/play-services-measurement-sdk-api-22.1.2/AndroidManifest.xml:26:5-79
+	android:name
+		ADDED from [com.google.android.gms:play-services-measurement-impl:22.1.2] /home/z/.gradle/caches/8.9/transforms/d55bb6839963caa8c275c98239f51740/transformed/play-services-measurement-impl-22.1.2/AndroidManifest.xml:27:22-76
 activity#com.google.android.gms.common.api.GoogleApiActivity
 ADDED from [com.google.android.gms:play-services-base:18.5.0] /home/z/.gradle/caches/8.9/transforms/3a1588e6d255b40035133d34382d9f2a/transformed/play-services-base-18.5.0/AndroidManifest.xml:5:9-173
 	android:exported
