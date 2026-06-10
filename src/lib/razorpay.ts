@@ -99,6 +99,7 @@ interface CreateOrderParams {
   plan: string;
   period: string;
   userId: string;
+  selectedPlatforms?: string[];
 }
 
 interface RazorpayOrderResult {
@@ -130,6 +131,9 @@ export async function createOrder(params: CreateOrderParams): Promise<RazorpayOr
       userId: params.userId,
       plan: params.plan,
       period: params.period,
+      ...(params.selectedPlatforms && params.selectedPlatforms.length > 0
+        ? { platforms: params.selectedPlatforms.join(",") }
+        : {}),
     },
   });
 

@@ -10,7 +10,7 @@ import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Zap, Check, ArrowLeft,
-  Bell, Globe, Headphones, Shield
+  Bell, Globe, Headphones, Shield, CreditCard, CheckCircle2
 } from "lucide-react";
 import { BackButton } from "@/components/back-button";
 import { RazorpayCheckout } from "@/components/razorpay-checkout";
@@ -21,13 +21,25 @@ interface UserData {
   createdAt: string;
 }
 
+interface NotificationSource {
+  id: string;
+  platformId: string;
+  platformName: string;
+  customName: string | null;
+  category: string;
+  listening: boolean;
+}
+
 export default function SubscribePage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [userData, setUserData] = useState<UserData | null>(null);
+  const [existingPlatforms, setExistingPlatforms] = useState<NotificationSource[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedPlan, setSelectedPlan] = useState<PlanId | null>(null);
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
+  const [saveSuccess, setSaveSuccess] = useState(false);
+  const [isSavingPlatforms, setIsSavingPlatforms] = useState(false);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -41,19 +53,35 @@ export default function SubscribePage() {
       if (res.ok) {
         const data = await res.json();
         setUserData(data.user);
+        // Set selectedPlan to current plan
+        setSelectedPlan(data.user?.plan || "free");
       }
     } catch {
       // Silently handle
-    } finally {
-      setIsLoading(false);
+    }
+  }, []);
+
+  const fetchExistingPlatforms = useCallback(async () => {
+    try {
+      const res = await fetch("/api/platforms");
+      if (res.ok) {
+        const data = await res.json();
+        const sources: NotificationSource[] = data.sources || [];
+        setExistingPlatforms(sources);
+        // Pre-select platforms the user already has enabled
+        const enabledIds = sources.filter((s: NotificationSource) => s.listening).map((s: NotificationSource) => s.platformId);
+        setSelectedPlatforms(enabledIds);
+      }
+    } catch {
+      // Silently handle
     }
   }, []);
 
   useEffect(() => {
     if (status === "authenticated") {
-      fetchUser();
+      Promise.all([fetchUser(), fetchExistingPlatforms()]).finally(() => setIsLoading(false));
     }
-  }, [status, fetchUser]);
+  }, [status, fetchUser, fetchExistingPlatforms]);
 
   const currentPlan = userData?.plan || "free";
 
@@ -156,7 +184,7 @@ export default function SubscribePage() {
   ];
 
   const activePlan = plans.find(p => p.id === selectedPlan);
-  const platformLimit = activePlan?.platformLimit || 0;
+  const platformLimit = activePlan?.platformLimit || 2;
 
   const togglePlatform = (platformId: string) => {
     setSelectedPlatforms(prev => {
@@ -166,6 +194,56 @@ export default function SubscribePage() {
       if (prev.length >= platformLimit) return prev;
       return [...prev, platformId];
     });
+    setSaveSuccess(false);
+  };
+
+  // Save platform preferences to the database
+  const savePlatformPreferences = async () => {
+    setIsSavingPlatforms(true);
+    try {
+      // Get current enabled platform IDs
+      const currentEnabledIds = existingPlatforms
+        .filter(p => p.listening)
+        .map(p => p.platformId);
+
+      // Platforms to enable (new selections)
+      const toEnable = selectedPlatforms.filter(id => !currentEnabledIds.includes(id));
+      // Platforms to disable (removed selections)
+      const toDisable = currentEnabledIds.filter(id => !selectedPlatforms.includes(id));
+
+      // Enable new platforms
+      for (const platformId of toEnable) {
+        const platform = PLATFORMS.find(p => p.id === platformId);
+        if (platform) {
+          await fetch("/api/platforms", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              platformId: platform.id,
+              platformName: platform.name,
+              category: platform.category,
+              packageName: platform.packageName,
+            }),
+          });
+        }
+      }
+
+      // Disable removed platforms
+      for (const platformId of toDisable) {
+        await fetch(`/api/platforms?platformId=${platformId}`, {
+          method: "DELETE",
+        });
+      }
+
+      // Refresh existing platforms
+      await fetchExistingPlatforms();
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 3000);
+    } catch {
+      // Handle error
+    } finally {
+      setIsSavingPlatforms(false);
+    }
   };
 
   if (status === "loading" || isLoading) {
@@ -181,6 +259,11 @@ export default function SubscribePage() {
     );
   }
 
+  const isDowngrade = (planId: PlanId) => {
+    const planOrder: Record<string, number> = { free: 0, starter: 1, pro: 2, premium: 3 };
+    return planOrder[currentPlan] > planOrder[planId];
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Top bar */}
@@ -188,7 +271,7 @@ export default function SubscribePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
           <div className="flex items-center gap-3">
             <BackButton fallback="/dashboard" />
-            <h1 className="text-lg font-bold">Subscription</h1>
+            <h1 className="text-lg font-bold">Subscription & Platforms</h1>
           </div>
           <Badge className="bg-amber-500/10 text-amber-500 border-amber-500/20 capitalize">
             {currentPlan} Plan
@@ -199,9 +282,9 @@ export default function SubscribePage() {
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12">
         {/* Header */}
         <div className="text-center mb-10">
-          <h2 className="text-3xl font-bold mb-3">Choose Your Plan</h2>
+          <h2 className="text-3xl font-bold mb-3">Choose Your Plan & Platforms</h2>
           <p className="text-muted-foreground max-w-lg mx-auto">
-            Start free and upgrade when you need more platforms. No hidden fees, cancel anytime.
+            Select a plan and choose which platforms you want to receive notifications from. You can change your platform preferences anytime.
           </p>
         </div>
 
@@ -209,23 +292,25 @@ export default function SubscribePage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
           {plans.map((plan) => {
             const isCurrent = currentPlan === plan.id;
-            const isHigherPlan =
-              (currentPlan === "premium") ||
-              (currentPlan === "pro" && (plan.id === "starter" || plan.id === "free")) ||
-              (currentPlan === "starter" && plan.id === "free");
+            const isHigher = isDowngrade(plan.id);
 
             return (
               <Card
                 key={plan.id}
-                className={`relative cursor-pointer transition-all ${
+                className={`relative cursor-pointer transition-all bg-card ${
                   selectedPlan === plan.id
                     ? "ring-2 ring-amber-500/50 border-amber-500/50"
                     : ""
                 } ${isCurrent ? "opacity-60" : "hover:border-amber-500/20"}`}
                 onClick={() => {
-                  if (!isCurrent && !isHigherPlan) {
+                  if (!isCurrent && !isHigher) {
                     setSelectedPlan(plan.id);
-                    setSelectedPlatforms([]);
+                    // Trim selected platforms if they exceed new plan limit
+                    setSelectedPlatforms(prev => {
+                      const limit = plan.platformLimit;
+                      if (prev.length > limit) return prev.slice(0, limit);
+                      return prev;
+                    });
                   }
                 }}
               >
@@ -276,7 +361,7 @@ export default function SubscribePage() {
                       <Button variant="outline" className="w-full" disabled>
                         Current Plan
                       </Button>
-                    ) : isHigherPlan ? (
+                    ) : isHigher ? (
                       <Button variant="outline" className="w-full" disabled>
                         Downgrade
                       </Button>
@@ -299,101 +384,122 @@ export default function SubscribePage() {
           })}
         </div>
 
-        {/* Platform Preference Selection */}
-        {selectedPlan && selectedPlan !== "free" && !plans.find(p => p.id === selectedPlan)?.unlimitedPlatforms && (
-          <Card className="mb-8">
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <Globe className="w-5 h-5 text-amber-500" />
-                <h3 className="text-lg font-bold">Select Your Platforms</h3>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Choose up to {platformLimit} platforms you want to receive notifications from.
-                You can change these anytime in Settings.
-              </p>
-              <div className="flex items-center gap-2 mt-2">
-                <Badge variant="outline" className="text-amber-500 border-amber-500/20">
-                  {selectedPlatforms.length} / {platformLimit} selected
+        {/* Platform Preference Selection — ALWAYS visible, even for free plan */}
+        <Card className="mb-8 bg-card">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Globe className="w-5 h-5 text-amber-500" />
+              <h3 className="text-lg font-bold">
+                {selectedPlan === "premium" ? "All Platforms Available" : "Select Your Platforms"}
+              </h3>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              {selectedPlan === "premium"
+                ? "Premium gives you access to all platforms worldwide. Select which ones you want enabled."
+                : `Choose up to ${platformLimit} platforms you want to receive notifications from. You can change these anytime.`}
+            </p>
+            <div className="flex items-center gap-2 mt-2">
+              <Badge variant="outline" className="text-amber-500 border-amber-500/20">
+                {selectedPlatforms.length} / {selectedPlan === "premium" ? PLATFORMS.length : platformLimit} selected
+              </Badge>
+              {selectedPlatforms.length > 0 && (
+                <Badge variant="outline" className="text-emerald-500 border-emerald-500/20">
+                  Ready to receive notifications
                 </Badge>
-              </div>
-            </CardHeader>
-            <CardContent>
-              {/* Group by category */}
-              {["food", "grocery", "package", "courier", "last-mile", "ride-transport"].map(category => {
-                const categoryPlatforms = PLATFORMS.filter(p => p.category === category);
-                if (categoryPlatforms.length === 0) return null;
-                const categoryName = category === "ride-transport" ? "Ride & Transport" :
-                  category === "last-mile" ? "Last-Mile Delivery" :
-                  category.charAt(0).toUpperCase() + category.slice(1);
+              )}
+            </div>
+          </CardHeader>
+          <CardContent>
+            {/* Group by category */}
+            {["food", "grocery", "package", "courier", "last-mile", "ride-transport"].map(category => {
+              const categoryPlatforms = PLATFORMS.filter(p => p.category === category);
+              if (categoryPlatforms.length === 0) return null;
+              const categoryName = category === "ride-transport" ? "Ride & Transport" :
+                category === "last-mile" ? "Last-Mile Delivery" :
+                category === "courier" ? "Courier & Express" :
+                category.charAt(0).toUpperCase() + category.slice(1);
 
-                return (
-                  <div key={category} className="mb-4">
-                    <p className="text-sm font-medium text-muted-foreground mb-2">{categoryName}</p>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-                      {categoryPlatforms.map(platform => {
-                        const isSelected = selectedPlatforms.includes(platform.id);
-                        const isDisabled = !isSelected && selectedPlatforms.length >= platformLimit;
+              return (
+                <div key={category} className="mb-4">
+                  <p className="text-sm font-medium text-muted-foreground mb-2">{categoryName}</p>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                    {categoryPlatforms.map(platform => {
+                      const isSelected = selectedPlatforms.includes(platform.id);
+                      const isDisabled = !isSelected && selectedPlatforms.length >= platformLimit && selectedPlan !== "premium";
 
-                        return (
-                          <button
-                            key={platform.id}
-                            onClick={() => !isDisabled && togglePlatform(platform.id)}
-                            className={`flex items-center gap-2 p-2.5 rounded-lg border text-sm transition-all ${
-                              isSelected
-                                ? "border-amber-500/40 bg-amber-500/10 text-amber-500"
-                                : isDisabled
-                                  ? "border-border/50 opacity-40 cursor-not-allowed"
-                                  : "border-border hover:border-amber-500/20 hover:bg-muted/30"
-                            }`}
-                          >
-                            <Checkbox
-                              checked={isSelected}
-                              disabled={isDisabled}
-                              className="pointer-events-none"
-                            />
-                            <span className="truncate text-xs">{platform.name}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
+                      return (
+                        <button
+                          key={platform.id}
+                          onClick={() => {
+                            if (selectedPlan === "premium" || !isDisabled) {
+                              togglePlatform(platform.id);
+                            }
+                          }}
+                          className={`flex items-center gap-2 p-2.5 rounded-lg border text-sm transition-all ${
+                            isSelected
+                              ? "border-amber-500/40 bg-amber-500/10 text-amber-500"
+                              : isDisabled
+                                ? "border-border/50 opacity-40 cursor-not-allowed"
+                                : "border-border hover:border-amber-500/20 hover:bg-muted/30"
+                          }`}
+                        >
+                          <Checkbox
+                            checked={isSelected}
+                            disabled={isDisabled && selectedPlan !== "premium"}
+                            className="pointer-events-none"
+                          />
+                          <span className="truncate text-xs">{platform.name}</span>
+                        </button>
+                      );
+                    })}
                   </div>
-                );
-              })}
-            </CardContent>
-          </Card>
-        )}
+                </div>
+              );
+            })}
 
-        {/* Premium: Show all platforms available */}
-        {selectedPlan === "premium" && (
-          <Card className="mb-8">
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <Globe className="w-5 h-5 text-purple-500" />
-                <h3 className="text-lg font-bold">All Platforms Included</h3>
+            {/* Confirm Platform Selection Button */}
+            <div className="mt-6 pt-4 border-t border-border">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div>
+                  <p className="text-sm font-medium">
+                    {selectedPlatforms.length === 0
+                      ? "Select platforms to receive notifications"
+                      : `${selectedPlatforms.length} platform${selectedPlatforms.length !== 1 ? "s" : ""} selected — you'll get notifications from these`}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    You can change your preferences anytime from Settings
+                  </p>
+                </div>
+                <Button
+                  onClick={savePlatformPreferences}
+                  disabled={selectedPlatforms.length === 0 || isSavingPlatforms}
+                  className={`w-full sm:w-auto ${
+                    saveSuccess
+                      ? "bg-emerald-500 hover:bg-emerald-600 text-white"
+                      : "bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-semibold"
+                  }`}
+                >
+                  {saveSuccess ? (
+                    <>
+                      <CheckCircle2 className="w-4 h-4 mr-2" />
+                      Saved!
+                    </>
+                  ) : isSavingPlatforms ? (
+                    "Saving..."
+                  ) : (
+                    <>
+                      <Bell className="w-4 h-4 mr-2" />
+                      Confirm & Get Notifications
+                    </>
+                  )}
+                </Button>
               </div>
-              <p className="text-sm text-muted-foreground">
-                Premium gives you access to all {PLATFORMS.length}+ platforms worldwide.
-                You can customize which ones to enable in Settings after upgrading.
-              </p>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-wrap gap-2">
-                {PLATFORMS.map(platform => (
-                  <Badge
-                    key={platform.id}
-                    variant="outline"
-                    className="text-xs py-1 px-2.5"
-                  >
-                    {platform.icon} {platform.name}
-                  </Badge>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        )}
+            </div>
+          </CardContent>
+        </Card>
 
-        {/* Payment section */}
-        {selectedPlan && selectedPlan !== "free" && currentPlan !== selectedPlan && (
+        {/* Payment section — only for paid plan upgrades */}
+        {selectedPlan && selectedPlan !== "free" && currentPlan !== selectedPlan && !isDowngrade(selectedPlan) && (
           <Card className="mb-8 border-amber-500/20 bg-gradient-to-br from-amber-500/5 to-orange-500/5">
             <CardContent className="p-6">
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -407,12 +513,22 @@ export default function SubscribePage() {
                       ? "Unlimited platforms"
                       : `Up to ${plans.find(p => p.id === selectedPlan)?.platformLimit} platforms`}
                   </p>
+                  {selectedPlatforms.length > 0 && (
+                    <p className="text-xs text-amber-500 mt-1">
+                      {selectedPlatforms.length} platform{selectedPlatforms.length !== 1 ? "s" : ""} will be enabled after payment
+                    </p>
+                  )}
                 </div>
                 <RazorpayCheckout
-                  plan={selectedPlan}
+                  plan={selectedPlan as "starter" | "pro" | "premium"}
                   period="monthly"
                   currentPlan={currentPlan}
-                  onSuccess={() => fetchUser()}
+                  selectedPlatforms={selectedPlatforms}
+                  onSuccess={() => {
+                    fetchUser();
+                    fetchExistingPlatforms();
+                    savePlatformPreferences();
+                  }}
                   label={`Pay ${plans.find(p => p.id === selectedPlan)?.price}/month`}
                   className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-semibold"
                   variant="default"
@@ -444,7 +560,7 @@ export default function SubscribePage() {
                 a: "We accept UPI, credit/debit cards, net banking, and wallets through Razorpay — India's most trusted payment gateway.",
               },
             ].map((faq) => (
-              <Card key={faq.q}>
+              <Card key={faq.q} className="bg-card">
                 <CardContent className="p-4">
                   <h4 className="font-medium text-sm mb-2">{faq.q}</h4>
                   <p className="text-xs text-muted-foreground leading-relaxed">{faq.a}</p>

@@ -458,7 +458,7 @@ export function SettingsSection() {
           {/* Save button */}
           <Button
             onClick={handleSave}
-            className="w-full h-12 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold shadow-lg shadow-amber-500/25"
+            className="relative z-10 w-full h-12 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold shadow-lg shadow-amber-500/25 dark:shadow-amber-500/15"
           >
             <Save className="w-4 h-4 mr-2" />
             {saved ? "Settings Saved!" : "Save Settings"}

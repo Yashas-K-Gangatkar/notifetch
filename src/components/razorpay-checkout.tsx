@@ -13,6 +13,8 @@ interface RazorpayCheckoutProps {
   period: "monthly" | "yearly";
   /** Current plan of the user */
   currentPlan?: string;
+  /** Selected platform IDs to enable after payment */
+  selectedPlatforms?: string[];
   /** Called when payment succeeds */
   onSuccess?: () => void;
   /** Optional label override for the button */
@@ -100,6 +102,7 @@ export function RazorpayCheckout({
   plan,
   period,
   currentPlan,
+  selectedPlatforms,
   onSuccess,
   label,
   className,
@@ -173,7 +176,7 @@ export function RazorpayCheckout({
       const orderResponse = await fetch("/api/payments/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plan, period }),
+        body: JSON.stringify({ plan, period, selectedPlatforms }),
       });
 
       if (!orderResponse.ok) {
@@ -215,6 +218,7 @@ export function RazorpayCheckout({
                 razorpay_signature: response.razorpay_signature,
                 plan,
                 period,
+                selectedPlatforms,
               }),
             });
 
@@ -258,7 +262,7 @@ export function RazorpayCheckout({
         err instanceof Error ? err.message : "Something went wrong. Please try again."
       );
     }
-  }, [plan, period, onSuccess]);
+  }, [plan, period, selectedPlatforms, onSuccess]);
 
   const isDisabled =
     isAlreadyOnPlan ||

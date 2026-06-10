@@ -31,7 +31,7 @@ export async function POST(request: Request) {
 
     // ── Parse and validate body ─────────────────────────────────────────────
     const body = await request.json();
-    const { plan, period } = body;
+    const { plan, period, selectedPlatforms } = body;
 
     if (!plan || !["starter", "pro", "premium"].includes(plan)) {
       return NextResponse.json(
@@ -74,6 +74,7 @@ export async function POST(request: Request) {
       plan,
       period,
       userId: session.user.id,
+      selectedPlatforms: Array.isArray(selectedPlatforms) ? selectedPlatforms : [],
     });
 
     // ── Return order details + public key for client ────────────────────────
