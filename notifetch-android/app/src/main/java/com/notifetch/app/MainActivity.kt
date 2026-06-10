@@ -32,7 +32,7 @@ import com.notifetch.app.ui.screens.ProfileScreen
 import com.notifetch.app.ui.screens.SettingsScreen
 import com.notifetch.app.ui.theme.NotiFetchTheme
 import com.notifetch.app.ui.viewmodel.SettingsViewModel
-import com.notifetch.app.ui.viewmodel.settingsDataStore
+import com.notifetch.app.data.repository.dataStore
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -46,7 +46,7 @@ class MainActivity : ComponentActivity() {
         // the light→dark flash on cold start (BUG #6 fix).
         val savedDarkMode = runCatching {
             runBlocking {
-                val prefs = this@MainActivity.settingsDataStore.data.first()
+                val prefs = this@MainActivity.dataStore.data.first()
                 prefs[SettingsViewModel.DARK_MODE_KEY] ?: false
             }
         }.getOrDefault(false)
@@ -58,7 +58,7 @@ class MainActivity : ComponentActivity() {
             // Observe dark mode changes while the activity is alive
             var darkMode by remember { mutableStateOf(savedDarkMode) }
             LaunchedEffect(Unit) {
-                activityContext.settingsDataStore.data.map { prefs ->
+                activityContext.dataStore.data.map { prefs ->
                     prefs[SettingsViewModel.DARK_MODE_KEY] ?: false
                 }.collect { darkMode = it }
             }

@@ -97,8 +97,18 @@ class AuthRepository @Inject constructor(
         }
     }
 
+    /**
+     * Delete all user data from local DataStore.
+     * Called as part of the "Delete All My Data" flow.
+     */
+    suspend fun clearAllLocalData() {
+        context.dataStore.edit { prefs ->
+            prefs.clear()
+        }
+    }
+
     companion object {
-        private val TOKEN_KEY = stringPreferencesKey("auth_token")
-        private val USER_ID_KEY = stringPreferencesKey("user_id")
+        val TOKEN_KEY = stringPreferencesKey("auth_token")
+        val USER_ID_KEY = stringPreferencesKey("user_id")
     }
 }

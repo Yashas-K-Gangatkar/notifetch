@@ -15,6 +15,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -140,17 +142,45 @@ class HomeViewModel @Inject constructor(
     private val totalCountFlow = repository.getTotalCount()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
-    private val todayCountFlow = repository.getCountInTimeRange(
-        Helpers.startOfDayTimestamp(), System.currentTimeMillis()
-    ).stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
+    // ── Reactive time-range flows (BUG #24 fix) ─────────────────────────────
+    // Previously, timestamps were captured once at ViewModel creation. If the app
+    // stayed open past midnight, "today" stats would still show yesterday's data.
+    // Now, these flows automatically recalculate timestamps at midnight.
+    private val dayRangeFlow = flow {
+        while (true) {
+            val startOfDay = Helpers.startOfDayTimestamp()
+            val now = System.currentTimeMillis()
+            emit(startOfDay to now)
+            // Sleep until next midnight, then re-emit
+            val nextMidnight = startOfDay + 86_400_000L // 24 hours
+            val delayMs = (nextMidnight - now).coerceAtLeast(60_000L) // at least 1 min
+            kotlinx.coroutines.delay(delayMs)
+        }
+    }
 
-    private val todayEarningsFlow = repository.getTotalOrderValueSince(
-        Helpers.startOfDayTimestamp()
-    ).stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
+    private val todayCountFlow = dayRangeFlow.flatMapLatest { (start, end) ->
+        repository.getCountInTimeRange(start, end)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
-    private val weekEarningsFlow = repository.getTotalOrderValueSince(
-        Helpers.startOfWeekTimestamp()
-    ).stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
+    private val todayEarningsFlow = dayRangeFlow.flatMapLatest { (start, _) ->
+        repository.getTotalOrderValueSince(start)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
+
+    private val weekStartFlow = flow {
+        while (true) {
+            val startOfWeek = Helpers.startOfWeekTimestamp()
+            emit(startOfWeek)
+            // Sleep until next Monday midnight
+            val now = System.currentTimeMillis()
+            val nextWeek = startOfWeek + 7 * 86_400_000L
+            val delayMs = (nextWeek - now).coerceAtLeast(60_000L)
+            kotlinx.coroutines.delay(delayMs)
+        }
+    }
+
+    private val weekEarningsFlow = weekStartFlow.flatMapLatest { startOfWeek ->
+        repository.getTotalOrderValueSince(startOfWeek)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
 
     private val platformStatsFlow = repository.getNotificationCountByPlatform()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())

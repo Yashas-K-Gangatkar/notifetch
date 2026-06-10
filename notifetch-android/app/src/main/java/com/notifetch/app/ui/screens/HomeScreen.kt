@@ -69,15 +69,22 @@ fun HomeScreen(
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
 
-    // Check notification listener status — only once
+    // Check notification listener status and navigate to permission if needed.
+    // Uses a flag to prevent navigation loops (BUG #18 cleanup).
+    // Previously there were two LaunchedEffects watching isListenerEnabled which
+    // could race — now consolidated into a single check.
+    var hasNavigatedToPermission by remember { mutableStateOf(false) }
+
     LaunchedEffect(Unit) {
         val isEnabled = NotiFetchListenerService.isListenerEnabled(context)
         viewModel.updateListenerEnabled(isEnabled)
+        if (!isEnabled) {
+            hasNavigatedToPermission = true
+            onNavigateToPermission()
+        }
     }
 
-    // Track whether we've already navigated to permission to prevent loops
-    var hasNavigatedToPermission by remember { mutableStateOf(false) }
-
+    // Re-check when screen resumes (user may have disabled listener externally)
     LaunchedEffect(uiState.isListenerEnabled) {
         if (!uiState.isListenerEnabled && !hasNavigatedToPermission) {
             hasNavigatedToPermission = true

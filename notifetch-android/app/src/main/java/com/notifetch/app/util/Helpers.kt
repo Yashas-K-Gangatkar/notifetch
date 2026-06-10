@@ -101,49 +101,73 @@ object Helpers {
     // under GDPR Art. 5(1)(c) and may contain PII, auth tokens, or data beyond
     // what the user can see. Only visible notification content is stored.
 
+    /**
+     * Extract order value from notification text.
+     *
+     * CRITICAL: Different locales use different separators:
+     *   - Western/Indian: comma = group, dot = decimal (e.g., 1,23,456.78)
+     *   - Brazilian/Rupiah: dot = group, comma = decimal (e.g., 1.234.567,89)
+     *   - Yen/Won/Rupiah: no decimal at all (e.g., ¥1,234)
+     *
+     * Each pattern is paired with a cleanup function that handles its specific
+     * number format. This prevents the bug where .replace(".", "") would
+     * corrupt decimal points in Western/Indian format numbers.
+     */
     fun extractOrderValue(text: String): Double? {
+        data class ValuePattern(val regex: Regex, val cleanup: (String) -> String)
+
         val patterns = listOf(
+            // ── Indian Rupee (₹) — comma=group, dot=decimal ──
             // Indian lakh format: ₹1,23,456 or ₹1,23,456.78
-            Regex("""₹\s*(\d{1,3}(?:,\d{2})*(?:,\d{3})*(?:\.\d{1,2})?)"""),
+            ValuePattern(Regex("""₹\s*(\d{1,3}(?:,\d{2})*(?:,\d{3})*(?:\.\d{1,2})?)""")) { it.replace(",", "") },
             // Standard comma format: ₹123,456 or ₹123,456.78
-            Regex("""₹\s*(\d+(?:,\d{3})*(?:\.\d{1,2})?)"""),
+            ValuePattern(Regex("""₹\s*(\d+(?:,\d{3})*(?:\.\d{1,2})?)""")) { it.replace(",", "") },
             // ₹ without commas: ₹1234 or ₹1234.56
-            Regex("""₹\s*(\d+(?:\.\d{1,2})?)"""),
-            // Rs. or INR prefix
-            Regex("""(?:Rs\.?|INR)\s*(\d{1,3}(?:,\d{2})*(?:,\d{3})*(?:\.\d{1,2})?)"""),
-            Regex("""(?:Rs\.?|INR)\s*(\d+(?:,\d{3})*(?:\.\d{1,2})?)"""),
-            Regex("""(?:Rs\.?|INR)\s*(\d+(?:\.\d{1,2})?)"""),
-            // Dollar
-            Regex("""\$\s*(\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?)"""),
-            Regex("""\$\s*(\d+(?:\.\d{1,2})?)"""),
-            // Euro
-            Regex("""€\s*(\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?)"""),
-            Regex("""€\s*(\d+(?:\.\d{1,2})?)"""),
-            // Pound
-            Regex("""£\s*(\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?)"""),
-            Regex("""£\s*(\d+(?:\.\d{1,2})?)"""),
-            // Yen (no decimal)
-            Regex("""¥\s*(\d+(?:,\d+)*)"""),
-            // Won (no decimal)
-            Regex("""₩\s*(\d+(?:,\d+)*)"""),
-            // Brazilian Real
-            Regex("""R\$\s*(\d{1,3}(?:\.\d{3})*(?:,\d{1,2})?)"""),
-            // Thai Baht
-            Regex("""฿\s*(\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?)"""),
-            // Philippine Peso
-            Regex("""₱\s*(\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?)"""),
-            // Indonesian Rupiah (no decimal)
-            Regex("""Rp\s*(\d{1,3}(?:\.\d{3})*)"""),
+            ValuePattern(Regex("""₹\s*(\d+(?:\.\d{1,2})?)""")) { it },
+
+            // ── Rs./INR — comma=group, dot=decimal ──
+            ValuePattern(Regex("""(?:Rs\.?|INR)\s*(\d{1,3}(?:,\d{2})*(?:,\d{3})*(?:\.\d{1,2})?)""")) { it.replace(",", "") },
+            ValuePattern(Regex("""(?:Rs\.?|INR)\s*(\d+(?:,\d{3})*(?:\.\d{1,2})?)""")) { it.replace(",", "") },
+            ValuePattern(Regex("""(?:Rs\.?|INR)\s*(\d+(?:\.\d{1,2})?)""")) { it },
+
+            // ── Dollar ($) — comma=group, dot=decimal ──
+            ValuePattern(Regex("""\$\s*(\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?)""")) { it.replace(",", "") },
+            ValuePattern(Regex("""\$\s*(\d+(?:\.\d{1,2})?)""")) { it },
+
+            // ── Euro (€) — comma=group, dot=decimal ──
+            ValuePattern(Regex("""€\s*(\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?)""")) { it.replace(",", "") },
+            ValuePattern(Regex("""€\s*(\d+(?:\.\d{1,2})?)""")) { it },
+
+            // ── Pound (£) — comma=group, dot=decimal ──
+            ValuePattern(Regex("""£\s*(\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?)""")) { it.replace(",", "") },
+            ValuePattern(Regex("""£\s*(\d+(?:\.\d{1,2})?)""")) { it },
+
+            // ── Yen (¥) — comma=group, no decimal ──
+            ValuePattern(Regex("""¥\s*(\d+(?:,\d+)*)""")) { it.replace(",", "") },
+
+            // ── Won (₩) — comma=group, no decimal ──
+            ValuePattern(Regex("""₩\s*(\d+(?:,\d+)*)""")) { it.replace(",", "") },
+
+            // ── Brazilian Real (R$) — dot=group, comma=decimal ──
+            ValuePattern(Regex("""R\$\s*(\d{1,3}(?:\.\d{3})*(?:,\d{1,2})?)""")) {
+                it.replace(".", "").replace(",", ".")
+            },
+
+            // ── Thai Baht (฿) — comma=group, dot=decimal ──
+            ValuePattern(Regex("""฿\s*(\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?)""")) { it.replace(",", "") },
+
+            // ── Philippine Peso (₱) — comma=group, dot=decimal ──
+            ValuePattern(Regex("""₱\s*(\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?)""")) { it.replace(",", "") },
+
+            // ── Indonesian Rupiah (Rp) — dot=group, no decimal ──
+            ValuePattern(Regex("""Rp\s*(\d{1,3}(?:\.\d{3})*)""")) { it.replace(".", "") },
         )
 
-        for (pattern in patterns) {
-            val match = pattern.find(text)
+        for ((regex, cleanup) in patterns) {
+            val match = regex.find(text)
             if (match != null) {
-                val numStr = match.groupValues[1]
-                    .replace(",", "")  // Remove Western commas
-                    .replace(".", "")  // Remove Indian grouping dots (Rupiah)
-                // Try to parse - return if valid
-                return numStr.toDoubleOrNull()
+                val cleaned = cleanup(match.groupValues[1])
+                return cleaned.toDoubleOrNull()
             }
         }
         return null

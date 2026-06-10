@@ -7,7 +7,7 @@ import android.os.Build
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import androidx.work.WorkManager
-import com.notifetch.app.ui.viewmodel.settingsDataStore
+import com.notifetch.app.data.repository.dataStore
 import com.notifetch.app.util.Constants
 import com.notifetch.app.ui.viewmodel.SettingsViewModel
 import com.notifetch.app.worker.SyncWorker
@@ -62,14 +62,14 @@ class NotiFetchApp : Application(), Configuration.Provider {
         val workManager = WorkManager.getInstance(this)
         appScope.launch {
             val syncEnabled = try {
-                settingsDataStore.data.map { prefs ->
+                dataStore.data.map { prefs ->
                     prefs[SettingsViewModel.SYNC_ENABLED_KEY] ?: true
                 }.first()
             } catch (_: Exception) { true } // Default to enabled if read fails
 
             if (syncEnabled) {
                 val intervalMinutes = try {
-                    settingsDataStore.data.map { prefs ->
+                    dataStore.data.map { prefs ->
                         prefs[SettingsViewModel.SYNC_INTERVAL_KEY] ?: 15L
                     }.first()
                 } catch (_: Exception) { Constants.SYNC_INTERVAL_MINUTES }

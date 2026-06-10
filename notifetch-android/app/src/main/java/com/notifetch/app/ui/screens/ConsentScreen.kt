@@ -41,11 +41,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.booleanPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
 import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -53,6 +50,7 @@ import kotlinx.coroutines.launch
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.notifetch.app.data.repository.dataStore
 
 /**
  * Consent Screen — shown on first launch BEFORE any data collection.
@@ -69,7 +67,8 @@ import androidx.compose.ui.unit.dp
  * 4. Their rights (delete data anytime, export data, revoke consent)
  * 5. Their responsibility (comply with delivery platform ToS)
  */
-val Context.consentDataStore: DataStore<Preferences> by preferencesDataStore(name = "consent_prefs")
+// NOTE: Consent prefs now stored in the unified DataStore (notifetch_prefs)
+// instead of a separate consentDataStore (BUG #15 fix — DataStore consolidation)
 
 @Composable
 fun ConsentScreen(
@@ -173,7 +172,7 @@ fun ConsentScreen(
             onLinkClick = {
                 val intent = android.content.Intent(
                     android.content.Intent.ACTION_VIEW,
-                    android.net.Uri.parse("https://d2-liart-nine.vercel.app/privacy")
+                    android.net.Uri.parse("${com.notifetch.app.util.Constants.BASE_URL}privacy")
                 )
                 context.startActivity(intent)
             }
@@ -186,7 +185,7 @@ fun ConsentScreen(
             onClick = {
                 // Persist consent to DataStore so it's not shown again
                 scope.launch {
-                    context.consentDataStore.edit { prefs ->
+                    context.dataStore.edit { prefs ->
                         prefs[CONSENT_GRANTED_KEY] = true
                     }
                 }
@@ -306,6 +305,6 @@ private val CONSENT_GRANTED_KEY = booleanPreferencesKey("consent_granted")
 
 /** Check if user has already granted consent (for skipping consent screen on relaunch) */
 suspend fun hasConsented(context: Context): Boolean {
-    return context.consentDataStore.data.map { it[CONSENT_GRANTED_KEY] == true }.first()
+    return context.dataStore.data.map { it[CONSENT_GRANTED_KEY] == true }.first()
 }
 

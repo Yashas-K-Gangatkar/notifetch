@@ -4,13 +4,13 @@ import android.content.Context
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import com.notifetch.app.data.local.PlatformConfig
 import com.notifetch.app.data.repository.NotificationRepository
+import com.notifetch.app.data.repository.dataStore
 import com.notifetch.app.notification.NotiFetchListenerService
 import com.notifetch.app.util.Constants
 import com.notifetch.app.worker.SyncWorker
@@ -28,8 +28,6 @@ import androidx.work.Constraints
 import androidx.work.NetworkType
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
-
-val Context.settingsDataStore by preferencesDataStore(name = "settings_prefs")
 
 data class SettingsUiState(
     val platformConfigs: List<PlatformConfig> = emptyList(),
@@ -72,7 +70,7 @@ class SettingsViewModel @Inject constructor(
     init {
         // Load saved preferences from DataStore
         viewModelScope.launch {
-            val prefs = context.settingsDataStore.data.first()
+            val prefs = context.dataStore.data.first()
             _isDarkMode.value = prefs[DARK_MODE_KEY] ?: false
             _isSyncEnabled.value = prefs[SYNC_ENABLED_KEY] ?: true
             _syncIntervalMinutes.value = prefs[SYNC_INTERVAL_KEY] ?: 15L
@@ -102,7 +100,7 @@ class SettingsViewModel @Inject constructor(
     fun setDarkMode(enabled: Boolean) {
         _isDarkMode.value = enabled
         viewModelScope.launch {
-            context.settingsDataStore.edit { prefs ->
+            context.dataStore.edit { prefs ->
                 prefs[DARK_MODE_KEY] = enabled
             }
         }
@@ -116,7 +114,7 @@ class SettingsViewModel @Inject constructor(
         _isSyncEnabled.value = enabled
         viewModelScope.launch {
             // Persist to DataStore
-            context.settingsDataStore.edit { prefs ->
+            context.dataStore.edit { prefs ->
                 prefs[SYNC_ENABLED_KEY] = enabled
             }
             // Cancel or re-schedule WorkManager periodic sync

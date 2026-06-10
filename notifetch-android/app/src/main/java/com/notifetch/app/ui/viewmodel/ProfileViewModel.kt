@@ -141,12 +141,15 @@ class ProfileViewModel @Inject constructor(
 
     /**
      * Delete all user data — DPDP Act 2023 §8 & GDPR Article 17 (Right to Erasure).
-     * Removes all captured notifications from local database.
+     * Removes all captured notifications from local database AND attempts
+     * server-side deletion (BUG #26 fix — was only deleting local before).
+     * Also clears all DataStore preferences.
      */
     fun deleteAllData() {
         viewModelScope.launch {
             try {
-                notificationRepository.deleteAllNotifications()
+                notificationRepository.deleteAllDataIncludingServer()
+                authRepository.clearAllLocalData()
                 _uiState.value = _uiState.value.copy(error = null)
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(

@@ -76,6 +76,33 @@ class NotificationRepository @Inject constructor(
 
     suspend fun deleteAllNotifications() = notificationDao.deleteAll()
 
+    /**
+     * Delete all data: local DB + best-effort server-side deletion (BUG #26 fix).
+     * Under DPDP Act §8 and GDPR Art. 17, users have the right to erasure.
+     * Server deletion is best-effort — local data is always deleted regardless.
+     */
+    suspend fun deleteAllDataIncludingServer() {
+        // 1. Always delete local data
+        notificationDao.deleteAll()
+
+        // 2. Best-effort: attempt server-side deletion
+        try {
+            val token = authRepository.getCurrentToken()
+            if (token != null) {
+                val authHeader = "Bearer $token"
+                val response = api.deleteAllServerData(authHeader)
+                if (response.success) {
+                    android.util.Log.d("NotiFetchRepo", "Server-side data deletion succeeded")
+                } else {
+                    android.util.Log.w("NotiFetchRepo", "Server-side deletion returned: ${response.message}")
+                }
+            }
+        } catch (e: Exception) {
+            // Server unreachable or endpoint not implemented yet — not critical
+            android.util.Log.w("NotiFetchRepo", "Server-side data deletion failed (local data already deleted): ${e.message}")
+        }
+    }
+
     // ═══════════════════════════════════════════════════════════════════════
     // Platform Display Name Resolution
     //
