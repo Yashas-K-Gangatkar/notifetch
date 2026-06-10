@@ -1,7 +1,5 @@
 package com.notifetch.app.ui.components
 
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -21,7 +19,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,11 +38,6 @@ fun NotificationCard(
 ) {
     val resolvedName = displayPlatformName ?: notification.platform
     val platformColor = getPlatformColor(resolvedName, notification.packageName)
-    val animatedColor by animateColorAsState(
-        targetValue = platformColor,
-        animationSpec = tween(300),
-        label = "platformColor"
-    )
 
     Card(
         modifier = modifier
@@ -71,7 +63,7 @@ fun NotificationCard(
             // Platform icon circle
             PlatformIcon(
                 platform = resolvedName,
-                color = animatedColor,
+                color = platformColor,
                 packageName = notification.packageName,
                 modifier = Modifier.size(44.dp)
             )
@@ -93,7 +85,7 @@ fun NotificationCard(
                     Text(
                         text = resolvedName,
                         style = MaterialTheme.typography.labelMedium,
-                        color = animatedColor,
+                        color = platformColor,
                         fontWeight = FontWeight.SemiBold
                     )
                     Text(

@@ -1,6 +1,4 @@
--keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.SettingsViewModel
--keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.SettingsViewModel
--keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.NotificationDetailViewModel
--keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.NotificationDetailViewModel
+-keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.ProfileViewModel
+-keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.ProfileViewModel
 -keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.HomeViewModel
 -keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.HomeViewModel

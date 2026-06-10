@@ -13,6 +13,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -142,6 +144,14 @@ class HomeViewModel @Inject constructor(
     }
 
     // Step 4: Final combine into HomeUiState
+    // A single DB write (e.g., insertNotification) triggers 7+ Room Flow emissions
+    // in rapid succession (allNotifications, unreadCount, totalCount, todayCount,
+    // todayEarnings, platformStats, platformConfigs). Without debouncing, each
+    // emission causes a separate recomposition, producing visible "fluttering".
+    //
+    // debounce(50ms) coalesces these rapid emissions into a single UI update.
+    // distinctUntilChanged() filters duplicate states (e.g., when Room re-emits
+    // the same query result after an unrelated table change).
     val uiState: StateFlow<HomeUiState> = combine(
         dataState,
         secondaryState,
@@ -162,7 +172,10 @@ class HomeViewModel @Inject constructor(
             searchQuery = uiControl.searchQuery,
             selectedPlatform = uiControl.selectedPlatform
         )
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), HomeUiState())
+    }
+        .distinctUntilChanged()
+        .debounce(50)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), HomeUiState())
 
     init {
         viewModelScope.launch {
