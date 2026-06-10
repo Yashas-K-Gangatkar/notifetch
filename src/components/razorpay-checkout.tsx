@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
+import Script from "next/script";
 import { Button } from "@/components/ui/button";
-import { Loader2, CheckCircle2, XCircle, CreditCard } from "lucide-react";
+import { Loader2, CheckCircle2, XCircle, CreditCard, ExternalLink } from "lucide-react";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -43,19 +44,22 @@ function loadRazorpayScript(): Promise<boolean> {
     const script = document.createElement("script");
     script.src = "https://checkout.razorpay.com/v1/checkout.js";
     script.async = true;
+    script.crossOrigin = "anonymous";
     script.onload = () => {
-      // Double-check Razorpay is actually available
-      const available = !!(window as Record<string, unknown>).Razorpay;
-      if (!available) {
-        scriptLoadPromise = null;
-      }
-      resolve(available);
+      // Give it a tick to initialize
+      setTimeout(() => {
+        const available = !!(window as Record<string, unknown>).Razorpay;
+        if (!available) {
+          scriptLoadPromise = null;
+        }
+        resolve(available);
+      }, 100);
     };
     script.onerror = () => {
       scriptLoadPromise = null;
       resolve(false);
     };
-    document.body.appendChild(script);
+    document.head.appendChild(script);
   });
 
   return scriptLoadPromise;
@@ -110,6 +114,14 @@ export function RazorpayCheckout({
 }: RazorpayCheckoutProps) {
   const [state, setState] = useState<PaymentState>("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [scriptReady, setScriptReady] = useState(false);
+
+  // Preload Razorpay script when component mounts
+  useEffect(() => {
+    loadRazorpayScript().then((loaded) => {
+      setScriptReady(loaded);
+    });
+  }, []);
 
   const isAlreadyOnPlan = currentPlan === plan;
   const isHigherPlan =
@@ -157,17 +169,18 @@ export function RazorpayCheckout({
     setErrorMessage(null);
 
     try {
-      // ── Step 1: Load Razorpay script with retry ─────────────────────────
-      const scriptLoaded = await loadRazorpayScript();
+      // ── Step 1: Ensure Razorpay script is loaded ──────────────────────
+      const RazorpayConstructor = (window as Record<string, unknown>).Razorpay as new (
+        options: RazorpayOptions
+      ) => RazorpayInstance;
 
-      if (!scriptLoaded) {
-        // Retry once after a short delay
-        await new Promise(r => setTimeout(r, 1500));
-        const retryLoaded = await loadRazorpayScript();
-        if (!retryLoaded) {
+      if (!RazorpayConstructor) {
+        // Try loading the script
+        const scriptLoaded = await loadRazorpayScript();
+        if (!scriptLoaded) {
           throw new Error(
-            "Failed to load Razorpay. Please check your internet connection and try again. " +
-            "If the issue persists, try refreshing the page."
+            "Razorpay SDK failed to load. This is usually caused by an ad blocker or privacy extension. " +
+            "Please disable ad blockers for this site and try again, or open the payment page in an incognito window."
           );
         }
       }
@@ -198,11 +211,11 @@ export function RazorpayCheckout({
       // ── Step 3: Open Razorpay checkout ──────────────────────────────────
       setState("paying");
 
-      const RazorpayConstructor = (window as Record<string, unknown>).Razorpay as new (
+      const RzpConstructor = (window as Record<string, unknown>).Razorpay as new (
         options: RazorpayOptions
       ) => RazorpayInstance;
 
-      if (!RazorpayConstructor) {
+      if (!RzpConstructor) {
         throw new Error("Razorpay SDK not available. Please refresh the page and try again.");
       }
 
@@ -262,7 +275,7 @@ export function RazorpayCheckout({
         },
       };
 
-      const rzp = new RazorpayConstructor(options);
+      const rzp = new RzpConstructor(options);
       rzp.open();
     } catch (err) {
       console.error("[RazorpayCheckout] Error:", err);
@@ -281,6 +294,14 @@ export function RazorpayCheckout({
 
   return (
     <div className="flex flex-col items-center gap-2">
+      {/* Preload Razorpay script via next/script for better caching */}
+      <Script
+        src="https://checkout.razorpay.com/v1/checkout.js"
+        strategy="lazyOnload"
+        onLoad={() => setScriptReady(true)}
+        onError={() => setScriptReady(false)}
+      />
+
       <Button
         onClick={handlePayment}
         disabled={isDisabled}
@@ -293,7 +314,20 @@ export function RazorpayCheckout({
       </Button>
 
       {errorMessage && (
-        <p className="text-xs text-red-500 text-center max-w-xs">{errorMessage}</p>
+        <div className="text-xs text-red-500 text-center max-w-xs space-y-1">
+          <p>{errorMessage}</p>
+          {errorMessage.includes("ad blocker") && (
+            <a
+              href="https://checkout.razorpay.com/v1/checkout.js"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-amber-500 hover:underline"
+            >
+              <ExternalLink className="w-3 h-3" />
+              Test if Razorpay loads in your browser
+            </a>
+          )}
+        </div>
       )}
 
       {state === "success" && (
