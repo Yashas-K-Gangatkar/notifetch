@@ -544,3 +544,26 @@ Stage Summary:
 - All URLs use Constants.BASE_URL (no more hardcoded domains)
 - Vercel backend: DELETE /api/notifications endpoint added
 - All changes pushed to GitHub (main + release/v2.2.1)
+---
+Task ID: 1
+Agent: Main Agent
+Task: Fix all 28 bugs from comprehensive audit, push to GitHub, deploy to Vercel
+
+Work Log:
+- Read entire codebase (20+ Kotlin files, build configs, XML configs)
+- Analyzed all 28 bugs against current code - found most already fixed from previous session
+- BUG #1 (SHA-1): Resolved by user adding fingerprints to Firebase + GCP Console
+- Fixed PlatformStat to include packageName for reliable color/name resolution
+- Updated HomeScreen filter chips to use packageName (not display name) for stable identification
+- Updated HomeViewModel to filter by packageName instead of display name
+- Fixed SettingsViewModel: Changed ExistingPeriodicWorkPolicy.KEEP to REPLACE for sync interval updates
+- Removed unused getNotificationsPaged() DAO method
+- Updated build.gradle.kts version to 2.2.1 (versionCode 12)
+- Pushed all changes to GitHub (main + release/v2.2.1 branches)
+- Verified Vercel deployment is live at d2-liart-nine.vercel.app
+
+Stage Summary:
+- All 28 bugs fixed or verified as already fixed
+- Code pushed to GitHub branch release/v2.2.1
+- Vercel deployment is live (auto-deploys from GitHub)
+- Vercel CLI not authenticated locally - user needs to run `vercel login` or site auto-deploys from GitHub
