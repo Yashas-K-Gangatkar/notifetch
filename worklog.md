@@ -492,3 +492,55 @@ Stage Summary:
 - BUG #12: PlatformSource enum (74 lines) removed from Constants.kt
 - BUG #13-14: Two dead auth methods removed from AuthRepository.kt
 - GoogleAuthProvider import retained (used by signInWithGoogle)
+
+---
+Task ID: 14
+Agent: Main Agent
+Task: Fix remaining bugs from 28-bug audit — extractOrderValue, stale timestamps, hardcoded URLs, DataStore consolidation, deleteAllData, navigation cleanup, DELETE API endpoint
+
+Work Log:
+- CRITICAL FIX: extractOrderValue() was corrupting decimal values
+  - The `.replace(".", "")` removed decimal points, turning ₹1,23,456.78 into 12345678 (100x the actual value)
+  - Replaced uniform cleanup with per-currency cleanup functions using ValuePattern data class
+  - Western/Indian: remove commas, keep dots as decimal (₹, $, €, £, ¥, ฿, ₱)
+  - Brazilian Real: remove dots (group), replace comma with dot (decimal)
+  - Indonesian Rupiah: remove dots (group, no decimal)
+  - Tested: ₹1,23,456.78 → 123456.78 (correct), Rp1.234.567 → 1234567 (correct), R$1.234,56 → 1234.56 (correct)
+- Fixed stale todayCount/todayEarnings timestamps
+  - Previous: timestamps captured once at ViewModel creation, became stale if app open past midnight
+  - New: dayRangeFlow emits (startOfDay, now) and sleeps until next midnight, then re-emits
+  - weekStartFlow emits startOfWeek and sleeps until next Monday midnight
+  - Both use flatMapLatest to re-subscribe to Room queries when timestamps change
+- Replaced all hardcoded d2-liart-nine.vercel.app URLs with Constants.BASE_URL
+  - ProfileScreen: 5 URLs (dashboard/settings, privacy, terms, terms#no-affiliation, toast)
+  - ConsentScreen: 1 URL (privacy)
+- Consolidated 3 DataStores into 1 unified notifetch_prefs
+  - Removed settingsDataStore declaration from SettingsViewModel.kt
+  - Removed consentDataStore declaration from ConsentScreen.kt
+  - All references now use dataStore from AuthRepository.kt (notifetch_prefs)
+  - Updated: SettingsViewModel, MainActivity, NotiFetchApp, ConsentScreen
+- Fixed deleteAllData to attempt server-side deletion
+  - Added DELETE /api/notifications endpoint to NotiFetchApi.kt (Retrofit)
+  - Added deleteAllDataIncludingServer() to NotificationRepository (best-effort: local always deleted, server deletion logged)
+  - Added clearAllLocalData() to AuthRepository (clears all DataStore prefs)
+  - ProfileViewModel.deleteAllData() now calls both methods
+  - Updated delete dialog text in ProfileScreen to reflect server deletion
+- Cleaned up HomeScreen navigation LaunchedEffect logic
+  - First LaunchedEffect now checks listener AND navigates if disabled (no separate trigger needed)
+  - Second LaunchedEffect only resets hasNavigatedToPermission flag
+- Added DELETE /api/notifications handler to Vercel backend
+  - Authenticates via NextAuth session or Firebase device token
+  - Uses Prisma deleteMany to remove all notifications for the authenticated user
+  - Returns deletedCount for confirmation
+- Kotlin compilation verified: compileReleaseKotlin → BUILD SUCCESSFUL
+- Pushed to GitHub: main branch (Android + Vercel backend changes)
+
+Stage Summary:
+- 12 source files modified (Android: 10, Web: 1, Shared: 1)
+- CRITICAL: extractOrderValue decimal corruption fixed with locale-aware cleanup
+- Reactive timestamps: today/week stats auto-update at midnight
+- Single DataStore: 3 separate → 1 unified notifetch_prefs
+- GDPR compliance: deleteAllData now attempts server-side deletion
+- All URLs use Constants.BASE_URL (no more hardcoded domains)
+- Vercel backend: DELETE /api/notifications endpoint added
+- All changes pushed to GitHub (main + release/v2.2.1)
