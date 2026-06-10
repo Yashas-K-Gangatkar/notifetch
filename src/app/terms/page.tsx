@@ -163,7 +163,7 @@ export default function TermsOfServicePage() {
                   By downloading, installing, accessing, or using the NotiFetch mobile application
                   (&quot;Service&quot; or &quot;App&quot;), you affirm that you have read, understood, and agree to be
                   legally bound by these Terms of Service (&quot;Terms&quot;), our Privacy Policy available at
-                  https://d2-liart-nine.vercel.app/privacy, and all applicable laws and regulations. These
+                  https://notifetch.app/privacy, and all applicable laws and regulations. These
                   Terms constitute a legally binding agreement between you (&quot;User,&quot; &quot;you,&quot; or &quot;your&quot;) and
                   NotiFetch (&quot;we,&quot; &quot;us,&quot; or &quot;our&quot;).
                 </p>
@@ -582,7 +582,7 @@ export default function TermsOfServicePage() {
                 <p>
                   NotiFetch is committed to protecting the privacy and security of all user data. Our data
                   practices are governed by our Privacy Policy, available at
-                  https://d2-liart-nine.vercel.app/privacy, which is incorporated into these Terms by
+                  https://notifetch.app/privacy, which is incorporated into these Terms by
                   reference. By using the Service, you consent to the collection, processing, storage, and
                   use of your data as described in the Privacy Policy.
                 </p>
@@ -1081,7 +1081,7 @@ export default function TermsOfServicePage() {
                   NotiFetch reserves the right to modify, amend, or update these Terms of Service at
                   any time, in its sole discretion. All changes to these Terms will be effective
                   immediately upon publication on our website at
-                  https://d2-liart-nine.vercel.app/terms, unless otherwise specified. The &quot;Last
+                  https://notifetch.app/terms, unless otherwise specified. The &quot;Last
                   Updated&quot; date at the top of these Terms will be revised to reflect the date of the
                   most recent modification.
                 </p>
@@ -1153,15 +1153,15 @@ export default function TermsOfServicePage() {
                   <div className="flex items-center gap-2">
                     <ExternalLink className="w-4 h-4 text-amber-500 shrink-0" />
                     <span className="font-medium text-foreground">Website:</span>
-                    <a href="https://d2-liart-nine.vercel.app" target="_blank" rel="noopener noreferrer" className="text-amber-600 dark:text-amber-400 hover:underline">
-                      https://d2-liart-nine.vercel.app
+                    <a href="https://notifetch.app" target="_blank" rel="noopener noreferrer" className="text-amber-600 dark:text-amber-400 hover:underline">
+                      https://notifetch.app
                     </a>
                   </div>
                   <div className="flex items-center gap-2">
                     <ExternalLink className="w-4 h-4 text-amber-500 shrink-0" />
                     <span className="font-medium text-foreground">Privacy Policy:</span>
-                    <a href="https://d2-liart-nine.vercel.app/privacy" target="_blank" rel="noopener noreferrer" className="text-amber-600 dark:text-amber-400 hover:underline">
-                      https://d2-liart-nine.vercel.app/privacy
+                    <a href="https://notifetch.app/privacy" target="_blank" rel="noopener noreferrer" className="text-amber-600 dark:text-amber-400 hover:underline">
+                      https://notifetch.app/privacy
                     </a>
                   </div>
                 </div>

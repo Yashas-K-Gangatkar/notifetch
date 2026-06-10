@@ -5,6 +5,6 @@
   "installCommand": "npm install",
   "regions": ["sin1"],
   "env": {
-    "NEXTAUTH_URL": "https://d2-liart-nine.vercel.app"
+    "NEXTAUTH_URL": "https://notifetch.app"
   }
 }

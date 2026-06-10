@@ -17,13 +17,13 @@ import java.util.concurrent.TimeUnit
  * HTTP client for communicating with the NotiFetch web backend API.
  *
  * Sends captured notification data to the backend at:
- * https://d2-liart-nine.vercel.app/api/notifications
+ * https://notifetch.app/api/notifications
  */
 class ApiClient(private val context: Context) {
 
     companion object {
         private const val TAG = "NotiFetchApiClient"
-        private const val BASE_URL = "https://d2-liart-nine.vercel.app"
+        private const val BASE_URL = "https://notifetch.app"
         private const val NOTIFICATIONS_ENDPOINT = "$BASE_URL/api/notifications"
         private const val NOTIFICATIONS_TEST_ENDPOINT = "$BASE_URL/api/notifications/test"
         private val JSON_MEDIA_TYPE = "application/json; charset=utf-8".toMediaType()

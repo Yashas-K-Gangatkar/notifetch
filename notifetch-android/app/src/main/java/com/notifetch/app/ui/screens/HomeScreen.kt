@@ -1,5 +1,17 @@
 package com.notifetch.app.ui.screens
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,6 +24,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -29,6 +42,7 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -45,15 +59,22 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.notifetch.app.notification.NotiFetchListenerService
-import com.notifetch.app.ui.components.EmptyState
 import com.notifetch.app.ui.components.NotificationCard
 import com.notifetch.app.ui.components.SearchBar
 import com.notifetch.app.ui.components.StatCard
+import com.notifetch.app.ui.theme.BrandGradientEnd
+import com.notifetch.app.ui.theme.BrandGradientStart
 import com.notifetch.app.ui.theme.getPlatformColor
 import com.notifetch.app.ui.viewmodel.HomeViewModel
 import com.notifetch.app.util.Helpers
@@ -71,8 +92,6 @@ fun HomeScreen(
 
     // Check notification listener status and navigate to permission if needed.
     // Uses a flag to prevent navigation loops (BUG #18 cleanup).
-    // Previously there were two LaunchedEffects watching isListenerEnabled which
-    // could race — now consolidated into a single check.
     var hasNavigatedToPermission by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
@@ -99,43 +118,77 @@ fun HomeScreen(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        // Top App Bar
-        TopAppBar(
-            title = {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = Icons.Default.NotificationsActive,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "NotiFetch",
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            },
-            actions = {
-                if (uiState.unreadCount > 0) {
-                    TextButton(onClick = { viewModel.markAllAsRead() }) {
-                        Text("Mark all read")
-                    }
-                }
-                IconButton(onClick = { viewModel.syncNow() }) {
-                    Icon(
-                        imageVector = Icons.Default.Sync,
-                        contentDescription = "Sync",
-                        tint = if (uiState.isSyncing)
-                            MaterialTheme.colorScheme.primary
-                        else
-                            MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            },
-            colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = MaterialTheme.colorScheme.surface
-            )
+        // ── Gradient Top App Bar ──────────────────────────────────────────
+        val gradientBrush = Brush.horizontalGradient(
+            colors = listOf(BrandGradientStart, BrandGradientEnd)
         )
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(gradientBrush)
+        ) {
+            TopAppBar(
+                title = {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.NotificationsActive,
+                            contentDescription = null,
+                            tint = Color.White
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "NotiFetch",
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
+                    }
+                },
+                actions = {
+                    if (uiState.unreadCount > 0) {
+                        TextButton(onClick = { viewModel.markAllAsRead() }) {
+                            Text("Mark all read", color = Color.White.copy(alpha = 0.9f))
+                        }
+                    }
+                    IconButton(onClick = { viewModel.syncNow() }) {
+                        val syncRotation by animateFloatAsState(
+                            targetValue = if (uiState.isSyncing) 360f else 0f,
+                            animationSpec = tween(
+                                durationMillis = if (uiState.isSyncing) 800 else 0,
+                                easing = LinearEasing
+                            ),
+                            label = "syncRotation"
+                        )
+                        Icon(
+                            imageVector = Icons.Default.Sync,
+                            contentDescription = "Sync",
+                            tint = Color.White,
+                            modifier = Modifier.graphicsLayer {
+                                rotationZ = syncRotation
+                            }
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.Transparent
+                )
+            )
+
+            // Sync progress indicator under the app bar
+            AnimatedVisibility(
+                visible = uiState.isSyncing,
+                enter = fadeIn() + expandVertically(),
+                exit = fadeOut() + shrinkVertically()
+            ) {
+                LinearProgressIndicator(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(2.dp),
+                    color = Color.White,
+                    trackColor = Color.White.copy(alpha = 0.3f)
+                )
+            }
+        }
 
         PullToRefreshBox(
             isRefreshing = uiState.isRefreshing,
@@ -146,13 +199,13 @@ fun HomeScreen(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                // Stats section
+                // ── Stats section ──────────────────────────────────────
                 item {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         StatCard(
                             title = "Today",
@@ -170,33 +223,35 @@ fun HomeScreen(
                     }
                 }
 
-                // Unread count banner
+                // ── Unread count banner ────────────────────────────────
                 if (uiState.unreadCount > 0) {
                     item {
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(horizontal = 16.dp),
-                            shape = RoundedCornerShape(8.dp),
+                            shape = RoundedCornerShape(12.dp),
                             colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+                                containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
                             )
                         ) {
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(12.dp),
+                                    .padding(horizontal = 16.dp, vertical = 12.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.CheckCircle,
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.padding(end = 8.dp)
+                                    modifier = Modifier.size(20.dp)
                                 )
+                                Spacer(modifier = Modifier.width(10.dp))
                                 Text(
                                     text = "${uiState.unreadCount} unread notification${if (uiState.unreadCount != 1) "s" else ""}",
                                     style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.Medium,
                                     color = MaterialTheme.colorScheme.onSurface
                                 )
                             }
@@ -204,7 +259,7 @@ fun HomeScreen(
                     }
                 }
 
-                // Search bar
+                // ── Search bar ─────────────────────────────────────────
                 item {
                     SearchBar(
                         query = uiState.searchQuery,
@@ -213,7 +268,7 @@ fun HomeScreen(
                     )
                 }
 
-                // Platform filter chips — use packageName for stable identification
+                // ── Platform filter chips ──────────────────────────────
                 item {
                     FlowRow(
                         modifier = Modifier
@@ -232,7 +287,6 @@ fun HomeScreen(
                             )
                         )
                         uiState.platformStats.forEach { stat ->
-                            // Resolve display name from platformNameMap (custom → default)
                             val resolvedName = uiState.platformNameMap[stat.packageName]
                                 ?: stat.platform
                             val chipColor = getPlatformColor(resolvedName, stat.packageName)
@@ -243,8 +297,7 @@ fun HomeScreen(
                                 leadingIcon = {
                                     Box(
                                         modifier = Modifier
-                                            .width(8.dp)
-                                            .height(8.dp)
+                                            .size(8.dp)
                                             .clip(RoundedCornerShape(2.dp))
                                             .background(chipColor)
                                     )
@@ -258,10 +311,10 @@ fun HomeScreen(
                     }
                 }
 
-                // Notifications list
+                // ── Notifications list ─────────────────────────────────
                 if (uiState.notifications.isEmpty()) {
                     item {
-                        EmptyState(
+                        AnimatedEmptyState(
                             icon = Icons.Default.NotificationsActive,
                             title = "No notifications yet",
                             subtitle = "Notifications from delivery partner apps will appear here once captured"
@@ -272,10 +325,8 @@ fun HomeScreen(
                         items = uiState.notifications,
                         key = { it.id }
                     ) { notification ->
-                        // Resolve display name from the platformNameMap
                         val resolvedName = uiState.platformNameMap[notification.packageName]
                             ?: notification.platform
-                        // Stable onClick lambda — remembered per notification ID
                         val notificationId = notification.id
                         val onClick = remember(notificationId) {
                             { id: Long ->
@@ -293,8 +344,84 @@ fun HomeScreen(
                 }
 
                 // Bottom spacer
-                item { Spacer(modifier = Modifier.height(16.dp)) }
+                item { Spacer(modifier = Modifier.height(24.dp)) }
             }
         }
+    }
+}
+
+/**
+ * Animated empty state with a gentle floating animation on the icon.
+ */
+@Composable
+private fun AnimatedEmptyState(
+    icon: ImageVector,
+    title: String,
+    subtitle: String,
+    modifier: Modifier = Modifier
+) {
+    val infiniteTransition = rememberInfiniteTransition(label = "emptyStateFloat")
+    val floatOffset by infiniteTransition.animateFloat(
+        initialValue = -8f,
+        targetValue = 8f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 2000, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "floatOffset"
+    )
+
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(32.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        // Floating icon with glow effect
+        Box(
+            modifier = Modifier
+                .size(96.dp)
+                .graphicsLayer { translationY = floatOffset },
+            contentAlignment = Alignment.Center
+        ) {
+            // Glow background
+            Box(
+                modifier = Modifier
+                    .size(80.dp)
+                    .clip(RoundedCornerShape(24.dp))
+                    .background(
+                        Brush.radialGradient(
+                            colors = listOf(
+                                MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
+                                Color.Transparent
+                            ),
+                            center = Offset(40f, 40f),
+                            radius = 80f
+                        )
+                    )
+            )
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                modifier = Modifier.size(56.dp),
+                tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
+            )
+        }
+        Spacer(modifier = Modifier.height(20.dp))
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = subtitle,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+            textAlign = TextAlign.Center
+        )
     }
 }

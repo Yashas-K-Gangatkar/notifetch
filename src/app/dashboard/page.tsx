@@ -250,7 +250,7 @@ export default function DashboardPage() {
             </span>
             <div className="flex items-center gap-2">
               {session.user.image ? (
-                <img src={session.user.image} alt="" className="w-8 h-8 rounded-full ring-2 ring-amber-500/30" />
+                <img src={session.user.image} alt="Your profile picture" className="w-8 h-8 rounded-full ring-2 ring-amber-500/30" />
               ) : (
                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center ring-2 ring-amber-500/30">
                   <span className="text-xs text-white font-bold">{initials}</span>

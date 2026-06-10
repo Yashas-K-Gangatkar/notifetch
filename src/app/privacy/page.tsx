@@ -73,7 +73,7 @@ const sections: Section[] = [
         heading: "Controller Details",
         items: [
           'Entity Name: NotiFetch, Inc.',
-          'App Website: https://d2-liart-nine.vercel.app',
+          'App Website: https://notifetch.app',
           'Support Email: support@notifetch.app',
           'Legal Inquiries: legal@notifetch.app',
           'Data Protection Officer (GDPR): dpo@notifetch.app',
@@ -545,7 +545,7 @@ const sections: Section[] = [
     content: [
       {
         paragraphs: [
-          "We may update this Privacy Policy from time to time to reflect changes in our practices, technologies, legal requirements, or other factors. When we make material changes to this policy, we will notify you through one or more of the following methods: a prominent notice within the NotiFetch application, an email notification to the address associated with your account, or a notification on our website at https://d2-liart-nine.vercel.app.",
+          "We may update this Privacy Policy from time to time to reflect changes in our practices, technologies, legal requirements, or other factors. When we make material changes to this policy, we will notify you through one or more of the following methods: a prominent notice within the NotiFetch application, an email notification to the address associated with your account, or a notification on our website at https://notifetch.app.",
           "In compliance with the DPDP Act Section 8 (notice of changes to processing practices) and GDPR Article 13(3) (obligation to inform data subjects of changes), we will provide you with notice of material changes at least 15 days before they take effect. For changes that require new consent under the GDPR or the DPDP Act, we will obtain your affirmative consent before implementing the changes. Your continued use of the Service after the effective date of any changes constitutes your acceptance of the updated Privacy Policy.",
           "We maintain a version history of this Privacy Policy, and you may request a copy of any previous version by contacting us at support@notifetch.app. The \"Last Updated\" date at the top of this policy always reflects the date of the most recent revision. We encourage you to review this policy periodically to stay informed about how we protect your data.",
         ],
@@ -570,7 +570,7 @@ const sections: Section[] = [
           "Legal inquiries: legal@notifetch.app",
           "Security concerns and vulnerability reports: security@notifetch.app",
           "CCPA rights requests: privacy@notifetch.app (California residents may also call our toll-free number at 1-800-NOTI-FETCH)",
-          "App Website: https://d2-liart-nine.vercel.app",
+          "App Website: https://notifetch.app",
         ],
       },
       {

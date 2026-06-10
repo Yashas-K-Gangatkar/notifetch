@@ -352,10 +352,13 @@ export default function NotificationsPage() {
               return (
                 <Card
                   key={notification.id}
+                  role="button"
+                  tabIndex={0}
                   className={`rounded-xl transition-all hover:shadow-md hover:border-amber-500/20 cursor-pointer ${
                     !notification.isRead ? "border-amber-500/30 bg-amber-500/[0.02]" : ""
                   }`}
                   onClick={() => handleMarkAsRead(notification.id, notification.isRead)}
+                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") handleMarkAsRead(notification.id, notification.isRead); }}
                 >
                   <CardContent className="p-4">
                     <div className="flex items-start gap-3">

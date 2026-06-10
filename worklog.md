@@ -1,6 +1,42 @@
 # Worklog
 
 ---
+Task ID: 4
+Agent: Main
+Task: Fix Vercel preview URL references and accessibility violations
+
+Work Log:
+- Read worklog.md and all relevant source files
+- Fix 1: Replaced ALL occurrences of `d2-liart-nine.vercel.app` with `notifetch.app` across 6 files:
+  - src/app/privacy/page.tsx (3 occurrences: lines 76, 548, 573)
+  - src/app/terms/page.tsx (7 occurrences: lines 166, 585, 1084, 1156, 1157, 1163, 1164)
+  - vercel.json (1 occurrence: NEXTAUTH_URL env var)
+  - twa/twa-manifest.json (3 occurrences: iconUrl, maskableIconUrl, webManifestUrl)
+  - android-app/app/src/main/java/com/notifetch/app/ApiClient.kt (2 occurrences: doc comment + BASE_URL)
+  - notifetch-android/app/src/main/java/com/notifetch/app/util/Constants.kt (1 occurrence: BASE_URL)
+  - Checked src/app/legal/page.tsx, src/lib/auth.ts, public/sw.js, notifetch-android/.../NotiFetchApi.kt — no occurrences found
+- Fix 2a: Added skip navigation link to src/app/layout.tsx:
+  - Added `<a href="#main-content">Skip to main content</a>` before ThemeProvider with sr-only/focus styles
+  - Wrapped `{children}` in `<div id="main-content">`
+- Fix 2b: Fixed interactive divs in src/app/dashboard/notifications/page.tsx:
+  - Added `role="button"`, `tabIndex={0}`, and `onKeyDown` handler to notification Card components
+  - onKeyDown calls handleMarkAsRead on Enter or Space key press
+- Fix 2c: Removed userScalable: false from viewport metadata in src/app/layout.tsx:
+  - Changed `userScalable: false` to `userScalable: true`
+  - Changed `maximumScale: 1` to `maximumScale: 5` (WCAG 1.4.4 compliance)
+- Fix 2d: Added meaningful alt text to user avatar in src/app/dashboard/page.tsx:
+  - Changed `alt=""` to `alt="Your profile picture"` on the img element
+- Verified build passes: ✓ Compiled successfully, 32/32 static pages generated
+
+Stage Summary:
+- Replaced all Vercel preview URLs with production domain notifetch.app (6 files, 17+ occurrences)
+- Added skip-to-content link and main-content landmark for keyboard/screen reader navigation
+- Made notification cards keyboard-accessible (role=button, tabIndex, onKeyDown)
+- Fixed WCAG zoom/pinch accessibility violation (userScalable: true, maximumScale: 5)
+- Added meaningful alt text to user avatar image
+- All fixes verified with successful Next.js build
+
+---
 Task ID: 1
 Agent: Main
 Task: Fix Razorpay payment flow - "Razorpay SDK failed to load" error
@@ -171,3 +207,60 @@ Stage Summary:
 - Social proof builds trust with key metrics (28+ platforms, 30s setup, 0 credentials, 24/7 alerts)
 - Download App CTA gives visitors a direct path to install
 - Files changed: page.tsx, dashboard-section.tsx, hero-section.tsx, data.ts
+
+---
+Task ID: 5
+Agent: Android UI Agent
+Task: Modernize NotiFetch Android app visual design — world-class UI overhaul
+
+Work Log:
+- Read worklog.md and all relevant Android source files (Color.kt, Theme.kt, Type.kt, HomeScreen.kt, NotificationCard.kt, StatCard.kt, SearchBar.kt, EmptyState.kt, CategoryBadge.kt, PlatformIcon.kt, NotiFetchScaffold.kt, HomeViewModel.kt)
+- Replaced Color.kt with modern Material 3 amber/orange color tokens matching web app branding
+  - New md_theme_light_* and md_theme_dark_* definitions (proper Material 3 spec colors)
+  - Added BrandGradientStart (Amber500) and BrandGradientEnd (Orange500) for gradient effects
+  - Preserved getPlatformColor() and parseHexColor() utility functions
+- Updated Theme.kt to use new color scheme
+  - Mapped all LightColorScheme and DarkColorScheme to new md_theme_* tokens
+  - Added errorContainer and onErrorContainer (previously missing)
+  - Changed dynamicColor default from false to true (Android 12+ Material You support)
+- Modernized HomeScreen.kt
+  - Added gradient top app bar (amber→orange horizontal gradient, white text/icons)
+  - Added animated sync icon rotation (0°→360° with tween animation)
+  - Added animated LinearProgressIndicator under app bar during sync
+  - Replaced static EmptyState with custom AnimatedEmptyState
+    - Floating animation (8px vertical oscillation, 2s cycle, LinearEasing)
+    - Radial gradient glow behind icon
+    - Larger 56dp icon with subtle tint
+  - Improved unread banner with Medium font weight
+  - Removed orphaned AnimatedVisibility block and unused EmptyState import
+- Modernized NotificationCard.kt
+  - Rounded corners 12dp → 16dp
+  - Added colored left border accent (4dp wide, vertical gradient fade)
+  - Uses IntrinsicSize.Min for border to fill full card height
+  - Platform icon in rounded square (12dp corners) with tinted background
+  - Platform name shown as colored chip (not just colored text)
+  - Added pulsing glow unread indicator (UnreadGlowDot)
+    - Core 6dp dot + 10dp pulsing glow ring
+    - 1.5s alpha oscillation between 0.3 and 1.0
+  - Read cards: 1dp shadow, 70% title opacity
+  - Unread cards: 4dp shadow with colored ambient/spot light
+  - InfoChip: 6dp rounded corners (was 4dp)
+- Modernized StatCard.kt
+  - Rounded corners 12dp → 16dp
+  - Custom shadow elevation instead of CardDefaults
+  - Icon in 44dp rounded square with gradient tint background
+  - Subtitle uses primary color and SemiBold weight
+  - Surface background instead of tinted primaryContainer
+- Refined SearchBar.kt
+  - Rounded corners 12dp → 14dp
+  - Dimmer placeholder (50% alpha), tinted search icon (primary at 60%)
+  - Explicit cursor color
+- Updated CategoryBadge.kt: 4dp → 6dp rounded corners for consistency
+- Syntax verification: all imports confirmed, no undefined references, brackets matched
+
+Stage Summary:
+- Complete visual overhaul of NotiFetch Android app from "old and boring" to modern design
+- New Material 3 color scheme with amber/orange branding matching web app
+- Gradient top app bar, animated empty state, pulsing glow indicators
+- Modern notification cards with colored border accent, platform chips, and enhanced shadows
+- All 7 files changed: Color.kt, Theme.kt, HomeScreen.kt, NotificationCard.kt, StatCard.kt, SearchBar.kt, CategoryBadge.kt

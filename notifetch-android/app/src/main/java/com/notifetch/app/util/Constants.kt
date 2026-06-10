@@ -3,7 +3,7 @@ package com.notifetch.app.util
 object Constants {
 
     const val DATABASE_NAME = "notifetch_db"
-    const val BASE_URL = "https://d2-liart-nine.vercel.app/"
+    const val BASE_URL = "https://notifetch.app/"
     const val NOTIFICATION_CHANNEL_ID = "notifetch_channel"
     const val NOTIFICATION_CHANNEL_NAME = "NotiFetch Service"
     const val SYNC_WORK_NAME = "notifetch_sync_work"
