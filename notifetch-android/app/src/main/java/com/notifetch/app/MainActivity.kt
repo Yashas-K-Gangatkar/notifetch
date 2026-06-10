@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -23,13 +24,19 @@ import androidx.navigation.navArgument
 import com.notifetch.app.notification.NotiFetchListenerService
 import com.notifetch.app.ui.components.NotiFetchScaffold
 import com.notifetch.app.ui.screens.ConsentScreen
+import com.notifetch.app.ui.screens.hasConsented
 import com.notifetch.app.ui.screens.HomeScreen
 import com.notifetch.app.ui.screens.NotificationDetailScreen
 import com.notifetch.app.ui.screens.PermissionScreen
 import com.notifetch.app.ui.screens.ProfileScreen
 import com.notifetch.app.ui.screens.SettingsScreen
 import com.notifetch.app.ui.theme.NotiFetchTheme
+import com.notifetch.app.ui.viewmodel.SettingsViewModel
+import com.notifetch.app.ui.viewmodel.settingsDataStore
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.collect
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -37,7 +44,15 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            NotiFetchTheme {
+            val activityContext = this@MainActivity
+            // Read dark mode preference
+            var darkMode by remember { mutableStateOf(false) }
+            LaunchedEffect(Unit) {
+                activityContext.settingsDataStore.data.map { prefs ->
+                    prefs[SettingsViewModel.DARK_MODE_KEY] ?: false
+                }.collect { darkMode = it }
+            }
+            NotiFetchTheme(darkTheme = darkMode) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
@@ -55,6 +70,23 @@ fun NotiFetchNavHost() {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route ?: "home"
     val context = LocalContext.current
+    var startDestination by remember { mutableStateOf<String?>(null) }
+
+    // Check consent and notification status to determine start destination
+    LaunchedEffect(Unit) {
+        val consented = hasConsented(context)
+        val listenerEnabled = NotiFetchListenerService.isListenerEnabled(context)
+        startDestination = when {
+            !consented -> "consent"
+            !listenerEnabled -> "permission"
+            else -> "home"
+        }
+    }
+
+    if (startDestination == null) {
+        // Loading state while checking consent
+        return
+    }
 
     val showBottomBar = currentRoute in listOf("home", "settings", "profile")
 
@@ -73,7 +105,7 @@ fun NotiFetchNavHost() {
     ) {
         NavHost(
             navController = navController,
-            startDestination = "consent",
+            startDestination = startDestination!!,
             modifier = Modifier.fillMaxSize()
         ) {
             // ── Consent screen (FIRST — shown before any data collection) ──

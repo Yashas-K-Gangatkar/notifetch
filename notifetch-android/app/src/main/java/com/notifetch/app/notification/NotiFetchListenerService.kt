@@ -16,6 +16,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -44,6 +46,10 @@ class NotiFetchListenerService : NotificationListenerService() {
 
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val tag = "NotiFetchListener"
+
+    // Debounce sync — instead of syncing ALL pending on every notification,
+    // wait 5 seconds after the last notification before syncing
+    private var syncJob: kotlinx.coroutines.Job? = null
 
     companion object {
         // Use the comprehensive package list from Constants
@@ -168,8 +174,12 @@ class NotiFetchListenerService : NotificationListenerService() {
                     val id = repository.insertNotification(capturedNotification)
                     Log.d(tag, "Saved notification #$id from $platformName [${parsed.category}] ($currency)")
 
-                    // Try to sync to backend
-                    syncToBackend(capturedNotification.copy(id = id))
+                    // Debounced sync — cancel previous, wait 5s, then sync all pending
+                    syncJob?.cancel()
+                    syncJob = serviceScope.launch {
+                        delay(5000)
+                        syncToBackend()
+                    }
                 } catch (e: Exception) {
                     Log.e(tag, "Failed to save notification from $platformName", e)
                 }
@@ -185,20 +195,25 @@ class NotiFetchListenerService : NotificationListenerService() {
 
     override fun onListenerDisconnected() {
         super.onListenerDisconnected()
+        serviceScope.cancel()
         Log.w(tag, "Notification listener disconnected")
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        serviceScope.cancel()
+    }
+
     /**
-     * Attempt to forward the captured notification to the NotiFetch backend.
-     * If it fails, it will remain marked as unsynced and be picked up
-     * by the periodic sync WorkManager task.
+     * Attempt to forward all unsynced notifications to the NotiFetch backend.
+     * Debounced — called 5 seconds after the last notification capture.
      */
-    private suspend fun syncToBackend(notification: CapturedNotification) {
+    private suspend fun syncToBackend() {
         try {
             repository.syncPendingNotifications()
-            Log.d(tag, "Synced notification from ${notification.platform}")
+            Log.d(tag, "Debounced sync completed")
         } catch (e: Exception) {
-            Log.e(tag, "Failed to sync notification to backend", e)
+            Log.e(tag, "Failed to sync notifications to backend", e)
         }
     }
 }

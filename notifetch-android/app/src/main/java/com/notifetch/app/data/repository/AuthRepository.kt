@@ -34,8 +34,10 @@ class AuthRepository @Inject constructor(
         return try {
             val credential = GoogleAuthProvider.getCredential(idToken, null)
             val result = firebaseAuth.signInWithCredential(credential).await()
-            val uid = result.user?.uid ?: ""
-            val token = result.user?.getIdToken(true)?.await()?.token ?: ""
+            val uid = result.user?.uid
+                ?: return Result.failure(Exception("User ID is null after sign-in"))
+            val token = result.user?.getIdToken(true)?.await()?.token
+                ?: return Result.failure(Exception("Auth token is null after sign-in"))
             saveToken(token)
             saveUserId(uid)
             Result.success(uid)
@@ -50,8 +52,10 @@ class AuthRepository @Inject constructor(
     suspend fun signInWithEmailLink(email: String, emailLink: String): Result<String> {
         return try {
             val result = firebaseAuth.signInWithEmailLink(email, emailLink).await()
-            val uid = result.user?.uid ?: ""
-            val token = result.user?.getIdToken(true)?.await()?.token ?: ""
+            val uid = result.user?.uid
+                ?: return Result.failure(Exception("User ID is null after sign-in"))
+            val token = result.user?.getIdToken(true)?.await()?.token
+                ?: return Result.failure(Exception("Auth token is null after sign-in"))
             saveToken(token)
             saveUserId(uid)
             Result.success(uid)
@@ -66,8 +70,10 @@ class AuthRepository @Inject constructor(
     suspend fun signInAnonymously(): Result<String> {
         return try {
             val result = firebaseAuth.signInAnonymously().await()
-            val uid = result.user?.uid ?: ""
-            val token = result.user?.getIdToken(true)?.await()?.token ?: ""
+            val uid = result.user?.uid
+                ?: return Result.failure(Exception("User ID is null after sign-in"))
+            val token = result.user?.getIdToken(true)?.await()?.token
+                ?: return Result.failure(Exception("Auth token is null after sign-in"))
             saveToken(token)
             saveUserId(uid)
             Result.success(uid)
@@ -77,10 +83,14 @@ class AuthRepository @Inject constructor(
     }
 
     /**
-     * Sign out from Firebase.
+     * Sign out from Firebase and clear stored credentials.
      */
-    fun signOut() {
+    suspend fun signOut() {
         firebaseAuth.signOut()
+        context.dataStore.edit { prefs ->
+            prefs.remove(TOKEN_KEY)
+            prefs.remove(USER_ID_KEY)
+        }
     }
 
     suspend fun getCurrentToken(): String? {

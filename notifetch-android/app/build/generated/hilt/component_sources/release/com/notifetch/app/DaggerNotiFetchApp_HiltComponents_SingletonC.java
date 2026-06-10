@@ -510,7 +510,7 @@ public final class DaggerNotiFetchApp_HiltComponents_SingletonC {
           return (T) new ProfileViewModel(singletonCImpl.authRepositoryProvider.get(), singletonCImpl.notificationRepositoryProvider.get(), singletonCImpl.provideGoogleSignInClientProvider.get(), singletonCImpl.provideFirebaseAuthProvider.get());
 
           case 3: // com.notifetch.app.ui.viewmodel.SettingsViewModel 
-          return (T) new SettingsViewModel(singletonCImpl.notificationRepositoryProvider.get());
+          return (T) new SettingsViewModel(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule), singletonCImpl.notificationRepositoryProvider.get());
 
           default: throw new AssertionError(id);
         }

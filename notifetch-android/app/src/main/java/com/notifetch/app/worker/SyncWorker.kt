@@ -22,12 +22,16 @@ class SyncWorker @AssistedInject constructor(
         Log.d(tag, "Starting notification sync...")
         return try {
             val result = repository.syncPendingNotifications()
-            result.onSuccess { count ->
-                Log.d(tag, "Sync completed: $count notifications synced")
-            }.onFailure { error ->
-                Log.e(tag, "Sync failed: ${error.message}")
-            }
-            Result.success()
+            result.fold(
+                onSuccess = { count ->
+                    Log.d(tag, "Sync completed: $count notifications synced")
+                    Result.success()
+                },
+                onFailure = { error ->
+                    Log.e(tag, "Sync failed: ${error.message}")
+                    if (runAttemptCount < 3) Result.retry() else Result.failure()
+                }
+            )
         } catch (e: Exception) {
             Log.e(tag, "Sync worker error", e)
             if (runAttemptCount < 3) {

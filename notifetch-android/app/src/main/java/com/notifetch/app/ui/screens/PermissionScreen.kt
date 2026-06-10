@@ -32,6 +32,10 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -46,7 +50,17 @@ fun PermissionScreen(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    val isListenerEnabled = NotiFetchListenerService.isListenerEnabled(context)
+    var isListenerEnabled by remember { mutableStateOf(NotiFetchListenerService.isListenerEnabled(context)) }
+
+    // Poll listener status so it updates when user returns from system settings
+    LaunchedEffect(Unit) {
+        while (true) {
+            kotlinx.coroutines.delay(1000)
+            val enabled = NotiFetchListenerService.isListenerEnabled(context)
+            isListenerEnabled = enabled
+            if (enabled) break // Stop polling once enabled
+        }
+    }
 
     // Auto-navigate when permission is granted
     LaunchedEffect(isListenerEnabled) {

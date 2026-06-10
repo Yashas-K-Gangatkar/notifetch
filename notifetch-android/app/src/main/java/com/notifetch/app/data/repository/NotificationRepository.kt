@@ -9,6 +9,7 @@ import com.notifetch.app.data.remote.NotiFetchApi
 import com.notifetch.app.data.remote.NotificationPayload
 import com.notifetch.app.util.Constants
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -167,19 +168,21 @@ class NotificationRepository @Inject constructor(
         platformConfigDao.updateEnabled(packageName, isEnabled)
 
     suspend fun initializePlatformConfigs() {
-        val existing = platformConfigDao.getConfigByPackage(
-            Constants.PARTNER_PACKAGES.keys.first()
-        )
-        if (existing != null) return
-
-        val configs = Constants.PARTNER_PACKAGES.map { (packageName, displayName) ->
-            PlatformConfig(
-                packageName = packageName,
-                displayName = displayName,
-                isEnabled = true
-            )
+        // Add any NEW platforms that don't already exist in the database
+        // This ensures platforms added in app updates are created
+        val existingPackages = platformConfigDao.getAllConfigs().first().map { it.packageName }.toSet()
+        val newConfigs = Constants.PARTNER_PACKAGES
+            .filterKeys { it !in existingPackages }
+            .map { (packageName, displayName) ->
+                PlatformConfig(
+                    packageName = packageName,
+                    displayName = displayName,
+                    isEnabled = true
+                )
+            }
+        if (newConfigs.isNotEmpty()) {
+            platformConfigDao.upsertConfigs(newConfigs)
         }
-        platformConfigDao.upsertConfigs(configs)
     }
 
     private fun CapturedNotification.toPayload(): NotificationPayload {

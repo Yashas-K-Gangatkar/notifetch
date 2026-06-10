@@ -128,7 +128,7 @@ fun NotificationCard(
                     ) {
                         if (notification.orderValue != null) {
                             InfoChip(
-                                text = Helpers.formatCurrency(notification.orderValue),
+                                text = Helpers.formatCurrency(notification.orderValue, notification.currency),
                                 color = MaterialTheme.colorScheme.primary
                             )
                         }

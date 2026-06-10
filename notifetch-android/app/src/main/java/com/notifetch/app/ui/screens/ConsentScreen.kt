@@ -1,5 +1,6 @@
 package com.notifetch.app.ui.screens
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -32,13 +33,23 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
 import androidx.compose.ui.platform.LocalContext
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -58,6 +69,8 @@ import androidx.compose.ui.unit.dp
  * 4. Their rights (delete data anytime, export data, revoke consent)
  * 5. Their responsibility (comply with delivery platform ToS)
  */
+val Context.consentDataStore: DataStore<Preferences> by preferencesDataStore(name = "consent_prefs")
+
 @Composable
 fun ConsentScreen(
     onConsentGranted: () -> Unit,
@@ -65,6 +78,7 @@ fun ConsentScreen(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
     var consentDataCollection by remember { mutableStateOf(false) }
     var consentNoAffiliation by remember { mutableStateOf(false) }
@@ -169,7 +183,15 @@ fun ConsentScreen(
 
         // Continue button
         Button(
-            onClick = onConsentGranted,
+            onClick = {
+                // Persist consent to DataStore so it's not shown again
+                scope.launch {
+                    context.consentDataStore.edit { prefs ->
+                        prefs[CONSENT_GRANTED_KEY] = true
+                    }
+                }
+                onConsentGranted()
+            },
             enabled = allConsentsGiven,
             modifier = Modifier
                 .fillMaxWidth()
@@ -277,5 +299,13 @@ private fun ConsentCard(
             }
         }
     }
+}
+
+
+private val CONSENT_GRANTED_KEY = booleanPreferencesKey("consent_granted")
+
+/** Check if user has already granted consent (for skipping consent screen on relaunch) */
+suspend fun hasConsented(context: Context): Boolean {
+    return context.consentDataStore.data.map { it[CONSENT_GRANTED_KEY] == true }.first()
 }
 

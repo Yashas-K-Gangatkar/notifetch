@@ -223,8 +223,12 @@ class HomeViewModel @Inject constructor(
     fun refresh() {
         viewModelScope.launch {
             _isRefreshing.value = true
-            // Allow Room flows to emit before turning off refresh indicator
-            kotlinx.coroutines.delay(300)
+            // Trigger a real sync and wait for it
+            try {
+                repository.syncPendingNotifications()
+            } catch (_: Exception) { }
+            // Brief delay to let Room flows emit updated data
+            kotlinx.coroutines.delay(100)
             _isRefreshing.value = false
         }
     }

@@ -14,7 +14,8 @@ import javax.inject.Inject
 
 data class NotificationDetailUiState(
     val notification: CapturedNotification? = null,
-    val isLoading: Boolean = true
+    val isLoading: Boolean = true,
+    val resolvedDisplayName: String? = null
 )
 
 @HiltViewModel
@@ -28,10 +29,6 @@ class NotificationDetailViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(NotificationDetailUiState())
     val uiState: StateFlow<NotificationDetailUiState> = _uiState.asStateFlow()
 
-    // Resolved display name (custom → default) for the notification's platform
-    var resolvedDisplayName: String? = null
-        private set
-
     init {
         loadNotification()
     }
@@ -39,17 +36,19 @@ class NotificationDetailViewModel @Inject constructor(
     private fun loadNotification() {
         viewModelScope.launch {
             repository.getNotificationById(notificationId).collect { notification ->
+                // Resolve the display name through the PlatformConfig
+                val resolvedName = if (notification != null) {
+                    repository.getResolvedDisplayName(notification.packageName)
+                } else null
+
                 _uiState.value = NotificationDetailUiState(
                     notification = notification,
-                    isLoading = false
+                    isLoading = false,
+                    resolvedDisplayName = resolvedName
                 )
                 // Mark as read
                 if (notification != null && !notification.isRead) {
                     repository.markAsRead(notification.id)
-                }
-                // Resolve the display name through the PlatformConfig
-                if (notification != null) {
-                    resolvedDisplayName = repository.getResolvedDisplayName(notification.packageName)
                 }
             }
         }

@@ -111,7 +111,9 @@ object Helpers {
         for (pattern in patterns) {
             val match = pattern.find(text)
             if (match != null) {
-                val numStr = match.groupValues[1].replace(",", "")
+                // Use last capture group — currency patterns have 1 group,
+                // keyword patterns (earn/payout/etc.) have 2 groups where the number is group 2
+                val numStr = match.groupValues.last().replace(",", "")
                 return numStr.toDoubleOrNull()
             }
         }
@@ -122,7 +124,7 @@ object Helpers {
         val patterns = listOf(
             Regex("""(\d+(?:\.\d+)?)\s*(km|kilometers?)\b""", RegexOption.IGNORE_CASE),
             Regex("""(\d+(?:\.\d+)?)\s*(mi|miles?)\b""", RegexOption.IGNORE_CASE),
-            Regex("""(\d+(?:\.\d+)?)\s*m\b""", RegexOption.IGNORE_CASE), // meters
+            Regex("""(\d+(?:\.\d+)?)\s*(?:meter|meters?)\b""", RegexOption.IGNORE_CASE),
         )
         for (pattern in patterns) {
             val match = pattern.find(text)
