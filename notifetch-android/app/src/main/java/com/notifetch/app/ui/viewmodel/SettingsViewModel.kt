@@ -161,9 +161,11 @@ class SettingsViewModel @Inject constructor(
                 )
                 .build()
 
+            // Use REPLACE instead of KEEP so that interval changes actually take effect.
+            // KEEP would ignore the new interval if work is already scheduled.
             workManager.enqueueUniquePeriodicWork(
                 Constants.SYNC_WORK_NAME,
-                ExistingPeriodicWorkPolicy.KEEP,
+                ExistingPeriodicWorkPolicy.REPLACE,
                 syncWork
             )
         }

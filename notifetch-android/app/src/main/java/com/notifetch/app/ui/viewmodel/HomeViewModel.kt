@@ -123,8 +123,10 @@ class HomeViewModel @Inject constructor(
         _selectedPlatform
     ) { notifications, query, platform ->
         var result = notifications
+        // Filter by packageName (stable identifier, not display name)
+        // This ensures filtering works correctly even when users rename platforms
         if (platform != null) {
-            result = result.filter { it.platform == platform }
+            result = result.filter { it.packageName == platform }
         }
         if (query.isNotBlank()) {
             result = result.filter {

@@ -213,7 +213,7 @@ fun HomeScreen(
                     )
                 }
 
-                // Platform filter chips — use resolved display names
+                // Platform filter chips — use packageName for stable identification
                 item {
                     FlowRow(
                         modifier = Modifier
@@ -232,10 +232,13 @@ fun HomeScreen(
                             )
                         )
                         uiState.platformStats.forEach { stat ->
-                            val resolvedName = stat.platform
+                            // Resolve display name from platformNameMap (custom → default)
+                            val resolvedName = uiState.platformNameMap[stat.packageName]
+                                ?: stat.platform
+                            val chipColor = getPlatformColor(resolvedName, stat.packageName)
                             FilterChip(
-                                selected = uiState.selectedPlatform == stat.platform,
-                                onClick = { viewModel.onPlatformFilterChange(stat.platform) },
+                                selected = uiState.selectedPlatform == stat.packageName,
+                                onClick = { viewModel.onPlatformFilterChange(stat.packageName) },
                                 label = { Text("$resolvedName (${stat.count})") },
                                 leadingIcon = {
                                     Box(
@@ -243,12 +246,12 @@ fun HomeScreen(
                                             .width(8.dp)
                                             .height(8.dp)
                                             .clip(RoundedCornerShape(2.dp))
-                                            .background(getPlatformColor(resolvedName))
+                                            .background(chipColor)
                                     )
                                 },
                                 colors = FilterChipDefaults.filterChipColors(
-                                    selectedContainerColor = getPlatformColor(resolvedName).copy(alpha = 0.15f),
-                                    selectedLabelColor = getPlatformColor(resolvedName)
+                                    selectedContainerColor = chipColor.copy(alpha = 0.15f),
+                                    selectedLabelColor = chipColor
                                 )
                             )
                         }
