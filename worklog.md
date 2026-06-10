@@ -75,3 +75,29 @@ Stage Summary:
 - Dark mode toggle fixed with explicit amber-500 checked state styling
 - Razorpay integration supports 4 plan types with retry logic
 - User needs to add RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET in Vercel Dashboard for payments to work
+
+---
+Task ID: 2
+Agent: Super Z (Main)
+Task: Fix platform selection, Razorpay CSP, consolidated pricing, dark mode
+
+Work Log:
+- Found ROOT CAUSE of "Failed to load Razorpay" error: Content Security Policy in next.config.ts blocks checkout.razorpay.com
+- Fixed CSP by adding checkout.razorpay.com to script-src, frame-src, connect-src, and img-src
+- Rewrote subscribe page: platform selection now ALWAYS visible (even for free plan with 2 platforms)
+- Added "Confirm & Get Notifications" button that saves platform preferences to NotificationSource table
+- Updated RazorpayCheckout component to accept and pass selectedPlatforms prop
+- Updated create-order API to pass selectedPlatforms through to Razorpay order notes
+- Updated verify payment API to save selected platforms as NotificationSource records after successful payment
+- Updated razorpay.ts CreateOrderParams to include selectedPlatforms
+- Fixed dark mode Save Settings button z-index (added relative z-10)
+- Build verified successfully
+- Pushed to GitHub main and release/v2.2.1 branches
+
+Stage Summary:
+- Platform selection works for ALL plan tiers (Free=2, Starter=5, Pro=8, Premium=unlimited)
+- Users can select, confirm, and get notifications from chosen platforms
+- Razorpay script loading fixed via CSP update
+- After payment, selected platforms are automatically saved as NotificationSource records
+- Dark mode styling improved for settings section
+- CRITICAL: User must add RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET to .env and Vercel Dashboard
