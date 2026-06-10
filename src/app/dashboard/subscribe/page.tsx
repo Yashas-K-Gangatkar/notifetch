@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import {
   Zap, ArrowLeft, Check, Crown, Rocket, Sparkles,
-  Bell, Globe, Headphones, Infinity, Shield, Star
+  Bell, Globe, Headphones, Infinity, Shield, Star, Gem
 } from "lucide-react";
 import { BackButton } from "@/components/back-button";
 import { RazorpayCheckout } from "@/components/razorpay-checkout";
@@ -81,7 +81,7 @@ export default function SubscribePage() {
         </div>
       </nav>
 
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12">
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12">
         {/* Header */}
         <div className="text-center mb-10">
           <h2 className="text-3xl font-bold mb-3">Choose Your Plan</h2>
@@ -91,7 +91,7 @@ export default function SubscribePage() {
         </div>
 
         {/* Plans grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Free Plan */}
           <Card className={`relative ${currentPlan === "free" ? "border-amber-500/50" : ""}`}>
             {currentPlan === "free" && (
@@ -101,39 +101,39 @@ export default function SubscribePage() {
             )}
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Rocket className="w-6 h-6 text-gray-500" />
+                <Rocket className="w-5 h-5 text-gray-500" />
                 Free
               </CardTitle>
               <div className="mt-2">
-                <span className="text-4xl font-bold">₹0</span>
-                <span className="text-muted-foreground">/month</span>
+                <span className="text-3xl font-bold">₹0</span>
+                <span className="text-muted-foreground text-sm">/month</span>
               </div>
-              <p className="text-sm text-muted-foreground mt-1">
-                Perfect for getting started with NotiFetch.
+              <p className="text-xs text-muted-foreground mt-1">
+                Get started with basic notifications.
               </p>
             </CardHeader>
             <CardContent>
               <Separator className="mb-4" />
-              <ul className="space-y-3">
+              <ul className="space-y-2">
                 {[
                   { label: "50 notifications/day", included: true },
                   { label: "1 platform", included: true },
                   { label: "Basic dashboard", included: true },
-                  { label: "All platforms", included: false },
+                  { label: "5 platforms", included: false },
+                  { label: "8 platforms", included: false },
                   { label: "Priority support", included: false },
-                  { label: "Advanced analytics", included: false },
                 ].map((feature) => (
-                  <li key={feature.label} className={`flex items-center gap-2 text-sm ${!feature.included ? "opacity-40" : ""}`}>
+                  <li key={feature.label} className={`flex items-center gap-2 text-xs ${!feature.included ? "opacity-40" : ""}`}>
                     {feature.included ? (
-                      <Check className="w-4 h-4 text-emerald-500 shrink-0" />
+                      <Check className="w-3 h-3 text-emerald-500 shrink-0" />
                     ) : (
-                      <span className="w-4 h-4 shrink-0" />
+                      <span className="w-3 h-3 shrink-0" />
                     )}
                     {feature.label}
                   </li>
                 ))}
               </ul>
-              <div className="mt-6">
+              <div className="mt-4">
                 <Button
                   variant="outline"
                   className="w-full"
@@ -141,6 +141,67 @@ export default function SubscribePage() {
                 >
                   {currentPlan === "free" ? "Current Plan" : "Downgrade"}
                 </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Starter Plan */}
+          <Card className={`relative ${currentPlan === "starter" ? "border-amber-500 ring-2 ring-amber-500/20" : ""}`}>
+            {currentPlan === "starter" && (
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                <Badge className="bg-amber-500 text-white">Current Plan</Badge>
+              </div>
+            )}
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Zap className="w-5 h-5 text-blue-500" />
+                Starter
+              </CardTitle>
+              <div className="mt-2">
+                <span className="text-3xl font-bold">₹199</span>
+                <span className="text-muted-foreground text-sm">/month</span>
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                For drivers using a few platforms.
+              </p>
+            </CardHeader>
+            <CardContent>
+              <Separator className="mb-4" />
+              <ul className="space-y-2">
+                {[
+                  { label: "200 notifications/day", included: true },
+                  { label: "5 platforms", included: true },
+                  { label: "Advanced dashboard", included: true },
+                  { label: "8 platforms", included: false },
+                  { label: "Priority support", included: false },
+                  { label: "Advanced analytics", included: false },
+                ].map((feature) => (
+                  <li key={feature.label} className={`flex items-center gap-2 text-xs ${!feature.included ? "opacity-40" : ""}`}>
+                    {feature.included ? (
+                      <Check className="w-3 h-3 text-blue-500 shrink-0" />
+                    ) : (
+                      <span className="w-3 h-3 shrink-0" />
+                    )}
+                    {feature.label}
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-4">
+                {currentPlan === "starter" ? (
+                  <Button variant="outline" className="w-full" disabled>
+                    Current Plan
+                  </Button>
+                ) : (
+                  <RazorpayCheckout
+                    plan="starter"
+                    period="monthly"
+                    currentPlan={currentPlan}
+                    onSuccess={() => fetchUser()}
+                    label="Upgrade — ₹199/mo"
+                    className="w-full"
+                    variant="outline"
+                  />
+                )}
               </div>
             </CardContent>
           </Card>
@@ -160,35 +221,39 @@ export default function SubscribePage() {
             </div>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Crown className="w-6 h-6 text-amber-500" />
+                <Crown className="w-5 h-5 text-amber-500" />
                 Pro
               </CardTitle>
               <div className="mt-2">
-                <span className="text-4xl font-bold">₹99</span>
-                <span className="text-muted-foreground">/month</span>
+                <span className="text-3xl font-bold">₹399</span>
+                <span className="text-muted-foreground text-sm">/month</span>
               </div>
-              <p className="text-sm text-muted-foreground mt-1">
-                For drivers who want unlimited notifications from all platforms.
+              <p className="text-xs text-muted-foreground mt-1">
+                For serious multi-platform drivers.
               </p>
             </CardHeader>
             <CardContent>
               <Separator className="mb-4" />
-              <ul className="space-y-3">
+              <ul className="space-y-2">
                 {[
                   { label: "Unlimited notifications", included: true },
-                  { label: "All platforms", included: true },
+                  { label: "8 platforms", included: true },
                   { label: "Advanced dashboard", included: true },
                   { label: "Priority support", included: true },
                   { label: "Advanced analytics", included: true },
-                  { label: "Early access to features", included: true },
+                  { label: "Early access", included: false },
                 ].map((feature) => (
-                  <li key={feature.label} className="flex items-center gap-2 text-sm">
-                    <Check className="w-4 h-4 text-amber-500 shrink-0" />
+                  <li key={feature.label} className={`flex items-center gap-2 text-xs ${!feature.included ? "opacity-40" : ""}`}>
+                    {feature.included ? (
+                      <Check className="w-3 h-3 text-amber-500 shrink-0" />
+                    ) : (
+                      <span className="w-3 h-3 shrink-0" />
+                    )}
                     {feature.label}
                   </li>
                 ))}
               </ul>
-              <div className="mt-6">
+              <div className="mt-4">
                 {currentPlan === "pro" ? (
                   <Button variant="outline" className="w-full" disabled>
                     Current Plan
@@ -199,8 +264,71 @@ export default function SubscribePage() {
                     period="monthly"
                     currentPlan={currentPlan}
                     onSuccess={() => fetchUser()}
-                    label={currentPlan === "free" ? "Upgrade to Pro — ₹99/mo" : "Upgrade to Pro"}
+                    label="Upgrade — ₹399/mo"
                     className="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-semibold"
+                    variant="default"
+                  />
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Premium Plan */}
+          <Card className={`relative ${currentPlan === "premium" ? "border-purple-500 ring-2 ring-purple-500/20" : "border-border"}`}>
+            {currentPlan === "premium" && (
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                <Badge className="bg-purple-500 text-white">Current Plan</Badge>
+              </div>
+            )}
+            <div className="absolute -top-3 right-4">
+              <Badge className="bg-gradient-to-r from-purple-500 to-pink-600 text-white">
+                <Gem className="w-3 h-3 mr-1" />
+                Best Value
+              </Badge>
+            </div>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Gem className="w-5 h-5 text-purple-500" />
+                Premium
+              </CardTitle>
+              <div className="mt-2">
+                <span className="text-3xl font-bold">₹599</span>
+                <span className="text-muted-foreground text-sm">/month</span>
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Unlimited everything for power users.
+              </p>
+            </CardHeader>
+            <CardContent>
+              <Separator className="mb-4" />
+              <ul className="space-y-2">
+                {[
+                  { label: "Unlimited notifications", included: true },
+                  { label: "All platforms", included: true },
+                  { label: "Advanced dashboard", included: true },
+                  { label: "Priority support", included: true },
+                  { label: "Advanced analytics", included: true },
+                  { label: "Early access to features", included: true },
+                ].map((feature) => (
+                  <li key={feature.label} className="flex items-center gap-2 text-xs">
+                    <Check className="w-3 h-3 text-purple-500 shrink-0" />
+                    {feature.label}
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-4">
+                {currentPlan === "premium" ? (
+                  <Button variant="outline" className="w-full" disabled>
+                    Current Plan
+                  </Button>
+                ) : (
+                  <RazorpayCheckout
+                    plan="premium"
+                    period="monthly"
+                    currentPlan={currentPlan}
+                    onSuccess={() => fetchUser()}
+                    label="Upgrade — ₹599/mo"
+                    className="w-full bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white font-semibold"
                     variant="default"
                   />
                 )}

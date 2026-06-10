@@ -10,7 +10,7 @@ import crypto from "crypto";
 
 // ─── Plan Pricing (in paise) ────────────────────────────────────────────────
 
-type Plan = "free" | "pro" | "premium";
+type Plan = "free" | "starter" | "pro" | "premium";
 type Period = "monthly" | "yearly";
 
 interface PlanPrice {
@@ -20,8 +20,9 @@ interface PlanPrice {
 
 const PLAN_PRICES: Record<Plan, PlanPrice> = {
   free: { monthly: 0, yearly: 0 },
-  pro: { monthly: 4900, yearly: 49000 },     // ₹49/month, ₹490/year
-  premium: { monthly: 9900, yearly: 99000 },  // ₹99/month, ₹990/year
+  starter: { monthly: 19900, yearly: 199000 },   // ₹199/month, ₹1990/year
+  pro: { monthly: 39900, yearly: 399000 },       // ₹399/month, ₹3990/year
+  premium: { monthly: 59900, yearly: 599000 },   // ₹599/month, ₹5990/year
 };
 
 /**
@@ -30,7 +31,7 @@ const PLAN_PRICES: Record<Plan, PlanPrice> = {
 export function getPlanPrice(plan: string, period: string = "monthly"): number {
   const planPrices = PLAN_PRICES[plan as Plan];
   if (!planPrices) {
-    throw new Error(`Invalid plan: ${plan}. Must be one of: free, pro, premium`);
+    throw new Error(`Invalid plan: ${plan}. Must be one of: free, starter, pro, premium`);
   }
   return planPrices[period as Period] ?? planPrices.monthly;
 }

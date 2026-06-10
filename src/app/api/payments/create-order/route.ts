@@ -33,9 +33,9 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { plan, period } = body;
 
-    if (!plan || !["pro", "premium"].includes(plan)) {
+    if (!plan || !["starter", "pro", "premium"].includes(plan)) {
       return NextResponse.json(
-        { error: "Invalid plan. Must be 'pro' or 'premium'." },
+        { error: "Invalid plan. Must be 'starter', 'pro', or 'premium'." },
         { status: 400 }
       );
     }
