@@ -7,6 +7,6 @@ public final class BuildConfig {
   public static final boolean DEBUG = false;
   public static final String APPLICATION_ID = "com.notifetch.app";
   public static final String BUILD_TYPE = "release";
-  public static final int VERSION_CODE = 10;
-  public static final String VERSION_NAME = "2.2.4";
+  public static final int VERSION_CODE = 11;
+  public static final String VERSION_NAME = "2.3.0";
 }

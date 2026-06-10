@@ -289,3 +289,206 @@ Stage Summary:
 - Multi-currency: 28 currencies supported with auto-detection
 - 10 incorrect package names corrected from original code
 - Legal compliance report saved to /home/z/my-project/LEGAL-COMPLIANCE-REPORT.md
+
+---
+Task ID: 3+4
+Agent: Bug Fix Agent
+Task: Fix currency detection (BUG #4) + extractOrderValue regex (BUG #5)
+
+Work Log:
+- Read Helpers.kt and NotiFetchListenerService.kt to understand current code
+- BUG #4 Fix: Currency Detection was broken — detectCurrency() used platform display name (e.g., "Swiggy Delivery") for region matching, which never contained region codes like "IN", "US"
+  - Changed detectCurrency() signature from (platform, text) to (packageName, platform, text)
+  - Added PLATFORM_CURRENCY_MAP: 50+ packageName → currency mappings covering India (INR), US (USD), UK (GBP), EU (EUR), Brazil (BRL), LATAM (COP), MENA (AED), SE Asia (SGD/IDR/PHP), Japan (JPY), Saudi (SAR), Australia (AUD)
+  - Primary lookup: packageName-based map (stable, not affected by user-customizable display names)
+  - Fallback: text content currency symbol detection (same as before but without broken platform name matching)
+  - Added "INR" to the text-based INR detection alongside "₹" and "Rs."
+- BUG #5 Fix: extractOrderValue() had two issues
+  - Removed keyword-based regex (earn|payout|fee|fare|trip) that caught raw numbers without currency symbols — these matched IDs, distances, order numbers, etc.
+  - Added Indian lakh format regex: ₹1,23,456 and ₹1,23,456.78 (pattern: \d{1,3}(?:,\d{2})*(?:,\d{3})*)
+  - Added Rs./INR prefix patterns with Indian lakh format support
+  - Added Brazilian Real format (dots for grouping, comma for decimal)
+  - Added Indonesian Rupiah format (dots for grouping, no decimal)
+  - Fixed number parsing: replace commas AND dots (for grouping) before toDoubleOrNull()
+- Updated call site in NotiFetchListenerService.kt: Helpers.detectCurrency(platformName, ...) → Helpers.detectCurrency(packageName, platformName, ...)
+
+Stage Summary:
+- 2 bugs fixed in Helpers.kt, 1 call site updated in NotiFetchListenerService.kt
+- Currency detection now reliable: packageName-based primary lookup (50+ packages), text symbol fallback
+- extractOrderValue no longer matches false positives from keyword regex
+- Indian lakh format (₹1,23,456) now correctly parsed
+
+---
+Task ID: 2 (sub-agent)
+Agent: General-Purpose Sub Agent
+Task: Fix notification_listener_config.xml — replace with all 65+ packages from Constants.kt
+
+Work Log:
+- Read existing notification_listener_config.xml: had only 15 packages, several incorrect (e.g., com.zepto.cafepartner, com.grofers.partnerapp, com.bigbasket.partnerapp, com.porter.porterpartner, com.rapido.captain, com.olacabs.driver, com.shadowfax.partner)
+- Replaced entire file with all 65 packages from PARTNER_PACKAGES in Constants.kt, organized by category:
+  - Food Delivery: 18 packages (Uber Eats, DoorDash, Grubhub, Deliveroo, Just Eat, Takeaway, Lieferando, foodpanda, Swiggy, Zomato, iFood, Rappi, Wolt, Glovo, Demaecan, Talabat, Menulog, Meituan)
+  - Grocery Delivery: 9 packages (Instacart, Gopuff, Blinkit, BigBasket, Mercado Envíos x2, Woolworths, Zepto, Flink, Shipt)
+  - Package & Parcel: 5 packages (Amazon Flex, UPS, Dunzo, Lalamove, Dostavista)
+  - Courier & Express: 4 packages (Postmates, Roadie, Stuart, QuadX)
+  - Last-Mile Delivery: 6 packages (Amazon Relay, Ekart Kirana, Ekart Logistics, IRSYAD, Aramex, Ninja Van)
+  - Ride & Transport: 6 packages (Lyft, Ola, Grab, Careem, DiDi, Bolt)
+  - Other Delivery Partners: 11 packages (Porter, Rapido, Shadowfax, Gojek, Delhivery, Ecom Express, Xpressbees, LetsTransport, Blowhorn, DriveU, Yulu)
+  - Alternate/legacy: 4 packages (Swiggy partner, Zomato deliverypartner, Amazon Flex legacy, Flipkart logistics)
+
+Stage Summary:
+- notification_listener_config.xml updated from 15 → 65+ packages
+- All incorrect package names corrected to match Constants.kt PARTNER_PACKAGES
+- File organized with category comments matching Constants.kt structure
+
+---
+Task ID: 6+7
+Agent: General-Purpose Sub Agent
+Task: Fix BUG #7 (Sync Toggle is Fake) + BUG #9 (Listener Enabled Check is Stale)
+
+Work Log:
+- Read SettingsViewModel.kt: confirmed `setSyncEnabled()` only updated MutableStateFlow, no DataStore persistence, no WorkManager cancel/reschedule
+- Read NotiFetchApp.kt: confirmed `schedulePeriodicSync()` always enqueued sync regardless of user preference
+- Verified Constants.SYNC_WORK_NAME and NotiFetchListenerService.isListenerEnabled() exist in codebase
+- BUG #7 Fix — SettingsViewModel.kt:
+  - `setSyncEnabled()` now persists to DataStore (`SYNC_ENABLED_KEY`) and cancels/re-schedules WorkManager
+  - Added `scheduleSyncWork()` static companion method (reusable by NotiFetchApp)
+  - Added `SYNC_ENABLED_KEY` and `SYNC_INTERVAL_KEY` preference keys to companion object
+  - init block now loads syncEnabled and syncInterval from DataStore (previously only loaded darkMode)
+- BUG #7 Fix — NotiFetchApp.kt:
+  - Replaced `schedulePeriodicSync()` with `schedulePeriodicSyncIfEnabled()`
+  - Reads `sync_enabled` and `sync_interval_minutes` from DataStore before scheduling
+  - Uses `appScope` coroutine (SupervisorJob + IO) for async DataStore read
+  - Defaults to enabled/15min if DataStore read fails
+  - Delegates to `SettingsViewModel.scheduleSyncWork()` for actual WorkManager enqueue
+- BUG #9 Fix — SettingsViewModel.kt:
+  - init block now calls `NotiFetchListenerService.isListenerEnabled(context)` to set `_isListenerEnabled`
+  - Added `refreshListenerStatus()` method for UI to call when returning from system settings
+  - Removed old `setListenerEnabled()` (was a no-op setter, now replaced by real check)
+
+Stage Summary:
+- 2 files modified: SettingsViewModel.kt, NotiFetchApp.kt
+- BUG #7: Sync toggle now persists to DataStore + cancels/re-schedules WorkManager work
+- BUG #9: Listener status now checked from system on init + refreshable from UI
+- NotiFetchApp startup respects sync_enabled preference before scheduling work
+
+---
+Task ID: 8+9
+Agent: General-Purpose Sub Agent
+Task: Fix BUG #10 (FCM token never sent to backend) + BUG #11 (getPlatformColor() fallback broken)
+
+Work Log:
+- Read all 4 target files: NotiFetchApi.kt, NetworkModels.kt, NotiFetchMessagingService.kt, Color.kt
+- BUG #10 Fix — FCM Token Never Sent to Backend:
+  - Added `registerFcmToken()` endpoint to NotiFetchApi.kt: POST("api/fcm/token") with Authorization header + FcmTokenPayload body, returns ApiResponse
+  - Added `FcmTokenPayload` data class to NetworkModels.kt: token (String) + deviceId (String?) with Moshi @Json annotations
+  - Replaced entire NotiFetchMessagingService.kt: added @AndroidEntryPoint, @Inject for NotiFetchApi and AuthRepository, CoroutineScope with SupervisorJob, sendTokenToBackend() method that gets auth token, builds Bearer header, retrieves deviceId, creates FcmTokenPayload, calls api.registerFcmToken(), and logs success/failure; onNewToken() now calls sendTokenToBackend(); onDestroy() cancels serviceScope
+- BUG #11 Fix — getPlatformColor() Fallback Logic Broken:
+  - Removed the broken fallback block that used `Constants.PARTNER_PACKAGES[packageName ?: ""]` — when packageName is null, it looked up an empty string key which never matches, making the fallback dead code
+  - Replaced with 3-tier lookup:
+    1. Primary: packageName lookup in PLATFORM_COLORS (unchanged, works correctly)
+    2. Fallback: iterate PARTNER_PACKAGES, match display name case-insensitively to find the package name, then look up color — this properly handles null packageName
+    3. Last resort: partial match — find any PLATFORM_COLORS entry whose PARTNER_PACKAGES default name contains the platform string (case-insensitive), catches custom/abbreviated display names
+  - Removed the dead-code second tier (old lines 92-96) that was using packageName in fallback where packageName was already null
+
+Stage Summary:
+- BUG #10: FCM tokens now sent to backend on refresh — 3 files modified (NotiFetchApi.kt, NetworkModels.kt, NotiFetchMessagingService.kt)
+- BUG #11: getPlatformColor() fallback now works when packageName is null — 1 file modified (Color.kt)
+- NotiFetchMessagingService now uses Hilt DI, coroutine scope, and proper error handling for token registration
+
+---
+Task ID: 5
+Agent: General-Purpose Sub Agent
+Task: Fix BUG #6 — Dark Mode Toggle flashes light→dark on cold start
+
+Work Log:
+- Read MainActivity.kt: confirmed dark mode defaults to `false` in `mutableStateOf(false)`, only updates after async DataStore read completes — causes visible light→dark flash on every cold start
+- Applied fix: Read dark mode preference synchronously BEFORE `setContent` using `runBlocking` wrapped in `runCatching` for safety
+- Initial `mutableStateOf` now seeded with `savedDarkMode` (the synchronous read result) instead of hardcoded `false`
+- Added `import kotlinx.coroutines.runBlocking` to imports
+- `LaunchedEffect` collector remains to observe subsequent live changes while activity is alive
+- `super.onCreate()` called after the synchronous read (same pattern as before, just repositioned below the read)
+
+Stage Summary:
+- BUG #6 fixed: Dark mode preference read synchronously at startup, correct theme applied from first frame
+- No more light→dark flash on cold start
+- Safe fallback: `runCatching` + `getOrDefault(false)` ensures no crash if DataStore read fails
+- Live updates still work via `LaunchedEffect` collector after initial render
+
+---
+Task ID: 12
+Agent: General-Purpose Sub Agent
+Task: Fix medium bugs #17-20
+
+Work Log:
+- BUG #17 (NotificationDetailViewModel Loads Notification via Flow but Never Unsubscribes): SKIPPED — the existing code uses viewModelScope which auto-cancels on VM clear; no change needed.
+- BUG #18 (HomeScreen Navigation Loop Risk): Combined two separate LaunchedEffect blocks (both keyed on uiState.isListenerEnabled) into a single LaunchedEffect with if/else-if logic. The first block navigated to permission when listener disabled; the second reset the flag when enabled. Merging prevents potential race conditions from two coroutines observing the same key simultaneously.
+  - File: HomeScreen.kt — replaced lines 78-94 (two LaunchedEffects) with single LaunchedEffect
+- BUG #19 (PermissionScreen Polls Every 1 Second Indefinitely): Replaced `while(true)` infinite loop with 1-second delay with `repeat(150)` bounded loop with 2-second delay (max 5 minutes total). Early return via `return@LaunchedEffect` when listener becomes enabled. This prevents indefinite background polling that wastes CPU/battery.
+  - File: PermissionScreen.kt — replaced lines 55-63 (while-true loop) with repeat(150) bounded loop
+- BUG #20 (NotiFetchScaffold Navigation Doesn't Handle Back Stack Correctly): Changed `popUpTo(navController.graph.startDestinationId)` to `popUpTo("home")` in the onNavigate lambda. The dynamic startDestinationId could resolve to "consent" or "permission" (set at runtime based on consent/listener state), causing those screens to reappear when navigating via bottom bar after the user had already passed them. Hardcoding "home" ensures back stack always pops to the home screen.
+  - File: MainActivity.kt — replaced popUpTo(navController.graph.startDestinationId) with popUpTo("home")
+
+Stage Summary:
+- 3 bugs fixed (18, 19, 20), 1 bug skipped (17 — no change needed)
+- 3 files modified: HomeScreen.kt, PermissionScreen.kt, MainActivity.kt
+- BUG #18: Two LaunchedEffects → one, eliminating navigation loop risk
+- BUG #19: Infinite polling → bounded 5-minute max (repeat(150) × 2s)
+- BUG #20: Dynamic startDestination popUp → hardcoded "home" popUp
+
+---
+Task ID: 13
+Agent: General-Purpose Sub Agent
+Task: Fix low-priority bugs #22, #25, #26, #28
+
+Work Log:
+- BUG #22 Fix — startOfWeekTimestamp() locale-dependent week start:
+  - Replaced `calendar.set(DAY_OF_WEEK, calendar.firstDayOfWeek)` with explicit Monday-as-week-start logic
+  - Calculates daysSinceMonday using a when expression on Calendar.DAY_OF_WEEK (SUNDAY=6 days back, MONDAY=0, etc.)
+  - Subtracts daysSinceMonday from current date, then zeros out time fields
+  - Ensures consistent Monday start regardless of device locale (critical for delivery driver weekly stats)
+- BUG #25 Fix — "Export My Data" button crashes with no browser:
+  - Wrapped `context.startActivity(Intent.ACTION_VIEW)` in try/catch
+  - On exception (no browser app available), shows Toast with fallback URL message
+  - Added comments explaining the button opens the web dashboard for data export
+- BUG #26 Fix — deleteAllData() dialog doesn't disclose server retention:
+  - Updated delete dialog text to disclose that synced server data is retained for 30 days
+  - Added guidance to contact support for immediate server-side deletion
+  - Removed misleading "DPDP Act 2023 and GDPR right to request deletion" claim (the button only deletes local data)
+- BUG #28 Fix — Hardcoded web client ID in FirebaseModule:
+  - Replaced hardcoded `"895827826409-4k5eqvhsve0n3504tk6lb62ijbkhsi7o.apps.googleusercontent.com"` with `context.getString(com.notifetch.app.R.string.default_web_client_id)`
+  - R.string.default_web_client_id is auto-generated by the google-services Gradle plugin from google-services.json
+  - Eliminates need to update two places when changing OAuth client ID
+
+Stage Summary:
+- 3 files modified: Helpers.kt, ProfileScreen.kt, FirebaseModule.kt
+- BUG #22: Week start now always Monday (locale-independent)
+- BUG #25: Export button gracefully handles no-browser scenario with Toast fallback
+- BUG #26: Delete dialog discloses server-side data retention policy
+- BUG #28: Web client ID read from R.string resources instead of hardcoded
+
+---
+Task ID: 10
+Agent: General-Purpose Sub Agent
+Task: Fix dead code bugs #8, #12, #13, #14
+
+Work Log:
+- BUG #8 Fix — Converters Class is Dead Code:
+  - Removed `@TypeConverters(Converters::class)` annotation and `import androidx.room.TypeConverters` from NotiFetchDatabase.kt
+  - Deleted Converters.kt file entirely (Date↔Long converter never used since no Date fields exist in entities)
+- BUG #12 Fix — PlatformSource Enum is Redundant Dead Code:
+  - Removed entire `PlatformSource` enum (lines 215-288) from Constants.kt
+  - Enum duplicated data already in PARTNER_PACKAGES map and was never referenced anywhere in codebase
+  - File now ends with LEGAL_DISCLAIMER constant and closing brace of Constants object
+- BUG #13 Fix — signInWithEmailLink() is Dead Code:
+  - Removed `signInWithEmailLink()` function from AuthRepository.kt (app only uses Google Sign-In)
+- BUG #14 Fix — signInAnonymously() is Dead Code:
+  - Removed `signInAnonymously()` function from AuthRepository.kt (app only uses Google Sign-In)
+- Verified no remaining source references to Converters, PlatformSource, signInWithEmailLink, or signInAnonymously (only build cache artifacts remain)
+
+Stage Summary:
+- 3 files modified: NotiFetchDatabase.kt, Constants.kt, AuthRepository.kt
+- 1 file deleted: Converters.kt
+- BUG #8: TypeConverters annotation and Converters class removed
+- BUG #12: PlatformSource enum (74 lines) removed from Constants.kt
+- BUG #13-14: Two dead auth methods removed from AuthRepository.kt
+- GoogleAuthProvider import retained (used by signInWithGoogle)
