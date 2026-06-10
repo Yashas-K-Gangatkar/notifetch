@@ -47,42 +47,6 @@ class AuthRepository @Inject constructor(
     }
 
     /**
-     * Sign in with Firebase email link (for "Send login code" flow).
-     */
-    suspend fun signInWithEmailLink(email: String, emailLink: String): Result<String> {
-        return try {
-            val result = firebaseAuth.signInWithEmailLink(email, emailLink).await()
-            val uid = result.user?.uid
-                ?: return Result.failure(Exception("User ID is null after sign-in"))
-            val token = result.user?.getIdToken(true)?.await()?.token
-                ?: return Result.failure(Exception("Auth token is null after sign-in"))
-            saveToken(token)
-            saveUserId(uid)
-            Result.success(uid)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
-
-    /**
-     * Anonymous sign-in — used as fallback or for users who don't want to authenticate.
-     */
-    suspend fun signInAnonymously(): Result<String> {
-        return try {
-            val result = firebaseAuth.signInAnonymously().await()
-            val uid = result.user?.uid
-                ?: return Result.failure(Exception("User ID is null after sign-in"))
-            val token = result.user?.getIdToken(true)?.await()?.token
-                ?: return Result.failure(Exception("Auth token is null after sign-in"))
-            saveToken(token)
-            saveUserId(uid)
-            Result.success(uid)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
-
-    /**
      * Sign out from Firebase and clear stored credentials.
      */
     suspend fun signOut() {

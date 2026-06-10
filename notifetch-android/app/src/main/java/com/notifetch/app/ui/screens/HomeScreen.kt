@@ -75,20 +75,14 @@ fun HomeScreen(
         viewModel.updateListenerEnabled(isEnabled)
     }
 
-    // If listener is not enabled, navigate to permission — but only once
-    // Use a flag to prevent navigation loop
+    // Track whether we've already navigated to permission to prevent loops
     var hasNavigatedToPermission by remember { mutableStateOf(false) }
 
     LaunchedEffect(uiState.isListenerEnabled) {
         if (!uiState.isListenerEnabled && !hasNavigatedToPermission) {
             hasNavigatedToPermission = true
             onNavigateToPermission()
-        }
-    }
-
-    // Reset navigation flag when listener becomes enabled again
-    LaunchedEffect(uiState.isListenerEnabled) {
-        if (uiState.isListenerEnabled) {
+        } else if (uiState.isListenerEnabled) {
             hasNavigatedToPermission = false
         }
     }

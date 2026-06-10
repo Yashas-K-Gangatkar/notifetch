@@ -37,16 +37,26 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.runBlocking
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        // Read dark mode preference synchronously BEFORE setContent to prevent
+        // the light→dark flash on cold start (BUG #6 fix).
+        val savedDarkMode = runCatching {
+            runBlocking {
+                val prefs = this@MainActivity.settingsDataStore.data.first()
+                prefs[SettingsViewModel.DARK_MODE_KEY] ?: false
+            }
+        }.getOrDefault(false)
+
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             val activityContext = this@MainActivity
-            // Read dark mode preference
-            var darkMode by remember { mutableStateOf(false) }
+            // Observe dark mode changes while the activity is alive
+            var darkMode by remember { mutableStateOf(savedDarkMode) }
             LaunchedEffect(Unit) {
                 activityContext.settingsDataStore.data.map { prefs ->
                     prefs[SettingsViewModel.DARK_MODE_KEY] ?: false
@@ -94,7 +104,10 @@ fun NotiFetchNavHost() {
         currentRoute = currentRoute,
         onNavigate = { route ->
             navController.navigate(route) {
-                popUpTo(navController.graph.startDestinationId) {
+                // Pop up to "home" instead of the dynamic startDestination.
+                // This prevents showing consent/permission screens when navigating
+                // via bottom bar after the user has already passed them (BUG #20 fix).
+                popUpTo("home") {
                     saveState = true
                 }
                 launchSingleTop = true

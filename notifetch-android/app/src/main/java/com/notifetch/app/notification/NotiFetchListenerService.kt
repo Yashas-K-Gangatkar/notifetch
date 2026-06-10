@@ -47,9 +47,12 @@ class NotiFetchListenerService : NotificationListenerService() {
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val tag = "NotiFetchListener"
 
-    // Debounce sync — instead of syncing ALL pending on every notification,
-    // wait 5 seconds after the last notification before syncing
+    // Debounce sync — wait 5 seconds after the last notification before syncing
     private var syncJob: kotlinx.coroutines.Job? = null
+    // Debounce platform count increment — batch updates to reduce DB writes
+    private var countIncrementJob: kotlinx.coroutines.Job? = null
+    // Track which packages need count increments for batching
+    private val pendingCountIncrements = mutableSetOf<String>()
 
     companion object {
         // Use the comprehensive package list from Constants
@@ -147,7 +150,7 @@ class NotiFetchListenerService : NotificationListenerService() {
             )
 
             // Detect currency based on platform region and text content
-            val currency = Helpers.detectCurrency(platformName, "$title $text $bigText")
+            val currency = Helpers.detectCurrency(packageName, platformName, "$title $text $bigText")
 
             // Create database entity (NO extrasJson — data minimization compliance)
             val capturedNotification = CapturedNotification(
@@ -173,6 +176,31 @@ class NotiFetchListenerService : NotificationListenerService() {
                 try {
                     val id = repository.insertNotification(capturedNotification)
                     Log.d(tag, "Saved notification #$id from $platformName [${parsed.category}] ($currency)")
+
+                    // Debounced platform count increment — batch multiple notifications
+                    // from the same package to reduce DB writes (BUG #2 fix).
+                    // Previously, incrementNotificationCount was called inside
+                    // insertNotification, causing a second DB write per notification
+                    // that triggered cascading Room Flow emissions → UI fluttering.
+                    synchronized(pendingCountIncrements) {
+                        pendingCountIncrements.add(packageName)
+                    }
+                    countIncrementJob?.cancel()
+                    countIncrementJob = serviceScope.launch {
+                        delay(2000) // Batch increments over 2-second window
+                        val packagesToIncrement = synchronized(pendingCountIncrements) {
+                            val copy = pendingCountIncrements.toList()
+                            pendingCountIncrements.clear()
+                            copy
+                        }
+                        for (pkg in packagesToIncrement) {
+                            try {
+                                repository.incrementPlatformNotificationCount(pkg)
+                            } catch (e: Exception) {
+                                Log.e(tag, "Failed to increment count for $pkg", e)
+                            }
+                        }
+                    }
 
                     // Debounced sync — cancel previous, wait 5s, then sync all pending
                     syncJob?.cancel()

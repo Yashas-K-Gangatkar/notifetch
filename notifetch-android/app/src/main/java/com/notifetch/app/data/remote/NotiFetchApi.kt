@@ -22,4 +22,10 @@ interface NotiFetchApi {
     suspend fun authenticate(
         @Body payload: AuthPayload
     ): AuthResponse
+
+    @POST("api/fcm/token")
+    suspend fun registerFcmToken(
+        @Header("Authorization") authHeader: String,
+        @Body payload: FcmTokenPayload
+    ): ApiResponse
 }

@@ -80,28 +80,31 @@ val NotiFetchDarkOnError = Color(0xFF690005)
  * @return The brand color for the platform
  */
 fun getPlatformColor(platform: String, packageName: String? = null): Color {
-    // Prefer package name lookup (most reliable — works regardless of user rename)
+    // Primary lookup: by package name (most reliable — works regardless of user rename)
     if (packageName != null) {
         Constants.PLATFORM_COLORS[packageName]?.let { hex ->
             return parseHexColor(hex)
         }
     }
 
-    // Fallback: try to match by display name (for backward compatibility)
-    // This handles cases where packageName is not available
-    Constants.PLATFORM_COLORS.entries.firstOrNull { (_, _) ->
-        Constants.PARTNER_PACKAGES[packageName ?: ""] == platform
-    }?.value?.let { hex ->
-        return parseHexColor(hex)
-    }
-
-    // Last resort: try matching by display name against PARTNER_PACKAGES values
+    // Fallback: match display name against PARTNER_PACKAGES values to find the
+    // package name, then look up the color. This handles cases where packageName
+    // is null but we still have the display name.
     for ((pkg, defaultName) in Constants.PARTNER_PACKAGES) {
         if (defaultName.equals(platform, ignoreCase = true)) {
             Constants.PLATFORM_COLORS[pkg]?.let { hex ->
                 return parseHexColor(hex)
             }
         }
+    }
+
+    // Last resort: try matching platform display name directly (partial match)
+    // This catches custom display names that might partially match default names
+    Constants.PLATFORM_COLORS.entries.firstOrNull { (pkg, _) ->
+        val defaultName = Constants.PARTNER_PACKAGES[pkg]
+        defaultName != null && defaultName.contains(platform, ignoreCase = true)
+    }?.value?.let { hex ->
+        return parseHexColor(hex)
     }
 
     return Amber500

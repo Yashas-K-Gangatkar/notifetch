@@ -248,12 +248,23 @@ fun ProfileScreen(
                     // Export data button
                     OutlinedButton(
                         onClick = {
-                            context.startActivity(
-                                Intent(
-                                    Intent.ACTION_VIEW,
-                                    Uri.parse("https://d2-liart-nine.vercel.app/dashboard/settings")
+                            // Open the web dashboard where user can export their synced data.
+                            // If not signed in, the web page will prompt for sign-in.
+                            try {
+                                context.startActivity(
+                                    Intent(
+                                        Intent.ACTION_VIEW,
+                                        Uri.parse("https://d2-liart-nine.vercel.app/dashboard/settings")
+                                    )
                                 )
-                            )
+                            } catch (e: Exception) {
+                                // No browser available
+                                android.widget.Toast.makeText(
+                                    context,
+                                    "Please visit d2-liart-nine.vercel.app to export your data",
+                                    android.widget.Toast.LENGTH_LONG
+                                ).show()
+                            }
                         },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -523,8 +534,9 @@ fun ProfileScreen(
             text = {
                 Text(
                     "This will permanently delete all your captured notifications from this device. " +
-                    "This action cannot be undone. Under DPDP Act 2023 and GDPR, you have the right " +
-                    "to request data deletion. We recommend exporting your data first."
+                    "Synced data on the server will be retained for 30 days per our data retention policy, " +
+                    "then automatically deleted. To request immediate server-side deletion, contact support. " +
+                    "This action cannot be undone. We recommend exporting your data first."
                 )
             },
             confirmButton = {

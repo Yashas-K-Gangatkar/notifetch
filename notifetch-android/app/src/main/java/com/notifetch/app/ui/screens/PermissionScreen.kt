@@ -52,13 +52,14 @@ fun PermissionScreen(
     val context = LocalContext.current
     var isListenerEnabled by remember { mutableStateOf(NotiFetchListenerService.isListenerEnabled(context)) }
 
-    // Poll listener status so it updates when user returns from system settings
+    // Poll listener status — check every 2 seconds, up to 150 times (5 minutes max)
+    // Then stop to avoid infinite background polling (BUG #19 fix)
     LaunchedEffect(Unit) {
-        while (true) {
-            kotlinx.coroutines.delay(1000)
+        repeat(150) {
+            kotlinx.coroutines.delay(2000)
             val enabled = NotiFetchListenerService.isListenerEnabled(context)
             isListenerEnabled = enabled
-            if (enabled) break // Stop polling once enabled
+            if (enabled) return@LaunchedEffect
         }
     }
 

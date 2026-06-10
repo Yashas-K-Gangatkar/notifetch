@@ -52,11 +52,20 @@ class NotificationRepository @Inject constructor(
 
     suspend fun insertNotification(notification: CapturedNotification): Long {
         val id = notificationDao.insertNotification(notification)
-        platformConfigDao.incrementNotificationCount(
-            notification.packageName,
-            System.currentTimeMillis()
-        )
+        // NOTE: incrementNotificationCount moved OUT of insertNotification (BUG #2 fix).
+        // Previously, this caused a second DB write that triggered platformConfigs Flow
+        // to re-emit, cascading into 7+ Room Flow emissions per notification capture.
+        // Now it's called separately with debouncing in NotiFetchListenerService.
         return id
+    }
+
+    /**
+     * Increment the notification count for a platform package.
+     * Called separately from insertNotification to allow debouncing
+     * and prevent cascading Room Flow emissions that cause UI fluttering.
+     */
+    suspend fun incrementPlatformNotificationCount(packageName: String) {
+        platformConfigDao.incrementNotificationCount(packageName, System.currentTimeMillis())
     }
 
     suspend fun markAsRead(id: Long) = notificationDao.markAsRead(id)
