@@ -32,9 +32,10 @@ type ScriptStatus = "idle" | "loading" | "ready" | "error";
 
 // ─── Constants ──────────────────────────────────────────────────────────────
 
-const RAZORPAY_SCRIPT_URL = "https://checkout.razorpay.com/v1/checkout.js";
-const MAX_RETRIES = 3;
-const RETRY_DELAYS = [1500, 3000, 5000]; // Backoff delays in ms
+const RAZORPAY_CDN_URL = "https://checkout.razorpay.com/v1/checkout.js";
+const RAZORPAY_PROXY_URL = "/api/payments/razorpay-script";
+const MAX_RETRIES = 2;
+const RETRY_DELAYS = [1500, 3000]; // Backoff delays in ms
 
 // ─── Global script status (shared across component instances) ───────────────
 
@@ -101,17 +102,23 @@ function isRazorpayOnWindow(): boolean {
 
 /**
  * Find an existing <script> tag for the Razorpay checkout URL.
+ * Checks both CDN and proxy URLs.
  */
 function findExistingScript(): HTMLScriptElement | null {
-  return document.querySelector(`script[src="${RAZORPAY_SCRIPT_URL}"]`);
+  return (
+    document.querySelector(`script[src="${RAZORPAY_CDN_URL}"]`) ||
+    document.querySelector(`script[src="${RAZORPAY_PROXY_URL}"]`)
+  );
 }
 
 /**
  * Inject a new <script> tag for Razorpay checkout.
  * Returns a promise that resolves true if window.Razorpay becomes available,
  * or false if the script fails to load.
+ *
+ * @param url - The script URL to load (CDN or proxy)
  */
-function injectScript(): Promise<boolean> {
+function injectScript(url: string = RAZORPAY_CDN_URL): Promise<boolean> {
   return new Promise((resolve) => {
     // Don't create a duplicate script tag
     const existing = findExistingScript();
@@ -122,6 +129,31 @@ function injectScript(): Promise<boolean> {
         resolve(true);
         return;
       }
+
+      // Check if the script already loaded (readyState = 'complete' or 'loaded')
+      // but Razorpay isn't on window — this means the script executed but failed
+      // to initialize, or it hasn't been processed yet.
+      const readyState = (existing as HTMLScriptElement).readyState;
+      if (readyState === "complete" || readyState === "loaded") {
+        // Script already downloaded and executed — check if Razorpay appeared
+        // Use a polling approach since the SDK might need a moment
+        let checks = 0;
+        const poll = setInterval(() => {
+          checks++;
+          if (isRazorpayOnWindow()) {
+            clearInterval(poll);
+            resolve(true);
+          } else if (checks >= 10) {
+            // Gave up after 5 seconds of polling (10 × 500ms)
+            clearInterval(poll);
+            console.warn("[Razorpay] Script loaded but SDK not on window after 5s. Removing and will retry.");
+            existing.remove();
+            resolve(false);
+          }
+        }, 500);
+        return;
+      }
+
       // If the existing script hasn't loaded yet, wait for it.
       // Attach event listeners to the existing script.
       const onReady = () => {
@@ -130,6 +162,7 @@ function injectScript(): Promise<boolean> {
       };
       const onError = () => {
         console.warn("[Razorpay] Existing script tag failed");
+        existing.remove();
         resolve(false);
         cleanup();
       };
@@ -143,14 +176,18 @@ function injectScript(): Promise<boolean> {
       // Safety timeout — if nothing fires in 15s, fail
       setTimeout(() => {
         cleanup();
-        resolve(isRazorpayOnWindow());
+        const available = isRazorpayOnWindow();
+        if (!available && existing.parentNode) {
+          existing.remove();
+        }
+        resolve(available);
       }, 15000);
       return;
     }
 
     // No existing script — create a fresh one
     const script = document.createElement("script");
-    script.src = RAZORPAY_SCRIPT_URL;
+    script.src = url;
     script.async = true;
     // NOTE: Do NOT add crossOrigin="anonymous" — Razorpay's CDN does not
     // serve CORS headers. Adding it causes the browser to block script
@@ -168,7 +205,7 @@ function injectScript(): Promise<boolean> {
     };
 
     script.onerror = () => {
-      console.error("[Razorpay] Script failed to load");
+      console.error(`[Razorpay] Script failed to load from ${url}`);
       // Remove the failed script so retry can create a new one
       script.remove();
       resolve(false);
@@ -179,24 +216,27 @@ function injectScript(): Promise<boolean> {
 }
 
 /**
- * Load Razorpay script with automatic retry logic.
- * - First tries to use any existing script tag (from Next/Script preload).
- * - If none exists, injects a new one.
- * - Retries up to MAX_RETRIES times with increasing delays.
+ * Load Razorpay script with automatic retry and proxy fallback.
+ *
+ * Loading strategy:
+ * 1. Try loading from Razorpay CDN directly (fastest, most up-to-date)
+ * 2. If CDN fails after retries, fall back to our server-side proxy
+ *    which fetches the script server-side and serves it from our domain
+ *    (bypasses CSP and ad-blocker issues)
  */
 async function loadRazorpayWithRetry(): Promise<boolean> {
+  // ── Phase 1: Try CDN directly ──────────────────────────────────────────
   for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
-    const loaded = await injectScript();
+    const loaded = await injectScript(RAZORPAY_CDN_URL);
     if (loaded) {
       return true;
     }
 
     console.log(
-      `[Razorpay] Attempt ${attempt + 1}/${MAX_RETRIES} failed.` +
-        (attempt < MAX_RETRIES - 1 ? ` Retrying in ${RETRY_DELAYS[attempt]}ms...` : " Giving up.")
+      `[Razorpay] CDN attempt ${attempt + 1}/${MAX_RETRIES} failed.` +
+        (attempt < MAX_RETRIES - 1 ? ` Retrying in ${RETRY_DELAYS[attempt]}ms...` : "")
     );
 
-    // If not the last attempt, wait before retrying
     if (attempt < MAX_RETRIES - 1) {
       await new Promise((r) => setTimeout(r, RETRY_DELAYS[attempt]));
       // Clean up any failed script element before retry
@@ -207,6 +247,20 @@ async function loadRazorpayWithRetry(): Promise<boolean> {
     }
   }
 
+  console.warn("[Razorpay] CDN failed after all retries. Trying proxy fallback...");
+
+  // ── Phase 2: Try proxy fallback ────────────────────────────────────────
+  // Clean up any leftover CDN script tags
+  const cdnScript = document.querySelector(`script[src="${RAZORPAY_CDN_URL}"]`);
+  if (cdnScript) cdnScript.remove();
+
+  const proxyLoaded = await injectScript(RAZORPAY_PROXY_URL);
+  if (proxyLoaded) {
+    console.log("[Razorpay] Loaded successfully via proxy");
+    return true;
+  }
+
+  console.error("[Razorpay] Both CDN and proxy failed to load the script");
   return false;
 }
 
@@ -424,7 +478,7 @@ export function RazorpayCheckout({
     <div className="flex flex-col items-center gap-2">
       {/* Preload Razorpay script in the background using Next.js Script */}
       <Script
-        src={RAZORPAY_SCRIPT_URL}
+        src={RAZORPAY_CDN_URL}
         strategy="lazyOnload"
         onLoad={handleScriptLoad}
         onError={handleScriptError}
