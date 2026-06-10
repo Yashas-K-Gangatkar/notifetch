@@ -134,3 +134,40 @@ Stage Summary:
 - Key files changed: public/sw.js, src/lib/auth.ts, src/lib/razorpay.ts, next.config.ts, tsconfig.json,
   src/app/api/payments/webhook/route.ts, src/app/dashboard/subscribe/page.tsx, src/components/razorpay-checkout.tsx
 - Build now fully passes with strict TypeScript checking enabled
+
+---
+Task ID: 3
+Agent: Main
+Task: Make the NotiFetch landing page world-class — add "How It Works", social proof, demo data, and download CTA
+
+Work Log:
+- Read worklog.md and all relevant source files (page.tsx, dashboard-section.tsx, hero-section.tsx, earnings-section.tsx, platforms-section.tsx, navbar.tsx, data.ts)
+- Added "How It Works" 3-step section to page.tsx as a new component (HowItWorksSection)
+  - Step 1: Install & Sign In (Smartphone icon)
+  - Step 2: Grant Notification Access (Bell icon)
+  - Step 3: One Feed, All Orders (Layers icon)
+  - Each step has gradient icon box, step number badge, title, and description
+  - Section placed after hero, before dashboard
+- Added Social Proof section to page.tsx as a new component (SocialProofSection)
+  - 4 trust stats: 28+ Platforms Supported, 30s Setup Time, 0 Credentials Required, 24/7 Real-time Alerts
+  - Amber-colored stat values with muted-foreground labels
+  - Border-y styling, placed before pricing section
+  - Trust message for Indian delivery partners
+- Rewrote DashboardSection with realistic demo notification cards
+  - 4 sample notifications: Swiggy (₹45, unread), Zomato (₹38, unread), Blinkit (₹25, read), Amazon Flex (₹52, read)
+  - Each card shows: source icon, title, body, distance, ETA, order value, time-ago, read/unread indicator
+  - Source-specific color coding (amber for Swiggy, red for Zomato, yellow for Blinkit, teal for Amazon Flex)
+  - Clear "This is a preview" messaging with sign-in CTA
+- Added "Download App" CTA button to hero section
+  - Links to Google Play Store (com.notifetch.app)
+  - Download icon from lucide-react
+  - Three CTA buttons: Get Started Free (primary), Download App (outline), See All Platforms (ghost)
+- Updated NAV_ITEMS in data.ts to include "How It Works" between Home and Dashboard
+- Verified build: ✓ Compiled successfully, 32/32 static pages generated
+
+Stage Summary:
+- Landing page now shows the product in action with realistic demo data
+- "How It Works" section reduces confusion about the setup process
+- Social proof builds trust with key metrics (28+ platforms, 30s setup, 0 credentials, 24/7 alerts)
+- Download App CTA gives visitors a direct path to install
+- Files changed: page.tsx, dashboard-section.tsx, hero-section.tsx, data.ts

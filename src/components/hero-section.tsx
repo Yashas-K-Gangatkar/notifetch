@@ -1,7 +1,7 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import { Zap, Bell, Shield, ArrowRight } from "lucide-react";
+import { Zap, Bell, Shield, ArrowRight, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { PLATFORMS, DELIVERY_CATEGORIES, REGIONS } from "@/lib/data";
@@ -57,7 +57,17 @@ export function HeroSection({ onNavigate }: { onNavigate: (id: string) => void }
               </Button>
             </Link>
           )}
-          <Button variant="outline" size="lg" onClick={() => onNavigate("platforms")} className="px-8 h-12">
+          <a
+            href="https://play.google.com/store/apps/details?id=com.notifetch.app"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Button variant="outline" size="lg" className="px-8 h-12 gap-2">
+              <Download className="w-4 h-4" />
+              Download App
+            </Button>
+          </a>
+          <Button variant="ghost" size="lg" onClick={() => onNavigate("platforms")} className="px-8 h-12">
             See All Platforms
           </Button>
         </div>
