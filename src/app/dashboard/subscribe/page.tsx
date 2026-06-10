@@ -10,10 +10,11 @@ import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Zap, Check, ArrowLeft,
-  Bell, Globe, Headphones, Shield, CreditCard, CheckCircle2
+  Bell, Globe, Headphones, Shield, CreditCard, CheckCircle2,
+  AlertTriangle, WifiOff
 } from "lucide-react";
 import { BackButton } from "@/components/back-button";
-import { RazorpayCheckout } from "@/components/razorpay-checkout";
+import { RazorpayCheckout, getRazorpayScriptStatus } from "@/components/razorpay-checkout";
 import { PLATFORMS, type PlanId } from "@/lib/data";
 
 interface UserData {
@@ -40,6 +41,8 @@ export default function SubscribePage() {
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [isSavingPlatforms, setIsSavingPlatforms] = useState(false);
+  const [paymentGatewayStatus, setPaymentGatewayStatus] = useState<"unknown" | "available" | "unavailable">("unknown");
+  const [paymentConfigured, setPaymentConfigured] = useState(true);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -80,6 +83,33 @@ export default function SubscribePage() {
   useEffect(() => {
     if (status === "authenticated") {
       Promise.all([fetchUser(), fetchExistingPlatforms()]).finally(() => setIsLoading(false));
+
+      // Check if Razorpay payment gateway is available and configured
+      const checkPaymentGateway = async () => {
+        // Check if the payment API is configured by making a lightweight check
+        try {
+          const res = await fetch("/api/payments/create-order", {
+            method: "OPTIONS",
+          });
+          // If we get any response, the endpoint exists
+          // A 503 would indicate Razorpay is not configured
+          if (res.status === 503) {
+            setPaymentConfigured(false);
+          }
+        } catch {
+          // Network error — might not be an issue with Razorpay itself
+        }
+
+        // Check if Razorpay script can be loaded
+        const scriptStatus = getRazorpayScriptStatus();
+        if (scriptStatus === "error") {
+          setPaymentGatewayStatus("unavailable");
+        } else if (scriptStatus === "ready") {
+          setPaymentGatewayStatus("available");
+        }
+        // If "idle" or "loading", the RazorpayCheckout component will handle it
+      };
+      checkPaymentGateway();
     }
   }, [status, fetchUser, fetchExistingPlatforms]);
 
@@ -529,6 +559,30 @@ export default function SubscribePage() {
         {selectedPlan && selectedPlan !== "free" && selectedPlan !== currentPlan && !isDowngrade(selectedPlan) && (
           <Card className="mb-8 border-amber-500/20 bg-gradient-to-br from-amber-500/5 to-orange-500/5">
             <CardContent className="p-6">
+              {/* Payment gateway warning */}
+              {!paymentConfigured && (
+                <div className="flex items-start gap-3 mb-4 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                  <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-medium text-amber-500">Payment system not configured</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Our payment gateway is being set up. Please try again later or contact support for manual activation.
+                    </p>
+                  </div>
+                </div>
+              )}
+              {paymentGatewayStatus === "unavailable" && (
+                <div className="flex items-start gap-3 mb-4 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                  <WifiOff className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-medium text-amber-500">Payment gateway may be blocked</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      The payment gateway script could not be loaded. This is usually caused by ad blockers or a slow connection.
+                      Try disabling ad blockers for this site, or click the pay button to retry.
+                    </p>
+                  </div>
+                </div>
+              )}
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div>
                   <h3 className="text-lg font-bold">

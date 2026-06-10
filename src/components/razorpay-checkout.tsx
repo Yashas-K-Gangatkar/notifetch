@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
+import Script from "next/script";
 import { Button } from "@/components/ui/button";
-import { Loader2, CheckCircle2, XCircle, CreditCard } from "lucide-react";
+import { Loader2, CheckCircle2, XCircle, CreditCard, WifiOff } from "lucide-react";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -27,40 +28,54 @@ interface RazorpayCheckoutProps {
 
 type PaymentState = "idle" | "creating-order" | "paying" | "verifying" | "success" | "error";
 
-// ─── Razorpay Script Loader (singleton) ─────────────────────────────────────
+type ScriptStatus = "idle" | "loading" | "ready" | "error";
+
+// ─── Razorpay Script Loader (with retry) ────────────────────────────────────
+
+const RAZORPAY_SCRIPT_URL = "https://checkout.razorpay.com/v1/checkout.js";
+const MAX_RETRIES = 3;
+const RETRY_DELAYS = [1000, 3000, 5000]; // Exponential backoff
 
 let scriptLoadPromise: Promise<boolean> | null = null;
+let retryCount = 0;
+
+function isRazorpayOnWindow(): boolean {
+  return typeof window !== "undefined" && !!(window as Record<string, unknown>).Razorpay;
+}
 
 function loadRazorpayScript(): Promise<boolean> {
   if (scriptLoadPromise) return scriptLoadPromise;
 
   // Check if already loaded globally
-  if (typeof window !== "undefined" && (window as Record<string, unknown>).Razorpay) {
+  if (isRazorpayOnWindow()) {
     return Promise.resolve(true);
   }
 
   scriptLoadPromise = new Promise((resolve) => {
     const script = document.createElement("script");
-    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.src = RAZORPAY_SCRIPT_URL;
     script.async = true;
     // NOTE: Do NOT add crossOrigin="anonymous" — Razorpay's CDN does not
     // serve CORS headers. Adding it causes the browser to block script
     // execution even though the file downloads successfully.
 
     script.onload = () => {
-      // Give the SDK a moment to initialize on window
+      // Give the SDK a moment to initialize on window (increased from 200ms
+      // to 500ms for more reliable initialization on slower connections)
       setTimeout(() => {
-        const available = !!(window as Record<string, unknown>).Razorpay;
+        const available = isRazorpayOnWindow();
         if (!available) {
           // Script loaded but SDK not on window — reset so we can retry
           scriptLoadPromise = null;
+          console.warn("[Razorpay] Script loaded but window.Razorpay is not available. May need retry.");
         }
         resolve(available);
-      }, 200);
+      }, 500);
     };
 
     script.onerror = () => {
       scriptLoadPromise = null;
+      console.error(`[Razorpay] Failed to load script (attempt ${retryCount + 1}/${MAX_RETRIES})`);
       resolve(false);
     };
 
@@ -68,6 +83,56 @@ function loadRazorpayScript(): Promise<boolean> {
   });
 
   return scriptLoadPromise;
+}
+
+/**
+ * Load Razorpay script with automatic retry logic.
+ * Retries up to MAX_RETRIES times with increasing delays.
+ */
+async function loadRazorpayWithRetry(): Promise<boolean> {
+  for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+    retryCount = attempt;
+    const loaded = await loadRazorpayScript();
+    if (loaded) {
+      retryCount = 0;
+      return true;
+    }
+
+    // If not the last attempt, wait before retrying
+    if (attempt < MAX_RETRIES - 1) {
+      const delay = RETRY_DELAYS[attempt] || 5000;
+      console.log(`[Razorpay] Retrying in ${delay}ms... (attempt ${attempt + 2}/${MAX_RETRIES})`);
+      await new Promise(resolve => setTimeout(resolve, delay));
+      // Clean up any failed script element before retry
+      const existingScript = document.querySelector(`script[src="${RAZORPAY_SCRIPT_URL}"]`);
+      if (existingScript) existingScript.remove();
+    }
+  }
+
+  return false;
+}
+
+// ─── Global script status tracker (shared across component instances) ───────
+
+let globalScriptStatus: ScriptStatus = "idle";
+let globalStatusListeners: ((status: ScriptStatus) => void)[] = [];
+
+function setGlobalScriptStatus(status: ScriptStatus) {
+  globalScriptStatus = status;
+  globalStatusListeners.forEach(listener => listener(status));
+}
+
+function subscribeToScriptStatus(listener: (status: ScriptStatus) => void): () => void {
+  globalStatusListeners.push(listener);
+  // Immediately call with current status
+  listener(globalScriptStatus);
+  return () => {
+    globalStatusListeners = globalStatusListeners.filter(l => l !== listener);
+  };
+}
+
+export function getRazorpayScriptStatus(): ScriptStatus {
+  return globalScriptStatus;
 }
 
 // ─── Razorpay Window Interface ──────────────────────────────────────────────
@@ -119,7 +184,32 @@ export function RazorpayCheckout({
 }: RazorpayCheckoutProps) {
   const [state, setState] = useState<PaymentState>("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [scriptStatus, setScriptStatus] = useState<ScriptStatus>(globalScriptStatus);
   const scriptLoadedRef = useRef(false);
+
+  // Subscribe to global script status changes
+  useEffect(() => {
+    const unsubscribe = subscribeToScriptStatus(setScriptStatus);
+    return unsubscribe;
+  }, []);
+
+  // Preload Razorpay script via Next.js Script component (lazyOnload strategy)
+  // This ensures the script starts downloading as soon as the page is idle,
+  // so it's likely ready before the user clicks the payment button.
+  const handleScriptLoad = useCallback(() => {
+    // Give the SDK a moment to attach to window
+    setTimeout(() => {
+      if (isRazorpayOnWindow()) {
+        setGlobalScriptStatus("ready");
+        console.log("[Razorpay] Script preloaded and ready via Next/Script");
+      }
+    }, 300);
+  }, []);
+
+  const handleScriptError = useCallback(() => {
+    console.warn("[Razorpay] Next/Script preload failed, will retry on button click");
+    // Don't set error status here — we'll retry dynamically when the user clicks
+  }, []);
 
   const isAlreadyOnPlan = currentPlan === plan;
   const isHigherPlan =
@@ -135,6 +225,7 @@ export function RazorpayCheckout({
       case "creating-order":
         return "Creating order...";
       case "paying":
+        if (scriptStatus === "loading") return "Loading payment gateway...";
         return "Processing payment...";
       case "verifying":
         return "Verifying payment...";
@@ -145,7 +236,7 @@ export function RazorpayCheckout({
       default:
         return "Upgrade";
     }
-  }, [isAlreadyOnPlan, isHigherPlan, label, state]);
+  }, [isAlreadyOnPlan, isHigherPlan, label, state, scriptStatus]);
 
   const getButtonIcon = useCallback(() => {
     switch (state) {
@@ -168,12 +259,24 @@ export function RazorpayCheckout({
 
     try {
       // ── Step 1: Ensure Razorpay script is loaded ──────────────────────
-      const scriptLoaded = await loadRazorpayScript();
-      if (!scriptLoaded) {
-        throw new Error(
-          "Could not load Razorpay. Please check your internet connection, " +
-          "disable any ad blockers for this site, and try again."
-        );
+      // Check if already available from Next/Script preload
+      if (!isRazorpayOnWindow()) {
+        setGlobalScriptStatus("loading");
+        setState("paying"); // Show loading state while fetching script
+
+        const scriptLoaded = await loadRazorpayWithRetry();
+        if (!scriptLoaded) {
+          setGlobalScriptStatus("error");
+          throw new Error(
+            "Could not load Razorpay payment gateway after multiple attempts. " +
+            "This is usually caused by:\n" +
+            "• An ad blocker or browser extension blocking the script\n" +
+            "• A slow or unstable internet connection\n" +
+            "• A strict Content Security Policy (CSP)\n\n" +
+            "Please try: disabling ad blockers, refreshing the page, or using a different browser."
+          );
+        }
+        setGlobalScriptStatus("ready");
       }
 
       const RazorpayConstructor = (window as Record<string, unknown>).Razorpay as new (
@@ -189,6 +292,8 @@ export function RazorpayCheckout({
       scriptLoadedRef.current = true;
 
       // ── Step 2: Create Razorpay order via API ──────────────────────────
+      setState("creating-order");
+
       const orderResponse = await fetch("/api/payments/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -295,6 +400,22 @@ export function RazorpayCheckout({
 
   return (
     <div className="flex flex-col items-center gap-2">
+      {/* Next.js Script component preloads Razorpay in the background */}
+      <Script
+        src={RAZORPAY_SCRIPT_URL}
+        strategy="lazyOnload"
+        onLoad={handleScriptLoad}
+        onError={handleScriptError}
+      />
+
+      {/* Show warning if script failed to load previously */}
+      {scriptStatus === "error" && state === "idle" && (
+        <div className="flex items-center gap-1.5 text-xs text-amber-500 mb-1">
+          <WifiOff className="w-3 h-3" />
+          <span>Payment gateway may be blocked. Click to retry.</span>
+        </div>
+      )}
+
       <Button
         onClick={handlePayment}
         disabled={isDisabled}
@@ -307,7 +428,7 @@ export function RazorpayCheckout({
       </Button>
 
       {errorMessage && (
-        <div className="text-xs text-red-500 text-center max-w-xs">
+        <div className="text-xs text-red-500 text-center max-w-xs whitespace-pre-line">
           <p>{errorMessage}</p>
         </div>
       )}

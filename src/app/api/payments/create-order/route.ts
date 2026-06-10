@@ -4,6 +4,22 @@ import { authOptions } from "@/lib/auth";
 import { createOrder, isRazorpayConfigured, getPlanPrice } from "@/lib/razorpay";
 
 /**
+ * OPTIONS /api/payments/create-order
+ *
+ * Used by the subscribe page to check if Razorpay is configured.
+ * Returns 503 if not configured, 200 if ready.
+ */
+export async function OPTIONS() {
+  if (!isRazorpayConfigured()) {
+    return NextResponse.json(
+      { configured: false, error: "Razorpay is not configured." },
+      { status: 503 }
+    );
+  }
+  return NextResponse.json({ configured: true }, { status: 200 });
+}
+
+/**
  * POST /api/payments/create-order
  *
  * Creates a Razorpay order for subscription payment.
