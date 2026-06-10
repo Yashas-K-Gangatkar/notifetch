@@ -1,2 +1,0 @@
--keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.SettingsViewModel
--keep,allowobfuscation,allowshrinking class com.notifetch.app.ui.viewmodel.SettingsViewModel
