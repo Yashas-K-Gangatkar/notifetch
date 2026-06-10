@@ -69,7 +69,7 @@ class ProfileViewModel @Inject constructor(
                 val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
                 val account = task.getResult(com.google.android.gms.common.api.ApiException::class.java)
                 val idToken = account.idToken
-                    ?: throw Exception("No ID token received from Google")
+                    ?: throw Exception("No ID token received from Google. Make sure the SHA-1 fingerprint is registered in Firebase Console.")
 
                 val signInResult = authRepository.signInWithGoogle(idToken)
                 signInResult.onSuccess {
@@ -83,11 +83,29 @@ class ProfileViewModel @Inject constructor(
                         error = null
                     )
                 }.onFailure { error ->
+                    val message = when {
+                        error.message?.contains("INTERNAL", ignoreCase = true) == true ->
+                            "Sign-in failed: SHA-1 certificate not registered in Firebase. Please contact support."
+                        error.message?.contains("network", ignoreCase = true) == true ->
+                            "Network error. Please check your internet connection and try again."
+                        else -> error.message ?: "Google Sign-In failed"
+                    }
                     _uiState.value = _uiState.value.copy(
                         isSigningIn = false,
-                        error = error.message ?: "Google Sign-In failed"
+                        error = message
                     )
                 }
+            } catch (e: com.google.android.gms.common.api.ApiException) {
+                val message = when (e.statusCode) {
+                    10 -> "Sign-in configuration error. The app's SHA-1 fingerprint must be registered in Firebase Console > Project Settings."
+                    7 -> "Network error. Please check your internet connection."
+                    12501 -> "Sign-in was cancelled."
+                    else -> "Google Sign-In failed (error ${e.statusCode}): ${e.message}"
+                }
+                _uiState.value = _uiState.value.copy(
+                    isSigningIn = false,
+                    error = message
+                )
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     isSigningIn = false,

@@ -3286,7 +3286,7 @@ facadeClassName.internalName
 resolveOverridesForStaticMembers
 sslSocketSession
 isKClass
-v2.2.3
+v2.2.4
 measurement.sdk.attribution.cache.ttl
 refund
 DELETE_SKIP_FILE

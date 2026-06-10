@@ -34,7 +34,7 @@ public final class NotiFetchDatabase_Impl extends NotiFetchDatabase {
   @Override
   @NonNull
   protected SupportSQLiteOpenHelper createOpenHelper(@NonNull final DatabaseConfiguration config) {
-    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(2) {
+    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(3) {
       @Override
       public void createAllTables(@NonNull final SupportSQLiteDatabase db) {
         db.execSQL("CREATE TABLE IF NOT EXISTS `captured_notifications` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `packageName` TEXT NOT NULL, `platform` TEXT NOT NULL, `source` TEXT NOT NULL, `title` TEXT NOT NULL, `body` TEXT NOT NULL, `bigText` TEXT NOT NULL, `subText` TEXT NOT NULL, `orderValue` REAL, `pickupLocation` TEXT, `dropoffLocation` TEXT, `distance` TEXT, `receivedAt` INTEGER NOT NULL, `isSynced` INTEGER NOT NULL, `syncedAt` INTEGER, `isRead` INTEGER NOT NULL, `category` TEXT, `currency` TEXT NOT NULL)");
