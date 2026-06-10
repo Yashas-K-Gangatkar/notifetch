@@ -181,7 +181,16 @@ export function RazorpayCheckout({
 
       if (!orderResponse.ok) {
         const errorData = await orderResponse.json().catch(() => ({}));
-        throw new Error(errorData.error || `Failed to create order (${orderResponse.status})`);
+        const errorMsg = errorData.error || `Failed to create order (${orderResponse.status})`;
+
+        // Provide a more helpful message when Razorpay is not configured
+        if (orderResponse.status === 503 || errorMsg.toLowerCase().includes("not configured")) {
+          throw new Error(
+            "Razorpay is not configured yet. Please add your Razorpay API keys (RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET) in the .env file and Vercel environment variables."
+          );
+        }
+
+        throw new Error(errorMsg);
       }
 
       const orderData = await orderResponse.json();

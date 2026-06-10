@@ -286,7 +286,7 @@ export const PRICING: Record<string, PlanTier[]> = {
   "north-america": buildPlanTiers("USD", { starter: 2.05, pro: 5.08, premium: 10 }),
   "latin-america": buildPlanTiers("BRL", { starter: 10.50, pro: 26, premium: 51 }),
   "europe": buildPlanTiers("EUR", { starter: 1.89, pro: 4.69, premium: 9.25 }),
-  "india": buildPlanTiers("INR", { starter: 170, pro: 420, premium: 830 }),
+  "india": buildPlanTiers("INR", { starter: 199, pro: 399, premium: 599 }),
   "east-asia": buildPlanTiers("JPY", { starter: 310, pro: 770, premium: 1520 }),
   "sea": buildPlanTiers("SGD", { starter: 2.75, pro: 6.85, premium: 13.50 }),
   "mena": buildPlanTiers("AED", { starter: 7.50, pro: 18.65, premium: 36.75 }),

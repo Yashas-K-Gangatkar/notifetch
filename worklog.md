@@ -101,3 +101,56 @@ Stage Summary:
 - After payment, selected platforms are automatically saved as NotificationSource records
 - Dark mode styling improved for settings section
 - CRITICAL: User must add RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET to .env and Vercel Dashboard
+
+---
+Task ID: 3
+Agent: Super Z (Main)
+Task: Fix dark mode, consolidate pricing, fix platform selection, improve Razorpay errors, remove fake data
+
+Work Log:
+- Fixed dark mode across all dashboard pages and components:
+  - Dashboard page: Changed `bg-white` → `bg-card` for QR code wrapper (line 379)
+  - Dashboard page: Changed `text-gray-500` / `bg-gray-500/10` → `text-muted-foreground` / `bg-muted` for Settings icon
+  - Dashboard page: Changed `bg-gray-500/10 text-gray-500 border-gray-500/20` → `bg-muted text-muted-foreground border-border` for GENERAL category
+  - Notifications page: Same GENERAL category color fix
+  - Navbar: Changed `bg-white` → `bg-card` for QR code modal wrapper
+  - PWA install prompt: Changed `bg-white` → `bg-card` for QR code wrapper
+  - Push permission component: Replaced ALL hardcoded dark-mode-only colors (zinc-950, amber-950, emerald-950, red-950) with theme-aware alternatives (muted/50, amber-500/10, emerald-500/10, red-500/10)
+  - Push permission component: Changed `text-black` → `text-white` on amber-500 button
+  - PWA register: Replaced `bg-amber-950/90` → `bg-amber-500/10`, `bg-emerald-950/90` → `bg-emerald-500/10` for update/install banners
+  - PWA register: Changed `text-black` → `text-white` on action buttons
+
+- Consolidated pricing pages (3 → 1 unified flow):
+  - Landing page pricing section kept as nice visual overview (already links to /dashboard/subscribe for paid plans)
+  - Dashboard upgrade card already links to /dashboard/subscribe
+  - Subscribe page is the single comprehensive page for plan + platform + payment
+  - Pricing verified consistent: ₹199/₹399/₹599 across data.ts, razorpay.ts, subscribe page, dashboard page
+
+- Restructured subscribe page for better platform selection UX:
+  - Moved platform selection BEFORE plan cards (users see it first)
+  - Added prominent guidance banner for free plan users: "You can select up to 2 platforms right now"
+  - Added upgrade preview message when user selects a paid plan
+  - Removed `opacity-60` dimming from current plan card → replaced with subtle `ring-1 ring-amber-500/30`
+  - Changed "Current" badge from solid amber to outline variant for better dark mode appearance
+  - Added section heading "Want more platforms? Upgrade your plan" before plan cards
+  - Moved `isDowngrade` function before its first usage to fix reference ordering
+
+- Improved Razorpay error messages:
+  - Added specific check for 503 status and "not configured" errors in razorpay-checkout.tsx
+  - Shows helpful message: "Razorpay is not configured yet. Please add your Razorpay API keys (RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET) in the .env file and Vercel environment variables."
+
+- Verified no fake/demo data remains in dashboard pages:
+  - All data comes from API calls (/api/user, /api/notifications, /api/platforms)
+  - Only reference/config data exists (PLATFORM_COLORS, CATEGORY_ICONS, SOURCE_CONFIG)
+  - No hardcoded mock data arrays found
+
+- Lint check: No errors in src/ directory (only pre-existing errors in scripts/)
+- TypeScript check: No errors in src/ directory
+- Dev server: Running successfully on port 3000
+
+Stage Summary:
+- Dark mode now works properly across ALL sections (no more hardcoded light-mode-only colors)
+- Platform selection is the first thing users see on the subscribe page, with clear instructions
+- Free users can immediately select 2 platforms and confirm without any payment
+- Razorpay error message is now helpful when keys are not configured
+- Pricing is consistent across all 3 pages (landing, dashboard, subscribe)

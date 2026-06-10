@@ -142,7 +142,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   CANCELLED: "bg-red-500/10 text-red-500 border-red-500/20",
   EARNINGS: "bg-purple-500/10 text-purple-500 border-purple-500/20",
   AVAILABILITY: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
-  GENERAL: "bg-gray-500/10 text-gray-500 border-gray-500/20",
+  GENERAL: "bg-muted text-muted-foreground border-border",
 };
 
 export default function DashboardPage() {
@@ -289,7 +289,7 @@ export default function DashboardPage() {
           {[
             { icon: Bell, label: "Notifications", href: "/dashboard/notifications", color: "text-amber-500", bg: "bg-amber-500/10", badge: unreadCount > 0 ? unreadCount : undefined },
             { icon: User, label: "Profile", href: "/dashboard/profile", color: "text-blue-500", bg: "bg-blue-500/10" },
-            { icon: Settings, label: "Settings", href: "/dashboard/settings", color: "text-gray-500", bg: "bg-gray-500/10" },
+            { icon: Settings, label: "Settings", href: "/dashboard/settings", color: "text-muted-foreground", bg: "bg-muted" },
             { icon: CreditCard, label: "Subscribe", href: "/dashboard/subscribe", color: "text-purple-500", bg: "bg-purple-500/10" },
           ].map((item) => (
             <button
@@ -376,7 +376,7 @@ export default function DashboardPage() {
                   Scan the QR code below on your phone and tap &quot;Add to Home Screen&quot; to install NotiFetch as an app with real notification capture.
                 </p>
                 <div className="flex justify-center my-4">
-                  <div className="bg-white rounded-2xl p-3 inline-block shadow-lg shadow-black/5">
+                  <div className="bg-card rounded-2xl p-3 inline-block shadow-lg shadow-black/5">
                     <img
                       src="/qr-code.png"
                       alt="QR code to install NotiFetch"
@@ -431,7 +431,7 @@ export default function DashboardPage() {
                     onClick={() => router.push("/dashboard/subscribe")}
                     className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-semibold"
                   >
-                    View Plans — Starting ₹170/mo
+                    View Plans — Starting ₹199/mo
                   </Button>
                 </div>
               </div>

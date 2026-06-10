@@ -113,7 +113,7 @@ export default function SubscribePage() {
     {
       id: "starter" as PlanId,
       name: "Starter",
-      price: "₹170",
+      price: "₹199",
       period: "/month",
       description: "For part-time drivers with a few platforms",
       platformLimit: 5,
@@ -136,7 +136,7 @@ export default function SubscribePage() {
     {
       id: "pro" as PlanId,
       name: "Pro",
-      price: "₹420",
+      price: "₹399",
       period: "/month",
       description: "For active drivers across multiple platforms",
       platformLimit: 8,
@@ -161,7 +161,7 @@ export default function SubscribePage() {
     {
       id: "premium" as PlanId,
       name: "Premium",
-      price: "₹830",
+      price: "₹599",
       period: "/month",
       description: "Unlimited everything for full-time professionals",
       platformLimit: 999,
@@ -183,8 +183,18 @@ export default function SubscribePage() {
     },
   ];
 
+  const isDowngrade = (planId: PlanId) => {
+    const planOrder: Record<string, number> = { free: 0, starter: 1, pro: 2, premium: 3 };
+    return planOrder[currentPlan] > planOrder[planId];
+  };
+
+  // Use the selectedPlan's limit for platform selection (allows preview of paid plan limits)
+  // But for saving, we respect the current plan's actual limit
   const activePlan = plans.find(p => p.id === selectedPlan);
   const platformLimit = activePlan?.platformLimit || 2;
+  const currentPlanData = plans.find(p => p.id === currentPlan);
+  const currentPlanLimit = currentPlanData?.platformLimit || 2;
+  const isPreviewingUpgrade = selectedPlan !== null && selectedPlan !== currentPlan && !isDowngrade(selectedPlan as PlanId);
 
   const togglePlatform = (platformId: string) => {
     setSelectedPlatforms(prev => {
@@ -259,11 +269,6 @@ export default function SubscribePage() {
     );
   }
 
-  const isDowngrade = (planId: PlanId) => {
-    const planOrder: Record<string, number> = { free: 0, starter: 1, pro: 2, premium: 3 };
-    return planOrder[currentPlan] > planOrder[planId];
-  };
-
   return (
     <div className="min-h-screen bg-background">
       {/* Top bar */}
@@ -281,110 +286,14 @@ export default function SubscribePage() {
 
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12">
         {/* Header */}
-        <div className="text-center mb-10">
-          <h2 className="text-3xl font-bold mb-3">Choose Your Plan & Platforms</h2>
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-bold mb-3">Choose Your Platforms & Plan</h2>
           <p className="text-muted-foreground max-w-lg mx-auto">
-            Select a plan and choose which platforms you want to receive notifications from. You can change your platform preferences anytime.
+            Select which platforms you want notifications from, then confirm. You can upgrade anytime for more platforms.
           </p>
         </div>
 
-        {/* Plans grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
-          {plans.map((plan) => {
-            const isCurrent = currentPlan === plan.id;
-            const isHigher = isDowngrade(plan.id);
-
-            return (
-              <Card
-                key={plan.id}
-                className={`relative cursor-pointer transition-all bg-card ${
-                  selectedPlan === plan.id
-                    ? "ring-2 ring-amber-500/50 border-amber-500/50"
-                    : ""
-                } ${isCurrent ? "opacity-60" : "hover:border-amber-500/20"}`}
-                onClick={() => {
-                  if (!isCurrent && !isHigher) {
-                    setSelectedPlan(plan.id);
-                    // Trim selected platforms if they exceed new plan limit
-                    setSelectedPlatforms(prev => {
-                      const limit = plan.platformLimit;
-                      if (prev.length > limit) return prev.slice(0, limit);
-                      return prev;
-                    });
-                  }
-                }}
-              >
-                {plan.popular && (
-                  <div className="absolute -top-3 right-4">
-                    <Badge className="bg-gradient-to-r from-amber-500 to-orange-600 text-white">
-                      Popular
-                    </Badge>
-                  </div>
-                )}
-                {isCurrent && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <Badge className="bg-amber-500 text-white">Current</Badge>
-                  </div>
-                )}
-                <CardHeader className="pb-3">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xl">{plan.icon}</span>
-                    <h3 className="text-lg font-bold">{plan.name}</h3>
-                  </div>
-                  <div>
-                    <span className="text-3xl font-bold">{plan.price}</span>
-                    <span className="text-muted-foreground text-sm">{plan.period}</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {plan.unlimitedPlatforms ? "Unlimited platforms" : `Up to ${plan.platformLimit} platforms`}
-                  </p>
-                  <p className="text-xs text-muted-foreground">{plan.description}</p>
-                </CardHeader>
-                <CardContent>
-                  <Separator className="mb-3" />
-                  <ul className="space-y-2">
-                    {plan.features.map((feature) => (
-                      <li key={feature} className="flex items-center gap-2 text-xs">
-                        <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                        <span>{feature}</span>
-                      </li>
-                    ))}
-                    {plan.excluded.map((feature) => (
-                      <li key={feature} className="flex items-center gap-2 text-xs text-muted-foreground/50">
-                        <span className="w-3.5 h-3.5 shrink-0" />
-                        <span>{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  <div className="mt-4">
-                    {isCurrent ? (
-                      <Button variant="outline" className="w-full" disabled>
-                        Current Plan
-                      </Button>
-                    ) : isHigher ? (
-                      <Button variant="outline" className="w-full" disabled>
-                        Downgrade
-                      </Button>
-                    ) : (
-                      <Button
-                        variant={selectedPlan === plan.id ? "default" : "outline"}
-                        className={`w-full ${
-                          selectedPlan === plan.id
-                            ? "bg-gradient-to-r from-amber-500 to-orange-600 text-white"
-                            : ""
-                        }`}
-                      >
-                        Select {plan.name}
-                      </Button>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
-
-        {/* Platform Preference Selection — ALWAYS visible, even for free plan */}
+        {/* Platform Preference Selection — ALWAYS visible, shown FIRST */}
         <Card className="mb-8 bg-card">
           <CardHeader>
             <div className="flex items-center gap-2">
@@ -398,6 +307,22 @@ export default function SubscribePage() {
                 ? "Premium gives you access to all platforms worldwide. Select which ones you want enabled."
                 : `Choose up to ${platformLimit} platforms you want to receive notifications from. You can change these anytime.`}
             </p>
+            {/* Free plan guidance */}
+            {currentPlan === "free" && selectedPlan === "free" && (
+              <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3 mt-2">
+                <p className="text-sm text-amber-500 font-medium">
+                  ✅ You can select up to 2 platforms on your Free plan right now. Select your platforms below and click "Confirm & Get Notifications" to start receiving alerts.
+                </p>
+              </div>
+            )}
+            {/* Upgrade preview message */}
+            {isPreviewingUpgrade && selectedPlan && selectedPlan !== "free" && (
+              <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3 mt-2">
+                <p className="text-sm text-amber-500 font-medium">
+                  🚀 With the {plans.find(p => p.id === selectedPlan)?.name} plan, you can select up to {platformLimit === 999 ? "unlimited" : platformLimit} platforms. Complete payment below to unlock them all.
+                </p>
+              </div>
+            )}
             <div className="flex items-center gap-2 mt-2">
               <Badge variant="outline" className="text-amber-500 border-amber-500/20">
                 {selectedPlatforms.length} / {selectedPlan === "premium" ? PLATFORMS.length : platformLimit} selected
@@ -498,8 +423,110 @@ export default function SubscribePage() {
           </CardContent>
         </Card>
 
+        {/* Plans grid — shown after platform selection */}
+        <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+          <CreditCard className="w-5 h-5 text-amber-500" />
+          {currentPlan === "free" ? "Want more platforms? Upgrade your plan" : "Change your plan"}
+        </h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+          {plans.map((plan) => {
+            const isCurrent = currentPlan === plan.id;
+            const isHigher = isDowngrade(plan.id);
+
+            return (
+              <Card
+                key={plan.id}
+                className={`relative cursor-pointer transition-all bg-card ${
+                  selectedPlan === plan.id
+                    ? "ring-2 ring-amber-500/50 border-amber-500/50"
+                    : ""
+                } ${isCurrent ? "ring-1 ring-amber-500/30" : "hover:border-amber-500/20"}`}
+                onClick={() => {
+                  if (!isCurrent && !isHigher) {
+                    setSelectedPlan(plan.id);
+                    // Trim selected platforms if they exceed new plan limit
+                    setSelectedPlatforms(prev => {
+                      const limit = plan.platformLimit;
+                      if (prev.length > limit) return prev.slice(0, limit);
+                      return prev;
+                    });
+                  }
+                }}
+              >
+                {plan.popular && (
+                  <div className="absolute -top-3 right-4">
+                    <Badge className="bg-gradient-to-r from-amber-500 to-orange-600 text-white">
+                      Popular
+                    </Badge>
+                  </div>
+                )}
+                {isCurrent && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                    <Badge variant="outline" className="bg-background text-amber-500 border-amber-500/30">Current</Badge>
+                  </div>
+                )}
+                <CardHeader className="pb-3">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-xl">{plan.icon}</span>
+                    <h3 className="text-lg font-bold">{plan.name}</h3>
+                  </div>
+                  <div>
+                    <span className="text-3xl font-bold">{plan.price}</span>
+                    <span className="text-muted-foreground text-sm">{plan.period}</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {plan.unlimitedPlatforms ? "Unlimited platforms" : `Up to ${plan.platformLimit} platforms`}
+                  </p>
+                  <p className="text-xs text-muted-foreground">{plan.description}</p>
+                </CardHeader>
+                <CardContent>
+                  <Separator className="mb-3" />
+                  <ul className="space-y-2">
+                    {plan.features.map((feature) => (
+                      <li key={feature} className="flex items-center gap-2 text-xs">
+                        <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                        <span>{feature}</span>
+                      </li>
+                    ))}
+                    {plan.excluded.map((feature) => (
+                      <li key={feature} className="flex items-center gap-2 text-xs text-muted-foreground/50">
+                        <span className="w-3.5 h-3.5 shrink-0" />
+                        <span>{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="mt-4">
+                    {isCurrent ? (
+                      <Button variant="outline" className="w-full" disabled>
+                        Current Plan
+                      </Button>
+                    ) : isHigher ? (
+                      <Button variant="outline" className="w-full" disabled>
+                        Downgrade
+                      </Button>
+                    ) : (
+                      <Button
+                        variant={selectedPlan === plan.id ? "default" : "outline"}
+                        className={`w-full ${
+                          selectedPlan === plan.id
+                            ? "bg-gradient-to-r from-amber-500 to-orange-600 text-white"
+                            : ""
+                        }`}
+                      >
+                        Select {plan.name}
+                      </Button>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+
+
+
         {/* Payment section — only for paid plan upgrades */}
-        {selectedPlan && selectedPlan !== "free" && currentPlan !== selectedPlan && !isDowngrade(selectedPlan) && (
+        {selectedPlan && selectedPlan !== "free" && selectedPlan !== currentPlan && !isDowngrade(selectedPlan) && (
           <Card className="mb-8 border-amber-500/20 bg-gradient-to-br from-amber-500/5 to-orange-500/5">
             <CardContent className="p-6">
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4">

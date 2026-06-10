@@ -21,9 +21,9 @@ interface PlanPrice {
 
 const PLAN_PRICES: Record<Plan, PlanPrice> = {
   free: { monthly: 0, yearly: 0, platformLimit: 2 },
-  starter: { monthly: 17000, yearly: 170000, platformLimit: 5 },     // ₹170/month ($2.05), ₹1700/year
-  pro: { monthly: 42000, yearly: 420000, platformLimit: 8 },         // ₹420/month ($5.08), ₹4200/year
-  premium: { monthly: 83000, yearly: 830000, platformLimit: 999 },   // ₹830/month ($10), ₹8300/year
+  starter: { monthly: 19900, yearly: 199000, platformLimit: 5 },     // ₹199/month, ₹1990/year
+  pro: { monthly: 39900, yearly: 399000, platformLimit: 8 },         // ₹399/month, ₹3990/year
+  premium: { monthly: 59900, yearly: 599000, platformLimit: 999 },   // ₹599/month, ₹5990/year
 };
 
 /**

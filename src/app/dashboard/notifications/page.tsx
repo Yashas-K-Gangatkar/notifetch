@@ -81,7 +81,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   CANCELLED: "bg-red-500/10 text-red-500 border-red-500/20",
   EARNINGS: "bg-purple-500/10 text-purple-500 border-purple-500/20",
   AVAILABILITY: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
-  GENERAL: "bg-gray-500/10 text-gray-500 border-gray-500/20",
+  GENERAL: "bg-muted text-muted-foreground border-border",
 };
 
 const SOURCE_CONFIG: Record<string, { color: string; bgColor: string; label: string }> = {
