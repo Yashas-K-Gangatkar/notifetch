@@ -165,9 +165,141 @@ export function formatCurrency(value: number | { price: number; name: string }, 
 
 // ─── Pricing ─────────────────────────────────────────────────────────────────
 
-export const PRICING = {
-  "north-america": { free: { price: 0, name: "Free" }, pro: { price: 4.99, name: "Pro" }, premium: { price: 9.99, name: "Premium" } },
-  "europe": { free: { price: 0, name: "Free" }, pro: { price: 4.49, name: "Pro" }, premium: { price: 8.99, name: "Premium" } },
-  "india": { free: { price: 0, name: "Free" }, pro: { price: 149, name: "Pro" }, premium: { price: 299, name: "Premium" } },
-  "default": { free: { price: 0, name: "Free" }, pro: { price: 3.99, name: "Pro" }, premium: { price: 7.99, name: "Premium" } },
+export type PlanId = "free" | "starter" | "pro" | "premium";
+
+export interface PlanTier {
+  id: PlanId;
+  name: string;
+  description: string;
+  /** Price in the region's local currency */
+  price: number;
+  /** Currency code for this region */
+  currency: string;
+  /** Max platforms the user can enable */
+  platformLimit: number;
+  /** true = unlimited platforms */
+  unlimitedPlatforms: boolean;
+  icon: string;
+  features: { text: string; included: boolean }[];
+}
+
+export interface RegionPricing {
+  currency: string;
+  plans: Omit<PlanTier, "currency">[];
+}
+
+function buildPlanTiers(currency: string, prices: { starter: number; pro: number; premium: number }): PlanTier[] {
+  return [
+    {
+      id: "free",
+      name: "Free",
+      description: "Get started with the basics",
+      price: 0,
+      currency,
+      platformLimit: 2,
+      unlimitedPlatforms: false,
+      icon: "⚡",
+      features: [
+        { text: "2 platform connections", included: true },
+        { text: "Basic notification feed", included: true },
+        { text: "Sound alerts", included: true },
+        { text: "1 region", included: true },
+        { text: "5 platform connections", included: false },
+        { text: "Auto-accept rules", included: false },
+        { text: "Earnings dashboard", included: false },
+        { text: "Voice alerts", included: false },
+        { text: "Smart order ranking", included: false },
+        { text: "Priority support", included: false },
+      ],
+    },
+    {
+      id: "starter",
+      name: "Starter",
+      description: "For part-time drivers with a few platforms",
+      price: prices.starter,
+      currency,
+      platformLimit: 5,
+      unlimitedPlatforms: false,
+      icon: "🚀",
+      features: [
+        { text: "5 platform connections", included: true },
+        { text: "Advanced notification feed", included: true },
+        { text: "Sound + vibration alerts", included: true },
+        { text: "All regions", included: true },
+        { text: "Auto-accept rules", included: true },
+        { text: "Basic earnings dashboard", included: true },
+        { text: "8 platform connections", included: false },
+        { text: "Voice alerts", included: false },
+        { text: "Smart order ranking", included: false },
+        { text: "Priority support", included: false },
+      ],
+    },
+    {
+      id: "pro",
+      name: "Pro",
+      description: "For active drivers across multiple platforms",
+      price: prices.pro,
+      currency,
+      platformLimit: 8,
+      unlimitedPlatforms: false,
+      icon: "👑",
+      features: [
+        { text: "8 platform connections", included: true },
+        { text: "Advanced notification feed", included: true },
+        { text: "Sound + vibration + voice alerts", included: true },
+        { text: "All regions", included: true },
+        { text: "Auto-accept rules", included: true },
+        { text: "Full earnings dashboard", included: true },
+        { text: "Smart order ranking (AI-powered)", included: true },
+        { text: "Priority support", included: true },
+        { text: "Unlimited platform connections", included: false },
+        { text: "Custom platform preferences", included: false },
+      ],
+    },
+    {
+      id: "premium",
+      name: "Premium",
+      description: "Unlimited everything for full-time professionals",
+      price: prices.premium,
+      currency,
+      platformLimit: 999,
+      unlimitedPlatforms: true,
+      icon: "💎",
+      features: [
+        { text: "Unlimited platform connections", included: true },
+        { text: "Advanced notification feed", included: true },
+        { text: "All alerts + custom sounds", included: true },
+        { text: "All regions worldwide", included: true },
+        { text: "Auto-accept rules", included: true },
+        { text: "Full earnings dashboard", included: true },
+        { text: "Smart order ranking (AI-powered)", included: true },
+        { text: "Priority support + early access", included: true },
+        { text: "Custom platform preferences", included: true },
+        { text: "14 languages supported", included: true },
+      ],
+    },
+  ];
+}
+
+/** Pricing by region. All prices are in the region's local currency. */
+export const PRICING: Record<string, PlanTier[]> = {
+  "north-america": buildPlanTiers("USD", { starter: 2.05, pro: 5.08, premium: 10 }),
+  "latin-america": buildPlanTiers("BRL", { starter: 10.50, pro: 26, premium: 51 }),
+  "europe": buildPlanTiers("EUR", { starter: 1.89, pro: 4.69, premium: 9.25 }),
+  "india": buildPlanTiers("INR", { starter: 170, pro: 420, premium: 830 }),
+  "east-asia": buildPlanTiers("JPY", { starter: 310, pro: 770, premium: 1520 }),
+  "sea": buildPlanTiers("SGD", { starter: 2.75, pro: 6.85, premium: 13.50 }),
+  "mena": buildPlanTiers("AED", { starter: 7.50, pro: 18.65, premium: 36.75 }),
+  "oceania": buildPlanTiers("AUD", { starter: 3.15, pro: 7.85, premium: 15.50 }),
 };
+
+/** Get pricing tiers for a region, with fallback to north-america */
+export function getPricingForRegion(regionId: string): PlanTier[] {
+  return PRICING[regionId] || PRICING["north-america"];
+}
+
+/** Get a specific plan tier for a region */
+export function getPlanTier(regionId: string, planId: PlanId): PlanTier | undefined {
+  const tiers = getPricingForRegion(regionId);
+  return tiers.find(t => t.id === planId);
+}

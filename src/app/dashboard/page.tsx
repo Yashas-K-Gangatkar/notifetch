@@ -15,7 +15,6 @@ import {
   Clock, Filter, RefreshCw, Wifi
 } from "lucide-react";
 import { signOut } from "next-auth/react";
-import { RazorpayCheckout } from "@/components/razorpay-checkout";
 import { PushPermission } from "@/components/push-permission";
 import { BackButton } from "@/components/back-button";
 
@@ -424,17 +423,16 @@ export default function DashboardPage() {
               <div className="flex-1">
                 <h3 className="font-semibold text-lg">Upgrade Your Plan</h3>
                 <p className="text-sm text-muted-foreground mt-1">
-                  You&apos;re on the <span className="text-amber-500 font-semibold">Free</span> plan.
-                  Upgrade to Pro for unlimited notifications, all platforms, and priority support.
+                  You&apos;re on the <span className="text-amber-500 font-semibold">Free</span> plan with 2 platforms.
+                  Upgrade for more platforms, advanced analytics, and priority support.
                 </p>
-                <div className="mt-4">
-                  <RazorpayCheckout
-                    plan="pro"
-                    period="monthly"
-                    currentPlan="free"
-                    onSuccess={() => fetchDashboardData()}
-                    label="Upgrade to Pro — ₹49/mo"
-                  />
+                <div className="mt-4 flex flex-wrap gap-3">
+                  <Button
+                    onClick={() => router.push("/dashboard/subscribe")}
+                    className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-semibold"
+                  >
+                    View Plans — Starting ₹170/mo
+                  </Button>
                 </div>
               </div>
             </div>

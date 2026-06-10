@@ -37,7 +37,6 @@ import {
   CURRENCIES,
   DELIVERY_CATEGORIES,
   PLATFORMS,
-  PRICING,
   type Region,
 } from "@/lib/data";
 
@@ -262,6 +261,7 @@ export function SettingsSection() {
                 <Switch
                   checked={settings.soundAlerts}
                   onCheckedChange={(v) => updateSetting("soundAlerts", v)}
+                  className="data-[state=checked]:bg-amber-500 data-[state=unchecked]:bg-muted-foreground/30"
                 />
               </div>
               <Separator />
@@ -278,6 +278,7 @@ export function SettingsSection() {
                 <Switch
                   checked={settings.vibration}
                   onCheckedChange={(v) => updateSetting("vibration", v)}
+                  className="data-[state=checked]:bg-amber-500 data-[state=unchecked]:bg-muted-foreground/30"
                 />
               </div>
               <Separator />
@@ -294,6 +295,7 @@ export function SettingsSection() {
                 <Switch
                   checked={settings.voiceAlerts}
                   onCheckedChange={(v) => updateSetting("voiceAlerts", v)}
+                  className="data-[state=checked]:bg-amber-500 data-[state=unchecked]:bg-muted-foreground/30"
                 />
               </div>
             </CardContent>
@@ -318,6 +320,7 @@ export function SettingsSection() {
                 <Switch
                   checked={settings.autoAccept}
                   onCheckedChange={(v) => updateSetting("autoAccept", v)}
+                  className="data-[state=checked]:bg-amber-500 data-[state=unchecked]:bg-muted-foreground/30"
                 />
               </div>
 
@@ -420,6 +423,7 @@ export function SettingsSection() {
                 <Switch
                   checked={settings.rideSafeMode}
                   onCheckedChange={(v) => updateSetting("rideSafeMode", v)}
+                  className="data-[state=checked]:bg-amber-500 data-[state=unchecked]:bg-muted-foreground/30"
                 />
               </div>
             </CardContent>
@@ -445,6 +449,7 @@ export function SettingsSection() {
                 <Switch
                   defaultChecked
                   onCheckedChange={(v) => setTheme(v ? "dark" : "light")}
+                  className="data-[state=checked]:bg-amber-500 data-[state=unchecked]:bg-muted-foreground/30"
                 />
               </div>
             </CardContent>

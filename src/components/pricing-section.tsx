@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -15,27 +15,19 @@ import {
 import {
   Check,
   X,
-  Zap,
-  Crown,
   ArrowRight,
-  Bell,
-  BarChart3,
-  Mic,
-  Shield,
-  Filter,
   Globe,
-  LayoutGrid,
-  Languages,
+  Shield,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { REGIONS, PRICING, formatCurrency, getCurrencySymbol } from "@/lib/data";
+import { REGIONS, getPricingForRegion, formatCurrency, getCurrencySymbol, type PlanTier } from "@/lib/data";
 
 export function PricingSection() {
   const router = useRouter();
   const { data: session } = useSession();
-  const [selectedRegion, setSelectedRegion] = useState("north-america");
-  const pricing = PRICING[selectedRegion] || PRICING["north-america"];
+  const [selectedRegion, setSelectedRegion] = useState("india");
+  const plans = getPricingForRegion(selectedRegion);
   const region = REGIONS.find((r) => r.id === selectedRegion);
 
   const handleGetStarted = useCallback(() => {
@@ -50,13 +42,39 @@ export function PricingSection() {
     if (!session) {
       router.push("/auth/signin");
     } else {
-      router.push("/dashboard");
+      router.push("/dashboard/subscribe");
     }
   }, [session, router]);
 
+  const getCardStyle = (plan: PlanTier) => {
+    switch (plan.id) {
+      case "starter":
+        return "border-blue-500/30 shadow-lg shadow-blue-500/5";
+      case "pro":
+        return "border-amber-500/30 shadow-lg shadow-amber-500/5";
+      case "premium":
+        return "border-purple-500/30 shadow-xl shadow-purple-500/10";
+      default:
+        return "border-border";
+    }
+  };
+
+  const getButtonStyle = (plan: PlanTier) => {
+    switch (plan.id) {
+      case "starter":
+        return "bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-semibold shadow-lg shadow-blue-500/25";
+      case "pro":
+        return "bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold shadow-lg shadow-amber-500/25";
+      case "premium":
+        return "bg-gradient-to-r from-purple-500 to-violet-600 hover:from-purple-600 hover:to-violet-700 text-white font-bold shadow-lg shadow-purple-500/25";
+      default:
+        return "border-border";
+    }
+  };
+
   return (
     <section id="pricing" className="py-16 sm:py-20">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section header */}
         <div className="text-center mb-10">
           <h2 className="text-3xl sm:text-4xl font-bold mb-3">
@@ -87,136 +105,101 @@ export function PricingSection() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-          {/* Free tier */}
-          <Card className="bg-card border-border relative">
-            <CardHeader className="pb-4">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
-                  <Zap className="w-5 h-5 text-muted-foreground" />
-                </div>
-                <div>
-                  <CardTitle className="text-xl">Free</CardTitle>
-                  <p className="text-sm text-muted-foreground">
-                    Get started with the basics
-                  </p>
-                </div>
-              </div>
-              <div className="mt-4">
-                <span className="text-4xl font-bold">
-                  {formatCurrency(pricing.free, pricing.currency)}
-                </span>
-                <span className="text-muted-foreground">/month</span>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <Separator className="mb-4" />
-              <ul className="space-y-3">
-                {[
-                  { icon: Bell, text: "2 platform connections", included: true },
-                  { icon: Filter, text: "Basic notification feed", included: true },
-                  { icon: Zap, text: "Sound alerts", included: true },
-                  { icon: Globe, text: "1 region", included: true },
-                  { icon: Shield, text: "Auto-accept rules", included: false },
-                  { icon: BarChart3, text: "Earnings dashboard", included: false },
-                  { icon: LayoutGrid, text: "All 18 categories", included: false },
-                  { icon: Mic, text: "Voice alerts", included: false },
-                  { icon: Crown, text: "Smart order ranking", included: false },
-                  { icon: Languages, text: "Multi-language support", included: false },
-                ].map((feature) => (
-                  <li
-                    key={feature.text}
-                    className={`flex items-center gap-2 text-sm ${
-                      feature.included
-                        ? "text-foreground"
-                        : "text-muted-foreground"
-                    }`}
-                  >
-                    {feature.included ? (
-                      <Check className="w-4 h-4 text-emerald-500 shrink-0" />
-                    ) : (
-                      <X className="w-4 h-4 text-muted-foreground/50 shrink-0" />
-                    )}
-                    {feature.text}
-                  </li>
-                ))}
-              </ul>
-              <Button
-                variant="outline"
-                onClick={handleGetStarted}
-                className="w-full mt-6 h-11 border-border"
-              >
-                Get Started Free
-              </Button>
-            </CardContent>
-          </Card>
+        {/* 4-column plan grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          {plans.map((plan) => {
+            const isPopular = plan.id === "pro";
+            const currency = region?.currency || "USD";
 
-          {/* Premium tier */}
-          <Card className="bg-card border-amber-500/30 relative shadow-xl shadow-amber-500/10">
-            <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-              <Badge className="bg-gradient-to-r from-amber-500 to-orange-600 text-white font-semibold px-4 py-1">
-                <Crown className="w-3 h-3 mr-1" />
-                Most Popular
-              </Badge>
-            </div>
-            <CardHeader className="pb-4">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center">
-                  <Crown className="w-5 h-5 text-amber-500" />
-                </div>
-                <div>
-                  <CardTitle className="text-xl">Premium</CardTitle>
-                  <p className="text-sm text-muted-foreground">
-                    Unlock maximum earnings worldwide
-                  </p>
-                </div>
-              </div>
-              <div className="mt-4">
-                <span className="text-4xl font-bold">
-                  {formatCurrency(pricing.premium, pricing.currency)}
-                </span>
-                <span className="text-muted-foreground">/month</span>
-                <p className="text-xs text-amber-500 mt-1 font-medium">
-                  7-day free trial included
-                </p>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <Separator className="mb-4" />
-              <ul className="space-y-3">
-                {[
-                  { icon: Bell, text: "Unlimited platform connections", included: true },
-                  { icon: Filter, text: "Advanced notification feed", included: true },
-                  { icon: Zap, text: "Sound + vibration alerts", included: true },
-                  { icon: Globe, text: "All 8 regions worldwide", included: true },
-                  { icon: Shield, text: "Auto-accept rules", included: true },
-                  { icon: BarChart3, text: "Full earnings dashboard", included: true },
-                  { icon: LayoutGrid, text: "All 18 delivery categories", included: true },
-                  { icon: Mic, text: "Voice alerts & announcements", included: true },
-                  { icon: Crown, text: "Smart order ranking (AI-powered)", included: true },
-                  { icon: Languages, text: "14 languages supported", included: true },
-                ].map((feature) => (
-                  <li
-                    key={feature.text}
-                    className="flex items-center gap-2 text-sm"
-                  >
-                    <Check className="w-4 h-4 text-amber-500 shrink-0" />
-                    <span className="font-medium">{feature.text}</span>
-                  </li>
-                ))}
-              </ul>
-              <Button onClick={handleUpgrade} className="w-full mt-6 h-11 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold shadow-lg shadow-amber-500/25">
-                Start 7-Day Free Trial
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-              <p className="text-xs text-muted-foreground text-center mt-2">
-                Cancel anytime. No commitment.
-              </p>
-            </CardContent>
-          </Card>
+            return (
+              <Card
+                key={plan.id}
+                className={`bg-card relative ${getCardStyle(plan)}`}
+              >
+                {/* Popular badge */}
+                {isPopular && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                    <Badge className="bg-gradient-to-r from-amber-500 to-orange-600 text-white font-semibold px-4 py-1">
+                      Most Popular
+                    </Badge>
+                  </div>
+                )}
+
+                <CardHeader className="pb-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center text-xl">
+                      {plan.icon}
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold">{plan.name}</h3>
+                      <p className="text-xs text-muted-foreground">
+                        {plan.description}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="mt-4">
+                    <span className="text-3xl font-bold">
+                      {formatCurrency(plan.price, currency)}
+                    </span>
+                    <span className="text-muted-foreground">/month</span>
+                    {plan.id !== "free" && (
+                      <p className="text-xs text-amber-500 mt-1 font-medium">
+                        {plan.unlimitedPlatforms
+                          ? "Unlimited platforms"
+                          : `Up to ${plan.platformLimit} platforms`}
+                      </p>
+                    )}
+                  </div>
+                </CardHeader>
+
+                <CardContent>
+                  <Separator className="mb-4" />
+                  <ul className="space-y-2.5">
+                    {plan.features.map((feature) => (
+                      <li
+                        key={feature.text}
+                        className={`flex items-center gap-2 text-sm ${
+                          feature.included
+                            ? "text-foreground"
+                            : "text-muted-foreground"
+                        }`}
+                      >
+                        {feature.included ? (
+                          <Check className="w-4 h-4 text-emerald-500 shrink-0" />
+                        ) : (
+                          <X className="w-4 h-4 text-muted-foreground/50 shrink-0" />
+                        )}
+                        {feature.text}
+                      </li>
+                    ))}
+                  </ul>
+
+                  <div className="mt-6">
+                    {plan.id === "free" ? (
+                      <Button
+                        variant="outline"
+                        onClick={handleGetStarted}
+                        className="w-full h-11"
+                      >
+                        Get Started Free
+                      </Button>
+                    ) : (
+                      <Button
+                        onClick={handleUpgrade}
+                        className={`w-full h-11 ${getButtonStyle(plan)}`}
+                      >
+                        Upgrade to {plan.name}
+                        <ArrowRight className="w-4 h-4 ml-2" />
+                      </Button>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
 
-        {/* FAQ / Guarantee */}
+        {/* Guarantee */}
         <div className="mt-12 text-center">
           <Card className="bg-card border-border inline-block">
             <CardContent className="p-6 flex items-center gap-3">

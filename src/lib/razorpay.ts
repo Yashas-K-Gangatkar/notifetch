@@ -10,18 +10,20 @@ import crypto from "crypto";
 
 // ─── Plan Pricing (in paise) ────────────────────────────────────────────────
 
-type Plan = "free" | "pro" | "premium";
+type Plan = "free" | "starter" | "pro" | "premium";
 type Period = "monthly" | "yearly";
 
 interface PlanPrice {
   monthly: number;
   yearly: number;
+  platformLimit: number;
 }
 
 const PLAN_PRICES: Record<Plan, PlanPrice> = {
-  free: { monthly: 0, yearly: 0 },
-  pro: { monthly: 4900, yearly: 49000 },     // ₹49/month, ₹490/year
-  premium: { monthly: 9900, yearly: 99000 },  // ₹99/month, ₹990/year
+  free: { monthly: 0, yearly: 0, platformLimit: 2 },
+  starter: { monthly: 17000, yearly: 170000, platformLimit: 5 },     // ₹170/month ($2.05), ₹1700/year
+  pro: { monthly: 42000, yearly: 420000, platformLimit: 8 },         // ₹420/month ($5.08), ₹4200/year
+  premium: { monthly: 83000, yearly: 830000, platformLimit: 999 },   // ₹830/month ($10), ₹8300/year
 };
 
 /**
@@ -30,9 +32,18 @@ const PLAN_PRICES: Record<Plan, PlanPrice> = {
 export function getPlanPrice(plan: string, period: string = "monthly"): number {
   const planPrices = PLAN_PRICES[plan as Plan];
   if (!planPrices) {
-    throw new Error(`Invalid plan: ${plan}. Must be one of: free, pro, premium`);
+    throw new Error(`Invalid plan: ${plan}. Must be one of: free, starter, pro, premium`);
   }
   return planPrices[period as Period] ?? planPrices.monthly;
+}
+
+/**
+ * Get the platform limit for a given plan.
+ */
+export function getPlanPlatformLimit(plan: string): number {
+  const planPrices = PLAN_PRICES[plan as Plan];
+  if (!planPrices) return 2;
+  return planPrices.platformLimit;
 }
 
 /**
