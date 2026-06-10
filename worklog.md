@@ -49,3 +49,29 @@ Stage Summary:
 - Code pushed to GitHub on both main and release/v2.2.1
 - Vercel needs environment variables configured (DATABASE_URL, NEXTAUTH_SECRET, NEXTAUTH_URL)
 - User needs to create a PostgreSQL database (Neon/Vercel Postgres) and set env vars in Vercel Dashboard
+---
+Task ID: 1
+Agent: main
+Task: Fix pricing inconsistency, add platform preferences, fix dark mode, fix Razorpay integration
+
+Work Log:
+- Analyzed 4 screenshots showing inconsistent pricing across 3 different pages
+- Rewrote src/lib/data.ts with unified 4-tier pricing: Free ($0) / Starter ($2.05/₹170 - 5 platforms) / Pro ($5.08/₹420 - 8 platforms) / Premium ($10/₹830 - unlimited)
+- Updated src/lib/razorpay.ts with new 4-tier pricing in INR paise
+- Rewrote src/components/pricing-section.tsx with unified 4-column layout + fixed "undefined" price bug
+- Rewrote src/app/dashboard/subscribe/page.tsx with all 4 tiers + platform preference selection UI
+- Updated src/app/dashboard/page.tsx upgrade prompt with correct pricing
+- Rewrote src/components/razorpay-checkout.tsx with retry logic and better error handling for 4 plan types
+- Updated src/app/api/payments/create-order/route.ts to support starter/pro/premium plans
+- Updated src/app/api/payments/verify/route.ts to support starter/pro/premium plans
+- Fixed dark mode toggle styling across all pages (Switch components now use explicit data-[state=checked]:bg-amber-500)
+- Fixed src/app/dashboard/settings/page.tsx with proper theme mounting, platform limit enforcement, and upgrade button
+- Fixed src/components/settings-section.tsx imports and Switch styling
+- Build verified successfully, pushed to GitHub main and release/v2.2.1 branches
+
+Stage Summary:
+- All pricing is now unified across landing page, subscribe page, and dashboard
+- Platform preference selection allows users to pick platforms limited by their plan tier
+- Dark mode toggle fixed with explicit amber-500 checked state styling
+- Razorpay integration supports 4 plan types with retry logic
+- User needs to add RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET in Vercel Dashboard for payments to work
