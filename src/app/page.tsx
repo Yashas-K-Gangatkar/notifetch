@@ -10,11 +10,9 @@ import { PlatformsSection } from "@/components/platforms-section";
 import { SettingsSection } from "@/components/settings-section";
 import { Separator } from "@/components/ui/separator";
 import { Zap } from "lucide-react";
-import type { DeliveryOrder } from "@/lib/data";
 
 export default function Home() {
   const [activeSection, setActiveSection] = useState("hero");
-  const [acceptedOrders, setAcceptedOrders] = useState<DeliveryOrder[]>([]);
 
   // Track which section is in view
   useEffect(() => {
@@ -42,14 +40,6 @@ export default function Home() {
     }
   }, []);
 
-  const handleAccept = useCallback((order: DeliveryOrder) => {
-    setAcceptedOrders((prev) => [...prev, order]);
-  }, []);
-
-  const handleDecline = useCallback((_orderId: string) => {
-    // Order declined - could track analytics here
-  }, []);
-
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Navbar activeSection={activeSection} onNavigate={handleNavigate} />
@@ -57,13 +47,9 @@ export default function Home() {
       <main className="flex-1">
         <HeroSection onNavigate={handleNavigate} />
         <Separator className="max-w-7xl mx-auto" />
-        <DashboardSection
-          onAccept={handleAccept}
-          onDecline={handleDecline}
-          acceptedOrders={acceptedOrders}
-        />
+        <DashboardSection onAccept={() => {}} onDecline={() => {}} acceptedOrders={[]} />
         <Separator className="max-w-7xl mx-auto" />
-        <EarningsSection acceptedOrders={acceptedOrders} />
+        <EarningsSection acceptedOrders={[]} />
         <Separator className="max-w-7xl mx-auto" />
         <PlatformsSection />
         <Separator className="max-w-7xl mx-auto" />
