@@ -44,8 +44,34 @@ data class AuthResponse(
     @Json(name = "message") val message: String?
 )
 
+// ── Razorpay Payment Models ──────────────────────────────────────────────────
+
 @JsonClass(generateAdapter = true)
-data class FcmTokenPayload(
-    @Json(name = "token") val token: String,
-    @Json(name = "deviceId") val deviceId: String?
+data class CreateOrderPayload(
+    @Json(name = "plan") val plan: String,       // "pro" or "premium"
+    @Json(name = "period") val period: String     // "monthly" or "yearly"
+)
+
+@JsonClass(generateAdapter = true)
+data class CreateOrderResponse(
+    @Json(name = "orderId") val orderId: String,  // Razorpay order ID (order_xxx)
+    @Json(name = "amount") val amount: Int,       // Amount in paise
+    @Json(name = "currency") val currency: String, // "INR"
+    @Json(name = "key") val key: String?,         // Razorpay key ID for client
+    @Json(name = "error") val error: String?      // Error message if any
+)
+
+@JsonClass(generateAdapter = true)
+data class VerifyPaymentPayload(
+    @Json(name = "razorpay_order_id") val razorpayOrderId: String,
+    @Json(name = "razorpay_payment_id") val razorpayPaymentId: String,
+    @Json(name = "razorpay_signature") val razorpaySignature: String,
+    @Json(name = "plan") val plan: String,
+    @Json(name = "period") val period: String
+)
+
+@JsonClass(generateAdapter = true)
+data class VerifyPaymentResponse(
+    @Json(name = "success") val success: Boolean,
+    @Json(name = "error") val error: String?
 )

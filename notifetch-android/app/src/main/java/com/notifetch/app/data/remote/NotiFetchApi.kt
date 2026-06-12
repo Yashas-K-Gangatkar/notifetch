@@ -1,7 +1,6 @@
 package com.notifetch.app.data.remote
 
 import retrofit2.http.Body
-import retrofit2.http.DELETE
 import retrofit2.http.Header
 import retrofit2.http.POST
 
@@ -24,18 +23,17 @@ interface NotiFetchApi {
         @Body payload: AuthPayload
     ): AuthResponse
 
-    @POST("api/fcm/token")
-    suspend fun registerFcmToken(
-        @Header("Authorization") authHeader: String,
-        @Body payload: FcmTokenPayload
-    ): ApiResponse
+    // ── Razorpay Payment Endpoints ──────────────────────────────────────────
 
-    /**
-     * Delete all user data from the server (DPDP Act §8 / GDPR Art. 17).
-     * Best-effort: if this fails, local data is still deleted.
-     */
-    @DELETE("api/notifications")
-    suspend fun deleteAllServerData(
-        @Header("Authorization") authHeader: String
-    ): ApiResponse
+    @POST("api/payments/create-order")
+    suspend fun createOrder(
+        @Header("Authorization") authHeader: String,
+        @Body payload: CreateOrderPayload
+    ): CreateOrderResponse
+
+    @POST("api/payments/verify")
+    suspend fun verifyPayment(
+        @Header("Authorization") authHeader: String,
+        @Body payload: VerifyPaymentPayload
+    ): VerifyPaymentResponse
 }
