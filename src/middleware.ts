@@ -3,23 +3,20 @@ import type { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
 
 /**
- * NextAuth middleware for route protection.
+ * NextAuth + Firebase middleware for route protection.
  *
  * Protected routes:
- *   - /dashboard
- *   - /api/user
- *   - /api/platforms
- *   - /api/orders
- *   - /api/earnings
+ *   - /dashboard (NextAuth session only)
+ *   - /api/user, /api/platforms, /api/orders, /api/earnings, /api/notifications
  *   - /api/payments (except /api/payments/webhook)
- *   - /api/notifications
+ *
+ * Authentication methods:
+ *   - NextAuth JWT (web app)
+ *   - Firebase Bearer token (Android app) — route handlers verify the token
  *
  * Public routes:
- *   - / (root)
- *   - /auth/*
- *   - /legal, /privacy, /terms
- *   - /api/auth/*
- *   - /api/payments/webhook
+ *   - / (root), /auth/*, /legal, /privacy, /terms
+ *   - /api/auth/*, /api/payments/webhook
  */
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -78,7 +75,16 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Verify JWT token
+  // ── Check for Firebase Bearer token (Android app) ─────────────────────────
+  // If the request carries an Authorization: Bearer header, let it through.
+  // The route handler will verify the Firebase ID token itself.
+  // This is critical for the Android app which uses Firebase Auth, not NextAuth.
+  const authHeader = request.headers.get("authorization");
+  if (authHeader?.startsWith("Bearer ")) {
+    return NextResponse.next();
+  }
+
+  // ── Check for NextAuth JWT token (web app) ────────────────────────────────
   const token = await getToken({
     req: request,
     secret: process.env.NEXTAUTH_SECRET,
