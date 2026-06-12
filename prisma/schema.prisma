@@ -3,9 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
 }
 
 // ─── User & Auth ──────────────────────────────────────────────────────────────
@@ -25,6 +24,7 @@ model User {
   distanceUnit  String    @default("mi")
   role          String    @default("driver")
   plan          String    @default("free")
+  firebaseUid     String?   @unique
   stripeCustomerId String?
   trialEndsAt   DateTime?
   fcmToken      String?
