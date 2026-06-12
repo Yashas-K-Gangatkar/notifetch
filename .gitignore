@@ -67,3 +67,4 @@ google-services.json
 **/google-services.json
 *.jks
 *.keystore
+tool-results/
