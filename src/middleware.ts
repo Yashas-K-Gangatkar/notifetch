@@ -37,7 +37,8 @@ export async function middleware(request: NextRequest) {
   }
 
   // Allow webhook route (Stripe/Razorpay need unauthenticated access)
-  if (pathname === "/api/payments/webhook") {
+  // Allow health route (debug/diagnostic — no secrets exposed)
+  if (pathname === "/api/payments/webhook" || pathname === "/api/payments/health") {
     return NextResponse.next();
   }
 
