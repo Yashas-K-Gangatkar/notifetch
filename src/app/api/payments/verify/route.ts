@@ -16,18 +16,13 @@ async function authenticateRequest(request: Request): Promise<{ id: string; plan
     const idToken = authHeader.substring(7);
     const firebaseUid = await verifyFirebaseToken(idToken);
     if (firebaseUid) {
-      const { getFirebaseAdminApp } = await import("@/lib/firebase-admin");
-      const app = getFirebaseAdminApp();
-      if (app) {
-        try {
-          const decoded = await (await import("firebase-admin")).auth(app).verifyIdToken(idToken);
-          const userInfo = await getOrCreateUserFromFirebase(firebaseUid, decoded.email);
-          if (userInfo) {
-            return userInfo;
-          }
-        } catch {
-          // Fall through to NextAuth
+      try {
+        const userInfo = await getOrCreateUserFromFirebase(firebaseUid, undefined);
+        if (userInfo) {
+          return userInfo;
         }
+      } catch {
+        // Fall through to NextAuth
       }
     }
   }
@@ -92,6 +87,44 @@ export async function POST(request: Request) {
         { error: "Invalid plan. Must be 'pro' or 'premium'." },
         { status: 400 }
       );
+    }
+
+    if (!period || !["monthly", "yearly"].includes(period)) {
+      return NextResponse.json(
+        { error: "Invalid period. Must be 'monthly' or 'yearly'." },
+        { status: 400 }
+      );
+    }
+
+    // ── Verify the plan matches what was ordered ─────────────────────────────
+    // Fetch order details from Razorpay to prevent plan escalation attacks
+    // (where user creates a "pro" order but submits "premium" in verify)
+    try {
+      const { getRazorpay } = await import("@/lib/razorpay");
+      const razorpay = getRazorpay();
+      const order = await razorpay.orders.fetch(razorpay_order_id);
+      const orderPlan = (order.notes as Record<string, string>)?.plan;
+      const orderPeriod = (order.notes as Record<string, string>)?.period;
+
+      if (orderPlan && orderPlan !== plan) {
+        console.error("[API] Plan mismatch: order has", orderPlan, "but verify submitted", plan);
+        return NextResponse.json(
+          { error: `Plan mismatch. Order was for '${orderPlan}' but verification requested '${plan}'.` },
+          { status: 400 }
+        );
+      }
+
+      if (orderPeriod && orderPeriod !== period) {
+        console.error("[API] Period mismatch: order has", orderPeriod, "but verify submitted", period);
+        return NextResponse.json(
+          { error: `Period mismatch. Order was for '${orderPeriod}' but verification requested '${period}'.` },
+          { status: 400 }
+        );
+      }
+    } catch (err) {
+      // If we can't fetch order details (network issue, etc.), log but continue
+      // The signature verification is the primary security check
+      console.warn("[API] Could not fetch Razorpay order for plan verification:", err);
     }
 
     // ── Verify payment signature ────────────────────────────────────────────

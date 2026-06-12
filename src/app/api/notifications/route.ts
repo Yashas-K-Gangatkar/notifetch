@@ -1,7 +1,35 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { verifyFirebaseToken, getOrCreateUserFromFirebase } from "@/lib/firebase-admin";
 import { db } from "@/lib/db";
+
+/**
+ * Authenticate a request via NextAuth session or Firebase Bearer token.
+ * Returns userId or null.
+ */
+async function authenticateRequest(request: Request): Promise<string | null> {
+  // ── Try Firebase Bearer token (Android app) ─────────────────────────────
+  const authHeader = request.headers.get("authorization");
+  if (authHeader?.startsWith("Bearer ")) {
+    const idToken = authHeader.substring(7);
+    const firebaseUid = await verifyFirebaseToken(idToken);
+    if (firebaseUid) {
+      try {
+        const userInfo = await getOrCreateUserFromFirebase(firebaseUid, undefined);
+        if (userInfo) {
+          return userInfo.id;
+        }
+      } catch {
+        // Fall through to NextAuth
+      }
+    }
+  }
+
+  // ── Fallback to NextAuth session (web app) ───────────────────────────────
+  const session = await getServerSession(authOptions);
+  return session?.user?.id || null;
+}
 
 /**
  * GET /api/notifications
@@ -10,8 +38,8 @@ import { db } from "@/lib/db";
  */
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    const userId = await authenticateRequest(request);
+    if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -24,7 +52,7 @@ export async function GET(request: NextRequest) {
     const limit = Math.min(parseInt(searchParams.get("limit") || "50", 10), 100);
     const skip = (page - 1) * limit;
 
-    const where: Record<string, unknown> = { userId: session.user.id };
+    const where: Record<string, unknown> = { userId };
     if (source && source !== "all") where.source = source;
     if (isRead !== null && isRead !== undefined && isRead !== "") where.isRead = isRead === "true";
     if (category) where.category = category;
@@ -42,13 +70,13 @@ export async function GET(request: NextRequest) {
 
     // Get unread count
     const unreadCount = await db.notification.count({
-      where: { userId: session.user.id, isRead: false },
+      where: { userId, isRead: false },
     });
 
     // Get platform stats
     const platformStats = await db.notification.groupBy({
       by: ["platform"],
-      where: { userId: session.user.id, platform: { not: null } },
+      where: { userId, platform: { not: null } },
       _count: { id: true },
       orderBy: { _count: { id: "desc" } },
     });
@@ -58,14 +86,14 @@ export async function GET(request: NextRequest) {
     todayStart.setHours(0, 0, 0, 0);
     const todayCount = await db.notification.count({
       where: {
-        userId: session.user.id,
+        userId,
         createdAt: { gte: todayStart },
       },
     });
 
     const todayEarnings = await db.notification.aggregate({
       where: {
-        userId: session.user.id,
+        userId,
         createdAt: { gte: todayStart },
         orderValue: { not: null },
       },
@@ -106,38 +134,7 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    // Try NextAuth session first (web app)
-    const session = await getServerSession(authOptions);
-    let userId: string | null = session?.user?.id || null;
-
-    // If no session, try device auth (Android app)
-    if (!userId) {
-      const authHeader = request.headers.get("authorization");
-      if (authHeader?.startsWith("Bearer ")) {
-        const token = authHeader.substring(7);
-        // Check if it's a device ID based token
-        const device = await db.deviceAuth.findFirst({
-          where: {
-            OR: [
-              { deviceId: token },
-              { firebaseUid: token },
-            ],
-          },
-        });
-        if (device?.userId) {
-          userId = device.userId;
-        } else if (device) {
-          // Device exists but not linked to user - store notification with device ref
-          // For now, we'll still create the notification but need a userId
-          // Create a temporary user or link later
-          return NextResponse.json(
-            { error: "Device not linked to user account. Please sign in first." },
-            { status: 403 }
-          );
-        }
-      }
-    }
-
+    const userId = await authenticateRequest(request);
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

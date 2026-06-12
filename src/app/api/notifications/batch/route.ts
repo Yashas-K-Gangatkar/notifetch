@@ -1,7 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { verifyFirebaseToken, getOrCreateUserFromFirebase } from "@/lib/firebase-admin";
 import { db } from "@/lib/db";
+
+/**
+ * Authenticate via NextAuth session or Firebase Bearer token.
+ */
+async function authenticateRequest(request: Request): Promise<string | null> {
+  const authHeader = request.headers.get("authorization");
+  if (authHeader?.startsWith("Bearer ")) {
+    const idToken = authHeader.substring(7);
+    const firebaseUid = await verifyFirebaseToken(idToken);
+    if (firebaseUid) {
+      try {
+        const userInfo = await getOrCreateUserFromFirebase(firebaseUid, undefined);
+        if (userInfo) return userInfo.id;
+      } catch { /* fall through */ }
+    }
+  }
+  const session = await getServerSession(authOptions);
+  return session?.user?.id || null;
+}
 
 /**
  * POST /api/notifications/batch
@@ -18,34 +38,7 @@ import { db } from "@/lib/db";
  */
 export async function POST(request: NextRequest) {
   try {
-    // Try NextAuth session first (web app)
-    const session = await getServerSession(authOptions);
-    let userId: string | null = session?.user?.id || null;
-
-    // If no session, try device auth (Android app)
-    if (!userId) {
-      const authHeader = request.headers.get("authorization");
-      if (authHeader?.startsWith("Bearer ")) {
-        const token = authHeader.substring(7);
-        const device = await db.deviceAuth.findFirst({
-          where: {
-            OR: [
-              { deviceId: token },
-              { firebaseUid: token },
-            ],
-          },
-        });
-        if (device?.userId) {
-          userId = device.userId;
-        } else if (device) {
-          return NextResponse.json(
-            { error: "Device not linked to user account. Please sign in first." },
-            { status: 403 }
-          );
-        }
-      }
-    }
-
+    const userId = await authenticateRequest(request);
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

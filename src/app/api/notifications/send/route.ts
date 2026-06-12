@@ -24,6 +24,14 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { userId, title, body: messageBody, data } = body;
 
+    // Authorization: Only allow sending to yourself (or admin in future)
+    if (userId !== session.user.id) {
+      return NextResponse.json(
+        { error: "You can only send notifications to yourself." },
+        { status: 403 }
+      );
+    }
+
     // Validate required fields
     if (!userId || typeof userId !== "string") {
       return NextResponse.json(

@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { verifyFirebaseToken, getOrCreateUserFromFirebase } from "@/lib/firebase-admin";
+import crypto from "crypto";
 
 /**
  * POST /api/auth/token
@@ -7,7 +9,7 @@ import { db } from "@/lib/db";
  * Used by the Android app to authenticate with the backend.
  *
  * Body: {
- *   token: string (Firebase ID token or custom token),
+ *   token: string (Firebase ID token or device ID),
  *   provider: "firebase" | "anonymous",
  *   deviceId?: string,
  *   deviceModel?: string,
@@ -29,15 +31,41 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "provider is required" }, { status: 400 });
     }
 
+    // Validate provider against whitelist
+    if (!["firebase", "anonymous"].includes(provider)) {
+      return NextResponse.json({ error: "Invalid provider. Must be 'firebase' or 'anonymous'." }, { status: 400 });
+    }
+
     // For anonymous/device-based auth, use the deviceId as the identifier
     const effectiveDeviceId = deviceId || `device_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+
+    let verifiedFirebaseUid: string | null = null;
+    let verifiedEmail: string | undefined;
+
+    // ── Verify Firebase ID token if provider is "firebase" ──────────────────
+    if (provider === "firebase") {
+      verifiedFirebaseUid = await verifyFirebaseToken(token);
+
+      if (!verifiedFirebaseUid) {
+        return NextResponse.json(
+          { error: "Invalid Firebase ID token." },
+          { status: 401 }
+        );
+      }
+
+      // Ensure user exists in our database
+      const userInfo = await getOrCreateUserFromFirebase(verifiedFirebaseUid, verifiedEmail);
+      if (userInfo) {
+        verifiedEmail = undefined; // Already handled in getOrCreateUserFromFirebase
+      }
+    }
 
     // Find or create device auth record
     let device = await db.deviceAuth.findFirst({
       where: {
         OR: [
           { deviceId: effectiveDeviceId },
-          ...(provider === "firebase" ? [{ firebaseUid: token }] : []),
+          ...(verifiedFirebaseUid ? [{ firebaseUid: verifiedFirebaseUid }] : []),
         ],
       },
     });
@@ -47,7 +75,7 @@ export async function POST(request: NextRequest) {
       device = await db.deviceAuth.update({
         where: { id: device.id },
         data: {
-          firebaseUid: provider === "firebase" ? token : device.firebaseUid,
+          firebaseUid: verifiedFirebaseUid || device.firebaseUid,
           fcmToken: fcmToken || device.fcmToken,
           deviceModel: deviceModel || device.deviceModel,
           androidVersion: androidVersion || device.androidVersion,
@@ -60,7 +88,7 @@ export async function POST(request: NextRequest) {
       device = await db.deviceAuth.create({
         data: {
           deviceId: effectiveDeviceId,
-          firebaseUid: provider === "firebase" ? token : null,
+          firebaseUid: verifiedFirebaseUid || null,
           fcmToken: fcmToken || null,
           deviceModel: deviceModel || null,
           androidVersion: androidVersion || null,
@@ -70,9 +98,8 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Generate a simple session token for the device
-    // In production, you'd verify the Firebase ID token using Firebase Admin SDK
-    const sessionToken = `nf_${Buffer.from(`${device.id}:${Date.now()}`).toString("base64url")}`;
+    // Generate a cryptographically secure session token
+    const sessionToken = crypto.randomBytes(32).toString("hex");
 
     return NextResponse.json({
       success: true,

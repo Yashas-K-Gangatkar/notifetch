@@ -27,21 +27,7 @@ export async function POST(request: NextRequest) {
       return handleStripeWebhook(body, stripeSignature);
     }
 
-    // If neither signature is present, try Razorpay as default
-    // (some Razorpay implementations don't use the x-razorpay-signature header)
-    if (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_WEBHOOK_SECRET) {
-      // Attempt Razorpay verification if body looks like Razorpay payload
-      try {
-        const parsed = JSON.parse(body);
-        if (parsed.entity === "event" && parsed.event) {
-          const sig = razorpaySignature || "";
-          return handleRazorpayWebhook(body, sig);
-        }
-      } catch {
-        // Not valid JSON, fall through
-      }
-    }
-
+    // If neither signature is present, reject immediately
     console.warn("[Webhook] No recognizable signature header found");
     return NextResponse.json(
       { error: "No recognizable webhook signature" },
@@ -64,9 +50,16 @@ async function handleRazorpayWebhook(
 ): Promise<NextResponse> {
   const { verifyWebhookSignature } = await import("@/lib/razorpay");
 
-  // Verify webhook signature
+  // Verify webhook signature — FAIL if signature is invalid or secret is not configured
   try {
-    if (signature && !verifyWebhookSignature(body, signature)) {
+    if (!signature) {
+      console.error("[Webhook] No Razorpay signature provided");
+      return NextResponse.json(
+        { error: "Missing Razorpay signature" },
+        { status: 400 }
+      );
+    }
+    if (!verifyWebhookSignature(body, signature)) {
       console.error("[Webhook] Razorpay signature verification failed");
       return NextResponse.json(
         { error: "Invalid Razorpay signature" },
@@ -74,9 +67,13 @@ async function handleRazorpayWebhook(
       );
     }
   } catch (err) {
-    // If RAZORPAY_WEBHOOK_SECRET is not configured, log but still process
-    // (in development, webhooks may not have a secret configured)
-    console.warn("[Webhook] Razorpay signature verification skipped:", err);
+    // Signature verification threw (e.g., RAZORPAY_WEBHOOK_SECRET not configured)
+    // This is a FATAL error — do NOT process the webhook without verification
+    console.error("[Webhook] Razorpay signature verification error (webhook secret may not be configured):", err);
+    return NextResponse.json(
+      { error: "Webhook signature verification failed" },
+      { status: 400 }
+    );
   }
 
   let event: { event: string; payload: Record<string, unknown> };

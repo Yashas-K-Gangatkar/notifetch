@@ -3,7 +3,6 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { createOrder, isRazorpayConfigured, getPlanPrice } from "@/lib/razorpay";
 import { verifyFirebaseToken, getOrCreateUserFromFirebase } from "@/lib/firebase-admin";
-import { db } from "@/lib/db";
 
 /**
  * Authenticate the request from either NextAuth session or Firebase Bearer token.

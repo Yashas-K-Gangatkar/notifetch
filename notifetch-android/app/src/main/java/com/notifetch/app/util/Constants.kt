@@ -3,7 +3,7 @@ package com.notifetch.app.util
 object Constants {
 
     const val DATABASE_NAME = "notifetch_db"
-    const val BASE_URL = "https://notifetch.app/"
+    const val BASE_URL = "https://www.notifetch.in/"
     const val NOTIFICATION_CHANNEL_ID = "notifetch_channel"
     const val NOTIFICATION_CHANNEL_NAME = "NotiFetch Service"
     const val SYNC_WORK_NAME = "notifetch_sync_work"
@@ -210,4 +210,79 @@ object Constants {
     // Platform display names use real brand names under nominative fair use.
     // Users can customize any display name through the app settings.
     const val LEGAL_DISCLAIMER = "NotiFetch reads notifications you can already see. We never access platform APIs or store credentials. Platform names are customizable by the user."
+}
+
+enum class PlatformSource(val displayName: String, val packageName: String, val sourceId: String, val category: String) {
+    // Food Delivery
+    UBER_DRIVER("Uber Driver", "com.ubercab.driver", "uber_driver", "food"),
+    DOORDASH("DoorDash Dasher", "com.doordash.driverapp", "doordash_dasher", "food"),
+    GRUBHUB("Grubhub Driver", "com.grubhub.driver", "grubhub_driver", "food"),
+    DELIVEROO("Deliveroo Rider", "com.deliveroo.driverapp", "deliveroo_rider", "food"),
+    JUSTEAT("Just Eat Courier", "com.justeat.courier.uk", "justeat_courier", "food"),
+    TAKEAWAY("Takeaway Courier", "com.takeaway.delivered4all", "takeaway_courier", "food"),
+    LIEFERANDO("Lieferando Courier", "com.lieferando.courier", "lieferando_courier", "food"),
+    FOODPANDA("Foodpanda Rider", "com.logistics.rider.foodpanda", "foodpanda_rider", "food"),
+    SWIGGY("Swiggy Delivery", "in.swiggy.deliveryapp", "swiggy_delivery", "food"),
+    ZOMATO("Zomato Delivery", "com.zomato.delivery", "zomato_delivery", "food"),
+    IFOOD("iFood Entregador", "br.com.ifood.driver.app", "ifood_entregador", "food"),
+    RAPPI("Rappi Repartidor", "com.rappi.storekeeper", "rappi_repartidor", "food"),
+    WOLT("Wolt Courier", "com.wolt.courierapp", "wolt_courier", "food"),
+    GLOVO("Glovo Courier", "com.logistics.rider.glovo", "glovo_courier", "food"),
+    DEMAECAN("Demae-can Driver", "com.demaecan.DemaecanDriver", "demaecan_driver", "food"),
+    TALABAT("Talabat Rider", "com.logistics.rider.talabat", "talabat_rider", "food"),
+    MENULOG("Menulog Courier", "com.menulog.courier", "menulog_courier", "food"),
+    KEETA("Keeta Rider", "com.sankuai.sailor.courier", "keeta_rider", "food"),
+
+    // Grocery
+    INSTACART("Instacart Shopper", "com.instacart.shopper", "instacart_shopper", "grocery"),
+    GOPUFF("Gopuff Driver", "com.gopuff.godrive2.live", "gopuff_driver", "grocery"),
+    BLINKIT("Blinkit Delivery", "app.blinkit.onboarding", "blinkit_partner", "grocery"),
+    BIGBASKET("BigBasket Delivery", "com.bigbasket.dapp.activity", "bigbasket_partner", "grocery"),
+    MERCADO("Mercado Envios", "com.mercadoenvios.crowdsourcing", "mercado_envios", "grocery"),
+    WOOLWORTHS("WooliesGO", "au.com.woolworths.android.driver", "woolworths_driver", "grocery"),
+    ZEPTO("Zepto Delivery", "com.zepto.rider", "zepto_partner", "grocery"),
+    FLINK("Flink Rider", "com.flink.workforce", "flink_rider", "grocery"),
+    SHIPT("Shipt Shopper", "com.shipt.shopper", "shipt_shopper", "grocery"),
+
+    // Package
+    AMAZON_FLEX("Amazon Flex", "com.amazon.flex.rabbit", "amazon_flex", "package"),
+    UPS("UPS Driver", "com.ups.genesispd", "ups_driver", "package"),
+    DUNZO("Dunzo Partner", "com.dunzo.partner", "dunzo_partner", "package"),
+    LALAMOVE("Lalamove Driver", "com.lalamove.global.driver.sea", "lalamove_driver", "package"),
+    BORZO("Borzo Courier", "global.dostavista.courier", "borzo_courier", "package"),
+
+    // Courier
+    POSTMATES("Postmates Fleet", "com.postmates.android.courier", "postmates_fleet", "courier"),
+    ROADIE("Roadie Driver", "com.roadie.drive.android.app", "roadie_driver", "courier"),
+    STUART("Stuart Courier", "com.stuart.courier", "stuart_courier", "courier"),
+    GOGO("GoGo Xpress", "com.quadx.riderapp", "gogo_rider", "courier"),
+
+    // Last-Mile
+    AMAZON_RELAY("Amazon Relay", "com.amazon.relay", "amazon_relay", "last-mile"),
+    EKART("Ekart Delivery", "com.ekartkiranaonboarding", "ekart_partner", "last-mile"),
+    EKART_FIELD("Ekart Field X", "com.ekart.logistics.app", "ekart_field", "last-mile"),
+    JNE("JNE Kurir", "id.my.irsyadf.jobdriver", "jne_kurir", "last-mile"),
+    ARAMEX("Aramex Courier", "com.aramex.ecourier", "aramex_courier", "last-mile"),
+    NINJA_VAN("Ninja Van Driver", "co.ninjavan.swiftninja_global", "ninja_van_driver", "last-mile"),
+
+    // Ride
+    LYFT("Lyft Driver", "com.lyft.android.driver", "lyft_driver", "ride"),
+    OLA("Ola Driver", "com.olacabs.oladriver", "ola_driver", "ride"),
+    GRAB("Grab Driver", "com.grabtaxi.driver2", "grab_driver", "ride"),
+    CAREEM("Careem Captain", "com.careem.adma", "careem_captain", "ride"),
+    DIDI("DiDi Driver", "com.didiglobal.driver", "didi_driver", "ride"),
+    BOLT("Bolt Driver", "ee.mtakso.driver", "bolt_driver", "ride"),
+
+    // India-specific
+    PORTER("Porter Driver", "com.theporter.android.driverapp", "porter_partner", "package"),
+    RAPIDO("Rapido Captain", "com.rapido.rider", "rapido_captain", "ride"),
+    SHADOWFAX("Shadowfax Delivery", "in.shadowfax.gandalf", "shadowfax_partner", "last-mile"),
+    DELHIVERY("Delhivery Partner", "com.delhivery.delhiverypartner", "delhivery_partner", "last-mile"),
+    ECOM_EXPRESS("Ecom Express", "com.ecomexpress.oneBoarding", "ecom_express", "last-mile"),
+    XPRESSBEES("Xpressbees", "com.xpressbees.unified_new_arch", "xpressbees", "last-mile"),
+    LETSTRANSPORT("LetsTransport", "in.letstransport.supply", "letstransport_partner", "courier"),
+    BLOWHORN("Blowhorn Driver", "net.blowhorn.driverapp", "blowhorn_driver", "courier"),
+    DRIVEU("DriveU Partner", "com.driveu.partner", "driveu_partner", "ride"),
+    YULU("Yulu Partner", "app.yulu.android.partner", "yulu_partner", "ride"),
+    GOJEK("Gojek Driver", "com.gojek.partner", "gojek_driver", "food"),
 }
