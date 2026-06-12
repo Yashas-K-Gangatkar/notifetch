@@ -7,34 +7,38 @@ import { db } from "@/lib/db";
 
 /**
  * Authenticate the request from either NextAuth session or Firebase Bearer token.
- * Returns { userId, plan } or null if unauthenticated.
+ * Returns { userId, plan, email } or null if unauthenticated.
  */
 async function authenticateRequest(request: Request): Promise<{ id: string; plan: string; email?: string } | null> {
   // ── Try Firebase Bearer token first (Android app) ────────────────────────
   const authHeader = request.headers.get("authorization");
   if (authHeader?.startsWith("Bearer ")) {
     const idToken = authHeader.substring(7);
+    console.log("[create-order] Bearer token detected, length:", idToken.length);
+
     const firebaseUid = await verifyFirebaseToken(idToken);
+    console.log("[create-order] verifyFirebaseToken result:", firebaseUid ?? "null");
+
     if (firebaseUid) {
-      const { getFirebaseAdminApp } = await import("@/lib/firebase-admin");
-      const app = getFirebaseAdminApp();
-      if (app) {
-        try {
-          const decoded = await (await import("firebase-admin")).auth(app).verifyIdToken(idToken);
-          const userInfo = await getOrCreateUserFromFirebase(firebaseUid, decoded.email);
-          if (userInfo) {
-            return { id: userInfo.id, plan: userInfo.plan, email: decoded.email };
-          }
-        } catch {
-          // Fall through to NextAuth
+      try {
+        const userInfo = await getOrCreateUserFromFirebase(firebaseUid, undefined);
+        console.log("[create-order] getOrCreateUserFromFirebase result:", userInfo ? { id: userInfo.id, plan: userInfo.plan } : "null");
+
+        if (userInfo) {
+          return { id: userInfo.id, plan: userInfo.plan };
         }
+      } catch (err) {
+        console.error("[create-order] getOrCreateUserFromFirebase error:", err);
       }
+    } else {
+      console.log("[create-order] Firebase token verification returned null — Firebase Admin may not be configured");
     }
   }
 
   // ── Fallback to NextAuth session (web app) ───────────────────────────────
   const session = await getServerSession(authOptions);
   if (session?.user?.id) {
+    console.log("[create-order] NextAuth session found, userId:", session.user.id);
     return {
       id: session.user.id,
       plan: (session.user as Record<string, unknown>).plan as string ?? "free",
@@ -42,6 +46,7 @@ async function authenticateRequest(request: Request): Promise<{ id: string; plan
     };
   }
 
+  console.log("[create-order] No authentication method succeeded");
   return null;
 }
 
