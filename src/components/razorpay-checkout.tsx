@@ -30,26 +30,56 @@ type PaymentState = "idle" | "creating-order" | "paying" | "verifying" | "succes
 let scriptLoadPromise: Promise<boolean> | null = null;
 
 function loadRazorpayScript(): Promise<boolean> {
-  if (scriptLoadPromise) return scriptLoadPromise;
-
-  // Check if already loaded
+  // Check if already loaded (from layout.tsx Script tag or previous dynamic load)
   if (typeof window !== "undefined" && (window as Record<string, unknown>).Razorpay) {
     return Promise.resolve(true);
   }
 
+  // If already loading, return existing promise
+  if (scriptLoadPromise) return scriptLoadPromise;
+
   scriptLoadPromise = new Promise((resolve) => {
-    const script = document.createElement("script");
-    script.src = "https://checkout.razorpay.com/v1/checkout.js";
-    script.async = true;
-    script.onload = () => resolve(true);
-    script.onerror = () => {
-      scriptLoadPromise = null;
-      resolve(false);
-    };
-    document.body.appendChild(script);
+    // Wait a moment in case the layout.tsx <Script> tag is still loading
+    let attempts = 0;
+    const maxAttempts = 10;
+    const checkInterval = setInterval(() => {
+      attempts++;
+      if ((window as Record<string, unknown>).Razorpay) {
+        clearInterval(checkInterval);
+        resolve(true);
+        return;
+      }
+      if (attempts >= maxAttempts) {
+        clearInterval(checkInterval);
+        // Try dynamic injection as fallback
+        injectRazorpayScript(resolve);
+      }
+    }, 300);
   });
 
   return scriptLoadPromise;
+}
+
+function injectRazorpayScript(resolve: (value: boolean) => void) {
+  // Check one more time before injecting
+  if ((window as Record<string, unknown>).Razorpay) {
+    resolve(true);
+    return;
+  }
+
+  const script = document.createElement("script");
+  script.src = "https://checkout.razorpay.com/v1/checkout.js";
+  script.async = true;
+  script.onload = () => {
+    scriptLoadPromise = null;
+    resolve(true);
+  };
+  script.onerror = () => {
+    scriptLoadPromise = null;
+    console.error("[RazorpayCheckout] Script failed to load dynamically");
+    resolve(false);
+  };
+  document.body.appendChild(script);
 }
 
 // ─── Razorpay Window Interface ──────────────────────────────────────────────
