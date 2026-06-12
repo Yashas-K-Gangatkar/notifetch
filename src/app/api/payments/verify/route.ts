@@ -1,14 +1,54 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { verifyPayment, isRazorpayConfigured } from "@/lib/razorpay";
+import { verifyPayment, isRazorpayConfigured, getPlanPrice } from "@/lib/razorpay";
+import { verifyFirebaseToken, getOrCreateUserFromFirebase } from "@/lib/firebase-admin";
 import { db } from "@/lib/db";
+
+/**
+ * Authenticate the request from either NextAuth session or Firebase Bearer token.
+ * Returns { userId, plan } or null if unauthenticated.
+ */
+async function authenticateRequest(request: Request): Promise<{ id: string; plan: string } | null> {
+  // ── Try Firebase Bearer token first (Android app) ────────────────────────
+  const authHeader = request.headers.get("authorization");
+  if (authHeader?.startsWith("Bearer ")) {
+    const idToken = authHeader.substring(7);
+    const firebaseUid = await verifyFirebaseToken(idToken);
+    if (firebaseUid) {
+      const { getFirebaseAdminApp } = await import("@/lib/firebase-admin");
+      const app = getFirebaseAdminApp();
+      if (app) {
+        try {
+          const decoded = await (await import("firebase-admin")).auth(app).verifyIdToken(idToken);
+          const userInfo = await getOrCreateUserFromFirebase(firebaseUid, decoded.email);
+          if (userInfo) {
+            return userInfo;
+          }
+        } catch {
+          // Fall through to NextAuth
+        }
+      }
+    }
+  }
+
+  // ── Fallback to NextAuth session (web app) ───────────────────────────────
+  const session = await getServerSession(authOptions);
+  if (session?.user?.id) {
+    return {
+      id: session.user.id,
+      plan: (session.user as Record<string, unknown>).plan as string ?? "free",
+    };
+  }
+
+  return null;
+}
 
 /**
  * POST /api/payments/verify
  *
  * Verifies a Razorpay payment after the client-side checkout completes.
- * Requires authentication.
+ * Supports both NextAuth session (web) and Firebase Bearer token (Android).
  *
  * Body: { razorpay_order_id, razorpay_payment_id, razorpay_signature, plan, period }
  * Returns: { success: true }
@@ -16,9 +56,9 @@ import { db } from "@/lib/db";
 export async function POST(request: Request) {
   try {
     // ── Auth check ──────────────────────────────────────────────────────────
-    const session = await getServerSession(authOptions);
+    const user = await authenticateRequest(request);
 
-    if (!session?.user?.id) {
+    if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -38,7 +78,6 @@ export async function POST(request: Request) {
       razorpay_signature,
       plan,
       period,
-      selectedPlatforms,
     } = body;
 
     if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
@@ -48,9 +87,9 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!plan || !["starter", "pro", "premium"].includes(plan)) {
+    if (!plan || !["pro", "premium"].includes(plan)) {
       return NextResponse.json(
-        { error: "Invalid plan. Must be 'starter', 'pro', or 'premium'." },
+        { error: "Invalid plan. Must be 'pro' or 'premium'." },
         { status: 400 }
       );
     }
@@ -66,13 +105,13 @@ export async function POST(request: Request) {
       console.error("[API] Razorpay payment signature verification failed", {
         orderId: razorpay_order_id,
         paymentId: razorpay_payment_id,
-        userId: session.user.id,
+        userId: user.id,
       });
 
       // Create a failed payment record
       await db.payment.create({
         data: {
-          userId: session.user.id,
+          userId: user.id,
           razorpayPaymentId: razorpay_payment_id,
           amount: 0,
           currency: "INR",
@@ -90,18 +129,16 @@ export async function POST(request: Request) {
 
     // ── Payment verified — update user plan ─────────────────────────────────
     await db.user.update({
-      where: { id: session.user.id },
+      where: { id: user.id },
       data: { plan },
     });
 
     // ── Create payment record ───────────────────────────────────────────────
-    // Fetch amount from Razorpay order notes or compute from plan
-    const { getPlanPrice } = await import("@/lib/razorpay");
     const amount = getPlanPrice(plan, period ?? "monthly");
 
     await db.payment.create({
       data: {
-        userId: session.user.id,
+        userId: user.id,
         razorpayPaymentId: razorpay_payment_id,
         amount: amount / 100, // Convert paise to rupees for storage
         currency: "INR",
@@ -114,7 +151,7 @@ export async function POST(request: Request) {
     // ── Audit log ───────────────────────────────────────────────────────────
     await db.auditLog.create({
       data: {
-        userId: session.user.id,
+        userId: user.id,
         action: "SUBSCRIPTION_CREATED",
         entity: "Payment",
         details: JSON.stringify({
@@ -127,46 +164,8 @@ export async function POST(request: Request) {
       },
     });
 
-    // ── Enable selected platforms as NotificationSource records ────────────
-    if (Array.isArray(selectedPlatforms) && selectedPlatforms.length > 0) {
-      const { PLATFORMS } = await import("@/lib/data");
-      for (const platformId of selectedPlatforms) {
-        const platform = PLATFORMS.find(p => p.id === platformId);
-        if (!platform) continue;
-
-        // Upsert: create if not exists, enable if exists
-        const existing = await db.notificationSource.findUnique({
-          where: {
-            userId_platformId: {
-              userId: session.user.id,
-              platformId,
-            },
-          },
-        });
-
-        if (existing) {
-          await db.notificationSource.update({
-            where: { id: existing.id },
-            data: { listening: true, lastSyncAt: new Date() },
-          });
-        } else {
-          await db.notificationSource.create({
-            data: {
-              userId: session.user.id,
-              platformId,
-              platformName: platform.name,
-              category: platform.category,
-              packageName: platform.packageName,
-              listening: true,
-              lastSyncAt: new Date(),
-            },
-          });
-        }
-      }
-    }
-
     console.log("[API] Razorpay payment verified successfully", {
-      userId: session.user.id,
+      userId: user.id,
       plan,
       orderId: razorpay_order_id,
       paymentId: razorpay_payment_id,

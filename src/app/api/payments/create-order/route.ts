@@ -2,56 +2,82 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { createOrder, isRazorpayConfigured, getPlanPrice } from "@/lib/razorpay";
+import { verifyFirebaseToken, getOrCreateUserFromFirebase } from "@/lib/firebase-admin";
+import { db } from "@/lib/db";
 
 /**
- * OPTIONS /api/payments/create-order
- *
- * Used by the subscribe page to check if Razorpay is configured.
- * Returns 503 if not configured, 200 if ready.
+ * Authenticate the request from either NextAuth session or Firebase Bearer token.
+ * Returns { userId, plan } or null if unauthenticated.
  */
-export async function OPTIONS() {
-  if (!isRazorpayConfigured()) {
-    return NextResponse.json(
-      { configured: false, error: "Razorpay is not configured." },
-      { status: 503 }
-    );
+async function authenticateRequest(request: Request): Promise<{ id: string; plan: string; email?: string } | null> {
+  // ── Try Firebase Bearer token first (Android app) ────────────────────────
+  const authHeader = request.headers.get("authorization");
+  if (authHeader?.startsWith("Bearer ")) {
+    const idToken = authHeader.substring(7);
+    const firebaseUid = await verifyFirebaseToken(idToken);
+    if (firebaseUid) {
+      const { getFirebaseAdminApp } = await import("@/lib/firebase-admin");
+      const app = getFirebaseAdminApp();
+      if (app) {
+        try {
+          const decoded = await (await import("firebase-admin")).auth(app).verifyIdToken(idToken);
+          const userInfo = await getOrCreateUserFromFirebase(firebaseUid, decoded.email);
+          if (userInfo) {
+            return { id: userInfo.id, plan: userInfo.plan, email: decoded.email };
+          }
+        } catch {
+          // Fall through to NextAuth
+        }
+      }
+    }
   }
-  return NextResponse.json({ configured: true }, { status: 200 });
+
+  // ── Fallback to NextAuth session (web app) ───────────────────────────────
+  const session = await getServerSession(authOptions);
+  if (session?.user?.id) {
+    return {
+      id: session.user.id,
+      plan: (session.user as Record<string, unknown>).plan as string ?? "free",
+      email: session.user.email ?? undefined,
+    };
+  }
+
+  return null;
 }
 
 /**
  * POST /api/payments/create-order
  *
  * Creates a Razorpay order for subscription payment.
- * Requires authentication.
+ * Supports both NextAuth session (web) and Firebase Bearer token (Android).
  *
- * Body: { plan: "starter" | "pro" | "premium", period: "monthly" | "yearly" }
+ * Body: { plan: "pro" | "premium", period: "monthly" | "yearly" }
  * Returns: { orderId, amount, currency, key }
  */
 export async function POST(request: Request) {
   try {
     // ── Auth check ──────────────────────────────────────────────────────────
-    const session = await getServerSession(authOptions);
+    const user = await authenticateRequest(request);
 
-    if (!session?.user?.id) {
+    if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // ── Razorpay config check ───────────────────────────────────────────────
     if (!isRazorpayConfigured()) {
       return NextResponse.json(
-        { error: "Razorpay is not configured. Please set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET environment variables in your Vercel dashboard." },
+        { error: "Razorpay is not configured. Please set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET environment variables." },
         { status: 503 }
       );
     }
 
     // ── Parse and validate body ─────────────────────────────────────────────
     const body = await request.json();
-    const { plan, period, selectedPlatforms } = body;
+    const { plan, period } = body;
 
-    if (!plan || !["starter", "pro", "premium"].includes(plan)) {
+    if (!plan || !["pro", "premium"].includes(plan)) {
       return NextResponse.json(
-        { error: "Invalid plan. Must be 'starter', 'pro', or 'premium'." },
+        { error: "Invalid plan. Must be 'pro' or 'premium'." },
         { status: 400 }
       );
     }
@@ -64,19 +90,9 @@ export async function POST(request: Request) {
     }
 
     // ── Check if user is already on this or a higher plan ───────────────────
-    const userPlan = (session.user as Record<string, unknown>).plan as string | undefined;
-    if (userPlan === plan) {
+    if (user.plan === plan) {
       return NextResponse.json(
         { error: `You are already on the ${plan} plan.` },
-        { status: 400 }
-      );
-    }
-
-    // Prevent downgrades through this endpoint
-    const planOrder: Record<string, number> = { free: 0, starter: 1, pro: 2, premium: 3 };
-    if (userPlan && planOrder[userPlan] > planOrder[plan]) {
-      return NextResponse.json(
-        { error: `You are already on a higher plan (${userPlan}). Downgrade is not supported through this endpoint.` },
         { status: 400 }
       );
     }
@@ -89,8 +105,7 @@ export async function POST(request: Request) {
       currency: "INR",
       plan,
       period,
-      userId: session.user.id,
-      selectedPlatforms: Array.isArray(selectedPlatforms) ? selectedPlatforms : [],
+      userId: user.id,
     });
 
     // ── Return order details + public key for client ────────────────────────

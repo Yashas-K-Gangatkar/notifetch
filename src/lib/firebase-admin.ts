@@ -83,6 +83,62 @@ export function getFirebaseMessaging(): admin.messaging.Messaging | null {
 }
 
 /**
+ * Verify a Firebase ID token and return the decoded UID.
+ * Returns null if the token is invalid or Firebase Admin is not configured.
+ */
+export async function verifyFirebaseToken(idToken: string): Promise<string | null> {
+  const app = getFirebaseAdminApp();
+  if (!app) {
+    console.warn("[Firebase Admin] Cannot verify token — admin not initialized");
+    return null;
+  }
+
+  try {
+    const decoded = await admin.auth(app).verifyIdToken(idToken);
+    return decoded.uid;
+  } catch (error) {
+    console.error("[Firebase Admin] Token verification failed:", error);
+    return null;
+  }
+}
+
+/**
+ * Get or create a user in the NotiFetch database from a Firebase UID.
+ * This is needed because Android authenticates with Firebase (not NextAuth),
+ * so we need to ensure the user exists in our DB for payment records.
+ */
+export async function getOrCreateUserFromFirebase(
+  uid: string,
+  email?: string
+): Promise<{ id: string; plan: string } | null> {
+  const { db } = await import("@/lib/db");
+
+  // Try to find existing user by firebaseUid or email
+  let user = await db.user.findFirst({
+    where: email ? { OR: [{ firebaseUid: uid }, { email }] } : { firebaseUid: uid },
+  });
+
+  if (!user && email) {
+    // Create user if not found
+    user = await db.user.create({
+      data: {
+        email: email,
+        firebaseUid: uid,
+        emailVerified: new Date(),
+      },
+    });
+  } else if (user && !user.firebaseUid) {
+    // Link Firebase UID to existing user
+    await db.user.update({
+      where: { id: user.id },
+      data: { firebaseUid: uid },
+    });
+  }
+
+  return user ? { id: user.id, plan: user.plan } : null;
+}
+
+/**
  * Send a push notification to a single FCM token.
  */
 export async function sendFCMMessage(params: {
