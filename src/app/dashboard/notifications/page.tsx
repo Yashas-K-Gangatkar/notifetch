@@ -81,7 +81,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   CANCELLED: "bg-red-500/10 text-red-500 border-red-500/20",
   EARNINGS: "bg-purple-500/10 text-purple-500 border-purple-500/20",
   AVAILABILITY: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
-  GENERAL: "bg-muted text-muted-foreground border-border",
+  GENERAL: "bg-gray-500/10 text-gray-500 border-gray-500/20",
 };
 
 const SOURCE_CONFIG: Record<string, { color: string; bgColor: string; label: string }> = {
@@ -341,7 +341,29 @@ export default function NotificationsPage() {
                   ? "No notifications match your search. Try a different query."
                   : "Install the NotiFetch Android app and enable notification access to start capturing delivery partner notifications in real-time."}
               </p>
-
+              {!searchQuery && (
+                <Button
+                  variant="outline"
+                  className="mt-4 rounded-xl"
+                  onClick={async () => {
+                    const testNotifs = [
+                      { title: "New Order Available!", body: "Pick up from Koramangala - ₹45 delivery fee, 3.2 km", source: "swiggy_partner", platform: "Swiggy Partner", category: "NEW_ORDER", orderValue: 45, pickupLocation: "Koramangala", dropoffLocation: "Indiranagar", distance: "3.2 km" },
+                      { title: "Delivery Pickup Ready", body: "Package ready at HSR Layout hub - ₹60 payout", source: "zomato_delivery", platform: "Zomato Delivery", category: "ORDER_UPDATE", orderValue: 60, pickupLocation: "HSR Layout Hub" },
+                      { title: "Order Assigned", body: "Amazon Flex delivery - 4 packages, ₹120 estimated", source: "amazon_flex", platform: "Amazon Flex", category: "NEW_ORDER", orderValue: 120, distance: "8.5 km" },
+                      { title: "Earnings Update", body: "You earned ₹1,250 today across 14 deliveries", source: "swiggy_partner", platform: "Swiggy Partner", category: "EARNINGS", orderValue: 1250 },
+                    ];
+                    const i = Math.floor(Math.random() * testNotifs.length);
+                    await fetch("/api/notifications", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify(testNotifs[i]),
+                    });
+                    fetchNotifications();
+                  }}
+                >
+                  Create Test Notification
+                </Button>
+              )}
             </CardContent>
           </Card>
         ) : (
@@ -352,13 +374,10 @@ export default function NotificationsPage() {
               return (
                 <Card
                   key={notification.id}
-                  role="button"
-                  tabIndex={0}
                   className={`rounded-xl transition-all hover:shadow-md hover:border-amber-500/20 cursor-pointer ${
                     !notification.isRead ? "border-amber-500/30 bg-amber-500/[0.02]" : ""
                   }`}
                   onClick={() => handleMarkAsRead(notification.id, notification.isRead)}
-                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") handleMarkAsRead(notification.id, notification.isRead); }}
                 >
                   <CardContent className="p-4">
                     <div className="flex items-start gap-3">

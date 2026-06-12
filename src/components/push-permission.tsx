@@ -222,11 +222,11 @@ export function PushPermission({
   // Loading state
   if (permissionState === "loading") {
     return (
-      <div className="rounded-lg border border-border bg-muted/50 p-4">
+      <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-4">
         <div className="flex items-center gap-3">
-          <Loader2 className="h-5 w-5 animate-spin text-amber-500" />
+          <Loader2 className="h-5 w-5 animate-spin text-amber-400" />
           <div>
-            <p className="text-sm font-medium text-foreground">Checking notification status...</p>
+            <p className="text-sm font-medium text-zinc-200">Checking notification status...</p>
           </div>
         </div>
       </div>
@@ -236,12 +236,12 @@ export function PushPermission({
   // Granted state
   if (permissionState === "granted") {
     return (
-      <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-4">
+      <div className="rounded-lg border border-emerald-900/50 bg-emerald-950/30 p-4">
         <div className="flex items-center gap-3">
-          <CheckCircle2 className="h-5 w-5 text-emerald-500" />
+          <CheckCircle2 className="h-5 w-5 text-emerald-400" />
           <div>
-            <p className="text-sm font-medium text-emerald-500">Push notifications enabled</p>
-            <p className="text-xs text-emerald-500/70">
+            <p className="text-sm font-medium text-emerald-300">Push notifications enabled</p>
+            <p className="text-xs text-emerald-400/70">
               You&apos;ll receive order alerts and delivery updates.
             </p>
           </div>
@@ -253,12 +253,12 @@ export function PushPermission({
   // Denied state
   if (permissionState === "denied") {
     return (
-      <div className="rounded-lg border border-red-500/20 bg-red-500/10 p-4">
+      <div className="rounded-lg border border-red-900/50 bg-red-950/30 p-4">
         <div className="flex items-center gap-3">
-          <XCircle className="h-5 w-5 text-red-500" />
+          <XCircle className="h-5 w-5 text-red-400" />
           <div>
-            <p className="text-sm font-medium text-red-500">Notifications blocked</p>
-            <p className="text-xs text-red-500/70">
+            <p className="text-sm font-medium text-red-300">Notifications blocked</p>
+            <p className="text-xs text-red-400/70">
               Enable notifications in your browser settings to receive order alerts.
             </p>
           </div>
@@ -270,12 +270,12 @@ export function PushPermission({
   // Unsupported state
   if (permissionState === "unsupported") {
     return (
-      <div className="rounded-lg border border-border bg-muted/50 p-4">
+      <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-4">
         <div className="flex items-center gap-3">
-          <BellOff className="h-5 w-5 text-muted-foreground" />
+          <BellOff className="h-5 w-5 text-zinc-500" />
           <div>
-            <p className="text-sm font-medium text-muted-foreground">Notifications not supported</p>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-sm font-medium text-zinc-400">Notifications not supported</p>
+            <p className="text-xs text-zinc-500">
               Your browser doesn&apos;t support push notifications.
             </p>
           </div>
@@ -287,12 +287,12 @@ export function PushPermission({
   // Unconfigured state
   if (permissionState === "unconfigured") {
     return (
-      <div className="rounded-lg border border-amber-500/20 bg-amber-500/10 p-4">
+      <div className="rounded-lg border border-amber-900/50 bg-amber-950/30 p-4">
         <div className="flex items-center gap-3">
-          <BellOff className="h-5 w-5 text-amber-500" />
+          <BellOff className="h-5 w-5 text-amber-400" />
           <div>
-            <p className="text-sm font-medium text-amber-500">Push notifications not configured</p>
-            <p className="text-xs text-amber-500/70">
+            <p className="text-sm font-medium text-amber-300">Push notifications not configured</p>
+            <p className="text-xs text-amber-400/70">
               Firebase client configuration is missing. Contact support.
             </p>
           </div>
@@ -303,14 +303,14 @@ export function PushPermission({
 
   // Prompt state — show the permission request UI
   return (
-    <div className="rounded-lg border border-amber-500/20 bg-amber-500/10 p-4">
+    <div className="rounded-lg border border-amber-900/50 bg-amber-950/30 p-4">
       <div className="flex items-start gap-3">
         <div className="rounded-full bg-amber-500/20 p-2">
-          <Bell className="h-5 w-5 text-amber-500" />
+          <Bell className="h-5 w-5 text-amber-400" />
         </div>
         <div className="flex-1">
-          <p className="text-sm font-medium text-amber-500">Enable push notifications</p>
-          <p className="mt-1 text-xs text-amber-500/70">
+          <p className="text-sm font-medium text-amber-300">Enable push notifications</p>
+          <p className="mt-1 text-xs text-amber-400/70">
             Get instant alerts for new orders, delivery updates, and earnings — directly on your device.
           </p>
           {error && (
@@ -320,7 +320,7 @@ export function PushPermission({
             size="sm"
             onClick={requestPermission}
             disabled={isRequesting}
-            className="mt-3 gap-1.5 bg-amber-500 text-white hover:bg-amber-400"
+            className="mt-3 gap-1.5 bg-amber-500 text-black hover:bg-amber-400"
           >
             {isRequesting ? (
               <>

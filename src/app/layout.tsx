@@ -22,8 +22,8 @@ export const viewport: Viewport = {
   themeColor: "#f59e0b",
   width: "device-width",
   initialScale: 1,
-  maximumScale: 5,
-  userScalable: true,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export const metadata: Metadata = {
@@ -66,9 +66,6 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
       >
-        <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-amber-500 focus:text-white focus:rounded-md">
-          Skip to main content
-        </a>
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
@@ -77,7 +74,7 @@ export default function RootLayout({
         >
           <AuthProvider>
             <OfflineIndicator />
-            <div id="main-content">{children}</div>
+            {children}
             <Toaster />
             <PWARegister />
             <PWAInstallPrompt />

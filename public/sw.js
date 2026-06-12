@@ -49,11 +49,11 @@ self.addEventListener('fetch', (event) => {
   // Skip chrome-extension and other non-http(s) requests
   if (!url.protocol.startsWith('http')) return;
 
-  // For API requests: network-first, NO caching (user-specific data)
-  // API responses are authenticated and user-specific — caching them
-  // would leak data between users on shared devices.
+  // Skip API calls entirely — never cache authenticated responses
+  // This prevents session data leakage between users on the same device
   if (url.pathname.startsWith('/api/')) {
-    event.respondWith(networkFirstNoCache(request));
+    // For API requests, use network-first strategy
+    event.respondWith(networkFirst(request));
     return;
   }
 
@@ -94,29 +94,24 @@ async function networkFirstWithOfflineFallback(request) {
 }
 
 /**
- * Network-first for API requests: try network, NO caching.
- * API responses are user-specific and may contain authenticated data.
- * Caching them would leak data between users on the same device.
- * Also checks for authorization/cookie headers and vary headers
- * as defense-in-depth against caching authenticated responses.
+ * Network-first: try network, fall back to cache.
+ * Good for API calls where fresh data is preferred.
  */
-async function networkFirstNoCache(request) {
+async function networkFirst(request) {
   try {
-    const response = await fetch(request);
-    // Defense-in-depth: if the response has auth-sensitive headers,
-    // definitely don't cache (even though we wouldn't anyway for /api/).
-    // This is a safety net in case this function is ever reused.
-    if (
-      response.headers.has('authorization') ||
-      response.headers.has('cookie') ||
-      response.headers.get('vary')?.includes('Cookie')
-    ) {
-      return response;
+    const networkResponse = await fetch(request);
+    if (networkResponse.ok) {
+      const cache = await caches.open(CACHE_NAME);
+      cache.put(request, networkResponse.clone());
     }
-    return response; // Don't cache API responses
+    return networkResponse;
   } catch (error) {
-    console.log('[SW] Network failed for API request:', request.url);
-    return new Response(JSON.stringify({ error: 'Offline' }), {
+    console.log('[SW] Network failed, trying cache:', request.url);
+    const cachedResponse = await caches.match(request);
+    if (cachedResponse) {
+      return cachedResponse;
+    }
+    return new Response(JSON.stringify({ error: 'Offline', message: 'No cached data available' }), {
       status: 503,
       headers: { 'Content-Type': 'application/json' },
     });

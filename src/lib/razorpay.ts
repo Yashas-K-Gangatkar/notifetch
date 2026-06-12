@@ -10,20 +10,18 @@ import crypto from "crypto";
 
 // ─── Plan Pricing (in paise) ────────────────────────────────────────────────
 
-type Plan = "free" | "starter" | "pro" | "premium";
+type Plan = "free" | "pro" | "premium";
 type Period = "monthly" | "yearly";
 
 interface PlanPrice {
   monthly: number;
   yearly: number;
-  platformLimit: number;
 }
 
 const PLAN_PRICES: Record<Plan, PlanPrice> = {
-  free: { monthly: 0, yearly: 0, platformLimit: 2 },
-  starter: { monthly: 19900, yearly: 199000, platformLimit: 5 },     // ₹199/month, ₹1990/year
-  pro: { monthly: 39900, yearly: 399000, platformLimit: 8 },         // ₹399/month, ₹3990/year
-  premium: { monthly: 59900, yearly: 599000, platformLimit: 999 },   // ₹599/month, ₹5990/year
+  free: { monthly: 0, yearly: 0 },
+  pro: { monthly: 4900, yearly: 49000 },     // ₹49/month, ₹490/year
+  premium: { monthly: 9900, yearly: 99000 },  // ₹99/month, ₹990/year
 };
 
 /**
@@ -32,18 +30,9 @@ const PLAN_PRICES: Record<Plan, PlanPrice> = {
 export function getPlanPrice(plan: string, period: string = "monthly"): number {
   const planPrices = PLAN_PRICES[plan as Plan];
   if (!planPrices) {
-    throw new Error(`Invalid plan: ${plan}. Must be one of: free, starter, pro, premium`);
+    throw new Error(`Invalid plan: ${plan}. Must be one of: free, pro, premium`);
   }
   return planPrices[period as Period] ?? planPrices.monthly;
-}
-
-/**
- * Get the platform limit for a given plan.
- */
-export function getPlanPlatformLimit(plan: string): number {
-  const planPrices = PLAN_PRICES[plan as Plan];
-  if (!planPrices) return 2;
-  return planPrices.platformLimit;
 }
 
 /**
@@ -99,7 +88,6 @@ interface CreateOrderParams {
   plan: string;
   period: string;
   userId: string;
-  selectedPlatforms?: string[];
 }
 
 interface RazorpayOrderResult {
@@ -131,15 +119,12 @@ export async function createOrder(params: CreateOrderParams): Promise<RazorpayOr
       userId: params.userId,
       plan: params.plan,
       period: params.period,
-      ...(params.selectedPlatforms && params.selectedPlatforms.length > 0
-        ? { platforms: params.selectedPlatforms.join(",") }
-        : {}),
     },
   });
 
   return {
     orderId: order.id,
-    amount: Number(order.amount),
+    amount: order.amount,
     currency: order.currency,
   };
 }

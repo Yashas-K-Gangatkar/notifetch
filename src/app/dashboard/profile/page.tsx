@@ -97,14 +97,10 @@ export default function ProfilePage() {
 
   const handleDeleteAccount = async () => {
     try {
-      const res = await fetch("/api/user/delete", {
+      await fetch("/api/user", {
         method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ confirm: "DELETE_MY_DATA" }),
       });
-      if (res.ok) {
-        await signOut({ callbackUrl: "/" });
-      }
+      await signOut({ callbackUrl: "/" });
     } catch {
       // Silently handle
     }

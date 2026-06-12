@@ -1,207 +1,463 @@
 "use client";
 
-import { useSession } from "next-auth/react";
-import { Bell, LogIn, Zap, ArrowRight, MapPin, Clock, IndianRupee, Package } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import Link from "next/link";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
+import {
+  Bell,
+  Check,
+  X,
+  MapPin,
+  Clock,
+  TrendingUp,
+  Package,
+  Filter,
+  Volume2,
+  Globe,
+  LayoutGrid,
+} from "lucide-react";
+import {
+  PLATFORMS,
+  DELIVERY_CATEGORIES,
+  REGIONS,
+  generateOrder,
+  generateInitialOrders,
+  getPlatformById,
+  getCategoryById,
+  formatCurrency,
+  type DeliveryOrder,
+} from "@/lib/data";
 
-// ─── Sample Data for Demo ─────────────────────────────────────────────────────
-
-const SAMPLE_NOTIFICATIONS = [
-  {
-    id: "demo-1",
-    title: "New Order Available",
-    body: "Pick up from Koramangala Hub — Deliver to HSR Layout Sector 2",
-    source: "swiggy",
-    sourceIcon: "🔥",
-    orderValue: 45,
-    isRead: false,
-    createdAt: new Date().toISOString(),
-    distance: "3.2 km",
-    eta: "18 min",
-  },
-  {
-    id: "demo-2",
-    title: "Delivery Request",
-    body: "Pick up from Indiranagar Kitchen — Drop at MG Road",
-    source: "zomato",
-    sourceIcon: "🍅",
-    orderValue: 38,
-    isRead: false,
-    createdAt: new Date(Date.now() - 120000).toISOString(),
-    distance: "4.1 km",
-    eta: "22 min",
-  },
-  {
-    id: "demo-3",
-    title: "Quick Commerce Order",
-    body: "Pick up from Whitefield Dark Store — Deliver to ITPL Road",
-    source: "blinkit",
-    sourceIcon: "⚡",
-    orderValue: 25,
-    isRead: true,
-    createdAt: new Date(Date.now() - 300000).toISOString(),
-    distance: "1.8 km",
-    eta: "12 min",
-  },
-  {
-    id: "demo-4",
-    title: "Parcel Delivery",
-    body: "Pick up from Electronic City Hub — Deliver to BTM Layout",
-    source: "amazon-flex",
-    sourceIcon: "📦",
-    orderValue: 52,
-    isRead: true,
-    createdAt: new Date(Date.now() - 600000).toISOString(),
-    distance: "6.5 km",
-    eta: "35 min",
-  },
-];
-
-const SOURCE_COLORS: Record<string, { color: string; bgColor: string; borderColor: string }> = {
-  swiggy: { color: "text-amber-400", bgColor: "bg-amber-500/10", borderColor: "border-amber-500/30" },
-  zomato: { color: "text-red-400", bgColor: "bg-red-500/10", borderColor: "border-red-500/30" },
-  blinkit: { color: "text-yellow-400", bgColor: "bg-yellow-500/10", borderColor: "border-yellow-500/30" },
-  "amazon-flex": { color: "text-teal-400", bgColor: "bg-teal-500/10", borderColor: "border-teal-500/30" },
-};
-
-function timeAgo(dateStr: string): string {
-  const seconds = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);
-  if (seconds < 60) return "Just now";
-  const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) return `${minutes}m ago`;
-  const hours = Math.floor(minutes / 60);
-  return `${hours}h ago`;
+interface DashboardProps {
+  onAccept: (order: DeliveryOrder) => void;
+  onDecline: (orderId: string) => void;
+  acceptedOrders: DeliveryOrder[];
 }
-
-// ─── Demo Notification Card ──────────────────────────────────────────────────
-
-function DemoNotificationCard({ notification }: { notification: typeof SAMPLE_NOTIFICATIONS[0] }) {
-  const colors = SOURCE_COLORS[notification.source] || { color: "text-muted-foreground", bgColor: "bg-muted", borderColor: "border-border" };
-
-  return (
-    <Card className={`transition-all ${notification.isRead ? "opacity-60" : "border-amber-500/20 shadow-sm shadow-amber-500/5"}`}>
-      <CardContent className="p-4">
-        <div className="flex items-start gap-3">
-          {/* Source icon */}
-          <div className={`w-10 h-10 rounded-xl ${colors.bgColor} ${colors.borderColor} border flex items-center justify-center shrink-0`}>
-            <span className="text-lg">{notification.sourceIcon}</span>
-          </div>
-
-          {/* Content */}
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center justify-between gap-2 mb-1">
-              <h4 className="font-semibold text-sm truncate">{notification.title}</h4>
-              {!notification.isRead && (
-                <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0" />
-              )}
-            </div>
-            <p className="text-xs text-muted-foreground line-clamp-2 mb-2">
-              {notification.body}
-            </p>
-            <div className="flex items-center gap-3 text-xs text-muted-foreground">
-              <Badge variant="secondary" className="text-xs capitalize">
-                {notification.source.replace("-", " ")}
-              </Badge>
-              {notification.distance && (
-                <span className="flex items-center gap-1">
-                  <MapPin className="w-3 h-3" />
-                  {notification.distance}
-                </span>
-              )}
-              {notification.eta && (
-                <span className="flex items-center gap-1">
-                  <Clock className="w-3 h-3" />
-                  {notification.eta}
-                </span>
-              )}
-              <span className="flex items-center gap-1 font-medium text-foreground">
-                <IndianRupee className="w-3 h-3" />
-                {notification.orderValue}
-              </span>
-            </div>
-          </div>
-
-          {/* Time */}
-          <span className="text-xs text-muted-foreground shrink-0">
-            {timeAgo(notification.createdAt)}
-          </span>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-// ─── Dashboard Section Component ─────────────────────────────────────────────
 
 export function DashboardSection({
   onAccept,
   onDecline,
   acceptedOrders,
-}: {
-  onAccept: (order: any) => void;
-  onDecline: (orderId: string) => void;
-  acceptedOrders: any[];
-}) {
-  const { data: session } = useSession();
+}: DashboardProps) {
+  const [orders, setOrders] = useState<DeliveryOrder[]>(() => generateInitialOrders());
+  const [activeFilters, setActiveFilters] = useState<Set<string>>(
+    new Set(PLATFORMS.map((p) => p.id))
+  );
+  const [activeCategoryFilter, setActiveCategoryFilter] = useState<Set<string>>(
+    new Set(DELIVERY_CATEGORIES.map((c) => c.id))
+  );
+  const [isPaused, setIsPaused] = useState(false);
+  const [totalCount, setTotalCount] = useState(7);
+  const [showAllCategoryFilters, setShowAllCategoryFilters] = useState(false);
 
-  // If user is logged in, show a prompt to go to the real dashboard
-  if (session) {
-    return (
-      <section id="dashboard" className="py-20 px-4">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl font-bold mb-4">Your Live Dashboard</h2>
-          <p className="text-muted-foreground mb-8 max-w-xl mx-auto">
-            View your real-time notifications, track earnings, and manage all your delivery platforms from one place.
-          </p>
-          <Link href="/dashboard">
-            <Button size="lg" className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-semibold px-8 h-12">
-              Open Dashboard
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
-          </Link>
-        </div>
-      </section>
-    );
-  }
+  // Simulate incoming orders
+  useEffect(() => {
+    if (isPaused) return;
+    const interval = setInterval(() => {
+      const newOrder = generateOrder();
+      setOrders((prev) => {
+        const filtered = prev.filter(
+          (o) => o.accepted === null && o.timeRemaining > 0
+        );
+        return [newOrder, ...filtered].slice(0, 30);
+      });
+      setTotalCount((prev) => prev + 1);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [isPaused]);
 
-  // If not logged in, show demo data so visitors can see the product in action
+  // Countdown timer
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setOrders((prev) =>
+        prev.map((o) =>
+          o.accepted === null && o.timeRemaining > 0
+            ? { ...o, timeRemaining: o.timeRemaining - 1 }
+            : o
+        )
+      );
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const toggleFilter = useCallback((platformId: string) => {
+    setActiveFilters((prev) => {
+      const next = new Set(prev);
+      if (next.has(platformId)) next.delete(platformId);
+      else next.add(platformId);
+      return next;
+    });
+  }, []);
+
+  const toggleCategoryFilter = useCallback((categoryId: string) => {
+    setActiveCategoryFilter((prev) => {
+      const next = new Set(prev);
+      if (next.has(categoryId)) next.delete(categoryId);
+      else next.add(categoryId);
+      return next;
+    });
+  }, []);
+
+  const handleAccept = useCallback(
+    (order: DeliveryOrder) => {
+      setOrders((prev) =>
+        prev.map((o) => (o.id === order.id ? { ...o, accepted: true } : o))
+      );
+      onAccept(order);
+    },
+    [onAccept]
+  );
+
+  const handleDecline = useCallback(
+    (orderId: string) => {
+      setOrders((prev) =>
+        prev.map((o) => (o.id === orderId ? { ...o, accepted: false } : o))
+      );
+      onDecline(orderId);
+    },
+    [onDecline]
+  );
+
+  // Get connected platforms for filter display
+  const connectedPlatforms = PLATFORMS.filter((p) => p.connected);
+  const filteredOrders = orders.filter(
+    (o) => activeFilters.has(o.platform) && activeCategoryFilter.has(o.category)
+  );
+  const pendingOrders = filteredOrders.filter((o) => o.accepted === null);
+  const resolvedOrders = filteredOrders.filter((o) => o.accepted !== null);
+  const totalEarnings = acceptedOrders.reduce((sum, o) => sum + o.value, 0);
+  const bestPlatform = connectedPlatforms.length > 0
+    ? connectedPlatforms.reduce((best, p) =>
+        p.earningsToday > best.earningsToday ? p : best
+      )
+    : PLATFORMS[0];
+
+  // Show limited category filters initially
+  const visibleCategories = showAllCategoryFilters
+    ? DELIVERY_CATEGORIES
+    : DELIVERY_CATEGORIES.slice(0, 8);
+
   return (
-    <section id="dashboard" className="py-20 px-4">
-      <div className="max-w-3xl mx-auto">
-        {/* Header */}
+    <section id="dashboard" className="py-16 sm:py-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Section header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-amber-500/10 mb-6">
-            <Bell className="w-8 h-8 text-amber-400" />
+          <h2 className="text-3xl sm:text-4xl font-bold mb-3">
+            Live{" "}
+            <span className="bg-gradient-to-r from-amber-500 to-orange-600 bg-clip-text text-transparent">
+              Dashboard
+            </span>
+          </h2>
+          <p className="text-muted-foreground text-lg">
+            Real-time delivery notifications from all your platforms worldwide
+          </p>
+        </div>
+
+        {/* Summary bar */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+          <Card className="bg-card border-border">
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center">
+                <Package className="w-5 h-5 text-amber-500" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Orders Today</p>
+                <p className="text-xl font-bold">{totalCount}</p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="bg-card border-border">
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+                <TrendingUp className="w-5 h-5 text-emerald-500" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Total Earnings</p>
+                <p className="text-xl font-bold">
+                  ${totalEarnings.toFixed(2)}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="bg-card border-border">
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-orange-500/10 flex items-center justify-center">
+                <Globe className="w-5 h-5 text-orange-500" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Best Platform</p>
+                <p className="text-xl font-bold">{bestPlatform.name}</p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="bg-card border-border">
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-violet-500/10 flex items-center justify-center">
+                <LayoutGrid className="w-5 h-5 text-violet-500" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Categories</p>
+                <p className="text-xl font-bold">{new Set(orders.map(o => o.category)).size} active</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Category Filters */}
+        <div className="mb-3">
+          <div className="flex items-center gap-2 flex-wrap">
+            <LayoutGrid className="w-4 h-4 text-muted-foreground shrink-0" />
+            {visibleCategories.map((c) => (
+              <button
+                key={c.id}
+                onClick={() => toggleCategoryFilter(c.id)}
+                className={`px-2.5 py-1 rounded-full text-[11px] font-medium border transition-all ${
+                  activeCategoryFilter.has(c.id)
+                    ? `${c.bgColor} ${c.color} ${c.borderColor}`
+                    : "bg-muted text-muted-foreground border-transparent"
+                }`}
+              >
+                {c.icon} {c.name}
+              </button>
+            ))}
+            {DELIVERY_CATEGORIES.length > 8 && (
+              <button
+                onClick={() => setShowAllCategoryFilters(!showAllCategoryFilters)}
+                className="px-2.5 py-1 rounded-full text-[11px] font-medium text-amber-500 hover:bg-amber-500/10"
+              >
+                {showAllCategoryFilters
+                  ? "Show Less"
+                  : `+${DELIVERY_CATEGORIES.length - 8} more`}
+              </button>
+            )}
           </div>
-          <h2 className="text-3xl font-bold mb-4">Live Notification Feed</h2>
-          <p className="text-muted-foreground max-w-xl mx-auto">
-            See how NotiFetch aggregates orders from all your delivery apps into one real-time feed.
-            <span className="text-amber-500 font-medium"> This is a preview — sign in to see your actual orders.</span>
-          </p>
         </div>
 
-        {/* Demo notification cards */}
-        <div className="space-y-3 mb-8">
-          {SAMPLE_NOTIFICATIONS.map((notification) => (
-            <DemoNotificationCard key={notification.id} notification={notification} />
-          ))}
-        </div>
-
-        {/* CTA */}
-        <div className="text-center">
-          <p className="text-sm text-muted-foreground mb-4">
-            Want to see <strong>your</strong> real orders? Sign in to connect your platforms.
-          </p>
-          <Link href="/auth/signin">
-            <Button size="lg" className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-semibold px-8 h-12">
-              <LogIn className="w-4 h-4 mr-2" />
-              Sign In to Get Started
+        {/* Platform Filters & Controls */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
+          <div className="flex items-center gap-2 flex-wrap">
+            <Filter className="w-4 h-4 text-muted-foreground" />
+            {connectedPlatforms.map((p) => (
+              <button
+                key={p.id}
+                onClick={() => toggleFilter(p.id)}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
+                  activeFilters.has(p.id)
+                    ? `${p.bgColor} ${p.color} ${p.borderColor}`
+                    : "bg-muted text-muted-foreground border-transparent"
+                }`}
+              >
+                {p.icon} {p.name}
+              </button>
+            ))}
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant={isPaused ? "default" : "outline"}
+              size="sm"
+              onClick={() => setIsPaused(!isPaused)}
+              className={isPaused ? "bg-amber-500 hover:bg-amber-600 text-white" : ""}
+            >
+              <Volume2 className="w-3.5 h-3.5 mr-1.5" />
+              {isPaused ? "Resume Feed" : "Pause Feed"}
             </Button>
-          </Link>
+            <Badge variant="secondary" className="bg-amber-500/10 text-amber-500">
+              <Bell className="w-3 h-3 mr-1" />
+              {pendingOrders.length} pending
+            </Badge>
+          </div>
         </div>
+
+        {/* Notification feed */}
+        <ScrollArea className="h-[600px] rounded-xl border border-border bg-card">
+          <div className="p-4 space-y-3">
+            {pendingOrders.length === 0 && resolvedOrders.length === 0 && (
+              <div className="text-center py-12 text-muted-foreground">
+                <Bell className="w-12 h-12 mx-auto mb-3 opacity-30" />
+                <p>Waiting for orders...</p>
+                <p className="text-sm">New notifications from around the world will appear here</p>
+              </div>
+            )}
+
+            {pendingOrders.map((order, idx) => {
+              const platform = getPlatformById(order.platform);
+              const category = getCategoryById(order.category);
+              if (!platform) return null;
+              const isUrgent = order.timeRemaining <= 10;
+
+              return (
+                <div
+                  key={order.id}
+                  className="animate-float-up"
+                  style={{ animationDelay: `${idx * 0.05}s` }}
+                >
+                  <Card
+                    className={`border ${platform.borderColor} ${platform.bgColor} overflow-hidden transition-all hover:shadow-lg`}
+                  >
+                    <CardContent className="p-4">
+                      {/* Header row */}
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-lg">{platform.icon}</span>
+                          <Badge
+                            variant="secondary"
+                            className={`${platform.bgColor} ${platform.color} font-semibold`}
+                          >
+                            {platform.name}
+                          </Badge>
+                          {category && (
+                            <Badge
+                              variant="outline"
+                              className={`${category.bgColor} ${category.color} ${category.borderColor} text-[10px]`}
+                            >
+                              {category.icon} {category.name}
+                            </Badge>
+                          )}
+                          {isUrgent && (
+                            <Badge className="bg-red-500/20 text-red-400 border-red-500/30 animate-pulse">
+                              URGENT
+                            </Badge>
+                          )}
+                        </div>
+                        <span className="text-2xl font-bold text-amber-500">
+                          {formatCurrency(order.value, order.currency)}
+                        </span>
+                      </div>
+
+                      {/* Details */}
+                      <div className="space-y-2 mb-3">
+                        <div className="flex items-start gap-2 text-sm">
+                          <MapPin className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" />
+                          <span className="text-muted-foreground">
+                            Pickup:{" "}
+                            <span className="text-foreground">{order.pickup}</span>
+                          </span>
+                        </div>
+                        <div className="flex items-start gap-2 text-sm">
+                          <MapPin className="w-4 h-4 text-red-400 mt-0.5 shrink-0" />
+                          <span className="text-muted-foreground">
+                            Drop-off:{" "}
+                            <span className="text-foreground">
+                              {order.dropoff}
+                            </span>
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                          <span className="flex items-center gap-1">
+                            <Clock className="w-3 h-3" />
+                            {order.distance} {order.distanceUnit}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            {formatCurrency(+(order.value / order.distance).toFixed(2), order.currency)}/{order.distanceUnit}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Timer bar */}
+                      <div className="mb-3">
+                        <div className="flex items-center justify-between text-xs mb-1">
+                          <span className="text-muted-foreground">
+                            Time to accept
+                          </span>
+                          <span
+                            className={`font-mono font-bold ${
+                              isUrgent ? "text-red-400" : "text-amber-500"
+                            }`}
+                          >
+                            {order.timeRemaining}s
+                          </span>
+                        </div>
+                        <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                          <div
+                            className={`h-full rounded-full transition-all duration-1000 ${
+                              isUrgent
+                                ? "bg-red-500"
+                                : "bg-amber-500"
+                            }`}
+                            style={{
+                              width: `${Math.max(
+                                0,
+                                (order.timeRemaining / 45) * 100
+                              )}%`,
+                            }}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Action buttons */}
+                      <div className="flex gap-2">
+                        <Button
+                          onClick={() => handleAccept(order)}
+                          className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold"
+                        >
+                          <Check className="w-4 h-4 mr-1.5" />
+                          Accept
+                        </Button>
+                        <Button
+                          variant="outline"
+                          onClick={() => handleDecline(order.id)}
+                          className="flex-1 border-border hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/30"
+                        >
+                          <X className="w-4 h-4 mr-1.5" />
+                          Decline
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              );
+            })}
+
+            {/* Resolved orders */}
+            {resolvedOrders.length > 0 && (
+              <>
+                <Separator className="my-2" />
+                <p className="text-xs text-muted-foreground text-center py-1">
+                  Recent Activity
+                </p>
+                {resolvedOrders.slice(0, 5).map((order) => {
+                  const platform = getPlatformById(order.platform);
+                  if (!platform) return null;
+                  return (
+                    <div
+                      key={order.id}
+                      className="opacity-50 hover:opacity-75 transition-opacity"
+                    >
+                      <Card className="border-border/50">
+                        <CardContent className="p-3 flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span>{platform.icon}</span>
+                            <span className="text-sm font-medium">
+                              {platform.name}
+                            </span>
+                            <span className="text-sm text-muted-foreground">
+                              • {formatCurrency(order.value, order.currency)}
+                            </span>
+                          </div>
+                          <Badge
+                            variant={
+                              order.accepted ? "default" : "secondary"
+                            }
+                            className={
+                              order.accepted
+                                ? "bg-emerald-500/20 text-emerald-400"
+                                : "bg-muted text-muted-foreground"
+                            }
+                          >
+                            {order.accepted ? "Accepted" : "Declined"}
+                          </Badge>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  );
+                })}
+              </>
+            )}
+          </div>
+        </ScrollArea>
       </div>
     </section>
   );

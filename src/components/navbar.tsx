@@ -284,7 +284,7 @@ export function Navbar({ activeSection, onNavigate }: NavbarProps) {
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-center py-4">
-            <div className="bg-card rounded-xl p-4">
+            <div className="bg-white rounded-xl p-4">
               <img
                 src="/qr-code.png"
                 alt="QR code to install NotiFetch"

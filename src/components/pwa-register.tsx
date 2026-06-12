@@ -147,15 +147,15 @@ export function PWARegister() {
     <>
       {/* Update banner */}
       {updateAvailable && (
-        <div className="fixed bottom-4 left-4 right-4 z-50 mx-auto max-w-md rounded-lg border border-amber-500/30 bg-amber-500/10 backdrop-blur-sm p-4 shadow-2xl sm:left-auto sm:right-4">
+        <div className="fixed bottom-4 left-4 right-4 z-50 mx-auto max-w-md rounded-lg border border-amber-500/30 bg-amber-950/90 p-4 shadow-2xl backdrop-blur-sm sm:left-auto sm:right-4">
           <div className="flex items-center justify-between gap-3">
             <div className="flex-1">
-              <p className="text-sm font-semibold text-amber-500">Update available</p>
-              <p className="text-xs text-amber-500/70">A new version of NotiFetch is ready.</p>
+              <p className="text-sm font-semibold text-amber-400">Update available</p>
+              <p className="text-xs text-amber-200/70">A new version of NotiFetch is ready.</p>
             </div>
             <button
               onClick={activateUpdate}
-              className="shrink-0 rounded-md bg-amber-500 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-amber-400"
+              className="shrink-0 rounded-md bg-amber-500 px-3 py-1.5 text-xs font-semibold text-black transition-colors hover:bg-amber-400"
             >
               Update now
             </button>
@@ -165,15 +165,15 @@ export function PWARegister() {
 
       {/* Install prompt banner */}
       {installPrompt && (
-        <div className="fixed bottom-4 left-4 right-4 z-50 mx-auto max-w-md rounded-lg border border-emerald-500/30 bg-emerald-500/10 backdrop-blur-sm p-4 shadow-2xl sm:left-auto sm:right-4">
+        <div className="fixed bottom-4 left-4 right-4 z-50 mx-auto max-w-md rounded-lg border border-emerald-500/30 bg-emerald-950/90 p-4 shadow-2xl backdrop-blur-sm sm:left-auto sm:right-4">
           <div className="flex items-center justify-between gap-3">
             <div className="flex-1">
-              <p className="text-sm font-semibold text-emerald-500">Install NotiFetch</p>
-              <p className="text-xs text-emerald-500/70">Add to your home screen for the best experience.</p>
+              <p className="text-sm font-semibold text-emerald-400">Install NotiFetch</p>
+              <p className="text-xs text-emerald-200/70">Add to your home screen for the best experience.</p>
             </div>
             <button
               onClick={handleInstall}
-              className="shrink-0 rounded-md bg-emerald-500 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-emerald-400"
+              className="shrink-0 rounded-md bg-emerald-500 px-3 py-1.5 text-xs font-semibold text-black transition-colors hover:bg-emerald-400"
             >
               Install
             </button>
