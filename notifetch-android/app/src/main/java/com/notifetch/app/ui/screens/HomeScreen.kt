@@ -37,6 +37,7 @@ import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.Payments
 import androidx.compose.material.icons.filled.ReceiptLong
 import androidx.compose.material.icons.filled.ShoppingBag
+import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -68,6 +69,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import android.content.Intent
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -149,6 +151,23 @@ fun HomeScreen(
                     }
                 },
                 actions = {
+                    if (uiState.notifications.isNotEmpty()) {
+                        IconButton(onClick = {
+                            val csv = viewModel.exportNotificationsAsCsv()
+                            val intent = Intent(Intent.ACTION_SEND).apply {
+                                type = "text/csv"
+                                putExtra(Intent.EXTRA_TEXT, csv)
+                                putExtra(Intent.EXTRA_SUBJECT, "NotiFetch ${uiState.userMode.name} Notifications Export")
+                            }
+                            context.startActivity(Intent.createChooser(intent, "Export Notifications"))
+                        }) {
+                            Icon(
+                                imageVector = Icons.Default.FileDownload,
+                                contentDescription = "Export",
+                                tint = Color.White
+                            )
+                        }
+                    }
                     if (uiState.unreadCount > 0) {
                         TextButton(onClick = { viewModel.markAllAsRead() }) {
                             Text("Mark all read", color = Color.White.copy(alpha = 0.9f))

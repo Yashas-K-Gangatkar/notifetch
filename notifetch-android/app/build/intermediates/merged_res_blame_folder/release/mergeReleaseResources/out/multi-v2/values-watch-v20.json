@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "com.notifetch.app-mergeReleaseResources-81:/values-watch-v20/values-watch-v20.xml",
+            "outputFile": "com.notifetch.app-mergeReleaseResources-83:/values-watch-v20/values-watch-v20.xml",
             "map": [
                 {
-                    "source": "/home/z/.gradle/caches/8.9/transforms/727664898d9e9f7b02c105d213d11ef2/transformed/play-services-auth-21.3.0/res/values-watch-v20/values.xml",
+                    "source": "/home/z/.gradle/caches/8.9/transforms/9d1d3ad5b8185e96f5f4214334ed8964/transformed/play-services-auth-21.3.0/res/values-watch-v20/values.xml",
                     "from": {
                         "startLines": "4,5,6,7,8,9,10,11",
                         "startColumns": "0,0,0,0,0,0,0,0",

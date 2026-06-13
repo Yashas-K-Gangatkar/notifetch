@@ -41,6 +41,7 @@ string category_earnings
 string category_general
 string category_new_order
 string category_order_update
+string com.google.firebase.crashlytics.mapping_file_id
 string default_web_client_id
 string detail_delete
 string detail_not_found

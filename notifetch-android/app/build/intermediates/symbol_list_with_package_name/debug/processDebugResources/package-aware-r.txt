@@ -414,6 +414,7 @@ layout wallet_test_layout
 mipmap ic_launcher
 mipmap ic_launcher_round
 raw firebase_common_keep
+raw firebase_crashlytics_keep
 raw rzp_config
 string android_credentials_TYPE_PASSWORD_CREDENTIAL
 string androidx_credentials_TYPE_PUBLIC_KEY_CREDENTIAL
@@ -436,6 +437,7 @@ string category_new_order
 string category_order_update
 string close_drawer
 string close_sheet
+string com_google_firebase_crashlytics_mapping_file_id
 string common_google_play_services_enable_button
 string common_google_play_services_enable_text
 string common_google_play_services_enable_title

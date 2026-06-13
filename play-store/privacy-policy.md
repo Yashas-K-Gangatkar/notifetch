@@ -1,11 +1,11 @@
 # NotiFetch Privacy Policy
 
-**Last Updated: March 4, 2026**
-**Effective Date: March 4, 2026**
+**Last Updated: June 14, 2026**
+**Effective Date: June 14, 2026**
 
 ---
 
-NotiFetch ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our mobile application and web service (collectively, the "Service"), available at [https://d2-liart-nine.vercel.app](https://d2-liart-nine.vercel.app) and as a Trusted Web Activity (TWA) on the Google Play Store.
+NotiFetch ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our mobile application and web service (collectively, the "Service"), available at [https://notifetch.in](https://notifetch.in) and as a Trusted Web Activity (TWA) on the Google Play Store.
 
 Please read this privacy policy carefully. By using NotiFetch, you agree to the collection and use of information in accordance with this policy.
 
@@ -27,6 +27,9 @@ Please read this privacy policy carefully. By using NotiFetch, you agree to the 
 |-----------|---------|---------------|
 | **FCM (Firebase Cloud Messaging) token** | Delivering push notifications to your device | Automatically generated when you enable notifications |
 | **Notification metadata** | Organizing and displaying your delivery notifications | Via Android Notification Listener Service (see Section 2) |
+| **Order value, currency** | Earnings/savings tracking and display | Parsed from notification text |
+| **Pickup/dropoff locations** | Delivery route display and tracking | Parsed from notification text |
+| **Distance information** | Earnings per km calculation | Parsed from notification text |
 | **Device information** | App optimization and crash reporting | Automatically collected (device model, OS version, app version) |
 | **Usage analytics** | Understanding feature usage and improving the Service | Anonymized and aggregated via Firebase Analytics |
 
@@ -69,7 +72,7 @@ When you grant notification access permission, NotiFetch reads the following fro
 
 ### 2.4 User Control
 
-- **Permission is optional** — You can use NotiFetch without granting notification access (with limited functionality)
+- **Permission is required for core functionality** — NotiFetch requires notification access to capture and organize delivery notifications. Without this permission, the app cannot perform its primary function
 - **Revocable** — You can revoke notification access at any time from Android Settings → Apps → NotiFetch → Notification access
 - **Transparent** — All captured notifications are visible to you in the app dashboard
 - **Deletable** — You can delete any captured notification from your history at any time
@@ -115,8 +118,8 @@ We use the information we collect for the following purposes:
 | Data Type | Retention Period |
 |-----------|-----------------|
 | Account information | Until account deletion |
-| Notification metadata | Until you delete it, or account deletion |
-| Earnings records | Until you delete them, or account deletion |
+| Notification metadata | 30 days from capture, then automatically deleted; or until you delete it, or account deletion |
+| Earnings records | 30 days from capture, then automatically deleted; or until you delete them, or account deletion |
 | FCM tokens | Until you disable notifications or delete your account |
 | Payment records (transaction IDs) | As required by financial regulations (typically 5 years) |
 | Analytics data (anonymized) | Up to 26 months |
@@ -147,9 +150,9 @@ NotiFetch integrates with the following third-party services. Each has their own
 - **Privacy policy**: [https://neon.tech/privacy](https://neon.tech/privacy)
 - **Compliance**: SOC 2 Type II, GDPR
 
-### 5.3 Firebase / Google (Analytics & Push Notifications)
-- **Purpose**: Push notifications (FCM), analytics, crash reporting
-- **Data processed**: FCM tokens, anonymized usage data, crash reports
+### 5.3 Firebase / Google (Analytics, Push Notifications & Crash Reporting)
+- **Purpose**: Push notifications (FCM), analytics, crash reporting (Crashlytics)
+- **Data processed**: FCM tokens, anonymized usage data, crash reports, device stack traces
 - **Privacy policy**: [https://policies.google.com/privacy](https://policies.google.com/privacy)
 - **Compliance**: GDPR, CCPA, SOC 2/3
 
@@ -294,7 +297,7 @@ If you have any questions, concerns, or requests regarding this Privacy Policy o
 |---------|---------|
 | **Email (Privacy)** | privacy@notifetch.app |
 | **Email (Support)** | support@notifetch.app |
-| **Website** | [https://d2-liart-nine.vercel.app](https://d2-liart-nine.vercel.app) |
+| **Website** | [https://notifetch.in](https://notifetch.in) |
 | **Mailing Address** | NotiFetch, [Address to be provided] |
 
 ### Data Protection Officer

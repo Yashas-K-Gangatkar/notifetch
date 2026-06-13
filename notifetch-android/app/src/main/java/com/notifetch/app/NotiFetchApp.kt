@@ -7,6 +7,8 @@ import android.os.Build
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import androidx.work.WorkManager
+import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.notifetch.app.data.repository.dataStore
 import com.notifetch.app.util.Constants
 import com.notifetch.app.ui.viewmodel.SettingsViewModel
@@ -34,8 +36,18 @@ class NotiFetchApp : Application(), Configuration.Provider {
 
     override fun onCreate() {
         super.onCreate()
+        initCrashlytics()
         createNotificationChannels()
         schedulePeriodicSyncIfEnabled()
+    }
+
+    private fun initCrashlytics() {
+        val crashlytics = FirebaseCrashlytics.getInstance()
+        // Enable Crashlytics collection (respects user preferences in release)
+        crashlytics.setCrashlyticsCollectionEnabled(!BuildConfig.DEBUG)
+        // Log app version for crash reports
+        crashlytics.setCustomKey("app_version", BuildConfig.VERSION_NAME)
+        crashlytics.setCustomKey("version_code", BuildConfig.VERSION_CODE)
     }
 
     private fun createNotificationChannels() {

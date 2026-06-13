@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "com.notifetch.app-mergeDebugResources-84:/values-v30/values-v30.xml",
+            "outputFile": "com.notifetch.app-mergeDebugResources-86:/values-v30/values-v30.xml",
             "map": [
                 {
-                    "source": "/home/z/.gradle/caches/8.9/transforms/1d0bb5855dd2ee31d76608fed6514721/transformed/material3-release/res/values-v30/values-v30.xml",
+                    "source": "/home/z/.gradle/caches/8.9/transforms/cc135a54419eaa7a2701cb97c193eab8/transformed/material3-release/res/values-v30/values-v30.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",

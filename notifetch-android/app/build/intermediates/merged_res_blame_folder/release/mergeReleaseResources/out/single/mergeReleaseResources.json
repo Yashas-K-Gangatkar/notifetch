@@ -1,642 +1,646 @@
 [
     {
-        "merged": "com.notifetch.app-release-84:/drawable_rzp_secured_by_bg.xml.flat",
-        "source": "com.notifetch.app-checkout-1.6.33-12:/drawable/rzp_secured_by_bg.xml"
+        "merged": "com.notifetch.app-release-86:/drawable-mdpi-v4_common_google_signin_btn_icon_light_normal_background.9.png.flat",
+        "source": "com.notifetch.app-play-services-base-18.5.0-65:/drawable-mdpi-v4/common_google_signin_btn_icon_light_normal_background.9.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-anydpi-v21_ic_tick_mark.xml.flat",
-        "source": "com.notifetch.app-checkout-1.6.33-12:/drawable-anydpi-v21/ic_tick_mark.xml"
+        "merged": "com.notifetch.app-release-86:/drawable-hdpi-v4_ic_other_sign_in.png.flat",
+        "source": "com.notifetch.app-credentials-1.2.0-rc01-58:/drawable-hdpi-v4/ic_other_sign_in.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-xhdpi-v4_ic_tick_mark.png.flat",
-        "source": "com.notifetch.app-checkout-1.6.33-12:/drawable-xhdpi-v4/ic_tick_mark.png"
+        "merged": "com.notifetch.app-release-86:/anim-v21_fragment_fast_out_extra_slow_in.xml.flat",
+        "source": "com.notifetch.app-fragment-1.5.7-22:/anim-v21/fragment_fast_out_extra_slow_in.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-mdpi-v4_common_google_signin_btn_text_dark_normal_background.9.png.flat",
-        "source": "com.notifetch.app-play-services-base-18.5.0-71:/drawable-mdpi-v4/common_google_signin_btn_text_dark_normal_background.9.png"
+        "merged": "com.notifetch.app-release-86:/drawable-anydpi-v24_rzp_logo.xml.flat",
+        "source": "com.notifetch.app-checkout-1.6.33-20:/drawable-anydpi-v24/rzp_logo.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-hdpi-v4_googleg_standard_color_18.png.flat",
-        "source": "com.notifetch.app-play-services-base-18.5.0-71:/drawable-hdpi-v4/googleg_standard_color_18.png"
+        "merged": "com.notifetch.app-release-86:/drawable-ldpi-v4_ic_other_sign_in.png.flat",
+        "source": "com.notifetch.app-credentials-1.2.0-rc01-58:/drawable-ldpi-v4/ic_other_sign_in.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-xxhdpi-v4_googleg_standard_color_18.png.flat",
-        "source": "com.notifetch.app-play-services-base-18.5.0-71:/drawable-xxhdpi-v4/googleg_standard_color_18.png"
+        "merged": "com.notifetch.app-release-86:/drawable-mdpi-v4_ic_passkey.png.flat",
+        "source": "com.notifetch.app-credentials-1.2.0-rc01-58:/drawable-mdpi-v4/ic_passkey.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable_rzp_white_border_black_bg.xml.flat",
-        "source": "com.notifetch.app-checkout-1.6.33-12:/drawable/rzp_white_border_black_bg.xml"
+        "merged": "com.notifetch.app-release-86:/drawable-xhdpi-v4_notification_bg_low_pressed.9.png.flat",
+        "source": "com.notifetch.app-core-1.15.0-73:/drawable-xhdpi-v4/notification_bg_low_pressed.9.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-anydpi-v21_ic_password.xml.flat",
-        "source": "com.notifetch.app-credentials-1.2.0-rc01-61:/drawable-anydpi-v21/ic_password.xml"
+        "merged": "com.notifetch.app-release-86:/drawable-mdpi-v4_common_google_signin_btn_icon_dark_normal_background.9.png.flat",
+        "source": "com.notifetch.app-play-services-base-18.5.0-65:/drawable-mdpi-v4/common_google_signin_btn_icon_dark_normal_background.9.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-xxhdpi-v4_ic_other_sign_in.png.flat",
-        "source": "com.notifetch.app-credentials-1.2.0-rc01-61:/drawable-xxhdpi-v4/ic_other_sign_in.png"
+        "merged": "com.notifetch.app-release-86:/drawable_common_google_signin_btn_icon_light.xml.flat",
+        "source": "com.notifetch.app-play-services-base-18.5.0-65:/drawable/common_google_signin_btn_icon_light.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-watch-v20_common_google_signin_btn_text_disabled.xml.flat",
-        "source": "com.notifetch.app-play-services-auth-21.3.0-31:/drawable-watch-v20/common_google_signin_btn_text_disabled.xml"
+        "merged": "com.notifetch.app-release-86:/drawable-ldpi-v4_ic_alert.png.flat",
+        "source": "com.notifetch.app-checkout-1.6.33-20:/drawable-ldpi-v4/ic_alert.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable_common_google_signin_btn_text_dark_normal.xml.flat",
-        "source": "com.notifetch.app-play-services-base-18.5.0-71:/drawable/common_google_signin_btn_text_dark_normal.xml"
+        "merged": "com.notifetch.app-release-86:/drawable_common_google_signin_btn_text_dark.xml.flat",
+        "source": "com.notifetch.app-play-services-base-18.5.0-65:/drawable/common_google_signin_btn_text_dark.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-hdpi-v4_common_google_signin_btn_text_dark_normal_background.9.png.flat",
-        "source": "com.notifetch.app-play-services-base-18.5.0-71:/drawable-hdpi-v4/common_google_signin_btn_text_dark_normal_background.9.png"
+        "merged": "com.notifetch.app-release-86:/drawable-xxxhdpi-v4_ic_tick_mark.png.flat",
+        "source": "com.notifetch.app-checkout-1.6.33-20:/drawable-xxxhdpi-v4/ic_tick_mark.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-mdpi-v4_ic_tick_mark.png.flat",
-        "source": "com.notifetch.app-checkout-1.6.33-12:/drawable-mdpi-v4/ic_tick_mark.png"
+        "merged": "com.notifetch.app-release-86:/drawable-xxhdpi-v4_ic_alert.png.flat",
+        "source": "com.notifetch.app-checkout-1.6.33-20:/drawable-xxhdpi-v4/ic_alert.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable_common_google_signin_btn_text_disabled.xml.flat",
-        "source": "com.notifetch.app-play-services-base-18.5.0-71:/drawable/common_google_signin_btn_text_disabled.xml"
+        "merged": "com.notifetch.app-release-86:/drawable-xhdpi-v4_common_google_signin_btn_text_dark_normal_background.9.png.flat",
+        "source": "com.notifetch.app-play-services-base-18.5.0-65:/drawable-xhdpi-v4/common_google_signin_btn_text_dark_normal_background.9.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/animator_fragment_fade_enter.xml.flat",
-        "source": "com.notifetch.app-fragment-1.5.7-6:/animator/fragment_fade_enter.xml"
+        "merged": "com.notifetch.app-release-86:/drawable-xhdpi-v4_ic_password.png.flat",
+        "source": "com.notifetch.app-credentials-1.2.0-rc01-58:/drawable-xhdpi-v4/ic_password.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-xhdpi-v4_notification_bg_normal_pressed.9.png.flat",
-        "source": "com.notifetch.app-core-1.15.0-66:/drawable-xhdpi-v4/notification_bg_normal_pressed.9.png"
+        "merged": "com.notifetch.app-release-86:/layout_ime_secondary_split_test_activity.xml.flat",
+        "source": "com.notifetch.app-core-1.15.0-73:/layout/ime_secondary_split_test_activity.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable_ic_call_answer_video_low.xml.flat",
-        "source": "com.notifetch.app-core-1.15.0-66:/drawable/ic_call_answer_video_low.xml"
+        "merged": "com.notifetch.app-release-86:/drawable-xxhdpi-v4_googleg_disabled_color_18.png.flat",
+        "source": "com.notifetch.app-play-services-base-18.5.0-65:/drawable-xxhdpi-v4/googleg_disabled_color_18.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-ldpi-v4_ic_tick_mark.png.flat",
-        "source": "com.notifetch.app-checkout-1.6.33-12:/drawable-ldpi-v4/ic_tick_mark.png"
+        "merged": "com.notifetch.app-release-86:/drawable-hdpi-v4_googleg_disabled_color_18.png.flat",
+        "source": "com.notifetch.app-play-services-base-18.5.0-65:/drawable-hdpi-v4/googleg_disabled_color_18.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-hdpi-v4_notification_oversize_large_icon_bg.png.flat",
-        "source": "com.notifetch.app-core-1.15.0-66:/drawable-hdpi-v4/notification_oversize_large_icon_bg.png"
+        "merged": "com.notifetch.app-release-86:/drawable_ic_call_answer.xml.flat",
+        "source": "com.notifetch.app-core-1.15.0-73:/drawable/ic_call_answer.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-xhdpi-v4_common_full_open_on_phone.png.flat",
-        "source": "com.notifetch.app-play-services-base-18.5.0-71:/drawable-xhdpi-v4/common_full_open_on_phone.png"
+        "merged": "com.notifetch.app-release-86:/drawable_ic_call_answer_video.xml.flat",
+        "source": "com.notifetch.app-core-1.15.0-73:/drawable/ic_call_answer_video.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/layout_wallet_test_layout.xml.flat",
-        "source": "com.notifetch.app-play-services-wallet-18.1.3-15:/layout/wallet_test_layout.xml"
+        "merged": "com.notifetch.app-release-86:/drawable_common_google_signin_btn_icon_dark.xml.flat",
+        "source": "com.notifetch.app-play-services-base-18.5.0-65:/drawable/common_google_signin_btn_icon_dark.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/xml_file_provider_path.xml.flat",
-        "source": "com.notifetch.app-checkout-1.6.33-12:/xml/file_provider_path.xml"
+        "merged": "com.notifetch.app-release-86:/drawable_rzp_border_bottom.xml.flat",
+        "source": "com.notifetch.app-checkout-1.6.33-20:/drawable/rzp_border_bottom.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-xhdpi-v4_common_google_signin_btn_icon_dark_normal_background.9.png.flat",
-        "source": "com.notifetch.app-play-services-base-18.5.0-71:/drawable-xhdpi-v4/common_google_signin_btn_icon_dark_normal_background.9.png"
+        "merged": "com.notifetch.app-release-86:/drawable-xhdpi-v4_ic_tick_mark.png.flat",
+        "source": "com.notifetch.app-checkout-1.6.33-20:/drawable-xhdpi-v4/ic_tick_mark.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-hdpi-v4_notify_panel_notification_icon_bg.png.flat",
-        "source": "com.notifetch.app-core-1.15.0-66:/drawable-hdpi-v4/notify_panel_notification_icon_bg.png"
+        "merged": "com.notifetch.app-release-86:/mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "com.notifetch.app-main-87:/mipmap-anydpi-v26/ic_launcher.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable_common_google_signin_btn_icon_light.xml.flat",
-        "source": "com.notifetch.app-play-services-base-18.5.0-71:/drawable/common_google_signin_btn_icon_light.xml"
+        "merged": "com.notifetch.app-release-86:/drawable-hdpi-v4_notification_bg_normal.9.png.flat",
+        "source": "com.notifetch.app-core-1.15.0-73:/drawable-hdpi-v4/notification_bg_normal.9.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-xhdpi-v4_common_google_signin_btn_icon_light_normal_background.9.png.flat",
-        "source": "com.notifetch.app-play-services-base-18.5.0-71:/drawable-xhdpi-v4/common_google_signin_btn_icon_light_normal_background.9.png"
+        "merged": "com.notifetch.app-release-86:/drawable-hdpi-v4_notification_bg_normal_pressed.9.png.flat",
+        "source": "com.notifetch.app-core-1.15.0-73:/drawable-hdpi-v4/notification_bg_normal_pressed.9.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-hdpi-v4_googleg_disabled_color_18.png.flat",
-        "source": "com.notifetch.app-play-services-base-18.5.0-71:/drawable-hdpi-v4/googleg_disabled_color_18.png"
+        "merged": "com.notifetch.app-release-86:/drawable_notification_bg.xml.flat",
+        "source": "com.notifetch.app-core-1.15.0-73:/drawable/notification_bg.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-hdpi-v4_notification_bg_normal.9.png.flat",
-        "source": "com.notifetch.app-core-1.15.0-66:/drawable-hdpi-v4/notification_bg_normal.9.png"
+        "merged": "com.notifetch.app-release-86:/drawable-hdpi-v4_notification_bg_low_pressed.9.png.flat",
+        "source": "com.notifetch.app-core-1.15.0-73:/drawable-hdpi-v4/notification_bg_low_pressed.9.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/layout_browser_actions_context_menu_page.xml.flat",
-        "source": "com.notifetch.app-browser-1.4.0-60:/layout/browser_actions_context_menu_page.xml"
+        "merged": "com.notifetch.app-release-86:/drawable_rzp_poweredby.png.flat",
+        "source": "com.notifetch.app-checkout-1.6.33-20:/drawable/rzp_poweredby.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-hdpi-v4_common_google_signin_btn_icon_light_normal_background.9.png.flat",
-        "source": "com.notifetch.app-play-services-base-18.5.0-71:/drawable-hdpi-v4/common_google_signin_btn_icon_light_normal_background.9.png"
+        "merged": "com.notifetch.app-release-86:/drawable-hdpi-v4_common_google_signin_btn_icon_dark_normal_background.9.png.flat",
+        "source": "com.notifetch.app-play-services-base-18.5.0-65:/drawable-hdpi-v4/common_google_signin_btn_icon_dark_normal_background.9.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-xxhdpi-v4_common_google_signin_btn_text_light_normal_background.9.png.flat",
-        "source": "com.notifetch.app-play-services-base-18.5.0-71:/drawable-xxhdpi-v4/common_google_signin_btn_text_light_normal_background.9.png"
+        "merged": "com.notifetch.app-release-86:/drawable-hdpi-v4_googleg_standard_color_18.png.flat",
+        "source": "com.notifetch.app-play-services-base-18.5.0-65:/drawable-hdpi-v4/googleg_standard_color_18.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable_common_google_signin_btn_icon_dark_normal.xml.flat",
-        "source": "com.notifetch.app-play-services-base-18.5.0-71:/drawable/common_google_signin_btn_icon_dark_normal.xml"
+        "merged": "com.notifetch.app-release-86:/drawable-xhdpi-v4_notification_bg_normal.9.png.flat",
+        "source": "com.notifetch.app-core-1.15.0-73:/drawable-xhdpi-v4/notification_bg_normal.9.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-xhdpi-v4_notify_panel_notification_icon_bg.png.flat",
-        "source": "com.notifetch.app-core-1.15.0-66:/drawable-xhdpi-v4/notify_panel_notification_icon_bg.png"
+        "merged": "com.notifetch.app-release-86:/drawable-anydpi-v21_ic_password.xml.flat",
+        "source": "com.notifetch.app-credentials-1.2.0-rc01-58:/drawable-anydpi-v21/ic_password.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-xxhdpi-v4_googleg_disabled_color_18.png.flat",
-        "source": "com.notifetch.app-play-services-base-18.5.0-71:/drawable-xxhdpi-v4/googleg_disabled_color_18.png"
+        "merged": "com.notifetch.app-release-86:/drawable-xxhdpi-v4_googleg_standard_color_18.png.flat",
+        "source": "com.notifetch.app-play-services-base-18.5.0-65:/drawable-xxhdpi-v4/googleg_standard_color_18.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/animator_fragment_fade_exit.xml.flat",
-        "source": "com.notifetch.app-fragment-1.5.7-6:/animator/fragment_fade_exit.xml"
+        "merged": "com.notifetch.app-release-86:/mipmap-anydpi-v26_ic_launcher_round.xml.flat",
+        "source": "com.notifetch.app-main-87:/mipmap-anydpi-v26/ic_launcher_round.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/layout-v21_notification_action_tombstone.xml.flat",
-        "source": "com.notifetch.app-core-1.15.0-66:/layout-v21/notification_action_tombstone.xml"
+        "merged": "com.notifetch.app-release-86:/drawable-watch-v20_common_google_signin_btn_text_light_normal.xml.flat",
+        "source": "com.notifetch.app-play-services-auth-21.3.0-48:/drawable-watch-v20/common_google_signin_btn_text_light_normal.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/layout_notification_template_part_time.xml.flat",
-        "source": "com.notifetch.app-core-1.15.0-66:/layout/notification_template_part_time.xml"
+        "merged": "com.notifetch.app-release-86:/drawable-xhdpi-v4_common_google_signin_btn_icon_light_normal_background.9.png.flat",
+        "source": "com.notifetch.app-play-services-base-18.5.0-65:/drawable-xhdpi-v4/common_google_signin_btn_icon_light_normal_background.9.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/color_common_google_signin_btn_text_dark.xml.flat",
-        "source": "com.notifetch.app-play-services-base-18.5.0-71:/color/common_google_signin_btn_text_dark.xml"
+        "merged": "com.notifetch.app-release-86:/drawable-hdpi-v4_ic_passkey.png.flat",
+        "source": "com.notifetch.app-credentials-1.2.0-rc01-58:/drawable-hdpi-v4/ic_passkey.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-mdpi-v4_notify_panel_notification_icon_bg.png.flat",
-        "source": "com.notifetch.app-core-1.15.0-66:/drawable-mdpi-v4/notify_panel_notification_icon_bg.png"
+        "merged": "com.notifetch.app-release-86:/drawable-xhdpi-v4_ic_other_sign_in.png.flat",
+        "source": "com.notifetch.app-credentials-1.2.0-rc01-58:/drawable-xhdpi-v4/ic_other_sign_in.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/layout_rzp_loader.xml.flat",
-        "source": "com.notifetch.app-checkout-1.6.33-12:/layout/rzp_loader.xml"
+        "merged": "com.notifetch.app-release-86:/drawable-anydpi-v21_ic_tick_mark.xml.flat",
+        "source": "com.notifetch.app-checkout-1.6.33-20:/drawable-anydpi-v21/ic_tick_mark.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-xhdpi-v4_googleg_disabled_color_18.png.flat",
-        "source": "com.notifetch.app-play-services-base-18.5.0-71:/drawable-xhdpi-v4/googleg_disabled_color_18.png"
+        "merged": "com.notifetch.app-release-86:/drawable-mdpi-v4_ic_other_sign_in.png.flat",
+        "source": "com.notifetch.app-credentials-1.2.0-rc01-58:/drawable-mdpi-v4/ic_other_sign_in.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable_rzp_loader_circle.xml.flat",
-        "source": "com.notifetch.app-checkout-1.6.33-12:/drawable/rzp_loader_circle.xml"
+        "merged": "com.notifetch.app-release-86:/drawable-xxxhdpi-v4_ic_alert.png.flat",
+        "source": "com.notifetch.app-checkout-1.6.33-20:/drawable-xxxhdpi-v4/ic_alert.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-hdpi-v4_ic_alert.png.flat",
-        "source": "com.notifetch.app-checkout-1.6.33-12:/drawable-hdpi-v4/ic_alert.png"
+        "merged": "com.notifetch.app-release-86:/drawable-xhdpi-v4_notify_panel_notification_icon_bg.png.flat",
+        "source": "com.notifetch.app-core-1.15.0-73:/drawable-xhdpi-v4/notify_panel_notification_icon_bg.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-xxxhdpi-v4_ic_other_sign_in.png.flat",
-        "source": "com.notifetch.app-credentials-1.2.0-rc01-61:/drawable-xxxhdpi-v4/ic_other_sign_in.png"
+        "merged": "com.notifetch.app-release-86:/drawable-ldpi-v4_rzp_logo.png.flat",
+        "source": "com.notifetch.app-checkout-1.6.33-20:/drawable-ldpi-v4/rzp_logo.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-xhdpi-v4_common_google_signin_btn_text_dark_normal_background.9.png.flat",
-        "source": "com.notifetch.app-play-services-base-18.5.0-71:/drawable-xhdpi-v4/common_google_signin_btn_text_dark_normal_background.9.png"
+        "merged": "com.notifetch.app-release-86:/drawable-mdpi-v4_common_google_signin_btn_text_dark_normal_background.9.png.flat",
+        "source": "com.notifetch.app-play-services-base-18.5.0-65:/drawable-mdpi-v4/common_google_signin_btn_text_dark_normal_background.9.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable_common_google_signin_btn_icon_light_normal.xml.flat",
-        "source": "com.notifetch.app-play-services-base-18.5.0-71:/drawable/common_google_signin_btn_icon_light_normal.xml"
+        "merged": "com.notifetch.app-release-86:/drawable-xhdpi-v4_ic_alert.png.flat",
+        "source": "com.notifetch.app-checkout-1.6.33-20:/drawable-xhdpi-v4/ic_alert.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/layout_rzp_magic_base.xml.flat",
-        "source": "com.notifetch.app-checkout-1.6.33-12:/layout/rzp_magic_base.xml"
+        "merged": "com.notifetch.app-release-86:/drawable-xxhdpi-v4_ic_tick_mark.png.flat",
+        "source": "com.notifetch.app-checkout-1.6.33-20:/drawable-xxhdpi-v4/ic_tick_mark.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-xxhdpi-v4_common_google_signin_btn_icon_dark_normal_background.9.png.flat",
-        "source": "com.notifetch.app-play-services-base-18.5.0-71:/drawable-xxhdpi-v4/common_google_signin_btn_icon_dark_normal_background.9.png"
+        "merged": "com.notifetch.app-release-86:/drawable-mdpi-v4_ic_alert.png.flat",
+        "source": "com.notifetch.app-checkout-1.6.33-20:/drawable-mdpi-v4/ic_alert.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable_ic_call_answer.xml.flat",
-        "source": "com.notifetch.app-core-1.15.0-66:/drawable/ic_call_answer.xml"
+        "merged": "com.notifetch.app-release-86:/drawable_rzp_green_button.xml.flat",
+        "source": "com.notifetch.app-checkout-1.6.33-20:/drawable/rzp_green_button.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-xxhdpi-v4_rzp_name_logo.png.flat",
-        "source": "com.notifetch.app-checkout-1.6.33-12:/drawable-xxhdpi-v4/rzp_name_logo.png"
+        "merged": "com.notifetch.app-release-86:/raw_rzp_config.json.flat",
+        "source": "com.notifetch.app-checkout-1.6.33-20:/raw/rzp_config.json"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-hdpi-v4_notification_bg_low_pressed.9.png.flat",
-        "source": "com.notifetch.app-core-1.15.0-66:/drawable-hdpi-v4/notification_bg_low_pressed.9.png"
+        "merged": "com.notifetch.app-release-86:/drawable_notification_tile_bg.xml.flat",
+        "source": "com.notifetch.app-core-1.15.0-73:/drawable/notification_tile_bg.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/layout_sdk_integration_status.xml.flat",
-        "source": "com.notifetch.app-checkout-1.6.33-12:/layout/sdk_integration_status.xml"
+        "merged": "com.notifetch.app-release-86:/drawable-xhdpi-v4_common_google_signin_btn_icon_dark_normal_background.9.png.flat",
+        "source": "com.notifetch.app-play-services-base-18.5.0-65:/drawable-xhdpi-v4/common_google_signin_btn_icon_dark_normal_background.9.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable_common_google_signin_btn_text_dark_focused.xml.flat",
-        "source": "com.notifetch.app-play-services-base-18.5.0-71:/drawable/common_google_signin_btn_text_dark_focused.xml"
+        "merged": "com.notifetch.app-release-86:/drawable-xhdpi-v4_common_google_signin_btn_text_light_normal_background.9.png.flat",
+        "source": "com.notifetch.app-play-services-base-18.5.0-65:/drawable-xhdpi-v4/common_google_signin_btn_text_light_normal_background.9.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/layout_notification_template_part_chronometer.xml.flat",
-        "source": "com.notifetch.app-core-1.15.0-66:/layout/notification_template_part_chronometer.xml"
+        "merged": "com.notifetch.app-release-86:/drawable_common_google_signin_btn_text_disabled.xml.flat",
+        "source": "com.notifetch.app-play-services-base-18.5.0-65:/drawable/common_google_signin_btn_text_disabled.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-hdpi-v4_ic_tick_mark.png.flat",
-        "source": "com.notifetch.app-checkout-1.6.33-12:/drawable-hdpi-v4/ic_tick_mark.png"
+        "merged": "com.notifetch.app-release-86:/drawable-hdpi-v4_ic_tick_mark.png.flat",
+        "source": "com.notifetch.app-checkout-1.6.33-20:/drawable-hdpi-v4/ic_tick_mark.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/layout-v21_notification_action.xml.flat",
-        "source": "com.notifetch.app-core-1.15.0-66:/layout-v21/notification_action.xml"
+        "merged": "com.notifetch.app-release-86:/animator_fragment_close_exit.xml.flat",
+        "source": "com.notifetch.app-fragment-1.5.7-22:/animator/fragment_close_exit.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-mdpi-v4_ic_password.png.flat",
-        "source": "com.notifetch.app-credentials-1.2.0-rc01-61:/drawable-mdpi-v4/ic_password.png"
+        "merged": "com.notifetch.app-release-86:/drawable_common_google_signin_btn_text_light_focused.xml.flat",
+        "source": "com.notifetch.app-play-services-base-18.5.0-65:/drawable/common_google_signin_btn_text_light_focused.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-xxhdpi-v4_common_google_signin_btn_icon_light_normal_background.9.png.flat",
-        "source": "com.notifetch.app-play-services-base-18.5.0-71:/drawable-xxhdpi-v4/common_google_signin_btn_icon_light_normal_background.9.png"
+        "merged": "com.notifetch.app-release-86:/xml_ga_ad_services_config.xml.flat",
+        "source": "com.notifetch.app-play-services-measurement-api-22.1.2-67:/xml/ga_ad_services_config.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-anydpi-v24_ic_passkey.xml.flat",
-        "source": "com.notifetch.app-credentials-1.2.0-rc01-61:/drawable-anydpi-v24/ic_passkey.xml"
+        "merged": "com.notifetch.app-release-86:/xml_notification_listener_config.xml.flat",
+        "source": "com.notifetch.app-main-87:/xml/notification_listener_config.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/color_common_google_signin_btn_text_light.xml.flat",
-        "source": "com.notifetch.app-play-services-base-18.5.0-71:/color/common_google_signin_btn_text_light.xml"
+        "merged": "com.notifetch.app-release-86:/drawable-hdpi-v4_common_google_signin_btn_text_dark_normal_background.9.png.flat",
+        "source": "com.notifetch.app-play-services-base-18.5.0-65:/drawable-hdpi-v4/common_google_signin_btn_text_dark_normal_background.9.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-mdpi-v4_ic_alert.png.flat",
-        "source": "com.notifetch.app-checkout-1.6.33-12:/drawable-mdpi-v4/ic_alert.png"
+        "merged": "com.notifetch.app-release-86:/drawable-xxhdpi-v4_ic_other_sign_in.png.flat",
+        "source": "com.notifetch.app-credentials-1.2.0-rc01-58:/drawable-xxhdpi-v4/ic_other_sign_in.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-mdpi-v4_notification_bg_normal_pressed.9.png.flat",
-        "source": "com.notifetch.app-core-1.15.0-66:/drawable-mdpi-v4/notification_bg_normal_pressed.9.png"
+        "merged": "com.notifetch.app-release-86:/layout-v21_notification_action.xml.flat",
+        "source": "com.notifetch.app-core-1.15.0-73:/layout-v21/notification_action.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-hdpi-v4_notification_bg_low_normal.9.png.flat",
-        "source": "com.notifetch.app-core-1.15.0-66:/drawable-hdpi-v4/notification_bg_low_normal.9.png"
+        "merged": "com.notifetch.app-release-86:/drawable-hdpi-v4_ic_alert.png.flat",
+        "source": "com.notifetch.app-checkout-1.6.33-20:/drawable-hdpi-v4/ic_alert.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable_rzp_poweredby.png.flat",
-        "source": "com.notifetch.app-checkout-1.6.33-12:/drawable/rzp_poweredby.png"
+        "merged": "com.notifetch.app-release-86:/drawable-xxhdpi-v4_ic_password.png.flat",
+        "source": "com.notifetch.app-credentials-1.2.0-rc01-58:/drawable-xxhdpi-v4/ic_password.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-ldpi-v4_ic_alert.png.flat",
-        "source": "com.notifetch.app-checkout-1.6.33-12:/drawable-ldpi-v4/ic_alert.png"
+        "merged": "com.notifetch.app-release-86:/drawable-v21_notification_action_background.xml.flat",
+        "source": "com.notifetch.app-core-1.15.0-73:/drawable-v21/notification_action_background.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/layout_single_item.xml.flat",
-        "source": "com.notifetch.app-checkout-1.6.33-12:/layout/single_item.xml"
+        "merged": "com.notifetch.app-release-86:/drawable-hdpi-v4_notify_panel_notification_icon_bg.png.flat",
+        "source": "com.notifetch.app-core-1.15.0-73:/drawable-hdpi-v4/notify_panel_notification_icon_bg.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-xxhdpi-v4_ic_password.png.flat",
-        "source": "com.notifetch.app-credentials-1.2.0-rc01-61:/drawable-xxhdpi-v4/ic_password.png"
+        "merged": "com.notifetch.app-release-86:/drawable_common_google_signin_btn_text_light.xml.flat",
+        "source": "com.notifetch.app-play-services-base-18.5.0-65:/drawable/common_google_signin_btn_text_light.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable_notification_tile_bg.xml.flat",
-        "source": "com.notifetch.app-core-1.15.0-66:/drawable/notification_tile_bg.xml"
+        "merged": "com.notifetch.app-release-86:/drawable-watch-v20_common_google_signin_btn_text_disabled.xml.flat",
+        "source": "com.notifetch.app-play-services-auth-21.3.0-48:/drawable-watch-v20/common_google_signin_btn_text_disabled.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable_notification_bg.xml.flat",
-        "source": "com.notifetch.app-core-1.15.0-66:/drawable/notification_bg.xml"
+        "merged": "com.notifetch.app-release-86:/drawable_common_google_signin_btn_icon_light_focused.xml.flat",
+        "source": "com.notifetch.app-play-services-base-18.5.0-65:/drawable/common_google_signin_btn_icon_light_focused.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-xxhdpi-v4_common_google_signin_btn_text_dark_normal_background.9.png.flat",
-        "source": "com.notifetch.app-play-services-base-18.5.0-71:/drawable-xxhdpi-v4/common_google_signin_btn_text_dark_normal_background.9.png"
+        "merged": "com.notifetch.app-release-86:/layout_notification_template_part_chronometer.xml.flat",
+        "source": "com.notifetch.app-core-1.15.0-73:/layout/notification_template_part_chronometer.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-mdpi-v4_rzp_logo.png.flat",
-        "source": "com.notifetch.app-checkout-1.6.33-12:/drawable-mdpi-v4/rzp_logo.png"
+        "merged": "com.notifetch.app-release-86:/drawable_notification_bg_low.xml.flat",
+        "source": "com.notifetch.app-core-1.15.0-73:/drawable/notification_bg_low.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-xxxhdpi-v4_ic_tick_mark.png.flat",
-        "source": "com.notifetch.app-checkout-1.6.33-12:/drawable-xxxhdpi-v4/ic_tick_mark.png"
+        "merged": "com.notifetch.app-release-86:/drawable_common_google_signin_btn_text_dark_normal.xml.flat",
+        "source": "com.notifetch.app-play-services-base-18.5.0-65:/drawable/common_google_signin_btn_text_dark_normal.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/xml_ga_ad_services_config.xml.flat",
-        "source": "com.notifetch.app-play-services-measurement-api-22.1.2-21:/xml/ga_ad_services_config.xml"
+        "merged": "com.notifetch.app-release-86:/layout_browser_actions_context_menu_row.xml.flat",
+        "source": "com.notifetch.app-browser-1.4.0-0:/layout/browser_actions_context_menu_row.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-mdpi-v4_common_google_signin_btn_icon_light_normal_background.9.png.flat",
-        "source": "com.notifetch.app-play-services-base-18.5.0-71:/drawable-mdpi-v4/common_google_signin_btn_icon_light_normal_background.9.png"
+        "merged": "com.notifetch.app-release-86:/drawable-hdpi-v4_rzp_logo.png.flat",
+        "source": "com.notifetch.app-checkout-1.6.33-20:/drawable-hdpi-v4/rzp_logo.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-hdpi-v4_ic_password.png.flat",
-        "source": "com.notifetch.app-credentials-1.2.0-rc01-61:/drawable-hdpi-v4/ic_password.png"
+        "merged": "com.notifetch.app-release-86:/drawable_ic_launcher_background.xml.flat",
+        "source": "com.notifetch.app-main-87:/drawable/ic_launcher_background.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable_ic_call_decline.xml.flat",
-        "source": "com.notifetch.app-core-1.15.0-66:/drawable/ic_call_decline.xml"
+        "merged": "com.notifetch.app-release-86:/drawable_ic_call_answer_video_low.xml.flat",
+        "source": "com.notifetch.app-core-1.15.0-73:/drawable/ic_call_answer_video_low.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-xxxhdpi-v4_ic_alert.png.flat",
-        "source": "com.notifetch.app-checkout-1.6.33-12:/drawable-xxxhdpi-v4/ic_alert.png"
+        "merged": "com.notifetch.app-release-86:/color_common_google_signin_btn_tint.xml.flat",
+        "source": "com.notifetch.app-play-services-base-18.5.0-65:/color/common_google_signin_btn_tint.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-ldpi-v4_rzp_logo.png.flat",
-        "source": "com.notifetch.app-checkout-1.6.33-12:/drawable-ldpi-v4/rzp_logo.png"
+        "merged": "com.notifetch.app-release-86:/drawable-xhdpi-v4_rzp_logo.png.flat",
+        "source": "com.notifetch.app-checkout-1.6.33-20:/drawable-xhdpi-v4/rzp_logo.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-hdpi-v4_notification_bg_normal_pressed.9.png.flat",
-        "source": "com.notifetch.app-core-1.15.0-66:/drawable-hdpi-v4/notification_bg_normal_pressed.9.png"
+        "merged": "com.notifetch.app-release-86:/color_wallet_secondary_text_holo_dark.xml.flat",
+        "source": "com.notifetch.app-play-services-wallet-18.1.3-25:/color/wallet_secondary_text_holo_dark.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-xxhdpi-v4_ic_alert.png.flat",
-        "source": "com.notifetch.app-checkout-1.6.33-12:/drawable-xxhdpi-v4/ic_alert.png"
+        "merged": "com.notifetch.app-release-86:/drawable-anydpi-v21_ic_alert.xml.flat",
+        "source": "com.notifetch.app-checkout-1.6.33-20:/drawable-anydpi-v21/ic_alert.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-xhdpi-v4_ic_password.png.flat",
-        "source": "com.notifetch.app-credentials-1.2.0-rc01-61:/drawable-xhdpi-v4/ic_password.png"
+        "merged": "com.notifetch.app-release-86:/drawable-hdpi-v4_notification_bg_low_normal.9.png.flat",
+        "source": "com.notifetch.app-core-1.15.0-73:/drawable-hdpi-v4/notification_bg_low_normal.9.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/layout_ime_secondary_split_test_activity.xml.flat",
-        "source": "com.notifetch.app-core-1.15.0-66:/layout/ime_secondary_split_test_activity.xml"
+        "merged": "com.notifetch.app-release-86:/drawable_rzp_secured_by_bg.xml.flat",
+        "source": "com.notifetch.app-checkout-1.6.33-20:/drawable/rzp_secured_by_bg.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable_common_google_signin_btn_icon_disabled.xml.flat",
-        "source": "com.notifetch.app-play-services-base-18.5.0-71:/drawable/common_google_signin_btn_icon_disabled.xml"
+        "merged": "com.notifetch.app-release-86:/drawable-hdpi-v4_common_full_open_on_phone.png.flat",
+        "source": "com.notifetch.app-play-services-base-18.5.0-65:/drawable-hdpi-v4/common_full_open_on_phone.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-xxxhdpi-v4_rzp_logo.png.flat",
-        "source": "com.notifetch.app-checkout-1.6.33-12:/drawable-xxxhdpi-v4/rzp_logo.png"
+        "merged": "com.notifetch.app-release-86:/drawable-mdpi-v4_rzp_logo.png.flat",
+        "source": "com.notifetch.app-checkout-1.6.33-20:/drawable-mdpi-v4/rzp_logo.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-mdpi-v4_notification_bg_normal.9.png.flat",
-        "source": "com.notifetch.app-core-1.15.0-66:/drawable-mdpi-v4/notification_bg_normal.9.png"
+        "merged": "com.notifetch.app-release-86:/drawable-mdpi-v4_notification_bg_normal.9.png.flat",
+        "source": "com.notifetch.app-core-1.15.0-73:/drawable-mdpi-v4/notification_bg_normal.9.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable_common_google_signin_btn_icon_dark_focused.xml.flat",
-        "source": "com.notifetch.app-play-services-base-18.5.0-71:/drawable/common_google_signin_btn_icon_dark_focused.xml"
+        "merged": "com.notifetch.app-release-86:/drawable-xhdpi-v4_googleg_standard_color_18.png.flat",
+        "source": "com.notifetch.app-play-services-base-18.5.0-65:/drawable-xhdpi-v4/googleg_standard_color_18.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-mdpi-v4_ic_passkey.png.flat",
-        "source": "com.notifetch.app-credentials-1.2.0-rc01-61:/drawable-mdpi-v4/ic_passkey.png"
+        "merged": "com.notifetch.app-release-86:/drawable_rzp_white_border_black_bg.xml.flat",
+        "source": "com.notifetch.app-checkout-1.6.33-20:/drawable/rzp_white_border_black_bg.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-hdpi-v4_rzp_logo.png.flat",
-        "source": "com.notifetch.app-checkout-1.6.33-12:/drawable-hdpi-v4/rzp_logo.png"
+        "merged": "com.notifetch.app-release-86:/drawable_common_google_signin_btn_icon_dark_focused.xml.flat",
+        "source": "com.notifetch.app-play-services-base-18.5.0-65:/drawable/common_google_signin_btn_icon_dark_focused.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/animator_fragment_close_exit.xml.flat",
-        "source": "com.notifetch.app-fragment-1.5.7-6:/animator/fragment_close_exit.xml"
+        "merged": "com.notifetch.app-release-86:/drawable-mdpi-v4_notification_bg_normal_pressed.9.png.flat",
+        "source": "com.notifetch.app-core-1.15.0-73:/drawable-mdpi-v4/notification_bg_normal_pressed.9.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/mipmap-anydpi-v26_ic_launcher.xml.flat",
-        "source": "com.notifetch.app-main-85:/mipmap-anydpi-v26/ic_launcher.xml"
+        "merged": "com.notifetch.app-release-86:/drawable_common_google_signin_btn_text_light_normal.xml.flat",
+        "source": "com.notifetch.app-play-services-base-18.5.0-65:/drawable/common_google_signin_btn_text_light_normal.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/anim-v21_fragment_fast_out_extra_slow_in.xml.flat",
-        "source": "com.notifetch.app-fragment-1.5.7-6:/anim-v21/fragment_fast_out_extra_slow_in.xml"
+        "merged": "com.notifetch.app-release-86:/drawable_notification_icon_background.xml.flat",
+        "source": "com.notifetch.app-core-1.15.0-73:/drawable/notification_icon_background.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-xhdpi-v4_ic_passkey.png.flat",
-        "source": "com.notifetch.app-credentials-1.2.0-rc01-61:/drawable-xhdpi-v4/ic_passkey.png"
+        "merged": "com.notifetch.app-release-86:/layout_sdk_integration_status.xml.flat",
+        "source": "com.notifetch.app-checkout-1.6.33-20:/layout/sdk_integration_status.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-mdpi-v4_common_google_signin_btn_text_light_normal_background.9.png.flat",
-        "source": "com.notifetch.app-play-services-base-18.5.0-71:/drawable-mdpi-v4/common_google_signin_btn_text_light_normal_background.9.png"
+        "merged": "com.notifetch.app-release-86:/drawable_common_google_signin_btn_icon_dark_normal.xml.flat",
+        "source": "com.notifetch.app-play-services-base-18.5.0-65:/drawable/common_google_signin_btn_icon_dark_normal.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-xxxhdpi-v4_ic_password.png.flat",
-        "source": "com.notifetch.app-credentials-1.2.0-rc01-61:/drawable-xxxhdpi-v4/ic_password.png"
+        "merged": "com.notifetch.app-release-86:/drawable-mdpi-v4_ic_tick_mark.png.flat",
+        "source": "com.notifetch.app-checkout-1.6.33-20:/drawable-mdpi-v4/ic_tick_mark.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/animator_fragment_open_enter.xml.flat",
-        "source": "com.notifetch.app-fragment-1.5.7-6:/animator/fragment_open_enter.xml"
+        "merged": "com.notifetch.app-release-86:/drawable-anydpi-v24_ic_passkey.xml.flat",
+        "source": "com.notifetch.app-credentials-1.2.0-rc01-58:/drawable-anydpi-v24/ic_passkey.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-mdpi-v4_googleg_standard_color_18.png.flat",
-        "source": "com.notifetch.app-play-services-base-18.5.0-71:/drawable-mdpi-v4/googleg_standard_color_18.png"
+        "merged": "com.notifetch.app-release-86:/drawable-xhdpi-v4_googleg_disabled_color_18.png.flat",
+        "source": "com.notifetch.app-play-services-base-18.5.0-65:/drawable-xhdpi-v4/googleg_disabled_color_18.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable_common_google_signin_btn_text_light_normal.xml.flat",
-        "source": "com.notifetch.app-play-services-base-18.5.0-71:/drawable/common_google_signin_btn_text_light_normal.xml"
+        "merged": "com.notifetch.app-release-86:/drawable-mdpi-v4_googleg_standard_color_18.png.flat",
+        "source": "com.notifetch.app-play-services-base-18.5.0-65:/drawable-mdpi-v4/googleg_standard_color_18.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/layout_browser_actions_context_menu_row.xml.flat",
-        "source": "com.notifetch.app-browser-1.4.0-60:/layout/browser_actions_context_menu_row.xml"
+        "merged": "com.notifetch.app-release-86:/drawable-mdpi-v4_ic_password.png.flat",
+        "source": "com.notifetch.app-credentials-1.2.0-rc01-58:/drawable-mdpi-v4/ic_password.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-anydpi-v21_ic_other_sign_in.xml.flat",
-        "source": "com.notifetch.app-credentials-1.2.0-rc01-61:/drawable-anydpi-v21/ic_other_sign_in.xml"
+        "merged": "com.notifetch.app-release-86:/drawable-xxxhdpi-v4_ic_other_sign_in.png.flat",
+        "source": "com.notifetch.app-credentials-1.2.0-rc01-58:/drawable-xxxhdpi-v4/ic_other_sign_in.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable_common_google_signin_btn_text_light.xml.flat",
-        "source": "com.notifetch.app-play-services-base-18.5.0-71:/drawable/common_google_signin_btn_text_light.xml"
+        "merged": "com.notifetch.app-release-86:/drawable_ic_call_decline.xml.flat",
+        "source": "com.notifetch.app-core-1.15.0-73:/drawable/ic_call_decline.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable_rzp_border_bottom.xml.flat",
-        "source": "com.notifetch.app-checkout-1.6.33-12:/drawable/rzp_border_bottom.xml"
+        "merged": "com.notifetch.app-release-86:/drawable-anydpi-v21_ic_other_sign_in.xml.flat",
+        "source": "com.notifetch.app-credentials-1.2.0-rc01-58:/drawable-anydpi-v21/ic_other_sign_in.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-hdpi-v4_common_full_open_on_phone.png.flat",
-        "source": "com.notifetch.app-play-services-base-18.5.0-71:/drawable-hdpi-v4/common_full_open_on_phone.png"
+        "merged": "com.notifetch.app-release-86:/layout_wallet_test_layout.xml.flat",
+        "source": "com.notifetch.app-play-services-wallet-18.1.3-25:/layout/wallet_test_layout.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-mdpi-v4_googleg_disabled_color_18.png.flat",
-        "source": "com.notifetch.app-play-services-base-18.5.0-71:/drawable-mdpi-v4/googleg_disabled_color_18.png"
+        "merged": "com.notifetch.app-release-86:/drawable-xhdpi-v4_notification_bg_low_normal.9.png.flat",
+        "source": "com.notifetch.app-core-1.15.0-73:/drawable-xhdpi-v4/notification_bg_low_normal.9.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable_rzp_green_button.xml.flat",
-        "source": "com.notifetch.app-checkout-1.6.33-12:/drawable/rzp_green_button.xml"
+        "merged": "com.notifetch.app-release-86:/drawable-ldpi-v4_ic_tick_mark.png.flat",
+        "source": "com.notifetch.app-checkout-1.6.33-20:/drawable-ldpi-v4/ic_tick_mark.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-xhdpi-v4_ic_other_sign_in.png.flat",
-        "source": "com.notifetch.app-credentials-1.2.0-rc01-61:/drawable-xhdpi-v4/ic_other_sign_in.png"
+        "merged": "com.notifetch.app-release-86:/raw_firebase_crashlytics_keep.xml.flat",
+        "source": "com.notifetch.app-firebase-crashlytics-19.3.0-55:/raw/firebase_crashlytics_keep.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/color_wallet_primary_text_holo_light.xml.flat",
-        "source": "com.notifetch.app-play-services-wallet-18.1.3-15:/color/wallet_primary_text_holo_light.xml"
+        "merged": "com.notifetch.app-release-86:/drawable-mdpi-v4_common_google_signin_btn_text_light_normal_background.9.png.flat",
+        "source": "com.notifetch.app-play-services-base-18.5.0-65:/drawable-mdpi-v4/common_google_signin_btn_text_light_normal_background.9.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/color_vector_tint_color.xml.flat",
-        "source": "com.notifetch.app-ui-release-3:/color/vector_tint_color.xml"
+        "merged": "com.notifetch.app-release-86:/drawable-xxhdpi-v4_common_google_signin_btn_text_light_normal_background.9.png.flat",
+        "source": "com.notifetch.app-play-services-base-18.5.0-65:/drawable-xxhdpi-v4/common_google_signin_btn_text_light_normal_background.9.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable_notification_bg_low.xml.flat",
-        "source": "com.notifetch.app-core-1.15.0-66:/drawable/notification_bg_low.xml"
+        "merged": "com.notifetch.app-release-86:/drawable-hdpi-v4_notification_oversize_large_icon_bg.png.flat",
+        "source": "com.notifetch.app-core-1.15.0-73:/drawable-hdpi-v4/notification_oversize_large_icon_bg.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable_notification_icon_background.xml.flat",
-        "source": "com.notifetch.app-core-1.15.0-66:/drawable/notification_icon_background.xml"
+        "merged": "com.notifetch.app-release-86:/drawable_ic_launcher_foreground.xml.flat",
+        "source": "com.notifetch.app-main-87:/drawable/ic_launcher_foreground.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-ldpi-v4_ic_password.png.flat",
-        "source": "com.notifetch.app-credentials-1.2.0-rc01-61:/drawable-ldpi-v4/ic_password.png"
+        "merged": "com.notifetch.app-release-86:/layout_ime_base_split_test_activity.xml.flat",
+        "source": "com.notifetch.app-core-1.15.0-73:/layout/ime_base_split_test_activity.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-hdpi-v4_ic_passkey.png.flat",
-        "source": "com.notifetch.app-credentials-1.2.0-rc01-61:/drawable-hdpi-v4/ic_passkey.png"
+        "merged": "com.notifetch.app-release-86:/color_wallet_primary_text_holo_light.xml.flat",
+        "source": "com.notifetch.app-play-services-wallet-18.1.3-25:/color/wallet_primary_text_holo_light.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable_common_google_signin_btn_icon_dark.xml.flat",
-        "source": "com.notifetch.app-play-services-base-18.5.0-71:/drawable/common_google_signin_btn_icon_dark.xml"
+        "merged": "com.notifetch.app-release-86:/drawable-hdpi-v4_ic_password.png.flat",
+        "source": "com.notifetch.app-credentials-1.2.0-rc01-58:/drawable-hdpi-v4/ic_password.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable_ic_call_answer_low.xml.flat",
-        "source": "com.notifetch.app-core-1.15.0-66:/drawable/ic_call_answer_low.xml"
+        "merged": "com.notifetch.app-release-86:/animator_fragment_fade_exit.xml.flat",
+        "source": "com.notifetch.app-fragment-1.5.7-22:/animator/fragment_fade_exit.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-v21_notification_action_background.xml.flat",
-        "source": "com.notifetch.app-core-1.15.0-66:/drawable-v21/notification_action_background.xml"
+        "merged": "com.notifetch.app-release-86:/layout_browser_actions_context_menu_page.xml.flat",
+        "source": "com.notifetch.app-browser-1.4.0-0:/layout/browser_actions_context_menu_page.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable_ic_call_decline_low.xml.flat",
-        "source": "com.notifetch.app-core-1.15.0-66:/drawable/ic_call_decline_low.xml"
+        "merged": "com.notifetch.app-release-86:/drawable-xxhdpi-v4_ic_passkey.png.flat",
+        "source": "com.notifetch.app-credentials-1.2.0-rc01-58:/drawable-xxhdpi-v4/ic_passkey.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/color_wallet_secondary_text_holo_dark.xml.flat",
-        "source": "com.notifetch.app-play-services-wallet-18.1.3-15:/color/wallet_secondary_text_holo_dark.xml"
+        "merged": "com.notifetch.app-release-86:/raw_firebase_common_keep.xml.flat",
+        "source": "com.notifetch.app-firebase-common-21.0.0-33:/raw/firebase_common_keep.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-xxhdpi-v4_ic_passkey.png.flat",
-        "source": "com.notifetch.app-credentials-1.2.0-rc01-61:/drawable-xxhdpi-v4/ic_passkey.png"
+        "merged": "com.notifetch.app-release-86:/drawable-xxxhdpi-v4_rzp_logo.png.flat",
+        "source": "com.notifetch.app-checkout-1.6.33-20:/drawable-xxxhdpi-v4/rzp_logo.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/color_common_google_signin_btn_tint.xml.flat",
-        "source": "com.notifetch.app-play-services-base-18.5.0-71:/color/common_google_signin_btn_tint.xml"
+        "merged": "com.notifetch.app-release-86:/layout_rzp_magic_base.xml.flat",
+        "source": "com.notifetch.app-checkout-1.6.33-20:/layout/rzp_magic_base.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable_ic_launcher_background.xml.flat",
-        "source": "com.notifetch.app-main-85:/drawable/ic_launcher_background.xml"
+        "merged": "com.notifetch.app-release-86:/drawable-xhdpi-v4_notification_bg_normal_pressed.9.png.flat",
+        "source": "com.notifetch.app-core-1.15.0-73:/drawable-xhdpi-v4/notification_bg_normal_pressed.9.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/layout_custom_dialog.xml.flat",
-        "source": "com.notifetch.app-core-1.15.0-66:/layout/custom_dialog.xml"
+        "merged": "com.notifetch.app-release-86:/drawable_rzp_border.xml.flat",
+        "source": "com.notifetch.app-checkout-1.6.33-20:/drawable/rzp_border.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/animator_fragment_open_exit.xml.flat",
-        "source": "com.notifetch.app-fragment-1.5.7-6:/animator/fragment_open_exit.xml"
+        "merged": "com.notifetch.app-release-86:/drawable_common_google_signin_btn_icon_disabled.xml.flat",
+        "source": "com.notifetch.app-play-services-base-18.5.0-65:/drawable/common_google_signin_btn_icon_disabled.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-mdpi-v4_common_google_signin_btn_icon_dark_normal_background.9.png.flat",
-        "source": "com.notifetch.app-play-services-base-18.5.0-71:/drawable-mdpi-v4/common_google_signin_btn_icon_dark_normal_background.9.png"
+        "merged": "com.notifetch.app-release-86:/drawable-mdpi-v4_notification_bg_low_normal.9.png.flat",
+        "source": "com.notifetch.app-core-1.15.0-73:/drawable-mdpi-v4/notification_bg_low_normal.9.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-anydpi-v21_ic_alert.xml.flat",
-        "source": "com.notifetch.app-checkout-1.6.33-12:/drawable-anydpi-v21/ic_alert.xml"
+        "merged": "com.notifetch.app-release-86:/xml_file_provider_path.xml.flat",
+        "source": "com.notifetch.app-checkout-1.6.33-20:/xml/file_provider_path.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-anydpi-v24_rzp_logo.xml.flat",
-        "source": "com.notifetch.app-checkout-1.6.33-12:/drawable-anydpi-v24/rzp_logo.xml"
+        "merged": "com.notifetch.app-release-86:/color_vector_tint_theme_color.xml.flat",
+        "source": "com.notifetch.app-ui-release-18:/color/vector_tint_theme_color.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-xhdpi-v4_notification_bg_low_normal.9.png.flat",
-        "source": "com.notifetch.app-core-1.15.0-66:/drawable-xhdpi-v4/notification_bg_low_normal.9.png"
+        "merged": "com.notifetch.app-release-86:/drawable_rzp_loader_circle.xml.flat",
+        "source": "com.notifetch.app-checkout-1.6.33-20:/drawable/rzp_loader_circle.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/animator_fragment_close_enter.xml.flat",
-        "source": "com.notifetch.app-fragment-1.5.7-6:/animator/fragment_close_enter.xml"
+        "merged": "com.notifetch.app-release-86:/drawable_ic_call_answer_low.xml.flat",
+        "source": "com.notifetch.app-core-1.15.0-73:/drawable/ic_call_answer_low.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-xhdpi-v4_notification_bg_normal.9.png.flat",
-        "source": "com.notifetch.app-core-1.15.0-66:/drawable-xhdpi-v4/notification_bg_normal.9.png"
+        "merged": "com.notifetch.app-release-86:/drawable-hdpi-v4_common_google_signin_btn_text_light_normal_background.9.png.flat",
+        "source": "com.notifetch.app-play-services-base-18.5.0-65:/drawable-hdpi-v4/common_google_signin_btn_text_light_normal_background.9.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-watch-v20_common_google_signin_btn_text_dark_normal.xml.flat",
-        "source": "com.notifetch.app-play-services-auth-21.3.0-31:/drawable-watch-v20/common_google_signin_btn_text_dark_normal.xml"
+        "merged": "com.notifetch.app-release-86:/drawable_common_google_signin_btn_icon_light_normal.xml.flat",
+        "source": "com.notifetch.app-play-services-base-18.5.0-65:/drawable/common_google_signin_btn_icon_light_normal.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-xhdpi-v4_ic_alert.png.flat",
-        "source": "com.notifetch.app-checkout-1.6.33-12:/drawable-xhdpi-v4/ic_alert.png"
+        "merged": "com.notifetch.app-release-86:/drawable-mdpi-v4_notification_bg_low_pressed.9.png.flat",
+        "source": "com.notifetch.app-core-1.15.0-73:/drawable-mdpi-v4/notification_bg_low_pressed.9.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-xhdpi-v4_common_google_signin_btn_text_light_normal_background.9.png.flat",
-        "source": "com.notifetch.app-play-services-base-18.5.0-71:/drawable-xhdpi-v4/common_google_signin_btn_text_light_normal_background.9.png"
+        "merged": "com.notifetch.app-release-86:/drawable-xxhdpi-v4_common_google_signin_btn_icon_dark_normal_background.9.png.flat",
+        "source": "com.notifetch.app-play-services-base-18.5.0-65:/drawable-xxhdpi-v4/common_google_signin_btn_icon_dark_normal_background.9.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/raw_firebase_common_keep.xml.flat",
-        "source": "com.notifetch.app-firebase-common-21.0.0-30:/raw/firebase_common_keep.xml"
+        "merged": "com.notifetch.app-release-86:/drawable-xhdpi-v4_ic_passkey.png.flat",
+        "source": "com.notifetch.app-credentials-1.2.0-rc01-58:/drawable-xhdpi-v4/ic_passkey.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-hdpi-v4_ic_other_sign_in.png.flat",
-        "source": "com.notifetch.app-credentials-1.2.0-rc01-61:/drawable-hdpi-v4/ic_other_sign_in.png"
+        "merged": "com.notifetch.app-release-86:/drawable-xxhdpi-v4_rzp_logo.png.flat",
+        "source": "com.notifetch.app-checkout-1.6.33-20:/drawable-xxhdpi-v4/rzp_logo.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-mdpi-v4_ic_other_sign_in.png.flat",
-        "source": "com.notifetch.app-credentials-1.2.0-rc01-61:/drawable-mdpi-v4/ic_other_sign_in.png"
+        "merged": "com.notifetch.app-release-86:/layout-v21_notification_action_tombstone.xml.flat",
+        "source": "com.notifetch.app-core-1.15.0-73:/layout-v21/notification_action_tombstone.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-ldpi-v4_ic_other_sign_in.png.flat",
-        "source": "com.notifetch.app-credentials-1.2.0-rc01-61:/drawable-ldpi-v4/ic_other_sign_in.png"
+        "merged": "com.notifetch.app-release-86:/animator_fragment_close_enter.xml.flat",
+        "source": "com.notifetch.app-fragment-1.5.7-22:/animator/fragment_close_enter.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/layout_ime_base_split_test_activity.xml.flat",
-        "source": "com.notifetch.app-core-1.15.0-66:/layout/ime_base_split_test_activity.xml"
+        "merged": "com.notifetch.app-release-86:/xml_image_share_filepaths.xml.flat",
+        "source": "com.notifetch.app-browser-1.4.0-0:/xml/image_share_filepaths.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable_ic_call_answer_video.xml.flat",
-        "source": "com.notifetch.app-core-1.15.0-66:/drawable/ic_call_answer_video.xml"
+        "merged": "com.notifetch.app-release-86:/animator_fragment_open_enter.xml.flat",
+        "source": "com.notifetch.app-fragment-1.5.7-22:/animator/fragment_open_enter.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-xxhdpi-v4_ic_tick_mark.png.flat",
-        "source": "com.notifetch.app-checkout-1.6.33-12:/drawable-xxhdpi-v4/ic_tick_mark.png"
+        "merged": "com.notifetch.app-release-86:/drawable-mdpi-v4_notify_panel_notification_icon_bg.png.flat",
+        "source": "com.notifetch.app-core-1.15.0-73:/drawable-mdpi-v4/notify_panel_notification_icon_bg.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable_common_google_signin_btn_text_light_focused.xml.flat",
-        "source": "com.notifetch.app-play-services-base-18.5.0-71:/drawable/common_google_signin_btn_text_light_focused.xml"
+        "merged": "com.notifetch.app-release-86:/layout_single_item.xml.flat",
+        "source": "com.notifetch.app-checkout-1.6.33-20:/layout/single_item.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable_ic_launcher_foreground.xml.flat",
-        "source": "com.notifetch.app-main-85:/drawable/ic_launcher_foreground.xml"
+        "merged": "com.notifetch.app-release-86:/drawable-hdpi-v4_common_google_signin_btn_icon_light_normal_background.9.png.flat",
+        "source": "com.notifetch.app-play-services-base-18.5.0-65:/drawable-hdpi-v4/common_google_signin_btn_icon_light_normal_background.9.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/color_vector_tint_theme_color.xml.flat",
-        "source": "com.notifetch.app-ui-release-3:/color/vector_tint_theme_color.xml"
+        "merged": "com.notifetch.app-release-86:/animator_fragment_fade_enter.xml.flat",
+        "source": "com.notifetch.app-fragment-1.5.7-22:/animator/fragment_fade_enter.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/layout-v21_notification_template_custom_big.xml.flat",
-        "source": "com.notifetch.app-core-1.15.0-66:/layout-v21/notification_template_custom_big.xml"
+        "merged": "com.notifetch.app-release-86:/drawable_common_google_signin_btn_text_dark_focused.xml.flat",
+        "source": "com.notifetch.app-play-services-base-18.5.0-65:/drawable/common_google_signin_btn_text_dark_focused.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-xxhdpi-v4_rzp_logo.png.flat",
-        "source": "com.notifetch.app-checkout-1.6.33-12:/drawable-xxhdpi-v4/rzp_logo.png"
+        "merged": "com.notifetch.app-release-86:/color_common_google_signin_btn_text_dark.xml.flat",
+        "source": "com.notifetch.app-play-services-base-18.5.0-65:/color/common_google_signin_btn_text_dark.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable_common_google_signin_btn_text_dark.xml.flat",
-        "source": "com.notifetch.app-play-services-base-18.5.0-71:/drawable/common_google_signin_btn_text_dark.xml"
+        "merged": "com.notifetch.app-release-86:/layout_rzp_loader.xml.flat",
+        "source": "com.notifetch.app-checkout-1.6.33-20:/layout/rzp_loader.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-hdpi-v4_common_google_signin_btn_text_light_normal_background.9.png.flat",
-        "source": "com.notifetch.app-play-services-base-18.5.0-71:/drawable-hdpi-v4/common_google_signin_btn_text_light_normal_background.9.png"
+        "merged": "com.notifetch.app-release-86:/drawable-xxxhdpi-v4_ic_passkey.png.flat",
+        "source": "com.notifetch.app-credentials-1.2.0-rc01-58:/drawable-xxxhdpi-v4/ic_passkey.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-mdpi-v4_notification_bg_low_normal.9.png.flat",
-        "source": "com.notifetch.app-core-1.15.0-66:/drawable-mdpi-v4/notification_bg_low_normal.9.png"
+        "merged": "com.notifetch.app-release-86:/drawable-watch-v20_common_google_signin_btn_text_dark_normal.xml.flat",
+        "source": "com.notifetch.app-play-services-auth-21.3.0-48:/drawable-watch-v20/common_google_signin_btn_text_dark_normal.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-xxxhdpi-v4_ic_passkey.png.flat",
-        "source": "com.notifetch.app-credentials-1.2.0-rc01-61:/drawable-xxxhdpi-v4/ic_passkey.png"
+        "merged": "com.notifetch.app-release-86:/drawable-xhdpi-v4_common_full_open_on_phone.png.flat",
+        "source": "com.notifetch.app-play-services-base-18.5.0-65:/drawable-xhdpi-v4/common_full_open_on_phone.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable_rzp_border.xml.flat",
-        "source": "com.notifetch.app-checkout-1.6.33-12:/drawable/rzp_border.xml"
+        "merged": "com.notifetch.app-release-86:/layout-v21_notification_template_custom_big.xml.flat",
+        "source": "com.notifetch.app-core-1.15.0-73:/layout-v21/notification_template_custom_big.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-hdpi-v4_common_google_signin_btn_icon_dark_normal_background.9.png.flat",
-        "source": "com.notifetch.app-play-services-base-18.5.0-71:/drawable-hdpi-v4/common_google_signin_btn_icon_dark_normal_background.9.png"
+        "merged": "com.notifetch.app-release-86:/layout-v21_notification_template_icon_group.xml.flat",
+        "source": "com.notifetch.app-core-1.15.0-73:/layout-v21/notification_template_icon_group.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/xml_notification_listener_config.xml.flat",
-        "source": "com.notifetch.app-main-85:/xml/notification_listener_config.xml"
+        "merged": "com.notifetch.app-release-86:/layout_custom_dialog.xml.flat",
+        "source": "com.notifetch.app-core-1.15.0-73:/layout/custom_dialog.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable_common_google_signin_btn_icon_light_focused.xml.flat",
-        "source": "com.notifetch.app-play-services-base-18.5.0-71:/drawable/common_google_signin_btn_icon_light_focused.xml"
+        "merged": "com.notifetch.app-release-86:/drawable-xxhdpi-v4_rzp_name_logo.png.flat",
+        "source": "com.notifetch.app-checkout-1.6.33-20:/drawable-xxhdpi-v4/rzp_name_logo.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-watch-v20_common_google_signin_btn_text_light_normal.xml.flat",
-        "source": "com.notifetch.app-play-services-auth-21.3.0-31:/drawable-watch-v20/common_google_signin_btn_text_light_normal.xml"
+        "merged": "com.notifetch.app-release-86:/drawable-xxxhdpi-v4_ic_password.png.flat",
+        "source": "com.notifetch.app-credentials-1.2.0-rc01-58:/drawable-xxxhdpi-v4/ic_password.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/raw_rzp_config.json.flat",
-        "source": "com.notifetch.app-checkout-1.6.33-12:/raw/rzp_config.json"
+        "merged": "com.notifetch.app-release-86:/drawable-xxhdpi-v4_common_google_signin_btn_text_dark_normal_background.9.png.flat",
+        "source": "com.notifetch.app-play-services-base-18.5.0-65:/drawable-xxhdpi-v4/common_google_signin_btn_text_dark_normal_background.9.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/layout-v21_notification_template_icon_group.xml.flat",
-        "source": "com.notifetch.app-core-1.15.0-66:/layout-v21/notification_template_icon_group.xml"
+        "merged": "com.notifetch.app-release-86:/color_common_google_signin_btn_text_light.xml.flat",
+        "source": "com.notifetch.app-play-services-base-18.5.0-65:/color/common_google_signin_btn_text_light.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-mdpi-v4_notification_bg_low_pressed.9.png.flat",
-        "source": "com.notifetch.app-core-1.15.0-66:/drawable-mdpi-v4/notification_bg_low_pressed.9.png"
+        "merged": "com.notifetch.app-release-86:/drawable-ldpi-v4_ic_password.png.flat",
+        "source": "com.notifetch.app-credentials-1.2.0-rc01-58:/drawable-ldpi-v4/ic_password.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-ldpi-v4_ic_passkey.png.flat",
-        "source": "com.notifetch.app-credentials-1.2.0-rc01-61:/drawable-ldpi-v4/ic_passkey.png"
+        "merged": "com.notifetch.app-release-86:/drawable-ldpi-v4_ic_passkey.png.flat",
+        "source": "com.notifetch.app-credentials-1.2.0-rc01-58:/drawable-ldpi-v4/ic_passkey.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-xhdpi-v4_googleg_standard_color_18.png.flat",
-        "source": "com.notifetch.app-play-services-base-18.5.0-71:/drawable-xhdpi-v4/googleg_standard_color_18.png"
+        "merged": "com.notifetch.app-release-86:/layout_notification_template_part_time.xml.flat",
+        "source": "com.notifetch.app-core-1.15.0-73:/layout/notification_template_part_time.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/xml_image_share_filepaths.xml.flat",
-        "source": "com.notifetch.app-browser-1.4.0-60:/xml/image_share_filepaths.xml"
+        "merged": "com.notifetch.app-release-86:/drawable-mdpi-v4_googleg_disabled_color_18.png.flat",
+        "source": "com.notifetch.app-play-services-base-18.5.0-65:/drawable-mdpi-v4/googleg_disabled_color_18.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-xhdpi-v4_notification_bg_low_pressed.9.png.flat",
-        "source": "com.notifetch.app-core-1.15.0-66:/drawable-xhdpi-v4/notification_bg_low_pressed.9.png"
+        "merged": "com.notifetch.app-release-86:/drawable_ic_call_decline_low.xml.flat",
+        "source": "com.notifetch.app-core-1.15.0-73:/drawable/ic_call_decline_low.xml"
     },
     {
-        "merged": "com.notifetch.app-release-84:/drawable-xhdpi-v4_rzp_logo.png.flat",
-        "source": "com.notifetch.app-checkout-1.6.33-12:/drawable-xhdpi-v4/rzp_logo.png"
+        "merged": "com.notifetch.app-release-86:/drawable-xxhdpi-v4_common_google_signin_btn_icon_light_normal_background.9.png.flat",
+        "source": "com.notifetch.app-play-services-base-18.5.0-65:/drawable-xxhdpi-v4/common_google_signin_btn_icon_light_normal_background.9.png"
     },
     {
-        "merged": "com.notifetch.app-release-84:/mipmap-anydpi-v26_ic_launcher_round.xml.flat",
-        "source": "com.notifetch.app-main-85:/mipmap-anydpi-v26/ic_launcher_round.xml"
+        "merged": "com.notifetch.app-release-86:/animator_fragment_open_exit.xml.flat",
+        "source": "com.notifetch.app-fragment-1.5.7-22:/animator/fragment_open_exit.xml"
+    },
+    {
+        "merged": "com.notifetch.app-release-86:/color_vector_tint_color.xml.flat",
+        "source": "com.notifetch.app-ui-release-18:/color/vector_tint_color.xml"
     }
 ]

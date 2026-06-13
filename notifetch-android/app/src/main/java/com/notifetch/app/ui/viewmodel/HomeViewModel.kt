@@ -20,6 +20,9 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
 
 data class HomeUiState(
@@ -329,6 +332,28 @@ class HomeViewModel @Inject constructor(
             kotlinx.coroutines.delay(100)
             _isRefreshing.value = false
         }
+    }
+
+    /**
+     * Export currently filtered notifications as CSV string.
+     * Includes all visible notifications based on current mode, platform filter, and search query.
+     */
+    fun exportNotificationsAsCsv(): String {
+        val notifications = uiState.value.notifications
+        val mode = uiState.value.userMode.name.lowercase()
+        val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+
+        val sb = StringBuilder()
+        sb.appendLine("Date,Platform,Title,Body,Category,Order Value,Mode")
+        for (n in notifications) {
+            val date = sdf.format(Date(n.receivedAt))
+            val title = n.title.replace("\"", "\"\"")
+            val body = n.body.replace("\"", "\"\"")
+            val category = n.category ?: ""
+            val orderValue = n.orderValue?.let { String.format("%.2f", it) } ?: ""
+            sb.appendLine("\"$date\",\"${n.platform}\",\"$title\",\"$body\",\"$category\",\"$orderValue\",\"$mode\"")
+        }
+        return sb.toString()
     }
 }
 
