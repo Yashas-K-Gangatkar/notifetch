@@ -1,4 +1,4 @@
-const CACHE_NAME = 'notifetch-v2';
+const CACHE_NAME = 'notifetch-v3';
 
 const STATIC_ASSETS = [
   '/',
@@ -49,11 +49,10 @@ self.addEventListener('fetch', (event) => {
   // Skip chrome-extension and other non-http(s) requests
   if (!url.protocol.startsWith('http')) return;
 
-  // Skip API calls entirely — never cache authenticated responses
+  // Skip API calls entirely — NEVER cache authenticated/private responses
   // This prevents session data leakage between users on the same device
   if (url.pathname.startsWith('/api/')) {
-    // For API requests, use network-first strategy
-    event.respondWith(networkFirst(request));
+    event.respondWith(networkOnly(request));
     return;
   }
 
@@ -66,6 +65,21 @@ self.addEventListener('fetch', (event) => {
   // Cache-first strategy for static assets (images, CSS, JS, fonts)
   event.respondWith(cacheFirst(request));
 });
+
+/**
+ * Network-only: always fetch from network, never cache.
+ * Used for API calls to prevent data leakage between users.
+ */
+async function networkOnly(request) {
+  try {
+    return await fetch(request);
+  } catch (error) {
+    return new Response(JSON.stringify({ error: 'Offline', message: 'No network connection available' }), {
+      status: 503,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+}
 
 /**
  * Network-first: try network, fall back to cache.
@@ -89,31 +103,6 @@ async function networkFirstWithOfflineFallback(request) {
     return new Response(offlinePage(), {
       status: 503,
       headers: { 'Content-Type': 'text/html' },
-    });
-  }
-}
-
-/**
- * Network-first: try network, fall back to cache.
- * Good for API calls where fresh data is preferred.
- */
-async function networkFirst(request) {
-  try {
-    const networkResponse = await fetch(request);
-    if (networkResponse.ok) {
-      const cache = await caches.open(CACHE_NAME);
-      cache.put(request, networkResponse.clone());
-    }
-    return networkResponse;
-  } catch (error) {
-    console.log('[SW] Network failed, trying cache:', request.url);
-    const cachedResponse = await caches.match(request);
-    if (cachedResponse) {
-      return cachedResponse;
-    }
-    return new Response(JSON.stringify({ error: 'Offline', message: 'No cached data available' }), {
-      status: 503,
-      headers: { 'Content-Type': 'application/json' },
     });
   }
 }

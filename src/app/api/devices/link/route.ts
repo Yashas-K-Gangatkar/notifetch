@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { authenticateRequest } from "@/lib/auth-helpers";
 import { db } from "@/lib/db";
 
 /**
@@ -13,8 +12,8 @@ import { db } from "@/lib/db";
  */
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    const userId = await authenticateRequest(request);
+    if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -37,16 +36,16 @@ export async function POST(request: NextRequest) {
     // Link device to user
     await db.deviceAuth.update({
       where: { id: device.id },
-      data: { userId: session.user.id },
+      data: { userId },
     });
 
     // Also update any notifications from this device that weren't linked
     const updateResult = await db.notification.updateMany({
       where: {
         deviceId: device.id,
-        userId: { not: session.user.id },
+        userId: { not: userId },
       },
-      data: { userId: session.user.id },
+      data: { userId },
     });
 
     return NextResponse.json({

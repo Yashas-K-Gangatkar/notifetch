@@ -1,27 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { authenticateRequest } from "@/lib/auth-helpers";
 import { db } from "@/lib/db";
 
 /**
  * GET /api/preferences
  * Get the authenticated user's notification preferences.
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    const userId = await authenticateRequest(request);
+    if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     let preferences = await db.preferences.findUnique({
-      where: { userId: session.user.id },
+      where: { userId },
     });
 
     // Create default preferences if not exists
     if (!preferences) {
       preferences = await db.preferences.create({
-        data: { userId: session.user.id },
+        data: { userId },
       });
     }
 
@@ -41,8 +40,8 @@ export async function GET() {
  */
 export async function PUT(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    const userId = await authenticateRequest(request);
+    if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -54,12 +53,20 @@ export async function PUT(request: NextRequest) {
       "swiggyEnabled",
       "zomatoEnabled",
       "amazonEnabled",
+      "platformToggles",
     ] as const;
 
     const updateData: Record<string, unknown> = {};
     for (const field of allowedFields) {
-      if (field in body && typeof body[field] === "boolean") {
-        updateData[field] = body[field];
+      if (field in body) {
+        // Validate platformToggles is a proper object
+        if (field === "platformToggles") {
+          if (typeof body[field] === "object" && body[field] !== null && !Array.isArray(body[field])) {
+            updateData[field] = body[field];
+          }
+        } else if (typeof body[field] === "boolean") {
+          updateData[field] = body[field];
+        }
       }
     }
 
@@ -71,15 +78,15 @@ export async function PUT(request: NextRequest) {
     }
 
     const preferences = await db.preferences.upsert({
-      where: { userId: session.user.id },
+      where: { userId },
       update: updateData,
-      create: { userId: session.user.id, ...updateData },
+      create: { userId, ...updateData },
     });
 
     // Also update the user's darkMode field
     if ("darkMode" in updateData) {
       await db.user.update({
-        where: { id: session.user.id },
+        where: { id: userId },
         data: { darkMode: updateData.darkMode as boolean },
       });
     }

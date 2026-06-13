@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { authenticateRequest } from "@/lib/auth-helpers";
 import { db } from "@/lib/db";
 
 /**
@@ -8,16 +7,15 @@ import { db } from "@/lib/db";
  * List the authenticated user's notification sources.
  * Returns customName alongside platformName for display name resolution.
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session?.user?.id) {
+    const userId = await authenticateRequest(request);
+    if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const sources = await db.notificationSource.findMany({
-      where: { userId: session.user.id },
+      where: { userId },
       orderBy: { createdAt: "desc" },
     });
 
@@ -45,9 +43,8 @@ export async function GET() {
  */
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session?.user?.id) {
+    const userId = await authenticateRequest(request);
+    if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -65,7 +62,7 @@ export async function POST(request: NextRequest) {
     const existing = await db.notificationSource.findUnique({
       where: {
         userId_platformId: {
-          userId: session.user.id,
+          userId,
           platformId,
         },
       },
@@ -93,7 +90,7 @@ export async function POST(request: NextRequest) {
     // Create new notification source
     const source = await db.notificationSource.create({
       data: {
-        userId: session.user.id,
+        userId,
         platformId,
         platformName,
         category,
@@ -106,7 +103,7 @@ export async function POST(request: NextRequest) {
     // Audit log
     await db.auditLog.create({
       data: {
-        userId: session.user.id,
+        userId,
         action: "ENABLE_NOTIFICATION_SOURCE",
         entity: "NotificationSource",
         entityId: source.id,
@@ -145,9 +142,8 @@ export async function POST(request: NextRequest) {
  */
 export async function PATCH(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session?.user?.id) {
+    const userId = await authenticateRequest(request);
+    if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -164,7 +160,7 @@ export async function PATCH(request: NextRequest) {
     const existing = await db.notificationSource.findUnique({
       where: {
         userId_platformId: {
-          userId: session.user.id,
+          userId,
           platformId,
         },
       },
@@ -191,7 +187,7 @@ export async function PATCH(request: NextRequest) {
     // Audit log
     await db.auditLog.create({
       data: {
-        userId: session.user.id,
+        userId,
         action: "UPDATE_NOTIFICATION_SOURCE",
         entity: "NotificationSource",
         entityId: updated.id,
@@ -222,9 +218,8 @@ export async function PATCH(request: NextRequest) {
  */
 export async function DELETE(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session?.user?.id) {
+    const userId = await authenticateRequest(request);
+    if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -249,7 +244,7 @@ export async function DELETE(request: NextRequest) {
     const existing = await db.notificationSource.findUnique({
       where: {
         userId_platformId: {
-          userId: session.user.id,
+          userId,
           platformId,
         },
       },
@@ -273,7 +268,7 @@ export async function DELETE(request: NextRequest) {
     // Audit log
     await db.auditLog.create({
       data: {
-        userId: session.user.id,
+        userId,
         action: "DISABLE_NOTIFICATION_SOURCE",
         entity: "NotificationSource",
         entityId: existing.id,

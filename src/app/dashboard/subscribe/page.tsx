@@ -169,6 +169,7 @@ export default function SubscribePage() {
               <div className="mt-2">
                 <span className="text-4xl font-bold">₹49</span>
                 <span className="text-muted-foreground">/month</span>
+                <p className="text-xs text-muted-foreground mt-0.5">Inclusive of all taxes</p>
               </div>
               <p className="text-sm text-muted-foreground mt-1">
                 For drivers who want unlimited notifications from all platforms.
@@ -239,6 +240,7 @@ export default function SubscribePage() {
               <div className="mt-2">
                 <span className="text-4xl font-bold">₹99</span>
                 <span className="text-muted-foreground">/month</span>
+                <p className="text-xs text-muted-foreground mt-0.5">Inclusive of all taxes</p>
               </div>
               <p className="text-sm text-muted-foreground mt-1">
                 Maximum earnings with every feature unlocked.
@@ -316,6 +318,15 @@ export default function SubscribePage() {
               </Card>
             ))}
           </div>
+        </div>
+
+        {/* Trademark Disclaimer */}
+        <div className="mt-8 text-center">
+          <p className="text-xs text-muted-foreground max-w-2xl mx-auto">
+            Platform names and logos shown on NotiFetch are the property of their respective owners.
+            NotiFetch is not affiliated with, endorsed by, or connected to any delivery platform.
+            Names are displayed for identification purposes only under nominative fair use.
+          </p>
         </div>
       </main>
     </div>

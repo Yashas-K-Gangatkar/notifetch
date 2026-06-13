@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { authenticateRequest } from "@/lib/auth-helpers";
 import { db } from "@/lib/db";
 
 /**
@@ -13,9 +12,9 @@ import { db } from "@/lib/db";
  */
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const userId = await authenticateRequest(request);
 
-    if (!session?.user?.id) {
+    if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -39,24 +38,24 @@ export async function POST(request: NextRequest) {
 
     // Update the user's FCM token
     await db.user.update({
-      where: { id: session.user.id },
+      where: { id: userId },
       data: { fcmToken },
     });
 
     // Log the token registration
     await db.auditLog.create({
       data: {
-        userId: session.user.id,
+        userId,
         action: "REGISTER_FCM_TOKEN",
         entity: "User",
-        entityId: session.user.id,
+        entityId: userId,
         details: "FCM push token registered/updated",
       },
     });
 
     console.log(
       "[API] FCM token registered for user:",
-      session.user.id,
+      userId,
       "token:",
       fcmToken.substring(0, 20) + "..."
     );

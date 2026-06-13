@@ -45,7 +45,7 @@ const legalDocuments = [
 const complianceBadges = [
   { icon: Shield, label: "GDPR Compliant", description: "Full compliance with EU data protection regulations" },
   { icon: UserCheck, label: "CCPA Compliant", description: "California Consumer Privacy Act compliance" },
-  { icon: Lock, label: "SOC 2 Type II", description: "Infrastructure meets rigorous security standards" },
+  { icon: Lock, label: "Secure Infrastructure", description: "Hosted on SOC 2 Type II certified infrastructure (Vercel, Neon)" },
   { icon: Cookie, label: "No Ad Tracking", description: "We never sell your data or use advertising cookies" },
 ];
 
@@ -196,7 +196,7 @@ export default function LegalHubPage() {
         {/* Footer */}
         <footer className="mt-16 pt-8 border-t border-border text-center">
           <p className="text-sm text-muted-foreground">
-            &copy; {new Date().getFullYear()} NotiFetch, Inc. All rights reserved.
+            &copy; {new Date().getFullYear()} NotiFetch. All rights reserved.
           </p>
           <div className="flex items-center justify-center gap-4 mt-3">
             <Link href="/privacy" className="text-sm text-amber-500 hover:text-amber-400 transition-colors">Privacy Policy</Link>

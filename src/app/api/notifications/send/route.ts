@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import { db } from "@/lib/db";
+import { authenticateRequest } from "@/lib/auth-helpers";
 import { sendFCMMessage } from "@/lib/firebase-admin";
+import { db } from "@/lib/db";
 
 /**
  * POST /api/notifications/send
@@ -15,9 +14,9 @@ import { sendFCMMessage } from "@/lib/firebase-admin";
  */
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const authenticatedUserId = await authenticateRequest(request);
 
-    if (!session?.user?.id) {
+    if (!authenticatedUserId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -25,7 +24,7 @@ export async function POST(request: NextRequest) {
     const { userId, title, body: messageBody, data } = body;
 
     // Authorization: Only allow sending to yourself (or admin in future)
-    if (userId !== session.user.id) {
+    if (userId !== authenticatedUserId) {
       return NextResponse.json(
         { error: "You can only send notifications to yourself." },
         { status: 403 }
@@ -101,7 +100,7 @@ export async function POST(request: NextRequest) {
     // Log the notification send attempt
     await db.auditLog.create({
       data: {
-        userId: session.user.id,
+        userId: authenticatedUserId,
         action: result.success ? "SEND_PUSH_NOTIFICATION" : "SEND_PUSH_NOTIFICATION_FAILED",
         entity: "User",
         entityId: userId,

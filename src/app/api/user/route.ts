@@ -1,22 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { authenticateRequest } from "@/lib/auth-helpers";
 import { db } from "@/lib/db";
 
 /**
  * GET /api/user
  * Return the current authenticated user's profile.
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const userId = await authenticateRequest(request);
 
-    if (!session?.user?.id) {
+    if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const user = await db.user.findUnique({
-      where: { id: session.user.id },
+      where: { id: userId },
       select: {
         id: true,
         email: true,
@@ -65,9 +64,9 @@ export async function GET() {
  */
 export async function PUT(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const userId = await authenticateRequest(request);
 
-    if (!session?.user?.id) {
+    if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -107,7 +106,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const updatedUser = await db.user.update({
-      where: { id: session.user.id },
+      where: { id: userId },
       data: updateData,
       select: {
         id: true,
@@ -136,10 +135,10 @@ export async function PUT(request: NextRequest) {
     // Log the update in audit log
     await db.auditLog.create({
       data: {
-        userId: session.user.id,
+        userId,
         action: "UPDATE_SETTINGS",
         entity: "User",
-        entityId: session.user.id,
+        entityId: userId,
         details: JSON.stringify(updateData),
       },
     });

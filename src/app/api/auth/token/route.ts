@@ -41,6 +41,7 @@ export async function POST(request: NextRequest) {
 
     let verifiedFirebaseUid: string | null = null;
     let verifiedEmail: string | undefined;
+    let linkedUserId: string | null = null;
 
     // ── Verify Firebase ID token if provider is "firebase" ──────────────────
     if (provider === "firebase") {
@@ -53,9 +54,10 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      // Ensure user exists in our database
+      // Ensure user exists in our database and get the user ID
       const userInfo = await getOrCreateUserFromFirebase(verifiedFirebaseUid, verifiedEmail);
       if (userInfo) {
+        linkedUserId = userInfo.id;
         verifiedEmail = undefined; // Already handled in getOrCreateUserFromFirebase
       }
     }
@@ -76,6 +78,7 @@ export async function POST(request: NextRequest) {
         where: { id: device.id },
         data: {
           firebaseUid: verifiedFirebaseUid || device.firebaseUid,
+          userId: linkedUserId || device.userId,
           fcmToken: fcmToken || device.fcmToken,
           deviceModel: deviceModel || device.deviceModel,
           androidVersion: androidVersion || device.androidVersion,
@@ -89,6 +92,7 @@ export async function POST(request: NextRequest) {
         data: {
           deviceId: effectiveDeviceId,
           firebaseUid: verifiedFirebaseUid || null,
+          userId: linkedUserId || null,
           fcmToken: fcmToken || null,
           deviceModel: deviceModel || null,
           androidVersion: androidVersion || null,
@@ -98,12 +102,19 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Generate a cryptographically secure session token
+    // Generate a cryptographically secure session token and STORE it in the DB
     const sessionToken = crypto.randomBytes(32).toString("hex");
+    const sessionTokenExpires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
+
+    await db.deviceAuth.update({
+      where: { id: device.id },
+      data: { sessionToken },
+    });
 
     return NextResponse.json({
       success: true,
       customToken: sessionToken,
+      expiresAt: sessionTokenExpires.toISOString(),
       uid: device.id,
       deviceId: device.deviceId,
       isLinked: !!device.userId,

@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { authenticateRequest } from "@/lib/auth-helpers";
 import { db } from "@/lib/db";
 
 /**
@@ -13,8 +12,8 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    const userId = await authenticateRequest(request);
+    if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -31,7 +30,7 @@ export async function PATCH(
     if (!notification) {
       return NextResponse.json({ error: "Notification not found" }, { status: 404 });
     }
-    if (notification.userId !== session.user.id) {
+    if (notification.userId !== userId) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
@@ -59,8 +58,8 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+    const userId = await authenticateRequest(request);
+    if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -71,7 +70,7 @@ export async function DELETE(
     if (!notification) {
       return NextResponse.json({ error: "Notification not found" }, { status: 404 });
     }
-    if (notification.userId !== session.user.id) {
+    if (notification.userId !== userId) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 

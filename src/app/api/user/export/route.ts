@@ -1,6 +1,5 @@
-import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { NextRequest, NextResponse } from "next/server";
+import { authenticateRequest } from "@/lib/auth-helpers";
 import { db } from "@/lib/db";
 
 /**
@@ -11,15 +10,13 @@ import { db } from "@/lib/db";
  * GDPR Article 15: Right of access by the data subject
  * GDPR Article 20: Right to data portability
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const userId = await authenticateRequest(request);
 
-    if (!session?.user?.id) {
+    if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-
-    const userId = session.user.id;
 
     // Fetch all user data
     const [user, notifications, sources, orders, earnings, payments, preferences, deviceAuths] =

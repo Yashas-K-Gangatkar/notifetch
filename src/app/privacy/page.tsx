@@ -66,13 +66,13 @@ const sections: Section[] = [
     content: [
       {
         paragraphs: [
-          'The data controller responsible for your personal data under the GDPR (Article 4(7)) and the DPDP Act (Section 2(4)) is NotiFetch, Inc. As the data controller, we determine the purposes and means of processing your personal data and are accountable for ensuring your data rights are upheld.',
+          'The data controller responsible for your personal data under the GDPR (Article 4(7)) and the DPDP Act (Section 2(4)) is NotiFetch. As the data controller, we determine the purposes and means of processing your personal data and are accountable for ensuring your data rights are upheld.',
         ],
       },
       {
         heading: "Controller Details",
         items: [
-          'Entity Name: NotiFetch, Inc.',
+          'Entity Name: NotiFetch',
           'App Website: https://www.notifetch.in',
           'Support Email: support@notifetch.app',
           'Legal Inquiries: legal@notifetch.app',
@@ -82,7 +82,7 @@ const sections: Section[] = [
       },
       {
         paragraphs: [
-          "For the purposes of the CCPA, NotiFetch, Inc. is a \"business\" as defined under California Civil Code §1798.140(d) that collects, sells, or shares personal information of California residents. We do not sell personal information. We are a single legal entity and do not share common branding or corporate ownership with any other business that would constitute a \"business\" under the CCPA.",
+          "For the purposes of the CCPA, NotiFetch is a \"business\" as defined under California Civil Code §1798.140(d) that collects, sells, or shares personal information of California residents. We do not sell personal information. We are a single legal entity and do not share common branding or corporate ownership with any other business that would constitute a \"business\" under the CCPA.",
         ],
       },
     ],
@@ -569,7 +569,7 @@ const sections: Section[] = [
           "Data Protection Officer (GDPR matters): dpo@notifetch.app",
           "Legal inquiries: legal@notifetch.app",
           "Security concerns and vulnerability reports: security@notifetch.app",
-          "CCPA rights requests: privacy@notifetch.app (California residents may also call our toll-free number at 1-800-NOTI-FETCH)",
+          "CCPA rights requests: privacy@notifetch.app",
           "App Website: https://www.notifetch.in",
         ],
       },
@@ -796,7 +796,7 @@ export default function PrivacyPolicyPage() {
         {/* Footer */}
         <footer className="mt-16 pt-8 border-t border-border text-center pb-8">
           <p className="text-sm text-muted-foreground">
-            &copy; {new Date().getFullYear()} NotiFetch, Inc. All rights reserved.
+            &copy; {new Date().getFullYear()} NotiFetch. All rights reserved.
           </p>
         </footer>
       </main>

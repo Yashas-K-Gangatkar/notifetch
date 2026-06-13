@@ -159,20 +159,6 @@ model Payment {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-model NotificationLog {
-  id          String   @id @default(cuid())
-  userId      String?
-  platformId  String
-  category    String
-  title       String
-  body        String
-  value       Float?
-  currency    String?
-  sentAt      DateTime @default(now())
-  deliveredAt DateTime?
-  openedAt    DateTime?
-}
-
 model AuditLog {
   id        String   @id @default(cuid())
   userId    String?
@@ -194,6 +180,7 @@ model DeviceAuth {
   userId        String?  // Linked to user account (null until linked)
   deviceId      String   @unique
   firebaseUid   String?  @unique
+  sessionToken  String?  @unique // Cryptographically secure token for Android app auth
   fcmToken      String?
   deviceModel   String?
   androidVersion String?
@@ -203,6 +190,7 @@ model DeviceAuth {
 
   @@index([deviceId])
   @@index([firebaseUid])
+  @@index([sessionToken])
 }
 
 // ─── Notifications ──────────────────────────────────────────────────────────
@@ -246,9 +234,13 @@ model Preferences {
   user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   darkMode              Boolean  @default(true)
   notificationsEnabled  Boolean  @default(true)
+  // Legacy India-specific fields (kept for backward compatibility)
   swiggyEnabled         Boolean  @default(true)
   zomatoEnabled         Boolean  @default(true)
   amazonEnabled         Boolean  @default(true)
+  // Dynamic platform toggles — JSON object keyed by platformId
+  // e.g. { "uber-eats": true, "doordash": false, "swiggy_partner": true }
+  platformToggles       Json?
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
 }

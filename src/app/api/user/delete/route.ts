@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { authenticateRequest } from "@/lib/auth-helpers";
 import { db } from "@/lib/db";
 
 /**
@@ -25,13 +24,11 @@ import { db } from "@/lib/db";
  */
 export async function DELETE(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const userId = await authenticateRequest(request);
 
-    if (!session?.user?.id) {
+    if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-
-    const userId = session.user.id;
 
     // Verify explicit confirmation
     const body = await request.json().catch(() => ({}));
@@ -65,7 +62,7 @@ export async function DELETE(request: NextRequest) {
       db.preferences.deleteMany({ where: { userId } }),
       db.deviceAuth.updateMany({
         where: { userId },
-        data: { userId: null },
+        data: { userId: null, sessionToken: null },
       }),
     ]);
 

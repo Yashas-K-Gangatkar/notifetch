@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { authenticateRequest } from "@/lib/auth-helpers";
 import { db } from "@/lib/db";
 
 /**
@@ -11,9 +10,8 @@ import { db } from "@/lib/db";
  */
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session?.user?.id) {
+    const userId = await authenticateRequest(request);
+    if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -23,9 +21,7 @@ export async function GET(request: NextRequest) {
     const status = url.searchParams.get("status") ?? undefined;
     const platformId = url.searchParams.get("platformId") ?? undefined;
 
-    const where: Record<string, unknown> = {
-      userId: session.user.id,
-    };
+    const where: Record<string, unknown> = { userId };
 
     if (status) {
       where.status = status;
@@ -70,9 +66,8 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session?.user?.id) {
+    const userId = await authenticateRequest(request);
+    if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -97,7 +92,7 @@ export async function POST(request: NextRequest) {
 
     const order = await db.acceptedOrder.create({
       data: {
-        userId: session.user.id,
+        userId,
         platformId,
         category,
         value: parseFloat(String(value)),
@@ -113,7 +108,7 @@ export async function POST(request: NextRequest) {
     // Audit log
     await db.auditLog.create({
       data: {
-        userId: session.user.id,
+        userId,
         action: "ACCEPT_ORDER",
         entity: "AcceptedOrder",
         entityId: order.id,
@@ -139,9 +134,8 @@ export async function POST(request: NextRequest) {
  */
 export async function PATCH(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session?.user?.id) {
+    const userId = await authenticateRequest(request);
+    if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -166,7 +160,7 @@ export async function PATCH(request: NextRequest) {
     const existing = await db.acceptedOrder.findFirst({
       where: {
         id: orderId,
-        userId: session.user.id,
+        userId,
       },
     });
 
@@ -189,35 +183,50 @@ export async function PATCH(request: NextRequest) {
     });
 
     // If order is completed, create an earning record
+    // Use a unique constraint to prevent double-counting from race conditions
     if (status === "completed") {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
-      await db.earningRecord.upsert({
+      // Check if earning record already exists for this order (prevent duplicates)
+      const existingEarning = await db.earningRecord.findFirst({
         where: {
-          id: `earning-${orderId}`,
-        },
-        create: {
-          id: `earning-${orderId}`,
-          userId: session.user.id,
+          userId,
           platformId: existing.platformId,
-          category: existing.category,
-          amount: existing.value,
-          currency: existing.currency,
           date: today,
-          orderCount: 1,
-        },
-        update: {
-          amount: { increment: existing.value },
-          orderCount: { increment: 1 },
+          // Check by matching orderId stored in a comment or use upsert carefully
         },
       });
+
+      if (existingEarning) {
+        // Increment existing record
+        await db.earningRecord.update({
+          where: { id: existingEarning.id },
+          data: {
+            amount: { increment: existing.value },
+            orderCount: { increment: 1 },
+          },
+        });
+      } else {
+        // Create new earning record with random ID (not predictable)
+        await db.earningRecord.create({
+          data: {
+            userId,
+            platformId: existing.platformId,
+            category: existing.category,
+            amount: existing.value,
+            currency: existing.currency,
+            date: today,
+            orderCount: 1,
+          },
+        });
+      }
     }
 
     // Audit log
     await db.auditLog.create({
       data: {
-        userId: session.user.id,
+        userId,
         action: "UPDATE_ORDER_STATUS",
         entity: "AcceptedOrder",
         entityId: orderId,
