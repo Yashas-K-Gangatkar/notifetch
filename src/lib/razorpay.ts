@@ -124,7 +124,7 @@ export async function createOrder(params: CreateOrderParams): Promise<RazorpayOr
 
   return {
     orderId: order.id,
-    amount: order.amount,
+    amount: Number(order.amount),
     currency: order.currency,
   };
 }

@@ -204,9 +204,9 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user, account }) {
       // Initial sign-in: set claims from DB
       if (user) {
-        token.id = user.id;
-        token.plan = (user as Record<string, unknown>).plan ?? "free";
-        token.role = (user as Record<string, unknown>).role ?? "driver";
+        token.id = user.id ?? "";
+        token.plan = (user as Record<string, unknown>).plan as string ?? "free";
+        token.role = (user as Record<string, unknown>).role as string ?? "driver";
       }
 
       // Google OAuth: link or create user

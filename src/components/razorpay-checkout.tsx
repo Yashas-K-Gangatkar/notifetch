@@ -70,7 +70,7 @@ let globalScriptState: ScriptState = "loading";
 
 function getRazorpayGlobal(): unknown {
   if (typeof window === "undefined") return undefined;
-  return (window as Record<string, unknown>).Razorpay;
+  return (window as unknown as Record<string, unknown>).Razorpay;
 }
 
 function injectScriptTag(): Promise<ScriptLoadResult> {
@@ -320,7 +320,7 @@ export function RazorpayCheckout({
       // ── Step 2: Open Razorpay checkout ──────────────────────────────────
       setPaymentState("paying");
 
-      const RazorpayConstructor = (window as Record<string, unknown>).Razorpay as new (
+      const RazorpayConstructor = (window as unknown as Record<string, unknown>).Razorpay as new (
         options: RazorpayOptions
       ) => RazorpayInstance;
 
