@@ -63,10 +63,10 @@ export default function RootLayout({
       <head>
         <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
-        {/* Preload Razorpay checkout script for reliable payment flow */}
+        {/* Preload Razorpay checkout script — afterInteractive loads it as soon as page is interactive */}
         <Script
           src="https://checkout.razorpay.com/v1/checkout.js"
-          strategy="lazyOnload"
+          strategy="afterInteractive"
         />
       </head>
       <body
