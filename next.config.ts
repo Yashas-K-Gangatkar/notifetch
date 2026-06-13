@@ -20,13 +20,14 @@ const securityHeaders = [
   {
     key: "Content-Security-Policy",
     value: [
-      "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.razorpay.com https://js.stripe.com",
+      "default-src 'self' blob: data:",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://checkout.razorpay.com https://*.razorpay.com https://js.stripe.com",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.razorpay.com",
       "font-src 'self' https://fonts.gstatic.com https://*.razorpay.com",
       "img-src 'self' data: blob: https:",
-      "connect-src 'self' https://api.resend.com https://*.googleapis.com https://*.google.com https://*.razorpay.com",
-      "frame-src https://js.stripe.com https://*.google.com https://*.razorpay.com",
+      "connect-src 'self' blob: wss: https://api.resend.com https://*.googleapis.com https://*.google.com https://*.razorpay.com",
+      "frame-src 'self' https://js.stripe.com https://*.google.com https://*.razorpay.com",
+      "worker-src 'self' blob: https://*.razorpay.com",
       "frame-ancestors 'none'",
     ].join("; "),
   },
