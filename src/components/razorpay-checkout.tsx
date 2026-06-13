@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Loader2, CheckCircle2, XCircle, CreditCard } from "lucide-react";
+import { Loader2, CheckCircle2, XCircle, CreditCard, AlertCircle } from "lucide-react";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -23,70 +23,8 @@ interface RazorpayCheckoutProps {
   variant?: "default" | "outline" | "secondary" | "ghost" | "link" | "destructive";
 }
 
+type ScriptState = "loading" | "ready" | "failed";
 type PaymentState = "idle" | "creating-order" | "paying" | "verifying" | "success" | "error";
-
-// ─── Razorpay Script Loader ─────────────────────────────────────────────────
-
-let scriptLoadPromise: Promise<boolean> | null = null;
-
-/**
- * Inject Razorpay script dynamically as a fallback.
- */
-function injectRazorpayScript(resolve: (value: boolean) => void) {
-  console.log("[RazorpayCheckout] Preloaded script not found, injecting dynamically...");
-  // Check one more time before injecting
-  if ((window as Record<string, unknown>).Razorpay) {
-    resolve(true);
-    return;
-  }
-  const script = document.createElement("script");
-  script.src = "https://checkout.razorpay.com/v1/checkout.js";
-  script.async = true;
-  script.onload = () => {
-    console.log("[RazorpayCheckout] Dynamic script loaded successfully");
-    scriptLoadPromise = null;
-    resolve(true);
-  };
-  script.onerror = () => {
-    console.error("[RazorpayCheckout] Dynamic script failed to load");
-    scriptLoadPromise = null;
-    resolve(false);
-  };
-  document.body.appendChild(script);
-}
-
-function loadRazorpayScript(): Promise<boolean> {
-  // If already loaded, return immediately
-  if (typeof window !== "undefined" && (window as Record<string, unknown>).Razorpay) {
-    return Promise.resolve(true);
-  }
-
-  // If already loading, return existing promise
-  if (scriptLoadPromise) return scriptLoadPromise;
-
-  scriptLoadPromise = new Promise((resolve) => {
-    // First, wait for the preloaded script from layout.tsx <Script> tag
-    // Poll for up to ~3 seconds (10 attempts × 300ms)
-    let attempts = 0;
-    const maxAttempts = 10;
-    const checkInterval = setInterval(() => {
-      attempts++;
-      if ((window as Record<string, unknown>).Razorpay) {
-        clearInterval(checkInterval);
-        console.log("[RazorpayCheckout] Preloaded script detected after", attempts, "attempts");
-        resolve(true);
-        return;
-      }
-      if (attempts >= maxAttempts) {
-        clearInterval(checkInterval);
-        // Fallback: inject script dynamically
-        injectRazorpayScript(resolve);
-      }
-    }, 300);
-  });
-
-  return scriptLoadPromise;
-}
 
 // ─── Razorpay Window Interface ──────────────────────────────────────────────
 
@@ -123,6 +61,68 @@ interface RazorpayInstance {
   on: (event: string, handler: () => void) => void;
 }
 
+// ─── Module-level script loader (shared across all instances) ────────────────
+
+let scriptState: ScriptState = "loading";
+let scriptPromise: Promise<ScriptState> | null = null;
+
+function startLoadingRazorpayScript(): Promise<ScriptState> {
+  if (typeof window === "undefined") return Promise.resolve("failed");
+
+  // Already loaded?
+  if ((window as Record<string, unknown>).Razorpay) {
+    scriptState = "ready";
+    return Promise.resolve("ready");
+  }
+
+  // Already loading?
+  if (scriptPromise) return scriptPromise;
+
+  scriptPromise = new Promise<ScriptState>((resolve) => {
+    // Step 1: Check if a script tag for Razorpay already exists (from <Script> in layout)
+    const existingScript = document.querySelector('script[src*="checkout.razorpay.com"]');
+    if (existingScript && (window as Record<string, unknown>).Razorpay) {
+      scriptState = "ready";
+      scriptPromise = null;
+      resolve("ready");
+      return;
+    }
+
+    // Step 2: Inject our own script tag directly — most reliable method
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.async = true;
+    script.crossOrigin = "anonymous";
+
+    script.onload = () => {
+      // Double-check that Razorpay global is actually available
+      if ((window as Record<string, unknown>).Razorpay) {
+        console.log("[RazorpayCheckout] Script loaded successfully");
+        scriptState = "ready";
+        scriptPromise = null;
+        resolve("ready");
+      } else {
+        // Script loaded but global not available — might be a CSP issue
+        console.error("[RazorpayCheckout] Script loaded but window.Razorpay is not defined");
+        scriptState = "failed";
+        scriptPromise = null;
+        resolve("failed");
+      }
+    };
+
+    script.onerror = () => {
+      console.error("[RazorpayCheckout] Script tag failed to load — likely blocked by browser/ad blocker or CSP");
+      scriptState = "failed";
+      scriptPromise = null;
+      resolve("failed");
+    };
+
+    document.head.appendChild(script);
+  });
+
+  return scriptPromise;
+}
+
 // ─── Component ──────────────────────────────────────────────────────────────
 
 export function RazorpayCheckout({
@@ -134,19 +134,48 @@ export function RazorpayCheckout({
   className,
   variant = "default",
 }: RazorpayCheckoutProps) {
-  const [state, setState] = useState<PaymentState>("idle");
+  const [scriptState, setScriptState] = useState<ScriptState>("loading");
+  const [paymentState, setPaymentState] = useState<PaymentState>("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const isAlreadyOnPlan = currentPlan === plan;
-  const isHigherPlan =
-    currentPlan === "premium" && plan === "pro";
+  const isHigherPlan = currentPlan === "premium" && plan === "pro";
+
+  // ── Load Razorpay script on mount ────────────────────────────────────────
+  useEffect(() => {
+    let cancelled = false;
+
+    startLoadingRazorpayScript().then((state) => {
+      if (!cancelled) {
+        setScriptState(state);
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // ── Retry loading script ─────────────────────────────────────────────────
+  const retryScriptLoad = useCallback(() => {
+    setScriptState("loading");
+    // Reset module-level state so it tries again
+    scriptPromise = null;
+    startLoadingRazorpayScript().then((state) => {
+      setScriptState(state);
+    });
+  }, []);
 
   const getButtonLabel = useCallback((): string => {
     if (isAlreadyOnPlan) return "Current Plan";
     if (isHigherPlan) return "Downgrade";
+
+    if (scriptState === "loading") return "Loading payment...";
+    if (scriptState === "failed") return "Retry loading";
+
     if (label) return label;
 
-    switch (state) {
+    switch (paymentState) {
       case "creating-order":
         return "Creating order...";
       case "paying":
@@ -160,10 +189,13 @@ export function RazorpayCheckout({
       default:
         return "Upgrade";
     }
-  }, [isAlreadyOnPlan, isHigherPlan, label, state]);
+  }, [isAlreadyOnPlan, isHigherPlan, label, scriptState, paymentState]);
 
   const getButtonIcon = useCallback(() => {
-    switch (state) {
+    if (scriptState === "loading") return <Loader2 className="w-4 h-4 animate-spin" />;
+    if (scriptState === "failed") return <AlertCircle className="w-4 h-4" />;
+
+    switch (paymentState) {
       case "creating-order":
       case "paying":
       case "verifying":
@@ -175,20 +207,25 @@ export function RazorpayCheckout({
       default:
         return <CreditCard className="w-4 h-4" />;
     }
-  }, [state]);
+  }, [scriptState, paymentState]);
 
   const handlePayment = useCallback(async () => {
-    setState("creating-order");
+    // If script failed, retry loading
+    if (scriptState === "failed") {
+      retryScriptLoad();
+      return;
+    }
+
+    // Wait for script if still loading
+    if (scriptState === "loading") {
+      return;
+    }
+
+    setPaymentState("creating-order");
     setErrorMessage(null);
 
     try {
-      // ── Step 1: Load Razorpay script ────────────────────────────────────
-      const scriptLoaded = await loadRazorpayScript();
-      if (!scriptLoaded) {
-        throw new Error("Failed to load Razorpay. Please check your internet connection.");
-      }
-
-      // ── Step 2: Create Razorpay order via API ──────────────────────────
+      // ── Step 1: Create Razorpay order via API ──────────────────────────
       const orderResponse = await fetch("/api/payments/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -202,10 +239,14 @@ export function RazorpayCheckout({
 
       const orderData = await orderResponse.json();
 
-      // ── Step 3: Open Razorpay checkout ──────────────────────────────────
-      setState("paying");
+      // ── Step 2: Open Razorpay checkout ──────────────────────────────────
+      setPaymentState("paying");
 
-      const options: RazorpayOptions = {
+      const RazorpayConstructor = (window as Record<string, unknown>).Razorpay as new (
+        options: RazorpayOptions
+      ) => RazorpayInstance;
+
+      const rzp = new RazorpayConstructor({
         key: orderData.key,
         amount: orderData.amount,
         currency: orderData.currency,
@@ -213,8 +254,8 @@ export function RazorpayCheckout({
         description: `${plan.charAt(0).toUpperCase() + plan.slice(1)} Plan - ${period === "yearly" ? "Yearly" : "Monthly"}`,
         order_id: orderData.orderId,
         handler: async (response: RazorpayResponse) => {
-          // ── Step 4: Verify payment ────────────────────────────────────
-          setState("verifying");
+          // ── Step 3: Verify payment ────────────────────────────────────
+          setPaymentState("verifying");
 
           try {
             const verifyResponse = await fetch("/api/payments/verify", {
@@ -234,56 +275,43 @@ export function RazorpayCheckout({
               throw new Error(errorData.error || "Payment verification failed");
             }
 
-            setState("success");
+            setPaymentState("success");
             onSuccess?.();
           } catch (err) {
             console.error("[RazorpayCheckout] Verification error:", err);
-            setState("error");
+            setPaymentState("error");
             setErrorMessage(
               err instanceof Error ? err.message : "Payment verification failed"
             );
           }
         },
-        prefill: {
-          // These could be populated from user session
-        },
-        notes: {
-          plan,
-          period,
-        },
-        theme: {
-          color: "#f59e0b", // Amber-500 to match NotiFetch branding
-        },
+        prefill: {},
+        notes: { plan, period },
+        theme: { color: "#f59e0b" },
         modal: {
           ondismiss: () => {
-            if (state === "paying") {
-              setState("idle");
-              setErrorMessage("Payment was cancelled.");
-            }
+            setPaymentState("idle");
+            setErrorMessage("Payment was cancelled.");
           },
         },
-      };
+      });
 
-      const RazorpayConstructor = (window as Record<string, unknown>).Razorpay as new (
-        options: RazorpayOptions
-      ) => RazorpayInstance;
-
-      const rzp = new RazorpayConstructor(options);
       rzp.open();
     } catch (err) {
       console.error("[RazorpayCheckout] Error:", err);
-      setState("error");
+      setPaymentState("error");
       setErrorMessage(
         err instanceof Error ? err.message : "Something went wrong"
       );
     }
-  }, [plan, period, state, onSuccess]);
+  }, [plan, period, scriptState, paymentState, onSuccess, retryScriptLoad]);
 
   const isDisabled =
     isAlreadyOnPlan ||
-    state === "creating-order" ||
-    state === "paying" ||
-    state === "verifying";
+    scriptState === "loading" ||
+    paymentState === "creating-order" ||
+    paymentState === "paying" ||
+    paymentState === "verifying";
 
   return (
     <div className="flex flex-col items-center gap-2">
@@ -298,11 +326,17 @@ export function RazorpayCheckout({
         <span className="ml-2">{getButtonLabel()}</span>
       </Button>
 
+      {scriptState === "failed" && !errorMessage && (
+        <p className="text-xs text-amber-500 text-center max-w-xs">
+          Payment gateway couldn&apos;t load. Click to retry, or try disabling ad blockers.
+        </p>
+      )}
+
       {errorMessage && (
         <p className="text-xs text-red-500 text-center max-w-xs">{errorMessage}</p>
       )}
 
-      {state === "success" && (
+      {paymentState === "success" && (
         <p className="text-xs text-emerald-500 text-center">
           Plan upgraded successfully!
         </p>
