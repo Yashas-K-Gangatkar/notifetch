@@ -13,6 +13,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,9 +32,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.DeliveryDining
 import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.Payments
 import androidx.compose.material.icons.filled.ReceiptLong
+import androidx.compose.material.icons.filled.ShoppingBag
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -78,6 +81,7 @@ import com.notifetch.app.ui.theme.BrandGradientStart
 import com.notifetch.app.ui.theme.getPlatformColor
 import com.notifetch.app.ui.viewmodel.HomeViewModel
 import com.notifetch.app.util.Helpers
+import com.notifetch.app.util.UserMode
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -190,6 +194,74 @@ fun HomeScreen(
             }
         }
 
+        // ── Mode Toggle: Rider / Customer ──────────────────────────────────
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            // Rider Button
+            Row(
+                modifier = Modifier
+                    .weight(1f)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(
+                        if (uiState.userMode == UserMode.RIDER) Brush.horizontalGradient(
+                            colors = listOf(Color(0xFFFF8F00), Color(0xFFF57C00))
+                        ) else Brush.horizontalGradient(
+                            colors = listOf(Color(0xFF2A2A2A), Color(0xFF2A2A2A))
+                        )
+                    )
+                    .clickable { viewModel.onUserModeChange(UserMode.RIDER) }
+                    .padding(vertical = 12.dp, horizontal = 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.DeliveryDining,
+                    contentDescription = "Rider",
+                    tint = if (uiState.userMode == UserMode.RIDER) Color.White else Color.Gray
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "Rider",
+                    fontWeight = FontWeight.Bold,
+                    color = if (uiState.userMode == UserMode.RIDER) Color.White else Color.Gray
+                )
+            }
+
+            // Customer Button
+            Row(
+                modifier = Modifier
+                    .weight(1f)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(
+                        if (uiState.userMode == UserMode.CUSTOMER) Brush.horizontalGradient(
+                            colors = listOf(Color(0xFF10B981), Color(0xFF059669))
+                        ) else Brush.horizontalGradient(
+                            colors = listOf(Color(0xFF2A2A2A), Color(0xFF2A2A2A))
+                        )
+                    )
+                    .clickable { viewModel.onUserModeChange(UserMode.CUSTOMER) }
+                    .padding(vertical = 12.dp, horizontal = 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.ShoppingBag,
+                    contentDescription = "Customer",
+                    tint = if (uiState.userMode == UserMode.CUSTOMER) Color.White else Color.Gray
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "Customer",
+                    fontWeight = FontWeight.Bold,
+                    color = if (uiState.userMode == UserMode.CUSTOMER) Color.White else Color.Gray
+                )
+            }
+        }
+
         PullToRefreshBox(
             isRefreshing = uiState.isRefreshing,
             onRefresh = { viewModel.refresh() },
@@ -208,14 +280,14 @@ fun HomeScreen(
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         StatCard(
-                            title = "Today",
+                            title = if (uiState.userMode == UserMode.RIDER) "Today's Earnings" else "Today's Savings",
                             value = uiState.todayCount.toString(),
                             icon = Icons.Default.ReceiptLong,
                             subtitle = Helpers.formatCurrency(uiState.todayEarnings),
                             modifier = Modifier.weight(1f)
                         )
                         StatCard(
-                            title = "This Week",
+                            title = if (uiState.userMode == UserMode.RIDER) "Week Earnings" else "Week Savings",
                             value = Helpers.formatCurrency(uiState.weekEarnings),
                             icon = Icons.Default.Payments,
                             modifier = Modifier.weight(1f)
@@ -315,9 +387,12 @@ fun HomeScreen(
                 if (uiState.notifications.isEmpty()) {
                     item {
                         AnimatedEmptyState(
-                            icon = Icons.Default.NotificationsActive,
-                            title = "No notifications yet",
-                            subtitle = "Notifications from delivery partner apps will appear here once captured"
+                            icon = if (uiState.userMode == UserMode.RIDER) Icons.Default.DeliveryDining else Icons.Default.ShoppingBag,
+                            title = if (uiState.userMode == UserMode.RIDER) "No deliveries yet" else "No orders yet",
+                            subtitle = if (uiState.userMode == UserMode.RIDER)
+                                "Notifications from delivery partner apps will appear here once captured"
+                            else
+                                "Notifications from customer apps will appear here once captured"
                         )
                     }
                 } else {

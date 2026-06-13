@@ -71,12 +71,24 @@ interface NotificationDao {
     @Query("SELECT packageName, platform, COUNT(*) as count FROM captured_notifications GROUP BY packageName ORDER BY count DESC")
     fun getNotificationCountByPlatform(): Flow<List<PlatformStat>>
 
+    @Query("SELECT packageName, platform, COALESCE(SUM(orderValue), 0.0) as totalValue FROM captured_notifications WHERE orderValue IS NOT NULL AND receivedAt >= :startTime GROUP BY packageName ORDER BY totalValue DESC")
+    fun getOrderValueByPlatformSince(startTime: Long): Flow<List<PlatformEarningStat>>
+
     @Query("SELECT * FROM captured_notifications WHERE receivedAt >= :startTime ORDER BY receivedAt DESC")
     fun getNotificationsSince(startTime: Long): Flow<List<CapturedNotification>>
+
+    @Query("SELECT * FROM captured_notifications WHERE userMode = :mode ORDER BY receivedAt DESC")
+    fun getNotificationsByUserMode(mode: String): Flow<List<CapturedNotification>>
 
     data class PlatformStat(
         val packageName: String,
         val platform: String,
         val count: Int
+    )
+
+    data class PlatformEarningStat(
+        val packageName: String,
+        val platform: String,
+        val totalValue: Double
     )
 }

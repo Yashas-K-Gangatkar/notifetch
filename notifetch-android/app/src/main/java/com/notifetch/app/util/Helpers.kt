@@ -97,6 +97,16 @@ object Helpers {
         return calendar.timeInMillis
     }
 
+    fun startOfMonthTimestamp(): Long {
+        val calendar = java.util.Calendar.getInstance()
+        calendar.set(java.util.Calendar.DAY_OF_MONTH, 1)
+        calendar.set(java.util.Calendar.HOUR_OF_DAY, 0)
+        calendar.set(java.util.Calendar.MINUTE, 0)
+        calendar.set(java.util.Calendar.SECOND, 0)
+        calendar.set(java.util.Calendar.MILLISECOND, 0)
+        return calendar.timeInMillis
+    }
+
     // REMOVED: extrasToJson() — storing raw notification extras violates data minimization
     // under GDPR Art. 5(1)(c) and may contain PII, auth tokens, or data beyond
     // what the user can see. Only visible notification content is stored.

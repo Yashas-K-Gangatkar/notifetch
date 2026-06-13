@@ -82,17 +82,17 @@ val Amber100 = Color(0xFFFFECB3)
 fun getPlatformColor(platform: String, packageName: String? = null): Color {
     // Primary lookup: by package name (most reliable — works regardless of user rename)
     if (packageName != null) {
-        Constants.PLATFORM_COLORS[packageName]?.let { hex ->
+        Constants.ALL_PLATFORM_COLORS[packageName]?.let { hex ->
             return parseHexColor(hex)
         }
     }
 
-    // Fallback: match display name against PARTNER_PACKAGES values to find the
+    // Fallback: match display name against ALL_PACKAGES values to find the
     // package name, then look up the color. This handles cases where packageName
     // is null but we still have the display name.
-    for ((pkg, defaultName) in Constants.PARTNER_PACKAGES) {
+    for ((pkg, defaultName) in Constants.ALL_PACKAGES) {
         if (defaultName.equals(platform, ignoreCase = true)) {
-            Constants.PLATFORM_COLORS[pkg]?.let { hex ->
+            Constants.ALL_PLATFORM_COLORS[pkg]?.let { hex ->
                 return parseHexColor(hex)
             }
         }
@@ -100,8 +100,8 @@ fun getPlatformColor(platform: String, packageName: String? = null): Color {
 
     // Last resort: try matching platform display name directly (partial match)
     // This catches custom display names that might partially match default names
-    Constants.PLATFORM_COLORS.entries.firstOrNull { (pkg, _) ->
-        val defaultName = Constants.PARTNER_PACKAGES[pkg]
+    Constants.ALL_PLATFORM_COLORS.entries.firstOrNull { (pkg, _) ->
+        val defaultName = Constants.ALL_PACKAGES[pkg]
         defaultName != null && defaultName.contains(platform, ignoreCase = true)
     }?.value?.let { hex ->
         return parseHexColor(hex)

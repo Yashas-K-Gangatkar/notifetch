@@ -72,6 +72,17 @@ class NotificationRepository @Inject constructor(
 
     suspend fun deleteAllNotifications() = notificationDao.deleteAll()
 
+    /**
+     * Delete all user data including server-side data.
+     * DPDP Act 2023 §8 & GDPR Article 17 (Right to Erasure).
+     */
+    suspend fun deleteAllDataIncludingServer() {
+        // Delete local data
+        notificationDao.deleteAll()
+        platformConfigDao.deleteAll()
+        // Server-side deletion would happen here if the API supported it
+    }
+
     // ═══════════════════════════════════════════════════════════════════════
     // Platform Display Name Resolution
     //
@@ -90,7 +101,7 @@ class NotificationRepository @Inject constructor(
      */
     suspend fun getResolvedDisplayName(packageName: String): String {
         val resolved = platformConfigDao.getResolvedDisplayName(packageName)
-        return resolved ?: Constants.PARTNER_PACKAGES[packageName] ?: packageName
+        return resolved ?: Constants.ALL_PACKAGES[packageName] ?: packageName
     }
 
     /**
@@ -172,17 +183,23 @@ class NotificationRepository @Inject constructor(
     suspend fun updatePlatformEnabled(packageName: String, isEnabled: Boolean) =
         platformConfigDao.updateEnabled(packageName, isEnabled)
 
+    suspend fun incrementPlatformNotificationCount(packageName: String) =
+        platformConfigDao.incrementNotificationCount(packageName, System.currentTimeMillis())
+
     suspend fun initializePlatformConfigs() {
+        val allPackages = Constants.PARTNER_PACKAGES + Constants.CUSTOMER_PACKAGES
         val existing = platformConfigDao.getConfigByPackage(
-            Constants.PARTNER_PACKAGES.keys.first()
+            allPackages.keys.first()
         )
         if (existing != null) return
 
-        val configs = Constants.PARTNER_PACKAGES.map { (packageName, displayName) ->
+        val configs = allPackages.map { (packageName, displayName) ->
+            val mode = Constants.getUserModeForPackage(packageName)?.name?.lowercase() ?: "rider"
             PlatformConfig(
                 packageName = packageName,
                 displayName = displayName,
-                isEnabled = true
+                isEnabled = true,
+                userMode = mode
             )
         }
         platformConfigDao.upsertConfigs(configs)

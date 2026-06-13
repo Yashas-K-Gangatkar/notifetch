@@ -35,5 +35,9 @@
 -keep class com.notifetch.app.NotiFetchApp { <init>(); }
 -keep class com.notifetch.app.firebase.NotiFetchMessagingService { <init>(); }
 -keep class com.notifetch.app.notification.NotiFetchListenerService { <init>(); }
+-keep class com.razorpay.CheckoutActivity { <init>(); }
+-keep class com.razorpay.RzpTokenReceiver { <init>(); }
 -keep class androidx.browser.browseractions.BrowserActionsFallbackMenuView { <init>(android.content.Context, android.util.AttributeSet); }
+
+-keep class com.razorpay.CircularProgressView { <init>(android.content.Context, android.util.AttributeSet); }
 

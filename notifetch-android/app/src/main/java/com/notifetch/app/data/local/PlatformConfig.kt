@@ -21,7 +21,8 @@ data class PlatformConfig(
     val customDisplayName: String? = null,  // User's custom name (e.g., "Swiggy", "Z", "My Delivery App")
     val isEnabled: Boolean = true,
     val notificationCount: Int = 0,
-    val lastNotificationAt: Long? = null
+    val lastNotificationAt: Long? = null,
+    val userMode: String = "rider" // "rider" or "customer"
 ) {
     /**
      * Returns the display name the user sees.

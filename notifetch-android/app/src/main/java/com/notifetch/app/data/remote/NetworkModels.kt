@@ -75,3 +75,9 @@ data class VerifyPaymentResponse(
     @Json(name = "success") val success: Boolean,
     @Json(name = "error") val error: String?
 )
+
+@JsonClass(generateAdapter = true)
+data class FcmTokenPayload(
+    @Json(name = "token") val token: String,
+    @Json(name = "deviceId") val deviceId: String?
+)

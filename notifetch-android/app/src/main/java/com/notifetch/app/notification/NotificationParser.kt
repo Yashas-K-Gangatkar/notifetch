@@ -34,7 +34,8 @@ object NotificationParser {
         text: String,
         bigText: String,
         subText: String,
-        extras: Bundle?
+        extras: Bundle?,
+        userMode: String = "rider"
     ): ParsedNotification {
         val combinedText = "$title $text $bigText $subText"
 
@@ -42,7 +43,7 @@ object NotificationParser {
         val pickupLocation = extractPickupLocation(combinedText)
         val dropoffLocation = extractDropoffLocation(combinedText)
         val distance = Helpers.extractDistance(combinedText)
-        val category = categorizeNotification(platform, title, combinedText)
+        val category = categorizeNotification(platform, title, combinedText, userMode)
 
         return ParsedNotification(
             platform = platform,
@@ -115,9 +116,44 @@ object NotificationParser {
         return null
     }
 
-    private fun categorizeNotification(platform: String, title: String, text: String): String {
+    private fun categorizeNotification(platform: String, title: String, text: String, userMode: String = "rider"): String {
         val combined = "$title $text".lowercase()
 
+        // Customer-specific categories
+        if (userMode == "customer") {
+            return when {
+                // Offers & Deals
+                combined.contains("offer") || combined.contains("deal") ||
+                combined.contains("discount") || combined.contains("% off") ||
+                combined.contains("cashback") || combined.contains("coupon") ||
+                combined.contains("promo") || combined.contains("sale") ||
+                combined.contains("free delivery") || combined.contains("flash sale") ||
+                combined.contains("limited time") || combined.contains("special price") -> "OFFER"
+
+                // Delivered
+                combined.contains("delivered") || combined.contains("pickup ready") ||
+                combined.contains("order received") -> "DELIVERED"
+
+                // Customer order updates
+                combined.contains("order confirmed") || combined.contains("preparing your") ||
+                combined.contains("out for delivery") || combined.contains("your order") ||
+                combined.contains("estimated delivery") || combined.contains("being prepared") -> "ORDER_UPDATE"
+
+                // Tracking
+                combined.contains("tracking") || combined.contains("eta") ||
+                combined.contains("arrival") || combined.contains("delayed") ||
+                combined.contains("on the way") -> "TRACKING"
+
+                // Promotion
+                combined.contains("reward") || combined.contains("loyalty") ||
+                combined.contains("points") || combined.contains("member") ||
+                combined.contains("exclusive") -> "PROMOTION"
+
+                else -> "GENERAL"
+            }
+        }
+
+        // Existing rider categorization
         return when {
             // New order / delivery available
             combined.contains("new order") || combined.contains("order available") ||

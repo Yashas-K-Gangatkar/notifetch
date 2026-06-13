@@ -36,4 +36,10 @@ interface NotiFetchApi {
         @Header("Authorization") authHeader: String,
         @Body payload: VerifyPaymentPayload
     ): VerifyPaymentResponse
+
+    @POST("api/fcm/register")
+    suspend fun registerFcmToken(
+        @Header("Authorization") authHeader: String,
+        @Body payload: FcmTokenPayload
+    ): ApiResponse
 }

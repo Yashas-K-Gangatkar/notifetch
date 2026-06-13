@@ -210,6 +210,144 @@ object Constants {
     // Platform display names use real brand names under nominative fair use.
     // Users can customize any display name through the app settings.
     const val LEGAL_DISCLAIMER = "NotiFetch reads notifications you can already see. We never access platform APIs or store credentials. Platform names are customizable by the user."
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // CUSTOMER App Packages — for the Customer mode
+    // These are the customer-facing apps (not driver/partner apps)
+    // Last verified: June 2026
+    // ═══════════════════════════════════════════════════════════════════════
+
+    val CUSTOMER_PACKAGES = mapOf(
+        // ── Food Delivery (Customer Apps) ─────────────────────────────────
+        "in.swiggy.android" to "Swiggy",                           // Swiggy Customer (India)
+        "com.application.zomato" to "Zomato",                      // Zomato Customer (India)
+        "com.ubercab.eats" to "Uber Eats",                         // Uber Eats Customer (Global)
+        "com.doordash.consumerapp" to "DoorDash",                  // DoorDash Customer (US/CA/AU/JP)
+        "com.grubhub.android" to "Grubhub",                        // Grubhub Customer (US)
+        "com.deliveroo.orderapp" to "Deliveroo",                    // Deliveroo Customer (UK/EU)
+        "com.justeat.app.uk" to "Just Eat",                        // Just Eat Customer UK
+        "com.takeaway.android" to "Takeaway",                      // Takeaway.com Customer (EU)
+        "com.lieferando.android" to "Lieferando",                  // Lieferando Customer (DE)
+        "com.foodpanda.android" to "Foodpanda",                    // Foodpanda Customer (Asia/EMEA)
+        "br.com.ifood" to "iFood",                                 // iFood Customer (Brazil)
+        "com.rappi.app" to "Rappi",                                // Rappi Customer (LATAM)
+        "com.wolt.android" to "Wolt",                              // Wolt Customer (EU/Nordics/Asia)
+        "com.glovoapp.android" to "Glovo",                         // Glovo Customer (EMEA/LATAM)
+        "com.talabat.android" to "Talabat",                        // Talabat Customer (MENA)
+        "com.menulog.android" to "Menulog",                        // Menulog Customer (AU/NZ)
+
+        // ── Grocery (Customer Apps) ────────────────────────────────────────
+        "com.instacart.app" to "Instacart",                        // Instacart Customer (US/CA)
+        "app.blinkit" to "Blinkit",                                // Blinkit Customer (India)
+        "com.bigbasket.mobileapp" to "BigBasket",                  // BigBasket Customer (India)
+        "com.zepto.app" to "Zepto",                                // Zepto Customer (India)
+        "com.shipt.android" to "Shipt",                            // Shipt Customer (US)
+        "au.com.woolworths.android" to "Woolworths",               // Woolworths Customer (AU)
+
+        // ── E-Commerce (Customer Apps) ────────────────────────────────────
+        "in.amazon.mShop.android.shopping" to "Amazon",            // Amazon Shopping (India)
+        "com.amazon.mShop.android.shopping" to "Amazon",           // Amazon Shopping (Global)
+        "com.flipkart.android" to "Flipkart",                      // Flipkart Customer (India)
+        "com.myntra.android" to "Myntra",                          // Myntra Customer (India)
+        "com.meesho.app" to "Meesho",                              // Meesho Customer (India)
+        "in.swiggy.android.instamart" to "Instamart",              // Swiggy Instamart (India)
+
+        // ── Ride & Transport (Customer Apps) ──────────────────────────────
+        "com.ubercab" to "Uber",                                   // Uber Customer (Global)
+        "com.olacabs.customer" to "Ola",                           // Ola Customer (India)
+        "com.grabtaxi.passenger" to "Grab",                        // Grab Customer (SE Asia)
+        "com.careem.acma" to "Careem",                             // Careem Customer (MENA)
+        "com.didiglobal.passenger" to "DiDi",                      // DiDi Customer (AU/NZ/LATAM)
+        "ee.mtakso.client" to "Bolt",                              // Bolt Customer (EU/Africa)
+        "com.lyft.android" to "Lyft",                              // Lyft Customer (US/CA)
+
+        // ── Package Tracking (Customer Apps) ──────────────────────────────
+        "com.delhivery.track" to "Delhivery",                      // Delhivery Customer (India)
+        "com.xpressbees.track" to "Xpressbees",                    // Xpressbees Customer (India)
+        "com.dunzo.user" to "Dunzo",                               // Dunzo Customer (India)
+    )
+
+    // Combined map for the notification listener to use
+    val ALL_PACKAGES: Map<String, String>
+        get() = PARTNER_PACKAGES + CUSTOMER_PACKAGES
+
+    // Customer platform colors
+    val CUSTOMER_PLATFORM_COLORS = mapOf(
+        // Food Delivery
+        "in.swiggy.android" to "#FC8019",              // Swiggy — Orange
+        "com.application.zomato" to "#E23744",         // Zomato — Red
+        "com.ubercab.eats" to "#05944F",               // Uber Eats — Green
+        "com.doordash.consumerapp" to "#FF3008",       // DoorDash — Red
+        "com.grubhub.android" to "#F7871D",            // Grubhub — Orange
+        "com.deliveroo.orderapp" to "#00CCBC",         // Deliveroo — Teal
+        "com.justeat.app.uk" to "#FF8000",             // Just Eat — Orange
+        "com.takeaway.android" to "#FF6D00",           // Takeaway — Orange
+        "com.lieferando.android" to "#FF6D00",         // Lieferando — Orange
+        "com.foodpanda.android" to "#D21F3C",          // Foodpanda — Pink/Red
+        "br.com.ifood" to "#EA1D2C",                   // iFood — Red
+        "com.rappi.app" to "#FF4444",                  // Rappi — Orange/Red
+        "com.wolt.android" to "#00C7E6",               // Wolt — Cyan
+        "com.glovoapp.android" to "#F5C518",           // Glovo — Yellow
+        "com.talabat.android" to "#FF5A00",            // Talabat — Orange
+        "com.menulog.android" to "#FF8000",            // Menulog — Orange
+
+        // Grocery
+        "com.instacart.app" to "#43B02A",              // Instacart — Green
+        "app.blinkit" to "#F8E71C",                    // Blinkit — Yellow
+        "com.bigbasket.mobileapp" to "#84C225",        // BigBasket — Green
+        "com.zepto.app" to "#8B008B",                  // Zepto — Purple
+        "com.shipt.android" to "#33A198",              // Shipt — Teal
+        "au.com.woolworths.android" to "#009444",      // Woolworths — Green
+
+        // E-Commerce
+        "in.amazon.mShop.android.shopping" to "#FF9900", // Amazon — Orange
+        "com.amazon.mShop.android.shopping" to "#FF9900",// Amazon — Orange
+        "com.flipkart.android" to "#2874F0",             // Flipkart — Blue
+        "com.myntra.android" to "#FF3F6C",             // Myntra — Pink
+        "com.meesho.app" to "#570A57",                 // Meesho — Purple
+        "in.swiggy.android.instamart" to "#FC8019",    // Instamart — Orange
+
+        // Ride
+        "com.ubercab" to "#000000",                    // Uber — Black
+        "com.olacabs.customer" to "#36B37E",           // Ola — Green
+        "com.grabtaxi.passenger" to "#00B14F",         // Grab — Green
+        "com.careem.acma" to "#4CB050",                // Careem — Green
+        "com.didiglobal.passenger" to "#FF6B00",       // DiDi — Orange
+        "ee.mtakso.client" to "#34C759",               // Bolt — Green
+        "com.lyft.android" to "#FF00BF",               // Lyft — Pink
+
+        // Package Tracking
+        "com.delhivery.track" to "#1A73E8",            // Delhivery — Blue
+        "com.xpressbees.track" to "#E91E63",           // Xpressbees — Pink
+        "com.dunzo.user" to "#00D290",                 // Dunzo — Green
+    )
+
+    // Combined platform colors
+    val ALL_PLATFORM_COLORS: Map<String, String>
+        get() = PLATFORM_COLORS + CUSTOMER_PLATFORM_COLORS
+
+    // Customer source identifiers
+    val CUSTOMER_PLATFORM_SOURCES: Map<String, String> = CUSTOMER_PACKAGES.map { (pkg, _) ->
+        pkg to "cust_${pkg.replace(".", "_").replace("com_", "").replace("in_", "").replace("br_com_", "").replace("global_", "").replace("app_", "").take(35)}"
+    }.toMap()
+
+    // Combined platform sources
+    val ALL_PLATFORM_SOURCES: Map<String, String>
+        get() = PLATFORM_SOURCES + CUSTOMER_PLATFORM_SOURCES
+
+    // Determine if a package is rider or customer mode
+    fun getUserModeForPackage(packageName: String): UserMode? {
+        return when {
+            PARTNER_PACKAGES.containsKey(packageName) -> UserMode.RIDER
+            CUSTOMER_PACKAGES.containsKey(packageName) -> UserMode.CUSTOMER
+            else -> null
+        }
+    }
+}
+
+enum class UserMode(val label: String) {
+    RIDER("Rider"),
+    CUSTOMER("Customer")
 }
 
 enum class PlatformSource(val displayName: String, val packageName: String, val sourceId: String, val category: String) {

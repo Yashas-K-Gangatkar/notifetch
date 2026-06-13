@@ -168,14 +168,16 @@ class EarningsViewModel @Inject constructor(
 
     // Step 4: Final combine into EarningsUiState
     val uiState: StateFlow<EarningsUiState> = combine(
-        earningsState,
-        ordersState,
-        platformState,
-        _subscriptionTier,
-        _isPaymentProcessing,
-        _paymentError,
-        _paymentSuccess
-    ) { earnings, orders, platforms, tier, processing, error, success ->
+        combine(earningsState, ordersState, platformState) { earnings, orders, platforms ->
+            Triple(earnings, orders, platforms)
+        },
+        combine(_subscriptionTier, _isPaymentProcessing) { tier, processing ->
+            Pair(tier, processing)
+        },
+        combine(_paymentError, _paymentSuccess) { error, success ->
+            Pair(error, success)
+        }
+    ) { (earnings, orders, platforms), (tier, processing), (error, success) ->
         EarningsUiState(
             todayEarnings = earnings.todayEarnings,
             weekEarnings = earnings.weekEarnings,

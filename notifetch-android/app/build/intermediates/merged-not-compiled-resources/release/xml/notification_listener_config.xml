@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<notification-listener-config xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Food Delivery -->
+    <package name="com.ubercab.driver"/>
+    <package name="com.doordash.driverapp"/>
+    <package name="com.grubhub.driver"/>
+    <package name="com.deliveroo.driverapp"/>
+    <package name="com.justeat.courier.uk"/>
+    <package name="com.takeaway.delivered4all"/>
+    <package name="com.lieferando.courier"/>
+    <package name="com.logistics.rider.foodpanda"/>
+    <package name="in.swiggy.deliveryapp"/>
+    <package name="com.zomato.delivery"/>
+    <package name="br.com.ifood.driver.app"/>
+    <package name="com.rappi.storekeeper"/>
+    <package name="com.wolt.courierapp"/>
+    <package name="com.logistics.rider.glovo"/>
+    <package name="com.demaecan.DemaecanDriver"/>
+    <package name="com.logistics.rider.talabat"/>
+    <package name="com.menulog.courier"/>
+    <package name="com.sankuai.sailor.courier"/>
+    <!-- Grocery Delivery -->
+    <package name="com.instacart.shopper"/>
+    <package name="com.gopuff.godrive2.live"/>
+    <package name="app.blinkit.onboarding"/>
+    <package name="com.bigbasket.dapp.activity"/>
+    <package name="com.mercadoenvios.crowdsourcing"/>
+    <package name="com.mercadoenvios.driver"/>
+    <package name="au.com.woolworths.android.driver"/>
+    <package name="com.zepto.rider"/>
+    <package name="com.flink.workforce"/>
+    <package name="com.shipt.shopper"/>
+    <!-- Package & Parcel -->
+    <package name="com.amazon.flex.rabbit"/>
+    <package name="com.ups.genesispd"/>
+    <package name="com.dunzo.partner"/>
+    <package name="com.lalamove.global.driver.sea"/>
+    <package name="global.dostavista.courier"/>
+    <!-- Courier & Express -->
+    <package name="com.postmates.android.courier"/>
+    <package name="com.roadie.drive.android.app"/>
+    <package name="com.stuart.courier"/>
+    <package name="com.quadx.riderapp"/>
+    <!-- Last-Mile Delivery -->
+    <package name="com.amazon.relay"/>
+    <package name="com.ekartkiranaonboarding"/>
+    <package name="com.ekart.logistics.app"/>
+    <package name="id.my.irsyadf.jobdriver"/>
+    <package name="com.aramex.ecourier"/>
+    <package name="co.ninjavan.swiftninja_global"/>
+    <!-- Ride & Transport -->
+    <package name="com.lyft.android.driver"/>
+    <package name="com.olacabs.oladriver"/>
+    <package name="com.grabtaxi.driver2"/>
+    <package name="com.careem.adma"/>
+    <package name="com.didiglobal.driver"/>
+    <package name="ee.mtakso.driver"/>
+    <!-- Other Delivery Partners -->
+    <package name="com.theporter.android.driverapp"/>
+    <package name="com.rapido.rider"/>
+    <package name="in.shadowfax.gandalf"/>
+    <package name="com.gojek.partner"/>
+    <package name="com.delhivery.delhiverypartner"/>
+    <package name="com.ecomexpress.oneBoarding"/>
+    <package name="com.xpressbees.unified_new_arch"/>
+    <package name="in.letstransport.supply"/>
+    <package name="net.blowhorn.driverapp"/>
+    <package name="com.driveu.partner"/>
+    <package name="app.yulu.android.partner"/>
+    <!-- Alternate/legacy packages -->
+    <package name="in.swiggy.partner"/>
+    <package name="com.zomato.deliverypartner"/>
+    <package name="com.amazon.flex"/>
+    <package name="com.flipkart.logistics"/>
+</notification-listener-config>

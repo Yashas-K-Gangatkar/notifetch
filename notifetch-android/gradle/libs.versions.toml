@@ -78,6 +78,9 @@ play-services-auth = { group = "com.google.android.gms", name = "play-services-a
 # Coroutines
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines" }
 
+# Razorpay
+razorpay = { group = "com.razorpay", name = "checkout", version = "1.6.33" }
+
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }

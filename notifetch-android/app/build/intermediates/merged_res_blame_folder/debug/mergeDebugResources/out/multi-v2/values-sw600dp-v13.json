@@ -1,0 +1,20 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.notifetch.app-mergeDebugResources-84:/values-sw600dp-v13/values-sw600dp-v13.xml",
+            "map": [
+                {
+                    "source": "/home/z/.gradle/caches/8.9/transforms/25f44f913c62548980c3215fd3ffb96e/transformed/checkout-1.6.33/res/values-sw600dp-v13/values-sw600dp-v13.xml",
+                    "from": {
+                        "startLines": "2,3",
+                        "startColumns": "4,4",
+                        "startOffsets": "55,93",
+                        "endLines": "2,13",
+                        "endColumns": "37,12",
+                        "endOffsets": "88,745"
+                    }
+                }
+            ]
+        }
+    ]
+}

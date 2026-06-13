@@ -8,6 +8,7 @@ import com.notifetch.app.data.local.PlatformConfig
 import com.notifetch.app.data.repository.AuthRepository
 import com.notifetch.app.data.repository.NotificationRepository
 import com.notifetch.app.util.Helpers
+import com.notifetch.app.util.UserMode
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -34,7 +35,8 @@ data class HomeUiState(
     val searchQuery: String = "",
     val selectedPlatform: String? = null,
     val isRefreshing: Boolean = false,
-    val platformNameMap: Map<String, String> = emptyMap()
+    val platformNameMap: Map<String, String> = emptyMap(),
+    val userMode: UserMode = UserMode.RIDER
 ) {
     // Explicit equality check to make distinctUntilChanged() work properly.
     // Without this, data class copy() with same values still creates a new object
@@ -54,7 +56,8 @@ data class HomeUiState(
                 searchQuery == other.searchQuery &&
                 selectedPlatform == other.selectedPlatform &&
                 isRefreshing == other.isRefreshing &&
-                platformNameMap == other.platformNameMap
+                platformNameMap == other.platformNameMap &&
+                userMode == other.userMode
     }
 
     override fun hashCode(): Int {
@@ -71,6 +74,7 @@ data class HomeUiState(
         result = 31 * result + (selectedPlatform?.hashCode() ?: 0)
         result = 31 * result + isRefreshing.hashCode()
         result = 31 * result + platformNameMap.hashCode()
+        result = 31 * result + userMode.hashCode()
         return result
     }
 }
@@ -87,6 +91,7 @@ class HomeViewModel @Inject constructor(
     private val _isSyncing = MutableStateFlow(false)
     private val _isRefreshing = MutableStateFlow(false)
     private val _isListenerEnabled = MutableStateFlow(true)
+    private val _userMode = MutableStateFlow(UserMode.RIDER)
 
     // ── Room flows ──────────────────────────────────────────────────────────
     // Each flow is stateIn'd with a 5-second timeout so it stays alive briefly
@@ -120,9 +125,10 @@ class HomeViewModel @Inject constructor(
     private val filteredNotifications = combine(
         allNotifications,
         _searchQuery,
-        _selectedPlatform
-    ) { notifications, query, platform ->
-        var result = notifications
+        _selectedPlatform,
+        _userMode
+    ) { notifications, query, platform, mode ->
+        var result = notifications.filter { it.userMode == mode.name.lowercase() }
         // Filter by packageName (stable identifier, not display name)
         // This ensures filtering works correctly even when users rename platforms
         if (platform != null) {
@@ -218,18 +224,20 @@ class HomeViewModel @Inject constructor(
     }
 
     private val uiControlState = combine(
-        _isSyncing,
-        _isRefreshing,
-        _isListenerEnabled,
-        _searchQuery,
-        _selectedPlatform
-    ) { isSyncing, isRefreshing, isListenerEnabled, searchQuery, selectedPlatform ->
+        combine(_isSyncing, _isRefreshing, _isListenerEnabled) { isSyncing, isRefreshing, isListenerEnabled ->
+            Triple(isSyncing, isRefreshing, isListenerEnabled)
+        },
+        combine(_searchQuery, _selectedPlatform, _userMode) { searchQuery, selectedPlatform, userMode ->
+            Triple(searchQuery, selectedPlatform, userMode)
+        }
+    ) { (isSyncing, isRefreshing, isListenerEnabled), (searchQuery, selectedPlatform, userMode) ->
         UIControlState(
             isSyncing = isSyncing,
             isRefreshing = isRefreshing,
             isListenerEnabled = isListenerEnabled,
             searchQuery = searchQuery,
-            selectedPlatform = selectedPlatform
+            selectedPlatform = selectedPlatform,
+            userMode = userMode
         )
     }
 
@@ -254,7 +262,8 @@ class HomeViewModel @Inject constructor(
             isRefreshing = uiControl.isRefreshing,
             isListenerEnabled = uiControl.isListenerEnabled,
             searchQuery = uiControl.searchQuery,
-            selectedPlatform = uiControl.selectedPlatform
+            selectedPlatform = uiControl.selectedPlatform,
+            userMode = uiControl.userMode
         )
     }
         .debounce(200)
@@ -273,6 +282,11 @@ class HomeViewModel @Inject constructor(
 
     fun onPlatformFilterChange(platform: String?) {
         _selectedPlatform.value = platform
+    }
+
+    fun onUserModeChange(mode: UserMode) {
+        _userMode.value = mode
+        _selectedPlatform.value = null // Reset platform filter on mode switch
     }
 
     fun markAsRead(id: Long) {
@@ -338,5 +352,6 @@ private data class UIControlState(
     val isRefreshing: Boolean,
     val isListenerEnabled: Boolean,
     val searchQuery: String,
-    val selectedPlatform: String?
+    val selectedPlatform: String?,
+    val userMode: UserMode
 )

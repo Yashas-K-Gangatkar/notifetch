@@ -55,9 +55,9 @@ class NotiFetchListenerService : NotificationListenerService() {
     private val pendingCountIncrements = mutableSetOf<String>()
 
     companion object {
-        // Use the comprehensive package list from Constants
-        private val PARTNER_PACKAGES: Map<String, String>
-            get() = Constants.PARTNER_PACKAGES
+        // Use the combined package list (rider + customer) from Constants
+        private val ALL_PACKAGES: Map<String, String>
+            get() = Constants.ALL_PACKAGES
 
         /**
          * Check if the notification listener service is enabled.
@@ -83,12 +83,12 @@ class NotiFetchListenerService : NotificationListenerService() {
 
     override fun onCreate() {
         super.onCreate()
-        Log.d(tag, "NotiFetchListenerService created — monitoring ${Constants.PARTNER_PACKAGES.size} partner packages")
+        Log.d(tag, "NotiFetchListenerService created — monitoring ${Constants.ALL_PACKAGES.size} packages")
     }
 
     override fun onListenerConnected() {
         super.onListenerConnected()
-        Log.d(tag, "Notification listener connected — monitoring ${Constants.PARTNER_PACKAGES.size} partner packages worldwide")
+        Log.d(tag, "Notification listener connected — monitoring ${Constants.ALL_PACKAGES.size} packages (rider + customer)")
 
         // Initialize platform configs in database
         serviceScope.launch {
@@ -104,9 +104,11 @@ class NotiFetchListenerService : NotificationListenerService() {
         val packageName = sbn.packageName
 
         // Filter: only process notifications from partner apps
-        val platformName = Constants.PARTNER_PACKAGES[packageName] ?: return
+        val platformName = Constants.ALL_PACKAGES[packageName] ?: return
 
-        val source = Constants.PLATFORM_SOURCES[packageName] ?: packageName.replace(".", "_")
+        val source = Constants.ALL_PLATFORM_SOURCES[packageName] ?: packageName.replace(".", "_")
+
+        val userMode = Constants.getUserModeForPackage(packageName)?.name?.lowercase() ?: "rider"
 
         Log.d(tag, "Captured notification from $platformName ($packageName)")
 
@@ -146,7 +148,8 @@ class NotiFetchListenerService : NotificationListenerService() {
                 text = text,
                 bigText = bigText,
                 subText = subText,
-                extras = extras
+                extras = extras,
+                userMode = userMode
             )
 
             // Detect currency based on platform region and text content
@@ -168,7 +171,8 @@ class NotiFetchListenerService : NotificationListenerService() {
                 receivedAt = System.currentTimeMillis(),
                 isSynced = false,
                 category = parsed.category,
-                currency = currency
+                currency = currency,
+                userMode = userMode
             )
 
             // Save to local database

@@ -10,7 +10,8 @@ import androidx.room.PrimaryKey
         Index(value = ["packageName"]),
         Index(value = ["platform"]),
         Index(value = ["receivedAt"]),
-        Index(value = ["isSynced"])
+        Index(value = ["isSynced"]),
+        Index(value = ["userMode"])
     ]
 )
 data class CapturedNotification(
@@ -35,5 +36,6 @@ data class CapturedNotification(
     val syncedAt: Long? = null,
     val isRead: Boolean = false,
     val category: String?,
-    val currency: String = "INR" // Currency for order value
+    val currency: String = "INR", // Currency for order value
+    val userMode: String = "rider" // "rider" or "customer" — which mode captured this
 )

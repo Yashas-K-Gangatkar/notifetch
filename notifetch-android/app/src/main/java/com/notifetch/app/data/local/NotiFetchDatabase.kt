@@ -5,7 +5,7 @@ import androidx.room.RoomDatabase
 
 @Database(
     entities = [CapturedNotification::class, PlatformConfig::class],
-    version = 3,
+    version = 5,
     exportSchema = false
 )
 abstract class NotiFetchDatabase : RoomDatabase() {

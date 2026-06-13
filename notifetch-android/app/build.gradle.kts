@@ -7,8 +7,10 @@ plugins {
     alias(libs.plugins.google.services)
 }
 
+import java.util.Properties
+
 // Read secrets from local.properties (gitignored) — never hardcode API keys
-val localProps = java.util.Properties().apply {
+val localProps = Properties().apply {
     val file = rootProject.file("local.properties")
     if (file.exists()) load(file.inputStream())
 }
@@ -22,8 +24,8 @@ android {
         applicationId = "com.notifetch.app"
         minSdk = 24
         targetSdk = 35
-        versionCode = 8
-        versionName = "2.2.2"
+        versionCode = 18
+        versionName = "2.4.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -35,10 +37,11 @@ android {
 
     signingConfigs {
         create("release") {
-            storeFile = file("../../twa/keystore.jks")
-            storePassword = System.getenv("NOTIFETCH_STORE_PASSWORD") ?: ""
-            keyAlias = "notifetch"
-            keyPassword = System.getenv("NOTIFETCH_KEY_PASSWORD") ?: ""
+            val keystoreFile = file("keystore.jks")
+            storeFile = if (keystoreFile.exists()) keystoreFile else file("debug.keystore")
+            storePassword = System.getenv("NOTIFETCH_STORE_PASSWORD") ?: "android"
+            keyAlias = System.getenv("NOTIFETCH_KEY_ALIAS") ?: "notifetch"
+            keyPassword = System.getenv("NOTIFETCH_KEY_PASSWORD") ?: "android"
         }
     }
 
@@ -51,6 +54,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            ndk.debugSymbolLevel = "FULL"
         }
         debug {
             isMinifyEnabled = false
