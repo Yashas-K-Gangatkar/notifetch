@@ -29,8 +29,34 @@ type PaymentState = "idle" | "creating-order" | "paying" | "verifying" | "succes
 
 let scriptLoadPromise: Promise<boolean> | null = null;
 
+/**
+ * Inject Razorpay script dynamically as a fallback.
+ */
+function injectRazorpayScript(resolve: (value: boolean) => void) {
+  console.log("[RazorpayCheckout] Preloaded script not found, injecting dynamically...");
+  // Check one more time before injecting
+  if ((window as Record<string, unknown>).Razorpay) {
+    resolve(true);
+    return;
+  }
+  const script = document.createElement("script");
+  script.src = "https://checkout.razorpay.com/v1/checkout.js";
+  script.async = true;
+  script.onload = () => {
+    console.log("[RazorpayCheckout] Dynamic script loaded successfully");
+    scriptLoadPromise = null;
+    resolve(true);
+  };
+  script.onerror = () => {
+    console.error("[RazorpayCheckout] Dynamic script failed to load");
+    scriptLoadPromise = null;
+    resolve(false);
+  };
+  document.body.appendChild(script);
+}
+
 function loadRazorpayScript(): Promise<boolean> {
-  // Check if already loaded (from layout.tsx Script tag or previous dynamic load)
+  // If already loaded, return immediately
   if (typeof window !== "undefined" && (window as Record<string, unknown>).Razorpay) {
     return Promise.resolve(true);
   }
@@ -39,47 +65,27 @@ function loadRazorpayScript(): Promise<boolean> {
   if (scriptLoadPromise) return scriptLoadPromise;
 
   scriptLoadPromise = new Promise((resolve) => {
-    // Wait a moment in case the layout.tsx <Script> tag is still loading
+    // First, wait for the preloaded script from layout.tsx <Script> tag
+    // Poll for up to ~3 seconds (10 attempts × 300ms)
     let attempts = 0;
     const maxAttempts = 10;
     const checkInterval = setInterval(() => {
       attempts++;
       if ((window as Record<string, unknown>).Razorpay) {
         clearInterval(checkInterval);
+        console.log("[RazorpayCheckout] Preloaded script detected after", attempts, "attempts");
         resolve(true);
         return;
       }
       if (attempts >= maxAttempts) {
         clearInterval(checkInterval);
-        // Try dynamic injection as fallback
+        // Fallback: inject script dynamically
         injectRazorpayScript(resolve);
       }
     }, 300);
   });
 
   return scriptLoadPromise;
-}
-
-function injectRazorpayScript(resolve: (value: boolean) => void) {
-  // Check one more time before injecting
-  if ((window as Record<string, unknown>).Razorpay) {
-    resolve(true);
-    return;
-  }
-
-  const script = document.createElement("script");
-  script.src = "https://checkout.razorpay.com/v1/checkout.js";
-  script.async = true;
-  script.onload = () => {
-    scriptLoadPromise = null;
-    resolve(true);
-  };
-  script.onerror = () => {
-    scriptLoadPromise = null;
-    console.error("[RazorpayCheckout] Script failed to load dynamically");
-    resolve(false);
-  };
-  document.body.appendChild(script);
 }
 
 // ─── Razorpay Window Interface ──────────────────────────────────────────────
