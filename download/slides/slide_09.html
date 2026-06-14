@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1280, height=720">
+  <title>Let's Build This Together — NotiFetch</title>
+  <link rel="stylesheet" href="global.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#1a1a2e',
+            accent: '#f59e0b',
+            'accent-light': '#fef3c7',
+          },
+          fontFamily: {
+            inter: ['Inter', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { margin: 0; padding: 0; }
+    .slide-canvas {
+      width: 1280px;
+      height: 720px;
+      overflow: hidden;
+      position: relative;
+      box-sizing: border-box;
+    }
+  </style>
+</head>
+<body>
+  <div class="slide-canvas bg-white font-inter text-primary flex flex-col" style="padding: 56px 72px 52px;">
+
+    <!-- Faded background image -->
+    <div class="absolute inset-0 z-0" data-decor aria-hidden="true">
+      <img src="https://sfile.chatglm.cn/images-ppt/cb6614f98736.jpg" alt="" class="w-full h-full object-cover opacity-[0.07]" style="mask-image: linear-gradient(to bottom, transparent 0%, black 30%, black 70%, transparent 100%); -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 30%, black 70%, transparent 100%);">
+    </div>
+
+    <!-- Content -->
+    <div class="relative z-10 flex flex-col h-full">
+
+      <!-- Title -->
+      <div class="mb-8">
+        <h1 class="text-[40px] font-extrabold leading-tight text-primary tracking-tight">
+          Let's Build This Together
+        </h1>
+        <div class="w-20 h-1.5 bg-accent rounded-full mt-4" data-decor aria-hidden="true"></div>
+      </div>
+
+      <!-- Quote Box -->
+      <div class="bg-accent rounded-2xl px-10 py-7 mb-10 relative">
+        <span class="material-icons absolute top-4 left-5 text-white/30 text-[40px]" aria-hidden="true">format_quote</span>
+        <p class="text-[22px] font-semibold text-white leading-relaxed pl-6">
+          We're not asking for a donation. We're offering a partnership in a product that <span class="underline decoration-2 underline-offset-4">15 million drivers</span> already need.
+        </p>
+      </div>
+
+      <!-- Two Columns -->
+      <div class="flex gap-10 flex-1">
+
+        <!-- Left Column: What You Get -->
+        <div class="flex-1 bg-gray-50 rounded-2xl p-8 border border-gray-200">
+          <h2 class="text-[24px] font-bold text-primary mb-5 flex items-center gap-3">
+            <span class="material-icons text-accent text-[28px]" aria-hidden="true">card_giftcard</span>
+            What You Get
+          </h2>
+          <ul class="space-y-4">
+            <li class="flex items-start gap-3">
+              <span class="material-icons text-accent text-[22px] mt-0.5" aria-hidden="true">check_circle</span>
+              <span class="text-[18px] text-gray-700 leading-snug">Brand visibility across 15M+ drivers</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="material-icons text-accent text-[22px] mt-0.5" aria-hidden="true">check_circle</span>
+              <span class="text-[18px] text-gray-700 leading-snug">Data insights from gig economy</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="material-icons text-accent text-[22px] mt-0.5" aria-hidden="true">check_circle</span>
+              <span class="text-[18px] text-gray-700 leading-snug">First access to driver intelligence platform</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="material-icons text-accent text-[22px] mt-0.5" aria-hidden="true">check_circle</span>
+              <span class="text-[18px] text-gray-700 leading-snug">Tax-saving tool for your fleet</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Right Column: Next Steps -->
+        <div class="flex-1 bg-accent-light rounded-2xl p-8 border border-accent/20">
+          <h2 class="text-[24px] font-bold text-primary mb-5 flex items-center gap-3">
+            <span class="material-icons text-accent text-[28px]" aria-hidden="true">rocket_launch</span>
+            Next Steps
+          </h2>
+          <ol class="space-y-4">
+            <li class="flex items-start gap-3">
+              <span class="text-[20px] font-extrabold text-accent min-w-[28px]">1.</span>
+              <span class="text-[18px] text-gray-700 leading-snug">Intro meeting (15 min)</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="text-[20px] font-extrabold text-accent min-w-[28px]">2.</span>
+              <span class="text-[18px] text-gray-700 leading-snug">Product demo</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="text-[20px] font-extrabold text-accent min-w-[28px]">3.</span>
+              <span class="text-[18px] text-gray-700 leading-snug">Pilot with your network</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="text-[20px] font-extrabold text-accent min-w-[28px]">4.</span>
+              <span class="text-[18px] text-gray-700 leading-snug">Scale together</span>
+            </li>
+          </ol>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Decorative accent blob -->
+    <div class="absolute -top-24 -left-24 w-64 h-64 rounded-full opacity-[0.05] bg-accent" data-decor aria-hidden="true"></div>
+
+  </div>
+
+  <aside data-notes class="hidden">
+    • Frame this as a partnership, not a donation — language is deliberate
+    • What You Get column shows tangible ROI: visibility, data, access, tools
+    • Next Steps provides a clear, low-friction path forward
+    • 15 million drivers stat reinforces market size and urgency
+    • Handshake image subtly reinforces partnership theme
+  </aside>
+</body>
+</html>

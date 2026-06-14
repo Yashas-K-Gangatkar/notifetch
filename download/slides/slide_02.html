@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1280, height=720">
+  <title>The Problem — NotiFetch</title>
+  <link rel="stylesheet" href="global.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; }
+  </style>
+</head>
+<body>
+  <div class="slide flex flex-col" style="width:1280px; min-height:720px; padding:64px 72px;">
+
+    <!-- Title -->
+    <div style="margin-bottom: 40px;">
+      <h2 style="font-size: 40px; font-weight: 800; color: #1a1a2e; letter-spacing: -1px; line-height: 1.1;">
+        The Problem
+      </h2>
+      <div style="width: 56px; height: 4px; background: #f59e0b; border-radius: 2px; margin-top: 16px;" data-decor aria-hidden="true"></div>
+    </div>
+
+    <!-- Two-column layout -->
+    <div class="flex flex-1 gap-12">
+
+      <!-- Left side: text + stat cards -->
+      <div class="flex flex-col" style="width: 52%;">
+
+        <!-- Problem statement -->
+        <p style="font-size: 20px; font-weight: 500; line-height: 1.6; color: #374151; margin-bottom: 36px;">
+          India has <strong style="color:#1a1a2e;">15M+ gig workers</strong> juggling 4–6 delivery apps simultaneously. They miss orders. They lose money. They burn out.
+        </p>
+
+        <!-- Stat cards -->
+        <div class="flex flex-col gap-5">
+
+          <!-- Card 1 -->
+          <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 14px; padding: 24px 28px; display: flex; align-items: center; gap: 20px;">
+            <div style="width: 52px; height: 52px; border-radius: 12px; background: #fef3c7; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <span class="material-icons" style="font-size: 28px; color: #f59e0b;">notifications_off</span>
+            </div>
+            <div>
+              <p style="font-size: 22px; font-weight: 700; color: #1a1a2e; line-height: 1.3;">70% of drivers miss at least 1 order daily</p>
+            </div>
+          </div>
+
+          <!-- Card 2 -->
+          <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 14px; padding: 24px 28px; display: flex; align-items: center; gap: 20px;">
+            <div style="width: 52px; height: 52px; border-radius: 12px; background: #fef3c7; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <span class="material-icons" style="font-size: 28px; color: #f59e0b;">currency_rupee</span>
+            </div>
+            <div>
+              <p style="font-size: 22px; font-weight: 700; color: #1a1a2e; line-height: 1.3;">₹500/day lost to missed notifications</p>
+            </div>
+          </div>
+
+          <!-- Card 3 -->
+          <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 14px; padding: 24px 28px; display: flex; align-items: center; gap: 20px;">
+            <div style="width: 52px; height: 52px; border-radius: 12px; background: #fef3c7; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <span class="material-icons" style="font-size: 28px; color: #f59e0b;">apps</span>
+            </div>
+            <div>
+              <p style="font-size: 22px; font-weight: 700; color: #1a1a2e; line-height: 1.3;">4–6 apps running at once = chaos</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Right side: hero image -->
+      <div class="flex-1 flex items-center justify-center" style="padding-left: 8px;">
+        <div style="width: 100%; height: 520px; border-radius: 20px; overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.10);">
+          <img src="https://sfile.chatglm.cn/images-ppt/8b43a4b55f08.jpg" alt="Blinkit delivery riders" class="w-full h-full object-cover">
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <aside data-notes class="hidden">
+    • 15M+ gig workers in India juggle multiple delivery apps daily
+    • 70% miss at least one order every single day due to notification overload
+    • Drivers lose ₹500/day on average from missed opportunities
+    • Running 4–6 apps simultaneously creates constant chaos and burnout
+  </aside>
+</body>
+</html>

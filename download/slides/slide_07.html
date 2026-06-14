@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1280, height=720">
+  <title>Traction & Progress — NotiFetch</title>
+  <link rel="stylesheet" href="global.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; }
+  </style>
+</head>
+<body>
+  <div class="slide" style="width:1280px; height:720px; display:flex; flex-direction:column; padding:64px 80px; background:#FFFFFF; position:relative; overflow:hidden;">
+
+    <!-- Title -->
+    <div style="margin-bottom:40px;">
+      <h1 style="font-family:'Inter',sans-serif; font-size:40px; font-weight:800; color:#1a1a2e; letter-spacing:-0.5px;">
+        What We've Built
+      </h1>
+      <div style="width:64px; height:4px; background:#f59e0b; margin-top:12px; border-radius:2px;"></div>
+    </div>
+
+    <!-- Bento Grid -->
+    <div style="flex:1; display:grid; grid-template-columns:1fr 1fr; grid-template-rows:auto 1fr auto; gap:20px;">
+
+      <!-- Card 1: Android App Live (large, spans 2 cols) -->
+      <div style="grid-column:1 / 3; background:linear-gradient(135deg, #1a1a2e 0%, #2d2d4e 100%); border-radius:16px; padding:28px 36px; display:flex; align-items:center; gap:28px; position:relative; overflow:hidden;">
+        <!-- Decorative accent -->
+        <div data-decor style="position:absolute; top:-40px; right:-40px; width:200px; height:200px; border-radius:50%; background:#f59e0b; opacity:0.08;"></div>
+        <div data-decor style="position:absolute; bottom:-60px; right:80px; width:120px; height:120px; border-radius:50%; background:#f59e0b; opacity:0.05;"></div>
+
+        <!-- Icon -->
+        <div style="flex-shrink:0; width:72px; height:72px; background:#f59e0b; border-radius:18px; display:flex; align-items:center; justify-content:center; box-shadow:0 8px 24px rgba(245,158,11,0.3);">
+          <span class="material-icons" style="font-size:40px; color:#FFFFFF;">phone_android</span>
+        </div>
+        <!-- Content -->
+        <div style="flex:1;">
+          <h2 style="font-size:26px; font-weight:800; color:#FFFFFF; margin-bottom:8px;">Android App Live</h2>
+          <p style="font-size:18px; font-weight:400; color:#d1d5db; line-height:1.5;">
+            Built with native Kotlin, Firebase, Room DB. Available on Google Play Store with active testers.
+          </p>
+        </div>
+        <!-- Live Badge -->
+        <div style="flex-shrink:0; background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.3); border-radius:12px; padding:8px 18px;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <div style="width:8px; height:8px; border-radius:50%; background:#22c55e; box-shadow:0 0 8px rgba(34,197,94,0.5);"></div>
+            <span style="font-size:15px; font-weight:600; color:#f59e0b;">LIVE</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2: 10+ Platforms -->
+      <div style="background:#f9fafb; border:1px solid #e5e7eb; border-radius:16px; padding:28px; display:flex; flex-direction:column; justify-content:center; position:relative;">
+        <div style="position:absolute; top:0; left:0; right:0; height:4px; background:#f59e0b; border-radius:16px 16px 0 0;"></div>
+        <div style="margin-bottom:14px;">
+          <span class="material-icons" style="font-size:34px; color:#f59e0b;">apps</span>
+        </div>
+        <h2 style="font-size:22px; font-weight:800; color:#1a1a2e; margin-bottom:8px;">10+ Platforms</h2>
+        <p style="font-size:17px; font-weight:400; color:#6b7280; line-height:1.5;">
+          Swiggy, Zomato, DoorDash, Uber Eats, and more supported out of the box.
+        </p>
+      </div>
+
+      <!-- Card 3: Secure by Design -->
+      <div style="background:#f9fafb; border:1px solid #e5e7eb; border-radius:16px; padding:28px; display:flex; flex-direction:column; justify-content:center; position:relative;">
+        <div style="position:absolute; top:0; left:0; right:0; height:4px; background:#f59e0b; border-radius:16px 16px 0 0;"></div>
+        <div style="margin-bottom:14px;">
+          <span class="material-icons" style="font-size:34px; color:#f59e0b;">verified_user</span>
+        </div>
+        <h2 style="font-size:22px; font-weight:800; color:#1a1a2e; margin-bottom:8px;">Secure by Design</h2>
+        <p style="font-size:17px; font-weight:400; color:#6b7280; line-height:1.5;">
+          Zero credential storage. Only reads notification content. DPDP Act &amp; GDPR compliant.
+        </p>
+      </div>
+
+      <!-- Card 4: Payment Ready (spans 2 cols) -->
+      <div style="grid-column:1 / 3; background:linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border:2px solid #f59e0b; border-radius:16px; padding:24px 36px; display:flex; align-items:center; gap:24px; position:relative; overflow:hidden;">
+        <div style="flex-shrink:0; width:60px; height:60px; background:#f59e0b; border-radius:16px; display:flex; align-items:center; justify-content:center;">
+          <span class="material-icons" style="font-size:34px; color:#FFFFFF;">payment</span>
+        </div>
+        <div style="flex:1;">
+          <h2 style="font-size:22px; font-weight:800; color:#1a1a2e; margin-bottom:6px;">Payment Ready</h2>
+          <p style="font-size:17px; font-weight:400; color:#374151; line-height:1.5;">
+            Razorpay integration for subscriptions. Pro &amp; Premium tiers ready to launch.
+          </p>
+        </div>
+        <div style="flex-shrink:0; background:#f59e0b; border-radius:10px; padding:8px 16px;">
+          <span style="font-size:14px; font-weight:700; color:#FFFFFF;">READY</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Bottom decorative accent bar -->
+    <div data-decor style="position:absolute; bottom:0; left:0; width:100%; height:4px; background:linear-gradient(90deg, #f59e0b 0%, #FFFFFF 50%, #f59e0b 100%);"></div>
+
+  </div>
+
+  <aside data-notes class="hidden">
+    • App is live on Google Play Store with real active testers — not just a prototype
+    • 10+ platform integrations cover the major Indian and international delivery services
+    • Zero-credential architecture is a key trust differentiator — no login data stored
+    • Razorpay integration means monetization can flip on immediately
+    • DPDP Act & GDPR compliance positions NotiFetch for enterprise and fleet partnerships
+  </aside>
+</body>
+</html>

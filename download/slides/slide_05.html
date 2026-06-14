@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1280, height=720">
+  <title>Business Model — NotiFetch</title>
+  <link rel="stylesheet" href="global.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; }
+  </style>
+</head>
+<body>
+  <div class="slide" style="width:1280px; height:720px; display:flex; flex-direction:column; padding:64px 80px; background:#FFFFFF; position:relative; overflow:hidden;">
+
+    <!-- Title -->
+    <div style="margin-bottom:40px;">
+      <h1 style="font-family:'Inter',sans-serif; font-size:40px; font-weight:800; color:#1a1a2e; letter-spacing:-0.5px;">
+        Freemium That Converts
+      </h1>
+      <div style="width:64px; height:4px; background:#f59e0b; margin-top:12px; border-radius:2px;"></div>
+    </div>
+
+    <!-- Two Column Comparison -->
+    <div style="flex:1; display:flex; gap:40px; align-items:stretch;">
+
+      <!-- LEFT: Free Column -->
+      <div style="flex:1; background:#f9fafb; border:1px solid #e5e7eb; border-radius:16px; padding:40px 36px; display:flex; flex-direction:column;">
+        <!-- Header -->
+        <div style="margin-bottom:32px; text-align:center;">
+          <h2 style="font-size:32px; font-weight:800; color:#6b7280; margin-bottom:8px;">Free</h2>
+          <div style="font-size:16px; color:#9ca3af; font-weight:500;">Get started at no cost</div>
+        </div>
+
+        <!-- Features -->
+        <div style="flex:1; display:flex; flex-direction:column; gap:24px;">
+          <div style="display:flex; align-items:flex-start; gap:14px;">
+            <span class="material-icons" style="font-size:24px; color:#9ca3af; margin-top:2px;">notifications</span>
+            <span style="font-size:20px; color:#374151; line-height:1.5;">10 notifications/day</span>
+          </div>
+          <div style="display:flex; align-items:flex-start; gap:14px;">
+            <span class="material-icons" style="font-size:24px; color:#9ca3af; margin-top:2px;">view_list</span>
+            <span style="font-size:20px; color:#374151; line-height:1.5;">Basic feed view</span>
+          </div>
+          <div style="display:flex; align-items:flex-start; gap:14px;">
+            <span class="material-icons" style="font-size:24px; color:#9ca3af; margin-top:2px;">touch_app</span>
+            <span style="font-size:20px; color:#374151; line-height:1.5;">Manual accept/decline</span>
+          </div>
+        </div>
+
+        <!-- CTA Button -->
+        <div style="margin-top:32px; text-align:center;">
+          <div style="display:inline-block; padding:12px 32px; border:2px solid #d1d5db; border-radius:12px; font-size:18px; font-weight:600; color:#6b7280;">
+            Get Started
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Premium Column -->
+      <div style="flex:1; background:linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border:2px solid #f59e0b; border-radius:16px; padding:40px 36px; display:flex; flex-direction:column; box-shadow:0 8px 40px rgba(245,158,11,0.15); position:relative;">
+        <!-- Recommended Badge -->
+        <div style="position:absolute; top:-14px; right:28px; background:#f59e0b; color:#FFFFFF; font-size:14px; font-weight:700; padding:6px 18px; border-radius:20px; letter-spacing:0.5px;">
+          RECOMMENDED
+        </div>
+
+        <!-- Header -->
+        <div style="margin-bottom:32px; text-align:center;">
+          <h2 style="font-size:32px; font-weight:800; color:#f59e0b; margin-bottom:8px;">Premium</h2>
+          <div style="display:inline-flex; align-items:baseline; gap:4px; background:#f59e0b; color:#FFFFFF; padding:6px 20px; border-radius:24px; margin-top:4px;">
+            <span style="font-size:16px; font-weight:500;">₹</span>
+            <span style="font-size:28px; font-weight:800;">99</span>
+            <span style="font-size:14px; font-weight:500;">/mo</span>
+          </div>
+        </div>
+
+        <!-- Features -->
+        <div style="flex:1; display:flex; flex-direction:column; gap:18px;">
+          <div style="display:flex; align-items:flex-start; gap:14px;">
+            <span class="material-icons" style="font-size:24px; color:#f59e0b; margin-top:2px;">all_inclusive</span>
+            <span style="font-size:20px; color:#374151; line-height:1.5; font-weight:500;">Unlimited notifications</span>
+          </div>
+          <div style="display:flex; align-items:flex-start; gap:14px;">
+            <span class="material-icons" style="font-size:24px; color:#f59e0b; margin-top:2px;">analytics</span>
+            <span style="font-size:20px; color:#374151; line-height:1.5; font-weight:500;">Earnings dashboard + analytics</span>
+          </div>
+          <div style="display:flex; align-items:flex-start; gap:14px;">
+            <span class="material-icons" style="font-size:24px; color:#f59e0b; margin-top:2px;">auto_mode</span>
+            <span style="font-size:20px; color:#374151; line-height:1.5; font-weight:500;">Auto-accept rules</span>
+          </div>
+          <div style="display:flex; align-items:flex-start; gap:14px;">
+            <span class="material-icons" style="font-size:24px; color:#f59e0b; margin-top:2px;">download</span>
+            <span style="font-size:20px; color:#374151; line-height:1.5; font-weight:500;">CSV export + tax reports</span>
+          </div>
+          <div style="display:flex; align-items:flex-start; gap:14px;">
+            <span class="material-icons" style="font-size:24px; color:#f59e0b; margin-top:2px;">priority_high</span>
+            <span style="font-size:20px; color:#374151; line-height:1.5; font-weight:500;">Priority alerts</span>
+          </div>
+          <div style="display:flex; align-items:flex-start; gap:14px;">
+            <span class="material-icons" style="font-size:24px; color:#f59e0b; margin-top:2px;">devices</span>
+            <span style="font-size:20px; color:#374151; line-height:1.5; font-weight:500;">Multi-device sync</span>
+          </div>
+        </div>
+
+        <!-- CTA Button -->
+        <div style="margin-top:32px; text-align:center;">
+          <div style="display:inline-block; padding:12px 32px; background:#f59e0b; border-radius:12px; font-size:18px; font-weight:700; color:#FFFFFF; box-shadow:0 4px 16px rgba(245,158,11,0.3);">
+            Upgrade Now
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Bottom Text -->
+    <div style="text-align:center; margin-top:32px;">
+      <p style="font-size:20px; font-weight:600; color:#1a1a2e; line-height:1.5;">
+        Free tier drives adoption. <span style="color:#f59e0b;">Premium drives revenue.</span>
+      </p>
+    </div>
+
+  </div>
+
+  <aside data-notes class="hidden">
+    • Free tier capped at 10 notifications/day — enough to demonstrate value, creates upgrade urgency
+    • Premium at ₹99/mo is affordable for gig workers earning ₹500-800/day
+    • Auto-accept rules and earnings dashboard are the key premium differentiators
+    • Multi-device sync appeals to drivers who switch between phones
+    • Conversion target: 8-12% of free users within 30 days
+  </aside>
+</body>
+</html>

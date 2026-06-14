@@ -1,0 +1,75 @@
+{
+  "design": {
+    "title": "NotiFetch — Sponsor Pitch Deck",
+    "style_name": "Clean White Minimal",
+    "palette": {"background": "#FFFFFF", "primary": "#1a1a2e", "accent": "#f59e0b"},
+    "typography": {"heading": "Inter", "body": "Inter", "numeric": "Inter"},
+    "reference": "Apple Keynote meets Notion — clean white with amber accents"
+  },
+  "global_css_path": "/home/z/my-project/download/slides/global.css",
+  "slides_dir": "/home/z/my-project/download/slides",
+  "language": "en",
+  "speaker_notes": "short",
+  "slides": [
+    {
+      "title": "Cover",
+      "layout": "cover",
+      "output_path": "/home/z/my-project/download/slides/slide_01.html",
+      "task_brief": "Cover slide. Logo text 'NotiFetch' in large bold Inter font with amber accent color on the 'Fetch'. Tagline below: 'One Feed. All Notifications. Zero Credentials.' Subtitle: 'A Sponsorship Opportunity'. Background: subtle amber gradient accent bar on left side. Hero image: https://sfile.chatglm.cn/images-ppt/4f04293222c2.jpg (delivery rider) as a faded background element on the right side with overlay. Speaker notes: short bullet hints."
+    },
+    {
+      "title": "The Problem",
+      "layout": "split_text+image",
+      "output_path": "/home/z/my-project/download/slides/slide_02.html",
+      "task_brief": "Title: 'The Problem'. Left side text: 'India has 15M+ gig workers juggling 4-6 delivery apps simultaneously. They miss orders. They lose money. They burn out.' Three stat cards stacked vertically: 1) '70% of drivers miss at least 1 order daily' with amber accent icon, 2) '₹500/day lost to missed notifications' with amber accent, 3) '4-6 apps running at once = chaos' with amber accent. Right side: hero image https://sfile.chatglm.cn/images-ppt/8b43a4b55f08.jpg (blinkit delivery riders). Speaker notes: short."
+    },
+    {
+      "title": "The Solution — NotiFetch",
+      "layout": "split_text+image",
+      "output_path": "/home/z/my-project/download/slides/slide_03.html",
+      "task_brief": "Title: 'The Solution'. Left side: 'NotiFetch aggregates ALL delivery app notifications into ONE smart feed.' Four feature bullets with icons: 1) 'Smart Notification Feed — every order in one place', 2) 'Earnings Dashboard — track income across platforms', 3) 'Auto-Accept Rules — never miss a high-value order', 4) 'CSV Export — tax-ready reports in one tap'. Right side: mockup image https://sfile.chatglm.cn/images-ppt/7c1acb660116.png (dashboard analytics). Speaker notes: short."
+    },
+    {
+      "title": "How It Works",
+      "layout": "timeline",
+      "output_path": "/home/z/my-project/download/slides/slide_04.html",
+      "task_brief": "Title: 'How It Works'. Three-step horizontal timeline with numbered circles (1, 2, 3) in amber: Step 1: 'Install & Grant Access' — NotiFetch reads notifications from all delivery apps, Step 2: 'Smart Aggregation' — AI filters, categorizes, and prioritizes every order, Step 3: 'Earn More' — Auto-accept best orders, track earnings, export data. Arrow connectors between steps. Clean white background. Speaker notes: short."
+    },
+    {
+      "title": "Business Model",
+      "layout": "comparison",
+      "output_path": "/home/z/my-project/download/slides/slide_05.html",
+      "task_brief": "Title: 'Freemium That Converts'. Two-column comparison. LEFT column header 'Free' in gray: '10 notifications/day', 'Basic feed view', 'Manual accept/decline'. RIGHT column header 'Premium' in amber with ₹99/mo badge: 'Unlimited notifications', 'Earnings dashboard + analytics', 'Auto-accept rules', 'CSV export + tax reports', 'Priority alerts', 'Multi-device sync'. Premium column has a subtle amber glow border. Bottom text: 'Free tier drives adoption. Premium drives revenue.' Speaker notes: short."
+    },
+    {
+      "title": "Market Opportunity",
+      "layout": "stats",
+      "output_path": "/home/z/my-project/download/slides/slide_06.html",
+      "task_brief": "Title: 'The Market Is Massive'. Four large stat cards in a 2x2 grid: Card 1: '15M+' label 'Gig Workers in India', Card 2: '₹4.5 Cr' label 'Daily Lost Revenue from Missed Orders', Card 3: '4.2x' label 'App Usage Increase Since 2022', Card 4: '$12B' label 'Indian Food Delivery Market by 2027'. Each card has amber accent top border. Source note at bottom: 'Sources: NITI Aayog, RedSeer, Statista'. Background image faded: https://sfile.chatglm.cn/images-ppt/61052d7228a7.png (motorcycle traffic). Speaker notes: short."
+    },
+    {
+      "title": "Traction & Progress",
+      "layout": "bento_grid",
+      "output_path": "/home/z/my-project/download/slides/slide_07.html",
+      "task_brief": "Title: 'What We've Built'. Bento grid layout with 4 cards: Card 1 (large, spans 2 cols): 'Android App Live' — 'Built with native Kotlin, Firebase, Room DB. Available on Google Play Store with active testers.' Card 2: '10+ Platforms' — 'Swiggy, Zomato, DoorDash, Uber Eats, and more supported out of the box.' Card 3: 'Secure by Design' — 'Zero credential storage. Only reads notification content. DPDP Act & GDPR compliant.' Card 4: 'Payment Ready' — 'Razorpay integration for subscriptions. Pro & Premium tiers ready to launch.' Speaker notes: short."
+    },
+    {
+      "title": "What We Need",
+      "layout": "key_message",
+      "output_path": "/home/z/my-project/download/slides/slide_08.html",
+      "task_brief": "Title: 'What We Need From You'. Three key asks with amber numbered badges: 1) 'Sponsorship Capital' — 'To scale marketing, onboard 100K+ drivers, and expand to 50+ cities', 2) 'Industry Access' — 'Your network opens doors to delivery platforms, driver communities, and fleet operators', 3) 'Credibility' — 'Your backing signals trust to drivers, investors, and partners'. Bottom: bold text 'In return: First-mover advantage in the driver productivity space.' Speaker notes: short."
+    },
+    {
+      "title": "The Ask",
+      "layout": "key_message",
+      "output_path": "/home/z/my-project/download/slides/slide_09.html",
+      "task_brief": "Title: 'Let's Build This Together'. Center-focused layout. Large amber quote box: 'We're not asking for a donation. We're offering a partnership in a product that 15 million drivers already need.' Below: Two columns — LEFT: 'What You Get' — 'Brand visibility across 15M+ drivers, Data insights from gig economy, First access to driver intelligence platform, Tax-saving tool for your fleet'. RIGHT: 'Next Steps' — '1. Intro meeting (15 min), 2. Product demo, 3. Pilot with your network, 4. Scale together'. Image: https://sfile.chatglm.cn/images-ppt/cb6614f98736.jpg (handshake) as background element faded. Speaker notes: short."
+    },
+    {
+      "title": "Closing",
+      "layout": "closing",
+      "output_path": "/home/z/my-project/download/slides/slide_10.html",
+      "task_brief": "Closing slide. Center-aligned. Large 'NotiFetch' text in bold Inter with amber accent. Below: 'One Feed. All Notifications. Zero Credentials.' Contact info: 'yashask2006@gmail.com' and 'notifetch.in'. Amber accent line divider. Minimal, clean white. Speaker notes: short."
+    }
+  ]
+}
