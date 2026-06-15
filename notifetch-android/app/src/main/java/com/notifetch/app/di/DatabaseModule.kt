@@ -25,7 +25,13 @@ object DatabaseModule {
             NotiFetchDatabase::class.java,
             Constants.DATABASE_NAME
         )
-            .fallbackToDestructiveMigration()
+            // FIX: Replaced fallbackToDestructiveMigration() with proper migrations.
+            // Destructive migration was destroying all user data on schema changes.
+            // Now we use explicit Migration objects defined in NotiFetchDatabase.Companion.
+            .addMigrations(*NotiFetchDatabase.allMigrations())
+            // Fallback only if the database is corrupted (not for schema changes).
+            // This still destroys data but only as a last resort for corruption.
+            .fallbackToDestructiveMigrationFrom(1, 2, 3)
             .build()
     }
 

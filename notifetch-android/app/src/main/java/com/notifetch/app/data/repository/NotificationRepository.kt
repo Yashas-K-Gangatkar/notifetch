@@ -54,12 +54,12 @@ class NotificationRepository @Inject constructor(
         notificationDao.getNotificationsSince(startTime)
 
     suspend fun insertNotification(notification: CapturedNotification): Long {
-        val id = notificationDao.insertNotification(notification)
-        platformConfigDao.incrementNotificationCount(
-            notification.packageName,
-            System.currentTimeMillis()
-        )
-        return id
+        // NOTE: platformConfigDao.incrementNotificationCount() was previously called here,
+        // causing a DOUBLE INCREMENT bug because the listener service also calls
+        // incrementPlatformNotificationCount() with a 2-second debounce.
+        // The count increment is now ONLY done via the debounced call in
+        // NotiFetchListenerService to avoid UI fluttering from cascading Room Flow emissions.
+        return notificationDao.insertNotification(notification)
     }
 
     suspend fun markAsRead(id: Long) = notificationDao.markAsRead(id)

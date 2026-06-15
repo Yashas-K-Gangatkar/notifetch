@@ -103,8 +103,15 @@ class NotiFetchListenerService : NotificationListenerService() {
     override fun onNotificationPosted(sbn: StatusBarNotification) {
         val packageName = sbn.packageName
 
+        // Log ALL incoming notifications for diagnostics (helps debug OEM-specific capture issues)
+        Log.d(tag, "Received notification from: $packageName")
+
         // Filter: only process notifications from partner apps
-        val platformName = Constants.ALL_PACKAGES[packageName] ?: return
+        val platformName = Constants.ALL_PACKAGES[packageName]
+        if (platformName == null) {
+            // Not a tracked package — skip silently (reduce log noise)
+            return
+        }
 
         val source = Constants.ALL_PLATFORM_SOURCES[packageName] ?: packageName.replace(".", "_")
 

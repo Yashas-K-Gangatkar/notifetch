@@ -4,15 +4,18 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavType
@@ -34,26 +37,18 @@ import com.notifetch.app.ui.theme.NotiFetchTheme
 import com.notifetch.app.ui.viewmodel.SettingsViewModel
 import com.notifetch.app.data.repository.dataStore
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.runBlocking
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        val savedDarkMode = runCatching {
-            runBlocking {
-                val prefs = this@MainActivity.dataStore.data.first()
-                prefs[SettingsViewModel.DARK_MODE_KEY] ?: false
-            }
-        }.getOrDefault(false)
-
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             val activityContext = this@MainActivity
-            var darkMode by remember { mutableStateOf(savedDarkMode) }
+            // FIX: Removed runBlocking on main thread (was causing ANR on slow devices).
+            // Instead, default to false (light mode) and update asynchronously via LaunchedEffect.
+            var darkMode by remember { mutableStateOf(false) }
             LaunchedEffect(Unit) {
                 activityContext.dataStore.data.map { prefs ->
                     prefs[SettingsViewModel.DARK_MODE_KEY] ?: false
