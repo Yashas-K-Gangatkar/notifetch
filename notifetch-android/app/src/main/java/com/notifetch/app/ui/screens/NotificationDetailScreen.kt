@@ -1,6 +1,7 @@
 package com.notifetch.app.ui.screens
 
 import android.content.Intent
+import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -188,7 +189,7 @@ fun NotificationDetailScreen(
                             } else {
                                 // App not installed — open Play Store
                                 val playStoreIntent = Intent(Intent.ACTION_VIEW).apply {
-                                    data = android.net.Uri.parse("market://details?id=${notification.packageName}")
+                                    data = Uri.parse("market://details?id=${notification.packageName}")
                                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                                 }
                                 context.startActivity(playStoreIntent)

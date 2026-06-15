@@ -62,15 +62,37 @@ import com.notifetch.app.notification.NotiFetchListenerService
 import com.notifetch.app.ui.components.PlatformIcon
 import com.notifetch.app.ui.theme.getPlatformColor
 import com.notifetch.app.ui.viewmodel.SettingsViewModel
+import com.notifetch.app.util.Constants
 import com.notifetch.app.util.Helpers
-import android.content.pm.PackageManager
+import android.content.Intent
+import android.net.Uri
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material.icons.filled.CloudDone
+import androidx.compose.material.icons.filled.CloudOff
+import androidx.compose.material.icons.filled.DeleteForever
+import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.Gavel
+import androidx.compose.material.icons.filled.Login
+import androidx.compose.material.icons.filled.Logout
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.PrivacyTip
+import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.OutlinedButton
+import com.notifetch.app.ui.viewmodel.ProfileViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
-    viewModel: SettingsViewModel = hiltViewModel()
+    viewModel: SettingsViewModel = hiltViewModel(),
+    profileViewModel: ProfileViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val profileState by profileViewModel.uiState.collectAsState()
     val context = LocalContext.current
 
     // Refresh listener status when screen appears (BUG #9 fix)
@@ -78,9 +100,18 @@ fun SettingsScreen(
         viewModel.refreshListenerStatus()
     }
 
-    // State for the rename dialog
+    // State for dialogs
     var showRenameDialog by remember { mutableStateOf(false) }
     var renamingPlatform by remember { mutableStateOf<PlatformConfig?>(null) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
+    var showSignOutDialog by remember { mutableStateOf(false) }
+
+    // Google Sign-In launcher
+    val googleSignInLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        profileViewModel.handleGoogleSignInResult(result)
+    }
 
     Column(
         modifier = Modifier
@@ -412,8 +443,236 @@ fun SettingsScreen(
                 }
             }
 
-            item { Spacer(modifier = Modifier.height(16.dp)) }
+            // ── Account Section (migrated from Profile) ──────────────
+            item {
+                Text(
+                    text = "Account",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
+                )
+            }
+
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = if (profileState.isSignedIn)
+                            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+                        else
+                            MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.3f)
+                    )
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = if (profileState.isSignedIn) Icons.Default.CloudDone else Icons.Default.CloudOff,
+                            contentDescription = null,
+                            tint = if (profileState.isSignedIn) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
+                            modifier = Modifier.size(28.dp)
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = when {
+                                    profileState.isSignedIn && !profileState.isAnonymous -> profileState.userDisplayName ?: "Signed In"
+                                    profileState.isSignedIn && profileState.isAnonymous -> "Connected (Anonymous)"
+                                    else -> "Not Signed In"
+                                },
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                            Text(
+                                text = when {
+                                    profileState.isSignedIn && !profileState.isAnonymous -> "Signed in with Google. Notifications sync across devices."
+                                    profileState.isSignedIn && profileState.isAnonymous -> "Connected anonymously. Sign in for full sync."
+                                    else -> "Sign in to sync notifications across devices"
+                                },
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                }
+            }
+
+            // Sign in/out buttons
+            item {
+                if (profileState.isSigningIn) {
+                    Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(16.dp),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            CircularProgressIndicator(modifier = Modifier.size(20.dp), color = MaterialTheme.colorScheme.primary)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Signing in...", style = MaterialTheme.typography.bodyMedium)
+                        }
+                    }
+                } else if (!profileState.isSignedIn || profileState.isAnonymous) {
+                    Button(
+                        onClick = {
+                            val signInIntent = profileViewModel.getSignInIntent()
+                            googleSignInLauncher.launch(signInIntent)
+                        },
+                        modifier = Modifier.fillMaxWidth().height(48.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                    ) {
+                        Icon(Icons.Default.Login, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Continue with Google", fontWeight = FontWeight.SemiBold)
+                    }
+                } else {
+                    OutlinedButton(
+                        onClick = { showSignOutDialog = true },
+                        modifier = Modifier.fillMaxWidth().height(48.dp),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Icon(Icons.Default.Logout, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Sign Out")
+                    }
+                }
+            }
+
+            // ── Data Rights Section (GDPR + DPDP Act) ────────────────
+            item {
+                Text(
+                    text = "Your Data Rights",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
+                )
+            }
+
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(
+                            text = "Under India DPDP Act 2023 and EU GDPR, you have the right to access, export, and delete all your data at any time.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        OutlinedButton(
+                            onClick = {
+                                try {
+                                    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("${Constants.BASE_URL}dashboard/settings")))
+                                } catch (e: Exception) {
+                                    Toast.makeText(context, "Please visit ${Constants.BASE_URL} to export your data", Toast.LENGTH_LONG).show()
+                                }
+                            },
+                            modifier = Modifier.fillMaxWidth().height(44.dp),
+                            shape = RoundedCornerShape(10.dp)
+                        ) {
+                            Icon(Icons.Default.Download, contentDescription = null, modifier = Modifier.size(16.dp))
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text("Export My Data")
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Button(
+                            onClick = { showDeleteDialog = true },
+                            modifier = Modifier.fillMaxWidth().height(44.dp),
+                            shape = RoundedCornerShape(10.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                        ) {
+                            Icon(Icons.Default.DeleteForever, contentDescription = null, modifier = Modifier.size(16.dp))
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text("Delete All My Data")
+                        }
+                    }
+                }
+            }
+
+            // ── Legal Section ────────────────────────────────────────
+            item {
+                Text(
+                    text = "Legal",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
+                )
+            }
+
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.2f)
+                    )
+                ) {
+                    Column(modifier = Modifier.padding(4.dp)) {
+                        LegalLinkRow(icon = Icons.Default.PrivacyTip, label = "Privacy Policy", subtitle = "DPDP Act 2023 & GDPR compliant") {
+                            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("${Constants.BASE_URL}privacy")))
+                        }
+                        LegalLinkRow(icon = Icons.Default.Gavel, label = "Terms of Service", subtitle = "Including platform ToS disclaimer") {
+                            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("${Constants.BASE_URL}terms")))
+                        }
+                        LegalLinkRow(icon = Icons.Default.Shield, label = "No Affiliation Notice", subtitle = "NotiFetch is not affiliated with any delivery platform") {
+                            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("${Constants.BASE_URL}terms#no-affiliation")))
+                        }
+                    }
+                }
+            }
+
+            item { Spacer(modifier = Modifier.height(24.dp)) }
         }
+    }
+
+    // Delete confirmation dialog
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text("Delete All Data?") },
+            text = {
+                Text("This will permanently delete all your captured notifications from this device and request deletion from our servers. This action cannot be undone. We recommend exporting your data first.")
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        profileViewModel.deleteAllData()
+                        showDeleteDialog = false
+                    },
+                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
+                ) { Text("Delete Everything") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteDialog = false }) { Text("Cancel") }
+            }
+        )
+    }
+
+    // Sign out confirmation dialog
+    if (showSignOutDialog) {
+        AlertDialog(
+            onDismissRequest = { showSignOutDialog = false },
+            title = { Text("Sign Out?") },
+            text = { Text("You will be signed out. You can sign in again anytime.") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        profileViewModel.signOut()
+                        showSignOutDialog = false
+                    },
+                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
+                ) { Text("Sign Out") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showSignOutDialog = false }) { Text("Cancel") }
+            }
+        )
     }
 
     // Rename dialog
@@ -529,6 +788,34 @@ private fun PlatformNameCard(
                 checked = config.isEnabled,
                 onCheckedChange = onToggle
             )
+        }
+    }
+}
+
+@Composable
+private fun LegalLinkRow(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    label: String,
+    subtitle: String,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.tertiary,
+            modifier = Modifier.size(20.dp)
+        )
+        Spacer(modifier = Modifier.width(12.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(text = label, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
+            Text(text = subtitle, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }
