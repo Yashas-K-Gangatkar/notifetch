@@ -24,6 +24,7 @@ import androidx.navigation.navArgument
 import com.notifetch.app.notification.NotiFetchListenerService
 import com.notifetch.app.ui.components.NotiFetchScaffold
 import com.notifetch.app.ui.screens.ConsentScreen
+import com.notifetch.app.ui.screens.EarningsScreen
 import com.notifetch.app.ui.screens.hasConsented
 import com.notifetch.app.ui.screens.HomeScreen
 import com.notifetch.app.ui.screens.NotificationDetailScreen
@@ -98,7 +99,7 @@ fun NotiFetchNavHost() {
         return
     }
 
-    val showBottomBar = currentRoute in listOf("home", "settings", "profile")
+    val showBottomBar = currentRoute in listOf("home", "earnings", "settings", "profile")
 
     NotiFetchScaffold(
         currentRoute = currentRoute,
@@ -179,6 +180,10 @@ fun NotiFetchNavHost() {
                 NotificationDetailScreen(
                     onNavigateBack = { navController.popBackStack() }
                 )
+            }
+
+            composable("earnings") {
+                EarningsScreen()
             }
 
             composable("settings") {

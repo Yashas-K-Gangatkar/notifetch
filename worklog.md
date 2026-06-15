@@ -43,3 +43,31 @@ Stage Summary:
 - Debug: /home/z/my-project/download/NotiFetch-v2.5.0-vc19-debug.apk (27 MB)
 - Crashlytics mapping: /home/z/my-project/download/crashlytics-mapping-v2.5.0.txt
 - assetlinks.json created for both app assets and web hosting
+
+## [2026-03-05] Freemium Implementation — Task ID: freemium-implementation
+
+### Summary
+Implemented freemium model in NotiFetch Android app with paywall dialogs, Earnings screen, premium gating on Home screen, and Earnings tab in bottom navigation.
+
+### Files Created
+1. **`app/src/main/java/com/notifetch/app/ui/components/PaywallDialog.kt`** — Reusable Material3 AlertDialog showing premium upgrade prompt with Pro (₹99/mo) and Premium (₹199/mo) tiers, amber/orange branding, and sign-in requirement note.
+
+2. **`app/src/main/java/com/notifetch/app/ui/screens/EarningsScreen.kt`** — Full Earnings screen with gradient app bar, subscription tier badge, earnings stats (today/week/month) with blur overlay for free users, lock/unlock CTA, platform breakdown (premium only), and payment status indicators.
+
+### Files Modified
+3. **`app/src/main/java/com/notifetch/app/ui/components/NotiFetchScaffold.kt`** — Added Earnings tab (AccountBalanceWallet icon) between Home and Settings in `bottomNavItems`.
+
+4. **`app/src/main/java/com/notifetch/app/MainActivity.kt`** — Added `EarningsScreen` import, added "earnings" to `showBottomBar` route list, added `composable("earnings") { EarningsScreen() }` route.
+
+5. **`app/src/main/java/com/notifetch/app/ui/screens/HomeScreen.kt`** — Added freemium gating:
+   - Export button locked behind premium (shows PaywallDialog)
+   - Daily notification limit banner (10 notifications) for free users
+   - PaywallDialog integrated with EarningsViewModel for payment flow
+   - Added imports: Activity, PaywallDialog, EarningsViewModel, FilledTonalButton, ButtonDefaults, sp
+
+6. **`app/build.gradle.kts`** — Bumped versionCode 20→23, versionName "2.5.1"→"2.7.0"
+
+### Build Verification
+- `compileReleaseKotlin` — **SUCCESS** (0 errors, only pre-existing deprecation warnings)
+- `assembleRelease` — Failed on keystore (environment issue, not code)
+- All new code compiles cleanly without errors
