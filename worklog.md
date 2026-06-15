@@ -71,3 +71,34 @@ Implemented freemium model in NotiFetch Android app with paywall dialogs, Earnin
 - `compileReleaseKotlin` — **SUCCESS** (0 errors, only pre-existing deprecation warnings)
 - `assembleRelease` — Failed on keystore (environment issue, not code)
 - All new code compiles cleanly without errors
+
+---
+Task ID: closed-testing-prep
+Agent: Main Agent
+Task: Prepare NotiFetch for Google Play Store closed testing release
+
+Work Log:
+- Built release AAB (9.7 MB) and APK (8.1 MB) using full JDK 21 from /home/z/my-project/jdk/
+- Files: NotiFetch-v2.7.0-vc23-release.aab, NotiFetch-v2.7.0-vc23-release.apk
+- Generated Play Store feature graphic (1024x500) and 5 phone screenshots (1080x2400) using Python/Pillow
+- Screenshot themes: Dashboard, Earnings, Permissions, Settings, Platforms
+- Updated play-store/listing.md privacy policy URL from d2-liart-nine.vercel.app to www.notifetch.in/privacy
+- Created comprehensive Closed Testing Guide document (DOCX) covering:
+  - Google Play requirements breakdown (publish AAB, 12 testers, 14-day period)
+  - Step-by-step Play Console setup guide
+  - Tester onboarding instructions
+  - Structured testing checklist with 10 feature areas
+  - Feedback collection channels and template
+  - Release notes for v2.7.0
+  - Tester recruitment strategies (personal network, online communities, social media, tester services)
+  - 15-slot tester email list template
+  - Pre-submission compliance checklist (19 items)
+  - Post-testing production release guide
+
+Stage Summary:
+- Release AAB ready for upload: /home/z/my-project/download/NotiFetch-v2.7.0-vc23-release.aab
+- Release APK: /home/z/my-project/download/NotiFetch-v2.7.0-vc23-release.apk
+- Play Store assets: /home/z/my-project/download/play-store-assets/ (6 PNG files)
+- Closed Testing Guide: /home/z/my-project/download/NotiFetch-Closed-Testing-Guide.docx
+- Keystore SHA-256: 8D:30:53:71:82:93:57:32:26:76:0A:A0:54:96:24:69:39:9E:45:20:F5:4D:95:74:A8:DC:87:3B:BF:E8:88:65
+- All postcheck validations passed (0 errors, 1 expected warning for cover title line spacing)

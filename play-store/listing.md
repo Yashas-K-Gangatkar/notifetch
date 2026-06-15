@@ -132,10 +132,10 @@ Rationale: The app does not contain violence, sexual content, profanity, control
 ## Privacy Policy URL
 
 ```
-https://d2-liart-nine.vercel.app/privacy
+https://www.notifetch.in/privacy
 ```
 
-> ⚠️ **TODO**: Ensure the `/privacy` route serves a complete privacy policy before Play Store submission. See `play-store/privacy-policy.md` for the full policy content.
+> ✅ Privacy policy is live at `/privacy` route on notifetch.in
 
 ---
 
