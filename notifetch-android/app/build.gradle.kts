@@ -15,7 +15,6 @@ val localProps = Properties().apply {
     val file = rootProject.file("local.properties")
     if (file.exists()) load(file.inputStream())
 }
-val razorpayKey: String = localProps.getProperty("RAZORPAY_KEY", "rzp_test_YourTestKeyHere")
 
 android {
     namespace = "com.notifetch.app"
@@ -25,15 +24,14 @@ android {
         applicationId = "com.notifetch.app"
         minSdk = 24
         targetSdk = 35
-        versionCode = 23
-        versionName = "2.7.0"
+        versionCode = 24
+        versionName = "2.8.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         // BuildConfig fields — secrets read from local.properties (not hardcoded)
         buildConfigField("String", "BASE_URL", "\"https://www.notifetch.in/\"")
         buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"895827826409-4k5eqvhsve0n3504tk6lb62ijbkhsi7o.apps.googleusercontent.com\"")
-        buildConfigField("String", "RAZORPAY_KEY", "\"$razorpayKey\"")
     }
 
     signingConfigs {
@@ -148,6 +146,4 @@ dependencies {
     // Coroutines
     implementation(libs.kotlinx.coroutines.android)
 
-    // Razorpay
-    implementation(libs.razorpay)
 }

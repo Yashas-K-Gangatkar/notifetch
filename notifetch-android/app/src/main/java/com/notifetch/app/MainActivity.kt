@@ -29,7 +29,6 @@ import com.notifetch.app.ui.screens.hasConsented
 import com.notifetch.app.ui.screens.HomeScreen
 import com.notifetch.app.ui.screens.NotificationDetailScreen
 import com.notifetch.app.ui.screens.PermissionScreen
-import com.notifetch.app.ui.screens.ProfileScreen
 import com.notifetch.app.ui.screens.SettingsScreen
 import com.notifetch.app.ui.theme.NotiFetchTheme
 import com.notifetch.app.ui.viewmodel.SettingsViewModel
@@ -43,8 +42,6 @@ import kotlinx.coroutines.runBlocking
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        // Read dark mode preference synchronously BEFORE setContent to prevent
-        // the light→dark flash on cold start (BUG #6 fix).
         val savedDarkMode = runCatching {
             runBlocking {
                 val prefs = this@MainActivity.dataStore.data.first()
@@ -56,7 +53,6 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val activityContext = this@MainActivity
-            // Observe dark mode changes while the activity is alive
             var darkMode by remember { mutableStateOf(savedDarkMode) }
             LaunchedEffect(Unit) {
                 activityContext.dataStore.data.map { prefs ->
@@ -83,7 +79,6 @@ fun NotiFetchNavHost() {
     val context = LocalContext.current
     var startDestination by remember { mutableStateOf<String?>(null) }
 
-    // Check consent and notification status to determine start destination
     LaunchedEffect(Unit) {
         val consented = hasConsented(context)
         val listenerEnabled = NotiFetchListenerService.isListenerEnabled(context)
@@ -95,19 +90,15 @@ fun NotiFetchNavHost() {
     }
 
     if (startDestination == null) {
-        // Loading state while checking consent
         return
     }
 
-    val showBottomBar = currentRoute in listOf("home", "earnings", "settings", "profile")
+    val showBottomBar = currentRoute in listOf("home", "earnings", "settings")
 
     NotiFetchScaffold(
         currentRoute = currentRoute,
         onNavigate = { route ->
             navController.navigate(route) {
-                // Pop up to "home" instead of the dynamic startDestination.
-                // This prevents showing consent/permission screens when navigating
-                // via bottom bar after the user has already passed them (BUG #20 fix).
                 popUpTo("home") {
                     saveState = true
                 }
@@ -122,11 +113,9 @@ fun NotiFetchNavHost() {
             startDestination = startDestination!!,
             modifier = Modifier.fillMaxSize()
         ) {
-            // ── Consent screen (FIRST — shown before any data collection) ──
             composable("consent") {
                 ConsentScreen(
                     onConsentGranted = {
-                        // User gave informed consent — now check notification permission
                         val isEnabled = NotiFetchListenerService.isListenerEnabled(context)
                         if (isEnabled) {
                             navController.navigate("home") {
@@ -139,14 +128,11 @@ fun NotiFetchNavHost() {
                         }
                     },
                     onDeclined = {
-                        // User declined consent — close the app
-                        // (Can't collect data without consent — DPDP Act & GDPR)
                         (context as? ComponentActivity)?.finish()
                     }
                 )
             }
 
-            // ── Permission screen (notification access) ──
             composable("permission") {
                 PermissionScreen(
                     onPermissionGranted = {
@@ -157,7 +143,6 @@ fun NotiFetchNavHost() {
                 )
             }
 
-            // ── Main screens ──
             composable("home") {
                 HomeScreen(
                     onNavigateToDetail = { id ->
@@ -188,10 +173,6 @@ fun NotiFetchNavHost() {
 
             composable("settings") {
                 SettingsScreen()
-            }
-
-            composable("profile") {
-                ProfileScreen()
             }
         }
     }

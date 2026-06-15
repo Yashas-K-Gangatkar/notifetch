@@ -23,20 +23,6 @@ interface NotiFetchApi {
         @Body payload: AuthPayload
     ): AuthResponse
 
-    // ── Razorpay Payment Endpoints ──────────────────────────────────────────
-
-    @POST("api/payments/create-order")
-    suspend fun createOrder(
-        @Header("Authorization") authHeader: String,
-        @Body payload: CreateOrderPayload
-    ): CreateOrderResponse
-
-    @POST("api/payments/verify")
-    suspend fun verifyPayment(
-        @Header("Authorization") authHeader: String,
-        @Body payload: VerifyPaymentPayload
-    ): VerifyPaymentResponse
-
     @POST("api/fcm/register")
     suspend fun registerFcmToken(
         @Header("Authorization") authHeader: String,

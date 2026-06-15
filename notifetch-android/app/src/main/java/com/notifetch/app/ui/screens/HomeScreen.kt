@@ -80,13 +80,11 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.notifetch.app.notification.NotiFetchListenerService
 import com.notifetch.app.ui.components.NotificationCard
-import com.notifetch.app.ui.components.PaywallDialog
 import com.notifetch.app.ui.components.SearchBar
 import com.notifetch.app.ui.components.StatCard
 import com.notifetch.app.ui.theme.BrandGradientEnd
 import com.notifetch.app.ui.theme.BrandGradientStart
 import com.notifetch.app.ui.theme.getPlatformColor
-import com.notifetch.app.ui.viewmodel.EarningsViewModel
 import com.notifetch.app.ui.viewmodel.HomeViewModel
 import com.notifetch.app.util.Helpers
 import com.notifetch.app.util.UserMode
@@ -102,11 +100,6 @@ fun HomeScreen(
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
 
-    // Freemium state
-    val earningsViewModel: EarningsViewModel = hiltViewModel()
-    val earningsState by earningsViewModel.uiState.collectAsState()
-    var showPaywall by remember { mutableStateOf(false) }
-    var paywallFeature by remember { mutableStateOf("") }
 
     // Check notification listener status and navigate to permission if needed.
     // Uses a flag to prevent navigation loops (BUG #18 cleanup).
@@ -165,18 +158,13 @@ fun HomeScreen(
                 actions = {
                     if (uiState.notifications.isNotEmpty()) {
                         IconButton(onClick = {
-                            if (!earningsState.isPremium) {
-                                paywallFeature = "Export"
-                                showPaywall = true
-                            } else {
-                                val csv = viewModel.exportNotificationsAsCsv()
-                                val intent = Intent(Intent.ACTION_SEND).apply {
-                                    type = "text/csv"
-                                    putExtra(Intent.EXTRA_TEXT, csv)
-                                    putExtra(Intent.EXTRA_SUBJECT, "NotiFetch ${uiState.userMode.name} Notifications Export")
-                                }
-                                context.startActivity(Intent.createChooser(intent, "Export Notifications"))
+                            val csv = viewModel.exportNotificationsAsCsv()
+                            val intent = Intent(Intent.ACTION_SEND).apply {
+                                type = "text/csv"
+                                putExtra(Intent.EXTRA_TEXT, csv)
+                                putExtra(Intent.EXTRA_SUBJECT, "NotiFetch ${uiState.userMode.name} Notifications Export")
                             }
+                            context.startActivity(Intent.createChooser(intent, "Export Notifications"))
                         }) {
                             Icon(
                                 imageVector = Icons.Default.FileDownload,
@@ -419,47 +407,6 @@ fun HomeScreen(
                     }
                 }
 
-                // Daily limit banner for free users
-                if (!earningsState.isPremium && uiState.todayCount >= 10) {
-                    item {
-                        Card(
-                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-                            shape = RoundedCornerShape(12.dp),
-                            colors = CardDefaults.cardColors(
-                                containerColor = Color(0xFFFFF8E1)
-                            )
-                        ) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth().padding(16.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(
-                                    Icons.Default.NotificationsActive,
-                                    contentDescription = null,
-                                    tint = Color(0xFFFF8F00),
-                                    modifier = Modifier.size(24.dp)
-                                )
-                                Spacer(modifier = Modifier.width(12.dp))
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text("Daily limit reached", fontWeight = FontWeight.Bold, color = Color(0xFFE65100))
-                                    Text("You've seen 10 notifications today. Upgrade for unlimited.", style = MaterialTheme.typography.bodySmall, color = Color(0xFF795548))
-                                }
-                                FilledTonalButton(
-                                    onClick = {
-                                        paywallFeature = "Unlimited Notifications"
-                                        showPaywall = true
-                                    },
-                                    colors = ButtonDefaults.filledTonalButtonColors(
-                                        containerColor = Color(0xFFFF8F00),
-                                        contentColor = Color.White
-                                    )
-                                ) {
-                                    Text("Upgrade", fontWeight = FontWeight.Bold, fontSize = 12.sp)
-                                }
-                            }
-                        }
-                    }
-                }
 
                 // ── Notifications list ─────────────────────────────────
                 if (uiState.notifications.isEmpty()) {
@@ -501,18 +448,7 @@ fun HomeScreen(
             }
         }
 
-        if (showPaywall) {
-            PaywallDialog(
-                featureName = paywallFeature,
-                onDismiss = { showPaywall = false },
-                onUpgrade = { tier ->
-                    val activity = context as? Activity ?: return@PaywallDialog
-                    earningsViewModel.launchPayment(activity, tier)
-                    showPaywall = false
-                },
-                isSignedIn = earningsState.isPremium
-            )
-        }
+
     }
 }
 

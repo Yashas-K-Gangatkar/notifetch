@@ -1,5 +1,7 @@
 package com.notifetch.app.ui.screens
 
+import android.content.Intent
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,17 +18,24 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material.icons.filled.Payments
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Straighten
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -36,6 +45,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -53,6 +65,8 @@ fun NotificationDetailScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val notification = uiState.notification
+    val context = LocalContext.current
+    val clipboardManager = LocalClipboardManager.current
 
     Column(
         modifier = Modifier
@@ -116,7 +130,6 @@ fun NotificationDetailScreen(
                 )
             }
         } else {
-            // Use resolved display name (custom → default) via packageName lookup
             val displayPlatformName = uiState.resolvedDisplayName ?: notification.platform
             val platformColor = getPlatformColor(displayPlatformName, notification.packageName)
 
@@ -148,7 +161,7 @@ fun NotificationDetailScreen(
                             size = 56.dp
                         )
                         Spacer(modifier = Modifier.width(16.dp))
-                        Column {
+                        Column(modifier = Modifier.weight(1f)) {
                             Text(
                                 text = displayPlatformName,
                                 style = MaterialTheme.typography.titleLarge,
@@ -161,6 +174,91 @@ fun NotificationDetailScreen(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
+                    }
+                }
+
+                // ── Open App Button (PRIMARY ACTION) ──────────────────────
+                Button(
+                    onClick = {
+                        try {
+                            val launchIntent = context.packageManager.getLaunchIntentForPackage(notification.packageName)
+                            if (launchIntent != null) {
+                                launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                context.startActivity(launchIntent)
+                            } else {
+                                // App not installed — open Play Store
+                                val playStoreIntent = Intent(Intent.ACTION_VIEW).apply {
+                                    data = android.net.Uri.parse("market://details?id=${notification.packageName}")
+                                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                }
+                                context.startActivity(playStoreIntent)
+                            }
+                        } catch (e: Exception) {
+                            Toast.makeText(context, "Could not open app", Toast.LENGTH_SHORT).show()
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = platformColor
+                    )
+                ) {
+                    Icon(
+                        Icons.Default.OpenInNew,
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Open ${displayPlatformName}", fontWeight = FontWeight.Bold)
+                }
+
+                // ── Quick Actions Row ────────────────────────────────────
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    // Copy text
+                    OutlinedButton(
+                        onClick = {
+                            val textToCopy = buildString {
+                                append("${notification.title}\n")
+                                if (notification.body.isNotBlank()) append("${notification.body}\n")
+                                if (notification.bigText.isNotBlank()) append("${notification.bigText}\n")
+                                if (notification.orderValue != null) append("Value: ${Helpers.formatCurrency(notification.orderValue, notification.currency)}\n")
+                                append("From: $displayPlatformName")
+                            }
+                            clipboardManager.setText(AnnotatedString(textToCopy))
+                            Toast.makeText(context, "Copied to clipboard", Toast.LENGTH_SHORT).show()
+                        },
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Icon(Icons.Default.ContentCopy, contentDescription = null, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("Copy", style = MaterialTheme.typography.labelMedium)
+                    }
+
+                    // Share
+                    OutlinedButton(
+                        onClick = {
+                            val shareText = buildString {
+                                append("${notification.title}\n")
+                                if (notification.body.isNotBlank()) append("${notification.body}\n")
+                                if (notification.orderValue != null) append("Value: ${Helpers.formatCurrency(notification.orderValue, notification.currency)}\n")
+                                append("From: $displayPlatformName")
+                            }
+                            val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                                type = "text/plain"
+                                putExtra(Intent.EXTRA_TEXT, shareText)
+                            }
+                            context.startActivity(Intent.createChooser(shareIntent, "Share"))
+                        },
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Icon(Icons.Default.Share, contentDescription = null, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("Share", style = MaterialTheme.typography.labelMedium)
                     }
                 }
 
@@ -223,7 +321,7 @@ fun NotificationDetailScreen(
                     }
                 }
 
-                // Big text (expanded notification text)
+                // Big text
                 if (notification.bigText.isNotBlank()) {
                     Card(
                         modifier = Modifier.fillMaxWidth(),
@@ -272,7 +370,6 @@ fun NotificationDetailScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    // Order value
                     if (notification.orderValue != null) {
                         InfoDetailCard(
                             icon = Icons.Default.Payments,
@@ -281,7 +378,6 @@ fun NotificationDetailScreen(
                             modifier = Modifier.weight(1f)
                         )
                     }
-                    // Distance
                     if (notification.distance != null) {
                         InfoDetailCard(
                             icon = Icons.Default.Straighten,
@@ -308,42 +404,6 @@ fun NotificationDetailScreen(
                         location = notification.dropoffLocation,
                         icon = Icons.Default.LocationOn
                     )
-                }
-
-                // Sync status
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = if (notification.isSynced)
-                            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
-                        else
-                            MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.3f)
-                    )
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = if (notification.isSynced) "Synced to server" else "Pending sync",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = if (notification.isSynced)
-                                MaterialTheme.colorScheme.primary
-                            else
-                                MaterialTheme.colorScheme.error
-                        )
-                        if (notification.isSynced && notification.syncedAt != null) {
-                            Spacer(modifier = Modifier.weight(1f))
-                            Text(
-                                text = Helpers.formatTimeAgo(notification.syncedAt),
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
                 }
 
                 Spacer(modifier = Modifier.height(32.dp))

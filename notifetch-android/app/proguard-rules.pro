@@ -35,8 +35,3 @@
 -keep class com.google.firebase.** { *; }
 -dontwarn com.google.firebase.**
 
-# Razorpay
--keep class com.razorpay.** { *; }
--keep class proguard.annotation.** { *; }
--dontwarn proguard.annotation.**
--dontwarn com.google.android.apps.nbu.paisa.inapp.client.**

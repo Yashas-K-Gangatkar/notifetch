@@ -24,8 +24,6 @@ class NotificationRepository @Inject constructor(
     private val authRepository: AuthRepository
 ) {
 
-    /** Expose the API instance for payment operations in ViewModels. */
-    fun getApi(): NotiFetchApi = api
 
     fun getAllNotifications(): Flow<List<CapturedNotification>> =
         notificationDao.getAllNotifications()
