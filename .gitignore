@@ -76,5 +76,6 @@ download/crashlytics-mapping-*.txt
 # Build artifacts
 **/build/
 **/.gradle/
-android-sdk/
-jdk/
+
+# JDK (too large for git)
+/jdk/
