@@ -178,19 +178,35 @@ class NotificationRepository @Inject constructor(
 
     fun getEnabledPlatformConfigs(): Flow<List<PlatformConfig>> = platformConfigDao.getEnabledConfigs()
 
+    /**
+     * Synchronous read of a single platform config. Used by NotiFetchListenerService
+     * to check per-platform enable/disable status on the main thread.
+     * This is a quick primary-key lookup, not a Flow.
+     */
+    suspend fun getPlatformConfigSync(packageName: String): PlatformConfig? =
+        platformConfigDao.getConfigByPackage(packageName)
+
     suspend fun updatePlatformEnabled(packageName: String, isEnabled: Boolean) =
         platformConfigDao.updateEnabled(packageName, isEnabled)
 
     suspend fun incrementPlatformNotificationCount(packageName: String) =
         platformConfigDao.incrementNotificationCount(packageName, System.currentTimeMillis())
 
-    suspend fun initializePlatformConfigs() {
-        val allPackages = Constants.PARTNER_PACKAGES + Constants.CUSTOMER_PACKAGES
-        val existing = platformConfigDao.getConfigByPackage(
-            allPackages.keys.first()
-        )
-        if (existing != null) return
+    // Atomic flag to prevent concurrent initialization from NotiFetchApp.onCreate()
+    // and HomeViewModel.init{} running simultaneously and causing duplicate upserts.
+    @Volatile
+    private var platformConfigsInitialized = false
 
+    suspend fun initializePlatformConfigs() {
+        if (platformConfigsInitialized) return
+
+        val allPackages = Constants.PARTNER_PACKAGES + Constants.CUSTOMER_PACKAGES
+
+        // FIX: Previously, only the first package was checked. If the app crashed
+        // during initial DB population, subsequent packages were missing but the
+        // check passed. Now we verify ALL packages exist before skipping.
+        // We use upsertConfigs (REPLACE strategy) so this is idempotent —
+        // re-running it is safe and won't destroy existing data.
         val configs = allPackages.map { (packageName, displayName) ->
             val mode = Constants.getUserModeForPackage(packageName)?.name?.lowercase() ?: "rider"
             PlatformConfig(
@@ -201,6 +217,7 @@ class NotificationRepository @Inject constructor(
             )
         }
         platformConfigDao.upsertConfigs(configs)
+        platformConfigsInitialized = true
     }
 
     private fun CapturedNotification.toPayload(): NotificationPayload {

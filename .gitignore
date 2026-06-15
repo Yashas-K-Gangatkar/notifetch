@@ -79,3 +79,5 @@ download/crashlytics-mapping-*.txt
 
 # JDK (too large for git)
 /jdk/
+# Auth service — separate repo, not tracked as submodule
+notifetch-auth/

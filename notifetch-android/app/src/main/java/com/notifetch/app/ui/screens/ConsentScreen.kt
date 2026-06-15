@@ -124,12 +124,12 @@ fun ConsentScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Consent 1: Data Collection
+        // Consent 1: Data Collection (DPDPA-compliant itemized disclosure)
         ConsentCard(
             icon = Icons.Default.Security,
             iconTint = MaterialTheme.colorScheme.primary,
             title = "Data Collection",
-            description = "NotiFetch reads notifications from delivery partner/driver apps (like Swiggy Delivery, Zomato Delivery, Amazon Flex, etc.) using Android's NotificationListenerService API. We collect: notification title, text, order value, pickup/dropoff locations, and distance. We NEVER access banking, social media, personal messaging, or any other app notifications.",
+            description = "NotiFetch reads notifications from delivery partner/driver apps using Android's NotificationListenerService API. We collect ONLY:\n• Notification title and text\n• Order value, pickup/dropoff locations, distance\n• Platform name and timestamp\n\nWe NEVER access: banking, social media, personal messages, or any other app notifications.\n\nWe NEVER store: raw notification extras, auth tokens, or data you cannot see in the notification shade.\n\nRetention: Data is stored locally on your device and auto-deleted after 30 days. You can delete it anytime.",
             checked = consentDataCollection,
             onCheckedChange = { consentDataCollection = it }
         )
@@ -153,7 +153,7 @@ fun ConsentScreen(
             icon = Icons.Default.Gavel,
             iconTint = MaterialTheme.colorScheme.tertiary,
             title = "Your Responsibility",
-            description = "You are solely responsible for complying with the terms of service of each delivery platform you use. NotiFetch is a personal notification management tool. We do not encourage or support any violation of platform terms. If a platform prohibits using third-party notification tools, you must decide whether to use NotiFetch for that platform.",
+            description = "You are solely responsible for complying with the terms of service of each delivery platform you use. NotiFetch is a personal notification management tool. We do not encourage or support any violation of platform terms. If a platform prohibits using third-party notification tools, you must decide whether to use NotiFetch for that platform.\n\nIMPORTANT: Delivery platforms CAN detect that a notification listener is active on your device. This is an Android system feature and cannot be hidden. Some platforms may warn or deactivate drivers who use notification reading tools. By continuing, you acknowledge this risk.",
             checked = consentUserResponsibility,
             onCheckedChange = { consentUserResponsibility = it }
         )

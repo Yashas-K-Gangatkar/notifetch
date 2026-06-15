@@ -437,6 +437,19 @@ fun HomeScreen(
                             modifier = Modifier.padding(horizontal = 16.dp)
                         )
                     }
+
+                    // Affiliation disclaimer at the bottom of notifications
+                    item {
+                        Text(
+                            text = "NotiFetch is not affiliated with any delivery platform. Platform names are used for identification only.",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 24.dp, vertical = 8.dp)
+                        )
+                    }
                 }
 
                 // Bottom spacer

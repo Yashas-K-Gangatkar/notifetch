@@ -72,7 +72,12 @@ private val DarkColorScheme = darkColorScheme(
 @Composable
 fun NotiFetchTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = true,
+    // FIX: dynamicColor defaults to false. On Android 12+ (Material You), dynamic color
+    // replaces the app's brand colors (amber accent, platform-specific colors like
+    // Swiggy orange, Zomato red) with the user's wallpaper palette, which breaks
+    // platform identification. Platform colors are core to the UX — they must be
+    // consistent regardless of the user's wallpaper choice.
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {

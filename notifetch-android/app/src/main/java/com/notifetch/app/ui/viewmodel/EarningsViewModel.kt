@@ -11,8 +11,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class PlatformEarning(
@@ -38,37 +41,74 @@ class EarningsViewModel @Inject constructor(
     private val repository: NotificationRepository
 ) : AndroidViewModel(application) {
 
-    // Room flows
-    private val todayEarningsFlow = repository.getTotalOrderValueSince(
-        Helpers.startOfDayTimestamp()
-    ).stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
+    // ── Reactive time-range flows (fix: timestamps were frozen at construction) ──
+    // Previously, Helpers.startOfDayTimestamp() etc. were called once in the constructor.
+    // If the user left the app open overnight, "today" stats would still show yesterday's
+    // data until they restarted the app. Now, timestamps auto-recalculate at midnight.
 
-    private val weekEarningsFlow = repository.getTotalOrderValueSince(
-        Helpers.startOfWeekTimestamp()
-    ).stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
+    private val dayRangeFlow = flow {
+        while (true) {
+            val startOfDay = Helpers.startOfDayTimestamp()
+            val now = System.currentTimeMillis()
+            emit(startOfDay to now)
+            val nextMidnight = startOfDay + 86_400_000L
+            val delayMs = (nextMidnight - now).coerceAtLeast(60_000L)
+            kotlinx.coroutines.delay(delayMs)
+        }
+    }
 
-    private val monthEarningsFlow = repository.getTotalOrderValueSince(
-        Helpers.startOfMonthTimestamp()
-    ).stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
+    private val weekStartFlow = flow {
+        while (true) {
+            val startOfWeek = Helpers.startOfWeekTimestamp()
+            emit(startOfWeek)
+            val now = System.currentTimeMillis()
+            val nextWeek = startOfWeek + 7 * 86_400_000L
+            val delayMs = (nextWeek - now).coerceAtLeast(60_000L)
+            kotlinx.coroutines.delay(delayMs)
+        }
+    }
 
-    private val todayOrdersFlow = repository.getCountInTimeRange(
-        Helpers.startOfDayTimestamp(), System.currentTimeMillis()
-    ).stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
+    private val monthStartFlow = flow {
+        while (true) {
+            val startOfMonth = Helpers.startOfMonthTimestamp()
+            emit(startOfMonth)
+            val now = System.currentTimeMillis()
+            // Approximate — recalculate at least every 24h
+            val delayMs = 86_400_000L.coerceAtLeast(60_000L)
+            kotlinx.coroutines.delay(delayMs)
+        }
+    }
 
-    private val weekOrdersFlow = repository.getCountInTimeRange(
-        Helpers.startOfWeekTimestamp(), System.currentTimeMillis()
-    ).stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
+    private val todayEarningsFlow = dayRangeFlow.flatMapLatest { (start, _) ->
+        repository.getTotalOrderValueSince(start)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
 
-    private val monthOrdersFlow = repository.getCountInTimeRange(
-        Helpers.startOfMonthTimestamp(), System.currentTimeMillis()
-    ).stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
+    private val weekEarningsFlow = weekStartFlow.flatMapLatest { startOfWeek ->
+        repository.getTotalOrderValueSince(startOfWeek)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
+
+    private val monthEarningsFlow = monthStartFlow.flatMapLatest { startOfMonth ->
+        repository.getTotalOrderValueSince(startOfMonth)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
+
+    private val todayOrdersFlow = dayRangeFlow.flatMapLatest { (start, end) ->
+        repository.getCountInTimeRange(start, end)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
+
+    private val weekOrdersFlow = weekStartFlow.flatMapLatest { startOfWeek ->
+        repository.getCountInTimeRange(startOfWeek, System.currentTimeMillis())
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
+
+    private val monthOrdersFlow = monthStartFlow.flatMapLatest { startOfMonth ->
+        repository.getCountInTimeRange(startOfMonth, System.currentTimeMillis())
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
     private val platformCountFlow = repository.getNotificationCountByPlatform()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    private val platformEarningsFlow = repository.getOrderValueByPlatformSince(
-        Helpers.startOfMonthTimestamp()
-    ).stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    private val platformEarningsFlow = monthStartFlow.flatMapLatest { startOfMonth ->
+        repository.getOrderValueByPlatformSince(startOfMonth)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     private val earningsState = combine(
         todayEarningsFlow,
@@ -104,9 +144,13 @@ class EarningsViewModel @Inject constructor(
         val allPlatforms = (countsMap.keys + earningsMap.keys).distinct()
 
         allPlatforms.map { platform ->
-            val pkg = Constants.PARTNER_PACKAGES.entries
+            // FIX: Look up color from ALL_PACKAGES (both rider + customer), not just PARTNER_PACKAGES.
+            // Previously, only PARTNER_PACKAGES was queried, so customer platforms like
+            // Swiggy Customer, Zomato Customer, Amazon Shopping etc. would fall through to the
+            // default amber color, making the breakdown visually indistinguishable.
+            val pkg = Constants.ALL_PACKAGES.entries
                 .firstOrNull { it.value == platform }?.key
-            val hexColor = pkg?.let { Constants.PLATFORM_COLORS[it] } ?: "#FFC107"
+            val hexColor = pkg?.let { Constants.ALL_PLATFORM_COLORS[it] } ?: "#FFC107"
 
             PlatformEarning(
                 platform = platform,
@@ -131,7 +175,10 @@ class EarningsViewModel @Inject constructor(
             monthOrders = orders.monthOrders,
             platformBreakdown = platforms
         )
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), EarningsUiState())
+    }
+        .debounce(200)
+        .distinctUntilChanged()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), EarningsUiState())
 }
 
 private data class EarningsDataState(

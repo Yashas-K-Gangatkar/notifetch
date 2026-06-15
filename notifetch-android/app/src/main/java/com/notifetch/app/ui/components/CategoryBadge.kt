@@ -19,12 +19,20 @@ fun CategoryBadge(
     modifier: Modifier = Modifier
 ) {
     val (label, color) = when (category) {
+        // Rider/driver categories
         "NEW_ORDER" -> "New Order" to Color(0xFF4CAF50)
         "ORDER_UPDATE" -> "Update" to Color(0xFF2196F3)
         "COMPLETED" -> "Completed" to Color(0xFF8BC34A)
         "CANCELLED" -> "Cancelled" to Color(0xFFF44336)
         "EARNINGS" -> "Earnings" to Color(0xFFFFC107)
         "AVAILABILITY" -> "Status" to Color(0xFF9C27B0)
+        // Customer categories
+        "OFFER" -> "Offer" to Color(0xFFFF9800)
+        "DELIVERED" -> "Delivered" to Color(0xFF4CAF50)
+        "TRACKING" -> "Tracking" to Color(0xFF00BCD4)
+        "PROMOTION" -> "Promo" to Color(0xFFE91E63)
+        // Android 15 redacted notification fallback
+        "REDACTED" -> "Hidden" to Color(0xFF607D8B)
         else -> category to Color(0xFF9E9E9E)
     }
 

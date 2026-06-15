@@ -117,6 +117,22 @@ class NotiFetchListenerService : NotificationListenerService() {
 
         val userMode = Constants.getUserModeForPackage(packageName)?.name?.lowercase() ?: "rider"
 
+        // Per-platform enable/disable check (DPDPA compliance — user can opt out of
+        // individual platforms). We check asynchronously and skip if disabled.
+        // This is intentionally a quick DB read, not a Flow, since onNotificationPosted
+        // runs on the main thread and we need a synchronous decision.
+        try {
+            val config = kotlinx.coroutines.runBlocking {
+                repository.getPlatformConfigSync(packageName)
+            }
+            if (config != null && !config.isEnabled) {
+                Log.d(tag, "Skipping disabled platform: $platformName ($packageName)")
+                return
+            }
+        } catch (_: Exception) {
+            // If we can't check the config, allow the notification through
+        }
+
         Log.d(tag, "Captured notification from $platformName ($packageName)")
 
         try {
@@ -124,10 +140,34 @@ class NotiFetchListenerService : NotificationListenerService() {
             val extras = notification.extras
 
             // Extract only visible notification content (what the user can see)
-            val title = extras.getString(Notification.EXTRA_TITLE)?.trim() ?: ""
-            val text = extras.getCharSequence(Notification.EXTRA_TEXT)?.toString()?.trim() ?: ""
-            val bigText = extras.getCharSequence(Notification.EXTRA_BIG_TEXT)?.toString()?.trim() ?: ""
-            val subText = extras.getCharSequence(Notification.EXTRA_SUB_TEXT)?.toString()?.trim() ?: ""
+            var title = extras.getString(Notification.EXTRA_TITLE)?.trim() ?: ""
+            var text = extras.getCharSequence(Notification.EXTRA_TEXT)?.toString()?.trim() ?: ""
+            var bigText = extras.getCharSequence(Notification.EXTRA_BIG_TEXT)?.toString()?.trim() ?: ""
+            var subText = extras.getCharSequence(Notification.EXTRA_SUB_TEXT)?.toString()?.trim() ?: ""
+
+            // Android 15+ notification redaction handling:
+            // On Android 15, untrusted notification listeners receive "Sensitive notification hidden"
+            // or similar redaction strings for financial/OTP-style notifications. We detect this
+            // and mark the category as REDACTED so the UI can show a fallback card with the
+            // Open App button instead of blank content.
+            val redactionMarkers = listOf(
+                "sensitive notification hidden",
+                "content hidden",
+                "notification hidden",
+                "hidden content",
+                "redacted"
+            )
+            val allText = "$title $text $bigText $subText".lowercase()
+            val isRedacted = redactionMarkers.any { allText.contains(it) }
+
+            if (isRedacted) {
+                Log.d(tag, "Android 15+ redacted notification detected from $platformName — saving with REDACTED category")
+                // Keep the package/platform info but clear the actual text for privacy
+                title = "Content hidden by Android"
+                text = ""
+                bigText = ""
+                subText = ""
+            }
 
             // Skip empty or group summary notifications
             if (title.isBlank() && text.isBlank() && bigText.isBlank()) {
@@ -148,16 +188,34 @@ class NotiFetchListenerService : NotificationListenerService() {
             }
 
             // Parse platform-specific data
-            val parsed = NotificationParser.parse(
-                platform = platformName,
-                source = source,
-                title = title,
-                text = text,
-                bigText = bigText,
-                subText = subText,
-                extras = extras,
-                userMode = userMode
-            )
+            // If Android 15+ redacted the notification, force category to REDACTED
+            val parsed = if (isRedacted) {
+                // Create a minimal parsed result with REDACTED category
+                NotificationParser.ParsedNotification(
+                    platform = platformName,
+                    source = source,
+                    title = title,
+                    body = text,
+                    bigText = bigText,
+                    subText = subText,
+                    orderValue = null,
+                    pickupLocation = null,
+                    dropoffLocation = null,
+                    distance = null,
+                    category = "REDACTED"
+                )
+            } else {
+                NotificationParser.parse(
+                    platform = platformName,
+                    source = source,
+                    title = title,
+                    text = text,
+                    bigText = bigText,
+                    subText = subText,
+                    extras = extras,
+                    userMode = userMode
+                )
+            }
 
             // Detect currency based on platform region and text content
             val currency = Helpers.detectCurrency(packageName, platformName, "$title $text $bigText")
