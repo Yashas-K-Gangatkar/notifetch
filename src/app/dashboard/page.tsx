@@ -9,13 +9,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import {
   Zap, LogOut, Bell, TrendingUp, Package, Smartphone,
-  ArrowLeft, CreditCard, BellRing, BarChart3, Globe,
+  ArrowLeft, Gift, BellRing, BarChart3, Globe,
   User, Settings, ShieldCheck, Calendar, Activity,
   ExternalLink, CheckCircle2, MapPin, IndianRupee,
   Clock, Filter, RefreshCw, Wifi
 } from "lucide-react";
 import { signOut } from "next-auth/react";
-import { RazorpayCheckout } from "@/components/razorpay-checkout";
 import { PushPermission } from "@/components/push-permission";
 import { BackButton } from "@/components/back-button";
 
@@ -215,7 +214,6 @@ export default function DashboardPage() {
 
   if (!session) return null;
 
-  const plan = userData?.plan || "free";
   const initials = ((session.user.name || session.user.email || "U")[0] || "U").toUpperCase();
   const memberSince = userData?.createdAt
     ? new Date(userData.createdAt).toLocaleDateString("en-IN", {
@@ -246,8 +244,9 @@ export default function DashboardPage() {
             </a>
           </div>
           <div className="flex items-center gap-3">
-            <span className="text-xs px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-500 font-semibold capitalize border border-amber-500/20">
-              {plan}
+            <span className="text-xs px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-500 font-semibold border border-amber-500/20 inline-flex items-center gap-1">
+              <Gift className="w-3 h-3" />
+              Free Preview
             </span>
             <div className="flex items-center gap-2">
               {session.user.image ? (
@@ -291,7 +290,7 @@ export default function DashboardPage() {
             { icon: Bell, label: "Notifications", href: "/dashboard/notifications", color: "text-amber-500", bg: "bg-amber-500/10", badge: unreadCount > 0 ? unreadCount : undefined },
             { icon: User, label: "Profile", href: "/dashboard/profile", color: "text-blue-500", bg: "bg-blue-500/10" },
             { icon: Settings, label: "Settings", href: "/dashboard/settings", color: "text-gray-500", bg: "bg-gray-500/10" },
-            { icon: CreditCard, label: "Subscribe", href: "/dashboard/subscribe", color: "text-purple-500", bg: "bg-purple-500/10" },
+            { icon: Gift, label: "Free Preview", href: "/dashboard/subscribe", color: "text-purple-500", bg: "bg-purple-500/10" },
           ].map((item) => (
             <button
               key={item.label}
@@ -317,7 +316,7 @@ export default function DashboardPage() {
             { icon: Bell, label: "Today's Notifications", value: todayCount.toString(), color: "text-amber-500", bg: "from-amber-500/5 to-orange-500/5", border: "border-amber-500/10" },
             { icon: IndianRupee, label: "Today's Earnings", value: `₹${todayEarnings.toLocaleString("en-IN")}`, color: "text-green-500", bg: "from-green-500/5 to-emerald-500/5", border: "border-green-500/10" },
             { icon: Package, label: "Unread", value: unreadCount.toString(), color: "text-blue-500", bg: "from-blue-500/5 to-indigo-500/5", border: "border-blue-500/10" },
-            { icon: Smartphone, label: "Plan", value: plan.charAt(0).toUpperCase() + plan.slice(1), color: "text-purple-500", bg: "from-purple-500/5 to-violet-500/5", border: "border-purple-500/10" },
+            { icon: Gift, label: "Plan", value: "Free Preview", color: "text-purple-500", bg: "from-purple-500/5 to-violet-500/5", border: "border-purple-500/10" },
           ].map((stat) => (
             <div key={stat.label} className={`bg-gradient-to-br ${stat.bg} border ${stat.border} rounded-xl p-5`}>
               <stat.icon className={`w-5 h-5 ${stat.color} mb-3`} />
@@ -414,32 +413,33 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Upgrade Plan */}
-        {plan === "free" && (
-          <div className="bg-gradient-to-br from-purple-500/5 to-violet-500/5 border border-purple-500/20 rounded-2xl p-6 mb-8">
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center shrink-0">
-                <CreditCard className="w-6 h-6 text-purple-500" />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-semibold text-lg">Upgrade Your Plan</h3>
-                <p className="text-sm text-muted-foreground mt-1">
-                  You&apos;re on the <span className="text-amber-500 font-semibold">Free</span> plan.
-                  Upgrade to Pro for unlimited notifications, all platforms, and priority support.
-                </p>
-                <div className="mt-4">
-                  <RazorpayCheckout
-                    plan="pro"
-                    period="monthly"
-                    currentPlan="free"
-                    onSuccess={() => fetchDashboardData()}
-                    label="Upgrade to Pro — ₹49/mo"
-                  />
-                </div>
+        {/* Free Preview Banner */}
+        <div className="bg-gradient-to-br from-amber-500/5 to-orange-500/5 border border-amber-500/20 rounded-2xl p-6 mb-8">
+          <div className="flex items-start gap-4">
+            <div className="w-12 h-12 rounded-xl bg-amber-500/10 flex items-center justify-center shrink-0">
+              <Gift className="w-6 h-6 text-amber-500" />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-semibold text-lg">You&apos;re on the Free Preview</h3>
+              <p className="text-sm text-muted-foreground mt-1">
+                Every platform and every feature is unlocked for the first 6 months — no card on file,
+                no auto-charge. After the preview ends, a real free tier stays in place. Your existing
+                setup gets grandfathered automatically.
+              </p>
+              <div className="mt-4">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => router.push("/dashboard/subscribe")}
+                  className="hover:border-amber-500/30"
+                >
+                  Learn about the preview
+                  <ExternalLink className="w-3 h-3 ml-2" />
+                </Button>
               </div>
             </div>
           </div>
-        )}
+        </div>
 
         {/* Recent Activity */}
         <Card className="mb-8 border-border rounded-2xl overflow-hidden">
@@ -601,7 +601,10 @@ export default function DashboardPage() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
               <div className="p-3 rounded-lg bg-muted/30">
                 <span className="text-muted-foreground text-xs">Plan</span>
-                <p className="font-medium capitalize">{plan}</p>
+                <p className="font-medium inline-flex items-center gap-1">
+                  <Gift className="w-3 h-3 text-amber-500" />
+                  Free Preview
+                </p>
               </div>
               <div className="p-3 rounded-lg bg-muted/30">
                 <span className="text-muted-foreground text-xs">Member Since</span>

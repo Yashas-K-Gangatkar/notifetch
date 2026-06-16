@@ -37,7 +37,6 @@ import {
   CURRENCIES,
   DELIVERY_CATEGORIES,
   PLATFORMS,
-  PRICING,
   type Region,
 } from "@/lib/data";
 

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Bell, ArrowRight, ChevronDown, Smartphone, Zap, TrendingUp, Globe, QrCode } from "lucide-react";
+import { Bell, ArrowRight, ChevronDown, Smartphone, Zap, TrendingUp, Globe, QrCode, Gift } from "lucide-react";
 import { PLATFORMS, DELIVERY_CATEGORIES, REGIONS } from "@/lib/data";
 import {
   Dialog,
@@ -90,7 +90,16 @@ export function HeroSection({ onNavigate }: HeroProps) {
         <div className="animate-float-up" style={{ animationDelay: "0s" }}>
           <Badge
             variant="secondary"
-            className="mb-6 px-4 py-1.5 text-sm bg-amber-500/10 text-amber-500 border-amber-500/20"
+            className="mb-3 px-4 py-1.5 text-sm bg-amber-500/10 text-amber-500 border-amber-500/20"
+          >
+            <Gift className="w-3.5 h-3.5 mr-1.5" />
+            Free Preview · 6 Months On Us · No Card Needed
+          </Badge>
+        </div>
+        <div className="animate-float-up" style={{ animationDelay: "0.05s" }}>
+          <Badge
+            variant="secondary"
+            className="mb-6 px-4 py-1.5 text-sm bg-muted/60 text-muted-foreground border-border"
           >
             <Globe className="w-3.5 h-3.5 mr-1.5" />
             {PLATFORMS.length}+ platforms · {DELIVERY_CATEGORIES.length} categories · {REGIONS.length} regions worldwide
@@ -147,7 +156,7 @@ export function HeroSection({ onNavigate }: HeroProps) {
             onClick={() => window.location.href = "/auth/signin"}
             className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold px-8 h-12 text-base shadow-xl shadow-amber-500/25"
           >
-            Get Started Free
+            Get Started — It&apos;s Free
             <ArrowRight className="w-4 h-4 ml-2" />
           </Button>
           <Button

@@ -229,11 +229,12 @@ export default function TermsOfServicePage() {
                 </p>
                 <p>
                   The Service provides users with a consolidated, organized view of their delivery-related
-                  notifications, along with optional analytics and earnings tracking features. Premium plans
-                  offer advanced features such as historical trend analysis, multi-platform earnings
-                  comparison, and priority notification display. Free and paid plans are available, with
-                  payments processed through Razorpay (for users in India) and Stripe (for international
-                  users).
+                  notifications, along with optional analytics and earnings tracking features. NotiFetch is
+                  currently in its Free Preview period — every feature and every platform is unlocked at no
+                  cost, and no payment information is collected. After the preview ends, a real free tier
+                  will remain available (with limited platform support), and an optional premium tier will
+                  launch with the full platform catalog. When the premium tier launches, payments will be
+                  processed through Razorpay (for users in India) and Stripe (for international users).
                 </p>
               </div>
             </CardContent>
@@ -909,8 +910,10 @@ export default function TermsOfServicePage() {
                   shall continue to apply to you indefinitely following termination.
                 </p>
                 <p>
-                  If you have an active paid subscription at the time of account termination, you will
-                  retain access to premium features until the end of your current billing period. No
+                  During the Free Preview period, all features are unlocked at no cost — there are no
+                  active paid subscriptions to cancel or refund. After the premium tier launches,
+                  subscribers with an active paid subscription at the time of account termination will
+                  retain access to premium features until the end of their current billing period. No
                   refunds will be issued for partial billing periods, except as required by applicable
                   law or as described in our refund policy. Upon account deletion, your data will be
                   handled in accordance with Section 15 (Data Deletion Rights) and our Privacy Policy.

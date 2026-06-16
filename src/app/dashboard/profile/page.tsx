@@ -11,7 +11,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import {
   Zap, ArrowLeft, User, Mail, Calendar, Shield,
-  Trash2, Loader2, Camera
+  Trash2, Loader2, Camera, Gift
 } from "lucide-react";
 import {
   AlertDialog,
@@ -152,8 +152,9 @@ export default function ProfilePage() {
                 <h2 className="text-xl font-bold">{session.user.name || "User"}</h2>
                 <p className="text-sm text-muted-foreground">{session.user.email}</p>
                 <div className="flex items-center gap-2 mt-1">
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-500 font-medium capitalize">
-                    {userData.plan} plan
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-500 font-medium inline-flex items-center gap-1">
+                    <Gift className="w-3 h-3" />
+                    Free Preview
                   </span>
                 </div>
               </div>
@@ -228,7 +229,10 @@ export default function ProfilePage() {
               <Separator />
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Plan</span>
-                <span className="font-medium capitalize">{userData.plan}</span>
+                <span className="font-medium inline-flex items-center gap-1">
+                  <Gift className="w-3 h-3 text-amber-500" />
+                  Free Preview
+                </span>
               </div>
               <Separator />
               <div className="flex justify-between">
@@ -276,7 +280,7 @@ export default function ProfilePage() {
                   <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                   <AlertDialogDescription>
                     This will permanently delete your account and all your data, including
-                    notifications, preferences, and payment history. This action cannot be undone.
+                    notifications and preferences. This action cannot be undone.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>

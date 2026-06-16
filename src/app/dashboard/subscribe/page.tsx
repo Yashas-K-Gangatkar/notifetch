@@ -1,29 +1,22 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import {
-  Zap, ArrowLeft, Check, Crown, Rocket, Sparkles,
-  Bell, Globe, Headphones, Infinity, Shield, Star
+  Zap, ArrowLeft, Gift, Sparkles, Check, Calendar, Bell,
+  Globe, Heart, ArrowRight, Clock
 } from "lucide-react";
 import { BackButton } from "@/components/back-button";
-import { RazorpayCheckout } from "@/components/razorpay-checkout";
-
-interface UserData {
-  plan: string;
-  createdAt: string;
-}
+import { PLATFORMS, DELIVERY_CATEGORIES } from "@/lib/data";
 
 export default function SubscribePage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [userData, setUserData] = useState<UserData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -31,40 +24,20 @@ export default function SubscribePage() {
     }
   }, [status, router]);
 
-  const fetchUser = useCallback(async () => {
-    try {
-      const res = await fetch("/api/user");
-      if (res.ok) {
-        const data = await res.json();
-        setUserData(data.user);
-      }
-    } catch {
-      // Silently handle
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (status === "authenticated") {
-      fetchUser();
-    }
-  }, [status, fetchUser]);
-
-  if (status === "loading" || isLoading) {
+  if (status === "loading") {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center animate-pulse">
             <Zap className="w-5 h-5 text-white" />
           </div>
-          <span className="text-lg font-semibold">Loading plans...</span>
+          <span className="text-lg font-semibold">Loading...</span>
         </div>
       </div>
     );
   }
 
-  const currentPlan = userData?.plan || "free";
+  if (!session) return null;
 
   return (
     <div className="min-h-screen bg-background">
@@ -73,261 +46,171 @@ export default function SubscribePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
           <div className="flex items-center gap-3">
             <BackButton fallback="/dashboard" />
-            <h1 className="text-lg font-bold">Subscription</h1>
+            <h1 className="text-lg font-bold">Plan &amp; Preview</h1>
           </div>
-          <Badge className="bg-amber-500/10 text-amber-500 border-amber-500/20 capitalize">
-            {currentPlan} Plan
+          <Badge
+            variant="secondary"
+            className="bg-amber-500/10 text-amber-500 border-amber-500/20"
+          >
+            <Gift className="w-3 h-3 mr-1" />
+            Free Preview
           </Badge>
         </div>
       </nav>
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12">
-        {/* Header */}
-        <div className="text-center mb-10">
-          <h2 className="text-3xl font-bold mb-3">Choose Your Plan</h2>
-          <p className="text-muted-foreground max-w-lg mx-auto">
-            Start free and upgrade when you need more. No hidden fees, cancel anytime.
-          </p>
-        </div>
-
-        {/* Plans grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Free Plan */}
-          <Card className={`relative ${currentPlan === "free" ? "border-amber-500/50" : ""}`}>
-            {currentPlan === "free" && (
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                <Badge className="bg-amber-500 text-white">Current Plan</Badge>
-              </div>
-            )}
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Rocket className="w-6 h-6 text-gray-500" />
-                Free
-              </CardTitle>
-              <div className="mt-2">
-                <span className="text-4xl font-bold">₹0</span>
-                <span className="text-muted-foreground">/month</span>
-              </div>
-              <p className="text-sm text-muted-foreground mt-1">
-                Perfect for getting started with NotiFetch.
-              </p>
-            </CardHeader>
-            <CardContent>
-              <Separator className="mb-4" />
-              <ul className="space-y-3">
-                {[
-                  { label: "50 notifications/day", included: true },
-                  { label: "2 platform connections", included: true },
-                  { label: "Basic notification feed", included: true },
-                  { label: "Sound alerts", included: true },
-                  { label: "1 region", included: true },
-                  { label: "Auto-accept rules", included: false },
-                  { label: "Earnings dashboard", included: false },
-                  { label: "Voice alerts", included: false },
-                  { label: "Smart order ranking", included: false },
-                ].map((feature) => (
-                  <li key={feature.label} className={`flex items-center gap-2 text-sm ${!feature.included ? "opacity-40" : ""}`}>
-                    {feature.included ? (
-                      <Check className="w-4 h-4 text-emerald-500 shrink-0" />
-                    ) : (
-                      <span className="w-4 h-4 shrink-0" />
-                    )}
-                    {feature.label}
-                  </li>
-                ))}
-              </ul>
-              <div className="mt-6">
-                <Button
-                  variant="outline"
-                  className="w-full"
-                  disabled={currentPlan === "free"}
-                >
-                  {currentPlan === "free" ? "Current Plan" : "Downgrade"}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Pro Plan */}
-          <Card className={`relative border-amber-500/30 ${currentPlan === "pro" ? "border-amber-500 ring-2 ring-amber-500/20" : ""}`}>
-            {currentPlan === "pro" && (
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                <Badge className="bg-amber-500 text-white">Current Plan</Badge>
-              </div>
-            )}
-            <div className="absolute -top-3 right-4">
-              <Badge className="bg-gradient-to-r from-amber-500 to-orange-600 text-white">
-                <Sparkles className="w-3 h-3 mr-1" />
-                Popular
-              </Badge>
+        {/* Hero card */}
+        <Card className="mb-8 border-amber-500/30 bg-gradient-to-br from-amber-500/5 via-orange-500/5 to-transparent overflow-hidden">
+          <CardContent className="p-8 sm:p-12 text-center">
+            <div className="w-16 h-16 rounded-2xl bg-amber-500/10 flex items-center justify-center mx-auto mb-6">
+              <Sparkles className="w-8 h-8 text-amber-500" />
             </div>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Crown className="w-6 h-6 text-amber-500" />
-                Pro
-              </CardTitle>
-              <div className="mt-2">
-                <span className="text-4xl font-bold">₹49</span>
-                <span className="text-muted-foreground">/month</span>
-                <p className="text-xs text-muted-foreground mt-0.5">Inclusive of all taxes</p>
-              </div>
-              <p className="text-sm text-muted-foreground mt-1">
-                For drivers who want unlimited notifications from all platforms.
-              </p>
-            </CardHeader>
-            <CardContent>
-              <Separator className="mb-4" />
-              <ul className="space-y-3">
-                {[
-                  { label: "Unlimited notifications", included: true },
-                  { label: "All platform connections", included: true },
-                  { label: "Advanced notification feed", included: true },
-                  { label: "Sound + vibration alerts", included: true },
-                  { label: "All 8 regions worldwide", included: true },
-                  { label: "Auto-accept rules", included: true },
-                  { label: "Earnings dashboard", included: true },
-                  { label: "Voice alerts", included: false },
-                  { label: "Smart order ranking (AI)", included: false },
-                ].map((feature) => (
-                  <li key={feature.label} className={`flex items-center gap-2 text-sm ${!feature.included ? "opacity-40" : ""}`}>
-                    {feature.included ? (
-                      <Check className="w-4 h-4 text-amber-500 shrink-0" />
-                    ) : (
-                      <span className="w-4 h-4 shrink-0" />
-                    )}
-                    {feature.label}
-                  </li>
-                ))}
-              </ul>
-              <div className="mt-6">
-                {currentPlan === "pro" ? (
-                  <Button variant="outline" className="w-full" disabled>
-                    Current Plan
-                  </Button>
-                ) : (
-                  <RazorpayCheckout
-                    plan="pro"
-                    period="monthly"
-                    currentPlan={currentPlan}
-                    onSuccess={() => fetchUser()}
-                    label={currentPlan === "free" ? "Upgrade to Pro — ₹49/mo" : "Upgrade to Pro"}
-                    className="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-semibold"
-                    variant="default"
-                  />
-                )}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Premium Plan */}
-          <Card className={`relative border-amber-500/50 shadow-xl shadow-amber-500/10 ${currentPlan === "premium" ? "border-amber-500 ring-2 ring-amber-500/20" : ""}`}>
-            {currentPlan === "premium" && (
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                <Badge className="bg-amber-500 text-white">Current Plan</Badge>
-              </div>
-            )}
-            <div className="absolute -top-3 right-4">
-              <Badge className="bg-gradient-to-r from-amber-500 to-orange-600 text-white">
-                <Crown className="w-3 h-3 mr-1" />
-                Maximum
-              </Badge>
+            <h1 className="text-3xl sm:text-4xl font-extrabold mb-4">
+              You&apos;re on the{" "}
+              <span className="bg-gradient-to-r from-amber-500 to-orange-600 bg-clip-text text-transparent">
+                Free Preview
+              </span>
+            </h1>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-6">
+              NotiFetch is in its first 6 months. Every feature, every platform, every notification
+              is unlocked for free — no payment information on file, no auto-charge when the preview
+              ends. When the premium tier launches, your account will keep working with everything
+              you&apos;ve been using grandfathered into a free tier.
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              <Button
+                onClick={() => router.push("/dashboard")}
+                className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-semibold"
+              >
+                Back to Dashboard
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+              <span className="text-sm text-muted-foreground inline-flex items-center gap-1">
+                <Clock className="w-3.5 h-3.5" />
+                Premium launches in ~6 months
+              </span>
             </div>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Crown className="w-6 h-6 text-amber-500" />
-                Premium
-              </CardTitle>
-              <div className="mt-2">
-                <span className="text-4xl font-bold">₹99</span>
-                <span className="text-muted-foreground">/month</span>
-                <p className="text-xs text-muted-foreground mt-0.5">Inclusive of all taxes</p>
+          </CardContent>
+        </Card>
+
+        {/* What you get right now */}
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Check className="w-5 h-5 text-amber-500" />
+              What you have right now — free
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {[
+                { icon: Bell, label: `Unlimited notifications across all ${PLATFORMS.length}+ platforms` },
+                { icon: Globe, label: `Every category unlocked — food, grocery, QSR, package, freight, etc.` },
+                { icon: Sparkles, label: "Real-time earnings dashboard with live aggregation" },
+                { icon: Zap, label: "Instant push alerts for high-value orders" },
+                { icon: Calendar, label: "Multi-device sync (phone + web + tablet)" },
+                { icon: Heart, label: "Zero payment data collected — nothing to cancel" },
+              ].map((item) => {
+                const Icon = item.icon;
+                return (
+                  <div key={item.label} className="flex items-start gap-3 p-3 rounded-lg bg-muted/30">
+                    <Icon className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+                    <span className="text-sm">{item.label}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* What happens after 6 months */}
+        <Card className="mb-8 border-border/60">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Calendar className="w-5 h-5 text-amber-500" />
+              What happens after the preview ends
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-full bg-amber-500/10 flex items-center justify-center shrink-0">
+                  <span className="text-sm font-bold text-amber-500">1</span>
+                </div>
+                <div>
+                  <p className="font-semibold mb-1">A real free tier stays in place</p>
+                  <p className="text-sm text-muted-foreground">
+                    The app doesn&apos;t suddenly become paid. A meaningful free tier — covering a
+                    limited set of platforms — will remain available forever.
+                  </p>
+                </div>
               </div>
-              <p className="text-sm text-muted-foreground mt-1">
-                Maximum earnings with every feature unlocked.
-              </p>
-            </CardHeader>
-            <CardContent>
-              <Separator className="mb-4" />
-              <ul className="space-y-3">
-                {[
-                  { label: "Unlimited notifications", included: true },
-                  { label: "All platform connections", included: true },
-                  { label: "Advanced notification feed", included: true },
-                  { label: "Sound + vibration alerts", included: true },
-                  { label: "All 8 regions worldwide", included: true },
-                  { label: "Auto-accept rules", included: true },
-                  { label: "Full earnings dashboard", included: true },
-                  { label: "Voice alerts & announcements", included: true },
-                  { label: "Smart order ranking (AI-powered)", included: true },
-                  { label: "Priority support", included: true },
-                ].map((feature) => (
-                  <li key={feature.label} className="flex items-center gap-2 text-sm">
-                    <Check className="w-4 h-4 text-amber-500 shrink-0" />
-                    {feature.label}
-                  </li>
-                ))}
-              </ul>
-              <div className="mt-6">
-                {currentPlan === "premium" ? (
-                  <Button variant="outline" className="w-full" disabled>
-                    Current Plan
-                  </Button>
-                ) : (
-                  <RazorpayCheckout
-                    plan="premium"
-                    period="monthly"
-                    currentPlan={currentPlan}
-                    onSuccess={() => fetchUser()}
-                    label={currentPlan === "free" ? "Upgrade to Premium — ₹99/mo" : "Upgrade to Premium"}
-                    className="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-semibold"
-                    variant="default"
-                  />
-                )}
+              <Separator />
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-full bg-amber-500/10 flex items-center justify-center shrink-0">
+                  <span className="text-sm font-bold text-amber-500">2</span>
+                </div>
+                <div>
+                  <p className="font-semibold mb-1">Premium tier launches with the full platform catalog</p>
+                  <p className="text-sm text-muted-foreground">
+                    Power users who want every platform (especially niche ones) can upgrade to a
+                    premium tier. Pricing will be transparent and region-adjusted.
+                  </p>
+                </div>
               </div>
-            </CardContent>
-          </Card>
+              <Separator />
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-full bg-amber-500/10 flex items-center justify-center shrink-0">
+                  <span className="text-sm font-bold text-amber-500">3</span>
+                </div>
+                <div>
+                  <p className="font-semibold mb-1">Existing preview users are grandfathered</p>
+                  <p className="text-sm text-muted-foreground">
+                    Anyone who used NotiFetch during the 6-month preview keeps access to the platforms
+                    they were using for an additional 6 months — no charge, no surprise.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Stats row */}
+        <div className="grid grid-cols-3 gap-3 mb-8">
+          {[
+            { value: `${PLATFORMS.length}+`, label: "Platforms open" },
+            { value: DELIVERY_CATEGORIES.length.toString(), label: "Categories" },
+            { value: "₹0", label: "Today's price" },
+          ].map((stat) => (
+            <Card key={stat.label} className="border-border/60 text-center">
+              <CardContent className="p-5">
+                <p className="text-2xl sm:text-3xl font-extrabold bg-gradient-to-r from-amber-500 to-orange-600 bg-clip-text text-transparent">
+                  {stat.value}
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">{stat.label}</p>
+              </CardContent>
+            </Card>
+          ))}
         </div>
 
-        {/* FAQ */}
-        <div className="mt-12">
-          <h3 className="text-xl font-bold text-center mb-6">Frequently Asked Questions</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {[
-              {
-                q: "Can I cancel anytime?",
-                a: "Yes, you can cancel your subscription at any time. You'll continue to have access until the end of your billing period.",
-              },
-              {
-                q: "How does NotiFetch work?",
-                a: "NotiFetch reads your phone's existing delivery notifications using Android's NotificationListenerService. No login credentials or API access needed.",
-              },
-              {
-                q: "Is my data safe?",
-                a: "Absolutely. We never access delivery platform APIs, store credentials, or share your data. All notification processing happens on your device.",
-              },
-              {
-                q: "What payment methods do you accept?",
-                a: "We accept UPI, credit/debit cards, net banking, and wallets through Razorpay — India's most trusted payment gateway.",
-              },
-            ].map((faq) => (
-              <Card key={faq.q}>
-                <CardContent className="p-4">
-                  <h4 className="font-medium text-sm mb-2">{faq.q}</h4>
-                  <p className="text-xs text-muted-foreground leading-relaxed">{faq.a}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-
-        {/* Trademark Disclaimer */}
-        <div className="mt-8 text-center">
-          <p className="text-xs text-muted-foreground max-w-2xl mx-auto">
-            Platform names and logos shown on NotiFetch are the property of their respective owners.
-            NotiFetch is not affiliated with, endorsed by, or connected to any delivery platform.
-            Names are displayed for identification purposes only under nominative fair use.
-          </p>
-        </div>
+        {/* Bottom CTA */}
+        <Card className="bg-muted/20 border-border/60">
+          <CardContent className="p-6 text-center">
+            <p className="text-sm text-muted-foreground mb-4">
+              Got feedback during the preview? We&apos;re building this in public.
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              <Button variant="outline" onClick={() => router.push("/dashboard")}>
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back to Dashboard
+              </Button>
+              <Button variant="outline" onClick={() => router.push("/")}>
+                <Globe className="w-4 h-4 mr-2" />
+                Explore Platforms
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </main>
     </div>
   );

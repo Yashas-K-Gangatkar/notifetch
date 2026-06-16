@@ -18,6 +18,9 @@ export async function GET(request: Request) {
   }
 
   const checks = {
+    previewMode: true,
+    paymentsEnabled: false,
+    message: "NotiFetch is in Free Preview — payments are disabled.",
     RAZORPAY_KEY_ID: !!process.env.RAZORPAY_KEY_ID,
     RAZORPAY_KEY_SECRET: !!process.env.RAZORPAY_KEY_SECRET,
     RAZORPAY_WEBHOOK_SECRET: !!process.env.RAZORPAY_WEBHOOK_SECRET,

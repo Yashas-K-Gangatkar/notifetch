@@ -5,7 +5,7 @@ import { Navbar } from "@/components/navbar";
 import { HeroSection } from "@/components/hero-section";
 import { DashboardSection } from "@/components/dashboard-section";
 import { EarningsSection } from "@/components/earnings-section";
-import { PricingSection } from "@/components/pricing-section";
+import { FreePreviewSection } from "@/components/free-preview-section";
 import { PlatformsSection } from "@/components/platforms-section";
 import { SettingsSection } from "@/components/settings-section";
 import { Separator } from "@/components/ui/separator";
@@ -67,7 +67,7 @@ export default function Home() {
         <Separator className="max-w-7xl mx-auto" />
         <PlatformsSection />
         <Separator className="max-w-7xl mx-auto" />
-        <PricingSection />
+        <FreePreviewSection />
         <Separator className="max-w-7xl mx-auto" />
         <SettingsSection />
       </main>

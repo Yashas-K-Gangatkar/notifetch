@@ -28,14 +28,14 @@ const legalDocuments = [
   {
     id: "terms",
     title: "Terms of Service",
-    description: "Read the terms and conditions that govern your use of NotiFetch. Covers account responsibility, prohibited uses, payment terms, and dispute resolution.",
+    description: "Read the terms and conditions that govern your use of NotiFetch. Covers account responsibility, prohibited uses, the Free Preview period, and dispute resolution.",
     href: "/terms",
     icon: FileText,
     highlights: [
       "Service description & disclaimer",
       "User accounts & responsibility",
       "Notification listening & permissions",
-      "Payment terms & refund policy",
+      "Free Preview period & future premium tier",
       "Limitation of liability",
       "Dispute resolution & arbitration",
     ],

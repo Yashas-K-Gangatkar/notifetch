@@ -569,19 +569,20 @@ export const NAV_ITEMS = [
   { id: "dashboard", label: "Dashboard" },
   { id: "earnings", label: "Earnings" },
   { id: "platforms", label: "Platforms" },
-  { id: "pricing", label: "Pricing" },
+  { id: "pricing", label: "Free Preview" },
   { id: "settings", label: "Settings" },
 ];
 
-// ─── Premium Pricing (Multi-Currency) ────────────────────────────────────────
+// ─── Free Preview Period ─────────────────────────────────────────────────────
+// NotiFetch is in its 6-month Free Preview — no payment collection, no tiers.
+// After the preview, a free tier remains and a premium tier launches with
+// the full platform catalog. Pricing will be added here when that happens.
 
-export const PRICING: Record<string, { free: number; pro: number; premium: number; currency: string }> = {
-  "north-america": { free: 0, pro: 0.99, premium: 1.99, currency: "USD" },
-  "europe": { free: 0, pro: 0.89, premium: 1.79, currency: "EUR" },
-  "india": { free: 0, pro: 49, premium: 99, currency: "INR" },
-  "east-asia": { free: 0, pro: 148, premium: 298, currency: "JPY" },
-  "sea": { free: 0, pro: 1.49, premium: 2.99, currency: "SGD" },
-  "mena": { free: 0, pro: 3.49, premium: 6.99, currency: "AED" },
-  "latin-america": { free: 0, pro: 4.90, premium: 9.90, currency: "BRL" },
-  "oceania": { free: 0, pro: 1.49, premium: 2.99, currency: "AUD" },
+export const FREE_PREVIEW = {
+  active: true,
+  durationMonths: 6,
+  startDate: "2026-03-04",
+  endDate: "2026-09-04",
+  tagline: "All features free for 6 months. No card on file.",
 };
+

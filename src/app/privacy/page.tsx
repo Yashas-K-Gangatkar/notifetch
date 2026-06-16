@@ -131,10 +131,11 @@ const sections: Section[] = [
         ],
       },
       {
-        heading: "Payment Data",
+        heading: "Payment Data (currently not collected)",
         items: [
-          "Payment transactions are processed entirely by Razorpay (for users in India) and Stripe (for international users). NotiFetch does not collect, store, or have access to your full credit card number, CVV, or bank account details",
-          "We store only a transaction reference ID and the subscription status (active, cancelled, expired) for our records",
+          "NotiFetch is currently in its Free Preview period — no payment information is collected from any user",
+          "When the premium tier launches after the preview, payment transactions will be processed entirely by Razorpay (for users in India) and Stripe (for international users). NotiFetch will not collect, store, or have access to your full credit card number, CVV, or bank account details",
+          "We will store only a transaction reference ID and the subscription status (active, cancelled, expired) for our records",
           "Razorpay and Stripe each operate under their own privacy policies and PCI-DSS compliance frameworks",
         ],
       },
@@ -194,7 +195,7 @@ const sections: Section[] = [
       {
         heading: "Secondary Purposes",
         items: [
-          "Account management: To create, authenticate, and maintain your NotiFetch account, including subscription management and profile customization",
+          "Account management: To create, authenticate, and maintain your NotiFetch account, including profile customization and Free Preview eligibility tracking",
           "Service improvement: To analyze anonymized usage patterns for improving app performance, user experience, and developing new features that benefit our user community",
           "Security and fraud prevention: To detect unauthorized access, prevent abuse of the Service, and protect the integrity of our platform and our users",
           "Legal compliance: To fulfill our obligations under applicable laws, respond to valid legal processes, and enforce our Terms of Service",
@@ -246,7 +247,7 @@ const sections: Section[] = [
         items: [
           "Processing notification data to display your earnings dashboard, order feed, and analytics constitutes processing necessary for the performance of the contract between you and NotiFetch when you register for and use the Service",
           "Account creation and authentication: Processing necessary to set up and maintain your account as part of the service contract",
-          "Subscription management: Processing payment references and subscription status to deliver the premium features you have subscribed to",
+          "Subscription management (currently inactive): Processing payment references and subscription status to deliver premium features. This is disabled during the Free Preview and will be activated when the premium tier launches",
         ],
       },
       {
@@ -260,7 +261,7 @@ const sections: Section[] = [
       {
         heading: "Legal Obligation (Article 6(1)(c))",
         items: [
-          "Retention of payment transaction records as required by financial regulations in applicable jurisdictions",
+          "Retention of payment transaction records (when collected after the preview) as required by financial regulations in applicable jurisdictions",
           "Disclosure of data when required by valid legal process, court order, or regulatory requirement",
         ],
       },
@@ -329,10 +330,11 @@ const sections: Section[] = [
         ],
       },
       {
-        heading: "Payments",
+        heading: "Payments (currently inactive — Free Preview)",
         items: [
-          "Razorpay (India): Processes subscription payments for users in India. Razorpay collects and processes payment card data and banking information directly — NotiFetch never receives full card numbers or banking credentials. Razorpay is PCI-DSS Level 1 compliant and certified by the Reserve Bank of India. Privacy policy: razorpay.com/privacy",
-          "Stripe (International): Processes subscription payments for users outside India. Stripe collects and processes payment card data directly — NotiFetch never receives full card numbers. Stripe is PCI-DSS Level 1 compliant. Privacy policy: stripe.com/privacy",
+          "NotiFetch is in its Free Preview period. No payment processors are active and no payment information is collected from any user",
+          "When the premium tier launches after the preview: Razorpay (India) will process subscription payments for users in India. Razorpay collects and processes payment card data and banking information directly — NotiFetch will never receive full card numbers or banking credentials. Razorpay is PCI-DSS Level 1 compliant and certified by the Reserve Bank of India. Privacy policy: razorpay.com/privacy",
+          "When the premium tier launches after the preview: Stripe (International) will process subscription payments for users outside India. Stripe collects and processes payment card data directly — NotiFetch will never receive full card numbers. Stripe is PCI-DSS Level 1 compliant. Privacy policy: stripe.com/privacy",
         ],
       },
       {
@@ -364,7 +366,7 @@ const sections: Section[] = [
         items: [
           "Notification data: Automatically deleted 30 days after collection. This automatic deletion applies to both locally stored data (Room database) and cloud-synced data (PostgreSQL). You may also manually delete notification data at any time through the app or by contacting us",
           "Account data: Retained for the duration your account is active. Upon account deletion, all associated data is permanently deleted within 30 days, except where retention is required by law",
-          "Payment records: Transaction reference IDs and subscription statuses are retained for 7 years as required by financial regulations in applicable jurisdictions. Full payment card details are never stored by NotiFetch",
+          "Payment records (when collected after the preview): Transaction reference IDs and subscription statuses will be retained for 7 years as required by financial regulations in applicable jurisdictions. Full payment card details are never stored by NotiFetch",
           "Usage analytics (anonymized): Anonymized and aggregated usage data that cannot identify individual users may be retained indefinitely for service improvement purposes",
           "Crash reports: Anonymized crash data is retained for 90 days, after which it is permanently deleted",
           "Firebase Cloud Messaging tokens: Retained while your account is active or until you disable push notifications. Deleted within 30 days of account deletion or token invalidation",
@@ -498,8 +500,8 @@ const sections: Section[] = [
           "Vercel (backend): May process data in data centers located in the United States and Europe, with automatic edge routing based on request origin",
           "Neon / AWS (database): Data is stored in the AWS region configured for our database deployment. You may contact us for the current region configuration",
           "Firebase (authentication, FCM, Crashlytics): Google processes data in accordance with its global infrastructure, with primary processing in the United States and Europe",
-          "Razorpay (India payments): Data processing occurs within India, in compliance with RBI data localization requirements",
-          "Stripe (international payments): Data may be processed in the United States and other jurisdictions as described in Stripe's privacy policy",
+          "Razorpay (India payments, when active): Data processing will occur within India, in compliance with RBI data localization requirements",
+          "Stripe (international payments, when active): Data may be processed in the United States and other jurisdictions as described in Stripe's privacy policy",
         ],
       },
     ],
