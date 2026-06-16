@@ -121,6 +121,7 @@ export function HeroSection({ onNavigate }: HeroProps) {
             { icon: "📦", label: "Package" },
             { icon: "💊", label: "Pharmacy" },
             { icon: "🚛", label: "Freight" },
+            { icon: "🍔", label: "QSR" },
           ].map((item, i) => (
             <div
               key={i}

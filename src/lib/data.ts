@@ -92,6 +92,7 @@ export const DELIVERY_CATEGORIES: DeliveryCategory[] = [
   { id: "medical", name: "Medical & Pharmacy", icon: "💊", description: "Prescriptions & supplies", color: "text-red-400", bgColor: "bg-red-500/10", borderColor: "border-red-500/30" },
   { id: "package", name: "Package & Parcel", icon: "📬", description: "Packages & parcels", color: "text-teal-400", bgColor: "bg-teal-500/10", borderColor: "border-teal-500/30" },
   { id: "pet-supplies", name: "Pet Supplies", icon: "🐾", description: "Pet food & accessories", color: "text-yellow-400", bgColor: "bg-yellow-500/10", borderColor: "border-yellow-500/30" },
+  { id: "qsr", name: "QSR & Fast Food", icon: "🍔", description: "Quick-service restaurant orders", color: "text-orange-400", bgColor: "bg-orange-500/10", borderColor: "border-orange-500/30" },
   { id: "ride-transport", name: "Ride & Transport", icon: "🚗", description: "Rideshare & taxi", color: "text-violet-400", bgColor: "bg-violet-500/10", borderColor: "border-violet-500/30" },
   { id: "same-day", name: "Same-Day Delivery", icon: "⚡", description: "Any same-day service", color: "text-sky-400", bgColor: "bg-sky-500/10", borderColor: "border-sky-500/30" },
   { id: "white-glove", name: "White-Glove", icon: "🤝", description: "Premium careful handling", color: "text-fuchsia-400", bgColor: "bg-fuchsia-500/10", borderColor: "border-fuchsia-500/30" },
@@ -236,6 +237,52 @@ export const PLATFORMS: Platform[] = [
   // ── Cannabis & CBD ─────────────────────────────────────────────────────────
   { id: "eaze", name: "Eaze", category: "cannabis", regions: ["north-america"], color: "text-green-400", bgColor: "bg-green-500/10", borderColor: "border-green-500/30", icon: "🌿", connected: false, notificationsToday: 2, earningsToday: 30.00, currency: "USD" },
   { id: "dutchie", name: "Dutchie", category: "cannabis", regions: ["north-america"], color: "text-lime-400", bgColor: "bg-lime-500/10", borderColor: "border-lime-500/30", icon: "🍃", connected: false, notificationsToday: 1, earningsToday: 22.00, currency: "USD" },
+
+  // ── QSR & Fast Food ────────────────────────────────────────────────────────
+  // Pizza chains
+  { id: "dominos-india", name: "Domino's India", category: "qsr", regions: ["india"], color: "text-blue-400", bgColor: "bg-blue-500/10", borderColor: "border-blue-500/30", icon: "🍕", connected: true, notificationsToday: 14, earningsToday: 850, currency: "INR" },
+  { id: "dominos-us", name: "Domino's (US)", category: "qsr", regions: ["north-america"], color: "text-blue-400", bgColor: "bg-blue-500/10", borderColor: "border-blue-500/30", icon: "🍕", connected: false, notificationsToday: 9, earningsToday: 58.00, currency: "USD" },
+  { id: "pizza-hut-india", name: "Pizza Hut India", category: "qsr", regions: ["india"], color: "text-red-400", bgColor: "bg-red-500/10", borderColor: "border-red-500/30", icon: "🍕", connected: true, notificationsToday: 11, earningsToday: 720, currency: "INR" },
+  { id: "pizza-hut", name: "Pizza Hut", category: "qsr", regions: ["north-america", "europe", "oceania", "latin-america"], color: "text-red-400", bgColor: "bg-red-500/10", borderColor: "border-red-500/30", icon: "🍕", connected: false, notificationsToday: 8, earningsToday: 52.00, currency: "USD" },
+  { id: "papa-johns", name: "Papa John's", category: "qsr", regions: ["north-america", "europe"], color: "text-green-400", bgColor: "bg-green-500/10", borderColor: "border-green-500/30", icon: "🍕", connected: false, notificationsToday: 6, earningsToday: 42.00, currency: "USD" },
+
+  // Burger chains
+  { id: "mcdelivery-india", name: "McDelivery India", category: "qsr", regions: ["india"], color: "text-yellow-400", bgColor: "bg-yellow-500/10", borderColor: "border-yellow-500/30", icon: "🍔", connected: true, notificationsToday: 16, earningsToday: 680, currency: "INR" },
+  { id: "mcdonalds", name: "McDonald's", category: "qsr", regions: ["north-america", "europe", "oceania", "latin-america", "sea"], color: "text-yellow-400", bgColor: "bg-yellow-500/10", borderColor: "border-yellow-500/30", icon: "🍔", connected: false, notificationsToday: 12, earningsToday: 72.00, currency: "USD" },
+  { id: "burger-king-india", name: "Burger King India", category: "qsr", regions: ["india"], color: "text-red-400", bgColor: "bg-red-500/10", borderColor: "border-red-500/30", icon: "🍔", connected: true, notificationsToday: 10, earningsToday: 520, currency: "INR" },
+  { id: "burger-king", name: "Burger King", category: "qsr", regions: ["north-america", "europe", "latin-america"], color: "text-red-400", bgColor: "bg-red-500/10", borderColor: "border-red-500/30", icon: "🍔", connected: false, notificationsToday: 8, earningsToday: 55.00, currency: "USD" },
+  { id: "wendys", name: "Wendy's", category: "qsr", regions: ["north-america"], color: "text-red-400", bgColor: "bg-red-500/10", borderColor: "border-red-500/30", icon: "🍔", connected: false, notificationsToday: 5, earningsToday: 38.00, currency: "USD" },
+  { id: "five-guys", name: "Five Guys", category: "qsr", regions: ["north-america", "europe"], color: "text-orange-400", bgColor: "bg-orange-500/10", borderColor: "border-orange-500/30", icon: "🍔", connected: false, notificationsToday: 4, earningsToday: 45.00, currency: "USD" },
+
+  // Chicken chains
+  { id: "kfc-india", name: "KFC India", category: "qsr", regions: ["india"], color: "text-red-400", bgColor: "bg-red-500/10", borderColor: "border-red-500/30", icon: "🍗", connected: true, notificationsToday: 13, earningsToday: 640, currency: "INR" },
+  { id: "kfc", name: "KFC", category: "qsr", regions: ["north-america", "europe", "oceania", "sea", "mena", "latin-america"], color: "text-red-400", bgColor: "bg-red-500/10", borderColor: "border-red-500/30", icon: "🍗", connected: false, notificationsToday: 10, earningsToday: 62.00, currency: "USD" },
+  { id: "chick-fil-a", name: "Chick-fil-A", category: "qsr", regions: ["north-america"], color: "text-red-400", bgColor: "bg-red-500/10", borderColor: "border-red-500/30", icon: "🐔", connected: false, notificationsToday: 9, earningsToday: 48.00, currency: "USD" },
+  { id: "popeyes", name: "Popeyes", category: "qsr", regions: ["north-america"], color: "text-orange-400", bgColor: "bg-orange-500/10", borderColor: "border-orange-500/30", icon: "🍗", connected: false, notificationsToday: 6, earningsToday: 42.00, currency: "USD" },
+
+  // Mexican / Sandwich / Other
+  { id: "chipotle", name: "Chipotle", category: "qsr", regions: ["north-america", "europe"], color: "text-amber-400", bgColor: "bg-amber-500/10", borderColor: "border-amber-500/30", icon: "🌯", connected: false, notificationsToday: 8, earningsToday: 52.00, currency: "USD" },
+  { id: "taco-bell", name: "Taco Bell", category: "qsr", regions: ["north-america", "europe", "latin-america"], color: "text-purple-400", bgColor: "bg-purple-500/10", borderColor: "border-purple-500/30", icon: "🌮", connected: false, notificationsToday: 7, earningsToday: 38.00, currency: "USD" },
+  { id: "subway", name: "Subway", category: "qsr", regions: ["north-america", "europe", "india", "oceania", "sea", "latin-america"], color: "text-green-400", bgColor: "bg-green-500/10", borderColor: "border-green-500/30", icon: "🥪", connected: false, notificationsToday: 6, earningsToday: 35.00, currency: "USD" },
+  { id: "panera", name: "Panera Bread", category: "qsr", regions: ["north-america"], color: "text-amber-400", bgColor: "bg-amber-500/10", borderColor: "border-amber-500/30", icon: "🥖", connected: false, notificationsToday: 5, earningsToday: 40.00, currency: "USD" },
+
+  // Coffee / Bakery
+  { id: "starbucks", name: "Starbucks", category: "qsr", regions: ["north-america", "europe", "mena", "sea", "east-asia", "oceania"], color: "text-green-400", bgColor: "bg-green-500/10", borderColor: "border-green-500/30", icon: "☕", connected: false, notificationsToday: 11, earningsToday: 45.00, currency: "USD" },
+  { id: "starbucks-india", name: "Starbucks India", category: "qsr", regions: ["india"], color: "text-green-400", bgColor: "bg-green-500/10", borderColor: "border-green-500/30", icon: "☕", connected: true, notificationsToday: 9, earningsToday: 480, currency: "INR" },
+  { id: "dunkin", name: "Dunkin'", category: "qsr", regions: ["north-america"], color: "text-orange-400", bgColor: "bg-orange-500/10", borderColor: "border-orange-500/30", icon: "🍩", connected: false, notificationsToday: 6, earningsToday: 28.00, currency: "USD" },
+  { id: "tim-hortons", name: "Tim Hortons", category: "qsr", regions: ["north-america"], color: "text-red-400", bgColor: "bg-red-500/10", borderColor: "border-red-500/30", icon: "☕", connected: false, notificationsToday: 7, earningsToday: 32.00, currency: "CAD" },
+
+  // India-specific QSR
+  { id: "eatsure", name: "EatSure", category: "qsr", regions: ["india"], color: "text-emerald-400", bgColor: "bg-emerald-500/10", borderColor: "border-emerald-500/30", icon: "🍔", connected: true, notificationsToday: 8, earningsToday: 420, currency: "INR" },
+  { id: "box8", name: "Box8", category: "qsr", regions: ["india"], color: "text-orange-400", bgColor: "bg-orange-500/10", borderColor: "border-orange-500/30", icon: "🍱", connected: false, notificationsToday: 6, earningsToday: 380, currency: "INR" },
+  { id: "behrouz", name: "Behrouz Biryani", category: "qsr", regions: ["india"], color: "text-amber-400", bgColor: "bg-amber-500/10", borderColor: "border-amber-500/30", icon: "🍛", connected: false, notificationsToday: 5, earningsToday: 560, currency: "INR" },
+  { id: "chaayos", name: "Chaayos", category: "qsr", regions: ["india"], color: "text-orange-400", bgColor: "bg-orange-500/10", borderColor: "border-orange-500/30", icon: "🍵", connected: false, notificationsToday: 4, earningsToday: 220, currency: "INR" },
+  { id: "wow-momo", name: "Wow! Momo", category: "qsr", regions: ["india"], color: "text-yellow-400", bgColor: "bg-yellow-500/10", borderColor: "border-yellow-500/30", icon: "🥟", connected: false, notificationsToday: 5, earningsToday: 280, currency: "INR" },
+  { id: "faasos", name: "Faasos", category: "qsr", regions: ["india"], color: "text-yellow-400", bgColor: "bg-yellow-500/10", borderColor: "border-yellow-500/30", icon: "🌯", connected: false, notificationsToday: 7, earningsToday: 340, currency: "INR" },
+  { id: "oven-story", name: "Oven Story Pizza", category: "qsr", regions: ["india"], color: "text-orange-400", bgColor: "bg-orange-500/10", borderColor: "border-orange-500/30", icon: "🍕", connected: false, notificationsToday: 3, earningsToday: 410, currency: "INR" },
+  { id: "mandarin-fox", name: "Mandarin Fox", category: "qsr", regions: ["india"], color: "text-red-400", bgColor: "bg-red-500/10", borderColor: "border-red-500/30", icon: "🍜", connected: false, notificationsToday: 3, earningsToday: 360, currency: "INR" },
+  { id: "the-bowl-company", name: "The Bowl Company", category: "qsr", regions: ["india"], color: "text-blue-400", bgColor: "bg-blue-500/10", borderColor: "border-blue-500/30", icon: "🥣", connected: false, notificationsToday: 4, earningsToday: 320, currency: "INR" },
+  { id: "lenotre-dessert", name: "LENôTRE Dessert", category: "qsr", regions: ["mena"], color: "text-amber-400", bgColor: "bg-amber-500/10", borderColor: "border-amber-500/30", icon: "🍰", connected: false, notificationsToday: 2, earningsToday: 65.00, currency: "AED" },
 ];
 
 // ─── Order ───────────────────────────────────────────────────────────────────
