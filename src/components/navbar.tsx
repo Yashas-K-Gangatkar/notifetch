@@ -12,7 +12,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { Zap, Menu, Moon, Sun, LogIn, LogOut, User, QrCode, Smartphone } from "lucide-react";
+import { Zap, Menu, Moon, Sun, LogIn, LogOut, User, QrCode, Smartphone, Download, Play } from "lucide-react";
 import { useTheme } from "next-themes";
 
 interface NavbarProps {
@@ -93,6 +93,18 @@ export function Navbar({ activeSection, onNavigate }: NavbarProps) {
 
             {/* Right side */}
             <div className="flex items-center gap-2">
+              {/* Play Store download button — always visible */}
+              <a
+                href="https://play.google.com/store/apps/details?id=com.notifetch.app"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hidden sm:inline-flex items-center gap-1.5 bg-black text-white text-xs font-semibold px-3 h-9 rounded-lg hover:bg-black/90 transition-colors"
+                title="Download NotiFetch on Google Play"
+              >
+                <Play className="w-3 h-3 fill-white" />
+                Get App
+              </a>
+
               {/* QR Code button */}
               <Button
                 variant="ghost"
@@ -202,6 +214,15 @@ export function Navbar({ activeSection, onNavigate }: NavbarProps) {
                       </button>
                     ))}
                     <div className="mt-4 pt-4 border-t border-border space-y-2">
+                      <a
+                        href="https://play.google.com/store/apps/details?id=com.notifetch.app"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center gap-2 bg-black text-white text-sm font-semibold px-4 h-10 rounded-lg hover:bg-black/90 transition-colors w-full"
+                      >
+                        <Play className="w-4 h-4 fill-white" />
+                        Download on Play Store
+                      </a>
                       {isLoggedIn ? (
                         <>
                           <div className="flex items-center gap-3 px-4 py-3">

@@ -84,9 +84,12 @@ export default function Home() {
                 NotiFetch
               </span>
             </div>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground text-center">
               &copy; {new Date().getFullYear()} NotiFetch. One Feed. All
               Notifications. Zero Credentials.
+            </p>
+            <p className="text-xs font-bold tracking-[0.2em] uppercase text-amber-500">
+              Doing is Doing — DID
             </p>
           </div>
         </div>

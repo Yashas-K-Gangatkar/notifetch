@@ -154,6 +154,11 @@ export function DashboardSection({
           <p className="text-muted-foreground text-lg">
             Real-time delivery notifications from all your platforms worldwide
           </p>
+          <p className="text-xs text-muted-foreground/70 mt-3 max-w-2xl mx-auto">
+            <span className="inline-block bg-amber-500/10 text-amber-600 dark:text-amber-400 px-2 py-0.5 rounded-full font-semibold tracking-wide">DEMO</span>
+            {" "}This is how it works — sample orders shown below illustrate what you&apos;ll see when your NotiFetch Android app captures real notifications.
+            <a href="https://play.google.com/store/apps/details?id=com.notifetch.app" target="_blank" rel="noopener noreferrer" className="ml-1 text-amber-500 hover:text-amber-400 font-medium underline">Download the app →</a>
+          </p>
         </div>
 
         {/* Summary bar */}
@@ -307,6 +312,9 @@ export function DashboardSection({
                             className={`${platform.bgColor} ${platform.color} font-semibold`}
                           >
                             {platform.name}
+                          </Badge>
+                          <Badge className="bg-amber-500/20 text-amber-600 dark:text-amber-400 border-amber-500/30 text-[9px] font-bold tracking-wider">
+                            DEMO
                           </Badge>
                           {category && (
                             <Badge

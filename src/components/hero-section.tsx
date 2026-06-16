@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Bell, ArrowRight, ChevronDown, Smartphone, Zap, TrendingUp, Globe, QrCode, Mail, LayoutDashboard } from "lucide-react";
+import { Bell, ArrowRight, ChevronDown, Smartphone, Zap, TrendingUp, Globe, QrCode, Mail, LayoutDashboard, Download, Play } from "lucide-react";
 import { PLATFORMS, DELIVERY_CATEGORIES, REGIONS } from "@/lib/data";
 import {
   Dialog,
@@ -65,7 +65,7 @@ export function HeroSection({ onNavigate }: HeroProps) {
         {notifications.map((n) => (
           <div
             key={n.id}
-            className={`absolute animate-notification-pulse opacity-20`}
+            className={`absolute animate-notification-pulse opacity-25`}
             style={{
               left: `${n.x}%`,
               top: `${n.y}%`,
@@ -74,7 +74,7 @@ export function HeroSection({ onNavigate }: HeroProps) {
             }}
           >
             <div
-              className={`bg-muted/50 backdrop-blur-sm rounded-lg px-3 py-2 text-xs font-medium ${
+              className={`bg-muted/50 backdrop-blur-sm rounded-lg px-3 py-2 text-xs font-medium relative ${
                 n.side === "left" ? "animate-slide-in-left" : "animate-slide-in-right"
               }`}
               style={{ animationDelay: `${n.delay}s` }}
@@ -82,6 +82,10 @@ export function HeroSection({ onNavigate }: HeroProps) {
               <span className="flex items-center gap-1.5">
                 <Bell className="w-3 h-3 text-amber-500" />
                 {n.platform} • {n.value}
+              </span>
+              {/* DEMO sticker */}
+              <span className="absolute -top-2 -right-2 bg-amber-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full shadow-md tracking-wide">
+                DEMO
               </span>
             </div>
           </div>
@@ -120,13 +124,23 @@ export function HeroSection({ onNavigate }: HeroProps) {
         </div>
 
         {/* Main heading */}
-        <h1 className="animate-float-up text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight mb-6" style={{ animationDelay: "0.1s" }}>
+        <h1 className="animate-float-up text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight mb-3" style={{ animationDelay: "0.1s" }}>
           <span className="block">One Feed.</span>
           <span className="block">All Platforms.</span>
           <span className="block bg-gradient-to-r from-amber-500 to-orange-600 bg-clip-text text-transparent">
             Every Delivery. Worldwide.
           </span>
         </h1>
+
+        {/* DID slogan */}
+        <div className="animate-float-up mb-6" style={{ animationDelay: "0.15s" }}>
+          <span className="inline-flex items-center gap-2 text-sm font-bold tracking-[0.2em] uppercase text-amber-500">
+            <span className="h-px w-8 bg-amber-500/40" />
+            Doing is Doing
+            <span className="text-muted-foreground/60">— DID</span>
+            <span className="h-px w-8 bg-amber-500/40" />
+          </span>
+        </div>
 
         {/* Subtitle */}
         <p className="animate-float-up text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-8 leading-relaxed" style={{ animationDelay: "0.2s" }}>
@@ -196,6 +210,27 @@ export function HeroSection({ onNavigate }: HeroProps) {
           </Button>
         </div>
 
+        {/* Play Store download + Open in App buttons */}
+        <div className="animate-float-up flex flex-col sm:flex-row items-center justify-center gap-3 mb-8" style={{ animationDelay: "0.45s" }}>
+          <a
+            href="https://play.google.com/store/apps/details?id=com.notifetch.app"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 bg-black text-white font-semibold px-6 h-11 rounded-xl hover:bg-black/90 transition-colors shadow-lg"
+          >
+            <Play className="w-4 h-4 fill-white" />
+            Download on Play Store
+            <Download className="w-3.5 h-3.5 ml-1" />
+          </a>
+          <a
+            href="https://www.notifetch.in/dashboard"
+            className="inline-flex items-center gap-2 bg-amber-500/10 text-amber-600 dark:text-amber-400 font-medium px-6 h-11 rounded-xl border border-amber-500/30 hover:bg-amber-500/20 transition-colors"
+          >
+            <Smartphone className="w-4 h-4" />
+            Open in App
+          </a>
+        </div>
+
         {/* QR Code inline on hero */}
         <div className="animate-float-up flex justify-center mb-8" style={{ animationDelay: "0.45s" }}>
           <div className="bg-white rounded-2xl p-3 shadow-xl border border-border/50 inline-block">
@@ -211,13 +246,13 @@ export function HeroSection({ onNavigate }: HeroProps) {
           </div>
         </div>
 
-        {/* Stats bar */}
+        {/* Stats bar — auth-aware (real data only when logged in) */}
         <div className="animate-float-up flex flex-wrap items-center justify-center gap-6 sm:gap-10" style={{ animationDelay: "0.5s" }}>
           {[
-            { value: `${PLATFORMS.length}+`, label: "Global Platforms", icon: Globe },
+            { value: `${PLATFORMS.length}`, label: "Real Platforms", icon: Globe },
             { value: DELIVERY_CATEGORIES.length.toString(), label: "Delivery Categories", icon: Zap },
-            { value: "190+", label: "Countries", icon: Globe },
-            { value: "$4.8M", label: "Earned This Month", icon: TrendingUp },
+            { value: REGIONS.length.toString(), label: "Global Regions", icon: Globe },
+            { value: "190+", label: "Countries Supported", icon: Globe },
           ].map((stat) => (
             <div key={stat.label} className="flex items-center gap-2 text-center">
               <stat.icon className="w-4 h-4 text-amber-500 hidden sm:block" />

@@ -111,6 +111,10 @@ export function EarningsSection({ acceptedOrders }: EarningsProps) {
           <p className="text-muted-foreground text-lg">
             Track earnings across all platforms and categories worldwide
           </p>
+          <p className="text-xs text-muted-foreground/70 mt-3 max-w-2xl mx-auto">
+            <span className="inline-block bg-amber-500/10 text-amber-600 dark:text-amber-400 px-2 py-0.5 rounded-full font-semibold tracking-wide">DEMO</span>
+            {" "}Sample earnings shown below are illustrative. Your real earnings come from completing deliveries in each platform&apos;s partner app — NotiFetch just aggregates them into one view.
+          </p>
         </div>
 
         {/* Today stats */}

@@ -128,20 +128,15 @@ export function PlatformsSection() {
             </span>
           </h2>
           <p className="text-muted-foreground text-lg">
-            80+ delivery platforms across 18 categories worldwide
+            {PLATFORMS.length} real delivery platforms across {DELIVERY_CATEGORIES.length} categories worldwide
           </p>
         </div>
 
-        {/* Summary */}
-        <div className="flex items-center justify-center gap-6 mb-8">
+        {/* Summary — real counts only, demo data explicitly labeled */}
+        <div className="flex items-center justify-center gap-6 mb-2 flex-wrap">
           <div className="text-center">
-            <p className="text-3xl font-bold text-amber-500">{connectedCount}</p>
-            <p className="text-sm text-muted-foreground">Listening</p>
-          </div>
-          <Separator orientation="vertical" className="h-10" />
-          <div className="text-center">
-            <p className="text-3xl font-bold">{PLATFORMS.length}</p>
-            <p className="text-sm text-muted-foreground">Platforms</p>
+            <p className="text-3xl font-bold text-amber-500">{PLATFORMS.length}</p>
+            <p className="text-sm text-muted-foreground">Real Platforms</p>
           </div>
           <Separator orientation="vertical" className="h-10" />
           <div className="text-center">
@@ -150,10 +145,19 @@ export function PlatformsSection() {
           </div>
           <Separator orientation="vertical" className="h-10" />
           <div className="text-center">
-            <p className="text-3xl font-bold">{totalNotifications}</p>
-            <p className="text-sm text-muted-foreground">Notifications</p>
+            <p className="text-3xl font-bold">{REGIONS.length}</p>
+            <p className="text-sm text-muted-foreground">Global Regions</p>
+          </div>
+          <Separator orientation="vertical" className="h-10" />
+          <div className="text-center">
+            <p className="text-3xl font-bold text-green-500">{connectedCount}</p>
+            <p className="text-sm text-muted-foreground">Sample Preview</p>
           </div>
         </div>
+        <p className="text-center text-xs text-muted-foreground/70 mb-8">
+          <span className="inline-block bg-amber-500/10 text-amber-600 dark:text-amber-400 px-2 py-0.5 rounded-full font-semibold tracking-wide">DEMO</span>
+          {" "}Sample notifications shown below are illustrative. Real notifications appear after you install the NotiFetch app and grant notification access.
+        </p>
 
         {/* Search & Filters */}
         <div className="space-y-4 mb-6">
