@@ -144,3 +144,39 @@ Stage Summary:
 - GitHub: https://github.com/Yashas-K-Gangatkar/d2.git (commit acc61dc, tag v2.9.1-vc27)
 - Key fix: Open App button now tries 3 strategies before falling back to Play Store
 - Key fix: Diagnostic logging shows which packages are active vs tracked on listener connect
+
+---
+Task ID: 5
+Agent: Super Z (main)
+Task: Remove payment/membership UI from website, fix hero showing "Get Started" when logged in, implement smooth onboarding flow (web -> email login -> connect platform -> open app -> notifications -> earn money)
+
+Work Log:
+- Diagnosed root cause from user screenshot: HeroSection component was NOT auth-aware — it always rendered "Get Started - It's Free" button regardless of login state. NAV_ITEMS still contained "Free Preview" entry. /dashboard/subscribe page still existed with payment/pricing UI.
+- Rewrote src/components/hero-section.tsx: Added useSession() hook. Logged-in users now see a green "Welcome back" badge + "Open My Dashboard" CTA instead of "Get Started - It's Free" + amber "Free Preview" badge.
+- Created src/components/how-it-works-section.tsx: New 6-step flow section showing the actual product journey (Login with email -> Connect your platforms -> Open the NotiFetch app -> Get real-time notifications -> Open the specific delivery app -> Earn money). Each step is a card with its own icon/color. CTA is auth-aware.
+- Deleted src/components/free-preview-section.tsx (contained pricing cards, ₹0 "today's price" block, premium tier launch timeline — all payment messaging).
+- Deleted src/app/dashboard/subscribe/page.tsx (payment/pricing page with Free Preview messaging).
+- Updated src/lib/data.ts NAV_ITEMS: Replaced "Free Preview" (id: "pricing") with "How It Works" (id: "how-it-works").
+- Updated src/app/page.tsx: Imported HowItWorksSection, placed it right after HeroSection. Removed FreePreviewSection import and usage.
+- Updated src/app/dashboard/page.tsx:
+  * Top bar badge: "Free Preview" -> "Active" (green)
+  * Quick action card: removed "Free Preview" card linking to /dashboard/subscribe; replaced with "Platforms" card linking to home
+  * Quick stats: replaced "Plan: Free Preview" stat with "Connected Platforms" stat (shows platformStats.length)
+  * Account info: renamed "Plan: Free Preview" row to "Status: Active"
+  * Removed "Free Preview Banner" that linked to /dashboard/subscribe
+  * Removed unused Gift import
+- Updated src/app/dashboard/profile/page.tsx: Replaced two "Free Preview" badges with "Active" badges; swapped Gift import for CheckCircle2.
+- Ran npx tsc --noEmit: clean (0 errors after clearing stale .next type cache).
+- Ran npx next build: success (31 routes generated, /dashboard/subscribe no longer in route list).
+- Committed as 6ac0d2dc and pushed to GitHub main branch. Vercel auto-deploy triggered.
+
+Stage Summary:
+- All payment/membership/premium UI removed from user-facing pages.
+- Hero section is now auth-aware — logged-in users see personalized "Open My Dashboard" CTA, logged-out users see "Login with Email — It's Free".
+- New "How It Works" section walks users through the 6-step flow: web -> email login -> connect platforms -> open app -> notifications -> open specific app -> earn money.
+- Navigation simplified: Home, How It Works, Dashboard, Earnings, Platforms, Settings (no more "Free Preview").
+- /dashboard/subscribe page deleted entirely (was the payment/pricing page).
+- Account/profile pages now show "Status: Active" instead of "Plan: Free Preview".
+- API payment routes (/api/payments/*) are intentionally LEFT IN PLACE — they already return "payments disabled" responses and will be re-activated when premium tier launches in ~6 months. Removing them would break the middleware matcher and existing Android app contracts.
+- Legal pages (/privacy, /terms, /legal) still mention Free Preview period — this is factually accurate (we ARE in free preview) and should stay until premium launches.
+- Live site: https://www.notifetch.in/ — should auto-deploy within ~1-2 minutes of push.
