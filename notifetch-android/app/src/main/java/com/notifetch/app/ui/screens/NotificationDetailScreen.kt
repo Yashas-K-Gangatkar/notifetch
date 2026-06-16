@@ -1,9 +1,6 @@
 package com.notifetch.app.ui.screens
 
-<<<<<<< HEAD
-=======
 import android.content.ComponentName
->>>>>>> e57fe8a (fix: v2.9.1 — Open App button with multi-strategy launch, notification diagnostics, remove all payment code)
 import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
@@ -49,16 +46,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-<<<<<<< HEAD
-import androidx.compose.ui.draw.clip
-=======
->>>>>>> e57fe8a (fix: v2.9.1 — Open App button with multi-strategy launch, notification diagnostics, remove all payment code)
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.notifetch.app.notification.PendingIntentCache
 import com.notifetch.app.ui.components.CategoryBadge
 import com.notifetch.app.ui.components.PlatformIcon
 import com.notifetch.app.ui.theme.getPlatformColor
@@ -186,28 +180,15 @@ fun NotificationDetailScreen(
                 }
 
                 // ── Open App Button (PRIMARY ACTION) ──────────────────────
+                // v2.9.2 FIX: Uses a 4-strategy approach to open the source app
+                // at the specific order/offer/tracking screen (not Play Store):
+                //   1. Cached PendingIntent from the original notification (deep link)
+                //   2. getLaunchIntentForPackage() (app main screen)
+                //   3. Resolve LAUNCHER activity manually (for apps with non-standard manifests)
+                //   4. Play Store (last resort — app not installed)
                 Button(
                     onClick = {
-<<<<<<< HEAD
-                        try {
-                            val launchIntent = context.packageManager.getLaunchIntentForPackage(notification.packageName)
-                            if (launchIntent != null) {
-                                launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                context.startActivity(launchIntent)
-                            } else {
-                                // App not installed — open Play Store
-                                val playStoreIntent = Intent(Intent.ACTION_VIEW).apply {
-                                    data = Uri.parse("market://details?id=${notification.packageName}")
-                                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                }
-                                context.startActivity(playStoreIntent)
-                            }
-                        } catch (e: Exception) {
-                            Toast.makeText(context, "Could not open app", Toast.LENGTH_SHORT).show()
-                        }
-=======
                         openSourceApp(context, notification.packageName, displayPlatformName)
->>>>>>> e57fe8a (fix: v2.9.1 — Open App button with multi-strategy launch, notification diagnostics, remove all payment code)
                     },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
@@ -221,11 +202,7 @@ fun NotificationDetailScreen(
                         modifier = Modifier.size(20.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-<<<<<<< HEAD
-                    Text("Open ${displayPlatformName}", fontWeight = FontWeight.Bold)
-=======
                     Text("Open $displayPlatformName", fontWeight = FontWeight.Bold)
->>>>>>> e57fe8a (fix: v2.9.1 — Open App button with multi-strategy launch, notification diagnostics, remove all payment code)
                 }
 
                 // ── Quick Actions Row ────────────────────────────────────
@@ -430,22 +407,48 @@ fun NotificationDetailScreen(
 
 /**
  * Opens the source app that generated the notification.
- * 
- * Uses a multi-strategy approach because many delivery apps (Zomato, Swiggy, Blinkit)
- * don't expose a default launch intent via getLaunchIntentForPackage().
- * 
- * Strategy 1: getLaunchIntentForPackage() — works for most apps
- * Strategy 2: Resolve the LAUNCHER category activity manually
- * Strategy 3: Fall back to Play Store page (app not installed or completely locked)
+ *
+ * v2.9.2 FIX: Uses a 4-strategy approach to ensure the app opens properly
+ * and ideally deep-links to the specific order/offer/tracking screen:
+ *
+ * Strategy 1: Send the cached PendingIntent from the original notification.
+ *   This is the BEST option — it opens the exact screen the source app intended
+ *   (e.g., a specific order, offer, or tracking page). The PendingIntent is
+ *   cached by NotiFetchListenerService when the notification arrives.
+ *
+ * Strategy 2: getLaunchIntentForPackage() — opens the app's main screen.
+ *   Works for most apps but doesn't deep-link to a specific page.
+ *
+ * Strategy 3: Resolve the LAUNCHER category activity manually.
+ *   Some apps don't expose a default launch intent via getLaunchIntentForPackage()
+ *   (especially on Samsung/Xiaomi devices with OEM customizations).
+ *
+ * Strategy 4: Fall back to Play Store page (app not installed or completely locked).
+ *   This is the LAST resort — the user will at least see the app's Play Store page.
  */
 private fun openSourceApp(context: android.content.Context, packageName: String, displayName: String) {
     try {
         val pm = context.packageManager
 
-        // Strategy 1: Try getLaunchIntentForPackage (works for most apps)
+        // Strategy 1: Try the cached PendingIntent from the original notification
+        // This deep-links to the specific order/offer/tracking screen
+        val cachedPendingIntent = PendingIntentCache.get(packageName)
+        if (cachedPendingIntent != null) {
+            try {
+                cachedPendingIntent.send()
+                return // Success — deep link opened
+            } catch (e: Exception) {
+                // PendingIntent may have been cancelled or the target app was uninstalled
+                // Fall through to strategy 2
+            }
+        }
+
+        // Strategy 2: Try getLaunchIntentForPackage (works for most apps)
         var launchIntent = pm.getLaunchIntentForPackage(packageName)
 
-        // Strategy 2: If null, try to find ANY launchable activity from the package
+        // Strategy 3: If null, try to find ANY launchable activity from the package
+        // Some OEM ROMs (Samsung, Xiaomi) return null from getLaunchIntentForPackage
+        // even for installed apps
         if (launchIntent == null) {
             try {
                 val mainIntent = Intent(Intent.ACTION_MAIN).apply {
@@ -467,7 +470,7 @@ private fun openSourceApp(context: android.content.Context, packageName: String,
             launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
             context.startActivity(launchIntent)
         } else {
-            // Strategy 3: App not installed or locked — open Play Store
+            // Strategy 4: App not installed or locked — open Play Store
             try {
                 val playStoreIntent = Intent(Intent.ACTION_VIEW).apply {
                     data = Uri.parse("market://details?id=$packageName")

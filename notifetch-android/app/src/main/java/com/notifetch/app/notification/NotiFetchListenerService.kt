@@ -36,6 +36,11 @@ import javax.inject.Inject
  * - Platform names in the app use generic category names, not brand names
  * - Per-platform enable/disable is respected (DPDPA compliance)
  * - Android 15 redacted notifications are handled gracefully
+ *
+ * BUG FIX (v2.9.2):
+ * - Caches the notification's contentIntent PendingIntent so "Open App" can deep-link
+ *   to the specific order/offer/tracking screen instead of falling back to Play Store
+ * - Enhanced diagnostic logging to debug why only certain apps are captured
  */
 @AndroidEntryPoint
 class NotiFetchListenerService : NotificationListenerService() {
@@ -102,6 +107,19 @@ class NotiFetchListenerService : NotificationListenerService() {
             val unmatchedPackages = trackedPackages.filter { !Constants.ALL_PACKAGES.containsKey(it) }
             Log.d(tag, "Unmatched packages (not in our list): $unmatchedPackages")
             Log.d(tag, "=== END DIAGNOSTIC ===")
+
+            // Cache PendingIntents from currently active notifications
+            for (sbn in activeNotifications) {
+                if (Constants.ALL_PACKAGES.containsKey(sbn.packageName)) {
+                    try {
+                        val contentIntent = sbn.notification.contentIntent
+                        PendingIntentCache.put(sbn.packageName, contentIntent)
+                        Log.d(tag, "Cached PendingIntent for active notification: ${sbn.packageName}")
+                    } catch (e: Exception) {
+                        Log.w(tag, "Could not cache PendingIntent for ${sbn.packageName}: ${e.message}")
+                    }
+                }
+            }
         } catch (e: Exception) {
             Log.e(tag, "Failed to log active notifications diagnostic", e)
         }
@@ -134,19 +152,10 @@ class NotiFetchListenerService : NotificationListenerService() {
         val userMode = Constants.getUserModeForPackage(packageName)?.name?.lowercase() ?: "rider"
 
         // Per-platform enable/disable check (DPDPA compliance — user can opt out of
-<<<<<<< HEAD
-        // individual platforms). We check asynchronously and skip if disabled.
-        // This is intentionally a quick DB read, not a Flow, since onNotificationPosted
-        // runs on the main thread and we need a synchronous decision.
-        try {
-            val config = kotlinx.coroutines.runBlocking {
-                repository.getPlatformConfigSync(packageName)
-=======
         // individual platforms). We check on IO dispatcher since this is a DB read.
         try {
             val config = kotlinx.coroutines.runBlocking(Dispatchers.IO) {
                 repository.getPlatformConfig(packageName)
->>>>>>> e57fe8a (fix: v2.9.1 — Open App button with multi-strategy launch, notification diagnostics, remove all payment code)
             }
             if (config != null && !config.isEnabled) {
                 Log.d(tag, "Skipping disabled platform: $platformName ($packageName)")
@@ -157,6 +166,20 @@ class NotiFetchListenerService : NotificationListenerService() {
         }
 
         Log.d(tag, "Captured notification from $platformName ($packageName)")
+
+        // Cache the PendingIntent from this notification so "Open App" can use it
+        // to deep-link to the specific order/offer/tracking screen
+        try {
+            val contentIntent = sbn.notification.contentIntent
+            if (contentIntent != null) {
+                PendingIntentCache.put(packageName, contentIntent)
+                Log.d(tag, "Cached contentIntent for $platformName ($packageName)")
+            } else {
+                Log.d(tag, "No contentIntent for $platformName ($packageName) — will use launch fallback")
+            }
+        } catch (e: Exception) {
+            Log.w(tag, "Could not cache contentIntent for $platformName: ${e.message}")
+        }
 
         try {
             val notification = sbn.notification
@@ -185,10 +208,7 @@ class NotiFetchListenerService : NotificationListenerService() {
 
             if (isRedacted) {
                 Log.d(tag, "Android 15+ redacted notification detected from $platformName — saving with REDACTED category")
-<<<<<<< HEAD
                 // Keep the package/platform info but clear the actual text for privacy
-=======
->>>>>>> e57fe8a (fix: v2.9.1 — Open App button with multi-strategy launch, notification diagnostics, remove all payment code)
                 title = "Content hidden by Android"
                 text = ""
                 bigText = ""
@@ -216,10 +236,7 @@ class NotiFetchListenerService : NotificationListenerService() {
             // Parse platform-specific data
             // If Android 15+ redacted the notification, force category to REDACTED
             val parsed = if (isRedacted) {
-<<<<<<< HEAD
                 // Create a minimal parsed result with REDACTED category
-=======
->>>>>>> e57fe8a (fix: v2.9.1 — Open App button with multi-strategy launch, notification diagnostics, remove all payment code)
                 NotificationParser.ParsedNotification(
                     platform = platformName,
                     source = source,
@@ -317,12 +334,14 @@ class NotiFetchListenerService : NotificationListenerService() {
 
     override fun onListenerDisconnected() {
         super.onListenerDisconnected()
+        PendingIntentCache.clear()
         serviceScope.cancel()
         Log.w(tag, "Notification listener disconnected")
     }
 
     override fun onDestroy() {
         super.onDestroy()
+        PendingIntentCache.clear()
         serviceScope.cancel()
     }
 
