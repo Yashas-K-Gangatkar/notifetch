@@ -566,10 +566,10 @@ export function getConnectedPlatforms(): Platform[] {
 
 export const NAV_ITEMS = [
   { id: "hero", label: "Home" },
+  { id: "how-it-works", label: "How It Works" },
   { id: "dashboard", label: "Dashboard" },
   { id: "earnings", label: "Earnings" },
   { id: "platforms", label: "Platforms" },
-  { id: "pricing", label: "Free Preview" },
   { id: "settings", label: "Settings" },
 ];
 

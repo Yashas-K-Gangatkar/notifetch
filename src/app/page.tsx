@@ -3,9 +3,9 @@
 import { useState, useCallback, useEffect } from "react";
 import { Navbar } from "@/components/navbar";
 import { HeroSection } from "@/components/hero-section";
+import { HowItWorksSection } from "@/components/how-it-works-section";
 import { DashboardSection } from "@/components/dashboard-section";
 import { EarningsSection } from "@/components/earnings-section";
-import { FreePreviewSection } from "@/components/free-preview-section";
 import { PlatformsSection } from "@/components/platforms-section";
 import { SettingsSection } from "@/components/settings-section";
 import { Separator } from "@/components/ui/separator";
@@ -57,6 +57,8 @@ export default function Home() {
       <main className="flex-1">
         <HeroSection onNavigate={handleNavigate} />
         <Separator className="max-w-7xl mx-auto" />
+        <HowItWorksSection onNavigate={handleNavigate} />
+        <Separator className="max-w-7xl mx-auto" />
         <DashboardSection
           onAccept={handleAccept}
           onDecline={handleDecline}
@@ -66,8 +68,6 @@ export default function Home() {
         <EarningsSection acceptedOrders={acceptedOrders} />
         <Separator className="max-w-7xl mx-auto" />
         <PlatformsSection />
-        <Separator className="max-w-7xl mx-auto" />
-        <FreePreviewSection />
         <Separator className="max-w-7xl mx-auto" />
         <SettingsSection />
       </main>

@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Bell, ArrowRight, ChevronDown, Smartphone, Zap, TrendingUp, Globe, QrCode, Gift } from "lucide-react";
+import { Bell, ArrowRight, ChevronDown, Smartphone, Zap, TrendingUp, Globe, QrCode, Mail, LayoutDashboard } from "lucide-react";
 import { PLATFORMS, DELIVERY_CATEGORIES, REGIONS } from "@/lib/data";
 import {
   Dialog,
@@ -29,6 +30,8 @@ interface FloatingNotification {
 
 export function HeroSection({ onNavigate }: HeroProps) {
   const [showQR, setShowQR] = useState(false);
+  const { data: session, status } = useSession();
+  const isLoggedIn = status === "authenticated" && !!session?.user;
 
   const [notifications] = useState<FloatingNotification[]>(() => {
     const positions = [
@@ -86,15 +89,25 @@ export function HeroSection({ onNavigate }: HeroProps) {
       </div>
 
       <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        {/* Badge */}
+        {/* Welcome / status badge — auth-aware */}
         <div className="animate-float-up" style={{ animationDelay: "0s" }}>
-          <Badge
-            variant="secondary"
-            className="mb-3 px-4 py-1.5 text-sm bg-amber-500/10 text-amber-500 border-amber-500/20"
-          >
-            <Gift className="w-3.5 h-3.5 mr-1.5" />
-            Free Preview · 6 Months On Us · No Card Needed
-          </Badge>
+          {isLoggedIn ? (
+            <Badge
+              variant="secondary"
+              className="mb-3 px-4 py-1.5 text-sm bg-green-500/10 text-green-500 border-green-500/20"
+            >
+              <LayoutDashboard className="w-3.5 h-3.5 mr-1.5" />
+              Welcome back, {session.user.name || session.user.email?.split("@")[0]} — your dashboard is ready
+            </Badge>
+          ) : (
+            <Badge
+              variant="secondary"
+              className="mb-3 px-4 py-1.5 text-sm bg-amber-500/10 text-amber-500 border-amber-500/20"
+            >
+              <Mail className="w-3.5 h-3.5 mr-1.5" />
+              Login with Email · Free Forever · No Card Needed
+            </Badge>
+          )}
         </div>
         <div className="animate-float-up" style={{ animationDelay: "0.05s" }}>
           <Badge
@@ -149,16 +162,29 @@ export function HeroSection({ onNavigate }: HeroProps) {
           </div>
         </div>
 
-        {/* CTA Buttons */}
+        {/* CTA Buttons — auth-aware */}
         <div className="animate-float-up flex flex-col sm:flex-row items-center justify-center gap-4 mb-8" style={{ animationDelay: "0.4s" }}>
-          <Button
-            size="lg"
-            onClick={() => window.location.href = "/auth/signin"}
-            className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold px-8 h-12 text-base shadow-xl shadow-amber-500/25"
-          >
-            Get Started — It&apos;s Free
-            <ArrowRight className="w-4 h-4 ml-2" />
-          </Button>
+          {isLoggedIn ? (
+            <Button
+              size="lg"
+              onClick={() => window.location.href = "/dashboard"}
+              className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold px-8 h-12 text-base shadow-xl shadow-amber-500/25"
+            >
+              <LayoutDashboard className="w-4 h-4 mr-2" />
+              Open My Dashboard
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </Button>
+          ) : (
+            <Button
+              size="lg"
+              onClick={() => window.location.href = "/auth/signin"}
+              className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold px-8 h-12 text-base shadow-xl shadow-amber-500/25"
+            >
+              <Mail className="w-4 h-4 mr-2" />
+              Login with Email — It&apos;s Free
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </Button>
+          )}
           <Button
             size="lg"
             variant="outline"

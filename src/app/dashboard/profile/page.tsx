@@ -11,7 +11,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import {
   Zap, ArrowLeft, User, Mail, Calendar, Shield,
-  Trash2, Loader2, Camera, Gift
+  Trash2, Loader2, Camera, CheckCircle2
 } from "lucide-react";
 import {
   AlertDialog,
@@ -152,9 +152,9 @@ export default function ProfilePage() {
                 <h2 className="text-xl font-bold">{session.user.name || "User"}</h2>
                 <p className="text-sm text-muted-foreground">{session.user.email}</p>
                 <div className="flex items-center gap-2 mt-1">
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-500 font-medium inline-flex items-center gap-1">
-                    <Gift className="w-3 h-3" />
-                    Free Preview
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-green-500/10 text-green-500 font-medium inline-flex items-center gap-1">
+                    <CheckCircle2 className="w-3 h-3" />
+                    Active
                   </span>
                 </div>
               </div>
@@ -228,10 +228,10 @@ export default function ProfilePage() {
               </div>
               <Separator />
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Plan</span>
+                <span className="text-muted-foreground">Status</span>
                 <span className="font-medium inline-flex items-center gap-1">
-                  <Gift className="w-3 h-3 text-amber-500" />
-                  Free Preview
+                  <CheckCircle2 className="w-3 h-3 text-green-500" />
+                  Active
                 </span>
               </div>
               <Separator />
