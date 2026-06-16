@@ -7,7 +7,6 @@ import com.notifetch.app.data.repository.NotificationRepository
 import com.notifetch.app.util.Constants
 import com.notifetch.app.util.Helpers
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -41,6 +40,7 @@ class EarningsViewModel @Inject constructor(
     private val repository: NotificationRepository
 ) : AndroidViewModel(application) {
 
+<<<<<<< HEAD
     // ── Reactive time-range flows (fix: timestamps were frozen at construction) ──
     // Previously, Helpers.startOfDayTimestamp() etc. were called once in the constructor.
     // If the user left the app open overnight, "today" stats would still show yesterday's
@@ -53,10 +53,32 @@ class EarningsViewModel @Inject constructor(
             emit(startOfDay to now)
             val nextMidnight = startOfDay + 86_400_000L
             val delayMs = (nextMidnight - now).coerceAtLeast(60_000L)
+=======
+    // Reactive time-range flows — auto-recalculate at midnight
+    private val dayRangeFlow = flow {
+        while (true) {
+            val startOfDay = Helpers.startOfDayTimestamp()
+            val now = System.currentTimeMillis()
+            emit(startOfDay to now)
+            val nextMidnight = startOfDay + 86_400_000L
+            val delayMs = (nextMidnight - now).coerceAtLeast(60_000L)
             kotlinx.coroutines.delay(delayMs)
         }
     }
 
+    private val weekStartFlow = flow {
+        while (true) {
+            val startOfWeek = Helpers.startOfWeekTimestamp()
+            emit(startOfWeek)
+            val now = System.currentTimeMillis()
+            val nextWeek = startOfWeek + 7 * 86_400_000L
+            val delayMs = (nextWeek - now).coerceAtLeast(60_000L)
+>>>>>>> e57fe8a (fix: v2.9.1 — Open App button with multi-strategy launch, notification diagnostics, remove all payment code)
+            kotlinx.coroutines.delay(delayMs)
+        }
+    }
+
+<<<<<<< HEAD
     private val weekStartFlow = flow {
         while (true) {
             val startOfWeek = Helpers.startOfWeekTimestamp()
@@ -99,6 +121,36 @@ class EarningsViewModel @Inject constructor(
         repository.getCountInTimeRange(startOfWeek, System.currentTimeMillis())
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
+=======
+    private val monthStartFlow = flow {
+        while (true) {
+            val startOfMonth = Helpers.startOfMonthTimestamp()
+            emit(startOfMonth)
+            kotlinx.coroutines.delay(86_400_000L.coerceAtLeast(60_000L))
+        }
+    }
+
+    private val todayEarningsFlow = dayRangeFlow.flatMapLatest { (start, _) ->
+        repository.getTotalOrderValueSince(start)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
+
+    private val weekEarningsFlow = weekStartFlow.flatMapLatest { startOfWeek ->
+        repository.getTotalOrderValueSince(startOfWeek)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
+
+    private val monthEarningsFlow = monthStartFlow.flatMapLatest { startOfMonth ->
+        repository.getTotalOrderValueSince(startOfMonth)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
+
+    private val todayOrdersFlow = dayRangeFlow.flatMapLatest { (start, end) ->
+        repository.getCountInTimeRange(start, end)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
+
+    private val weekOrdersFlow = weekStartFlow.flatMapLatest { startOfWeek ->
+        repository.getCountInTimeRange(startOfWeek, System.currentTimeMillis())
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
+
+>>>>>>> e57fe8a (fix: v2.9.1 — Open App button with multi-strategy launch, notification diagnostics, remove all payment code)
     private val monthOrdersFlow = monthStartFlow.flatMapLatest { startOfMonth ->
         repository.getCountInTimeRange(startOfMonth, System.currentTimeMillis())
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
@@ -115,11 +167,7 @@ class EarningsViewModel @Inject constructor(
         weekEarningsFlow,
         monthEarningsFlow
     ) { today, week, month ->
-        EarningsDataState(
-            todayEarnings = today,
-            weekEarnings = week,
-            monthEarnings = month
-        )
+        EarningsDataState(today, week, month)
     }
 
     private val ordersState = combine(
@@ -127,11 +175,7 @@ class EarningsViewModel @Inject constructor(
         weekOrdersFlow,
         monthOrdersFlow
     ) { today, week, month ->
-        OrdersDataState(
-            todayOrders = today,
-            weekOrders = week,
-            monthOrders = month
-        )
+        OrdersDataState(today, week, month)
     }
 
     private val platformState = combine(
@@ -140,6 +184,7 @@ class EarningsViewModel @Inject constructor(
     ) { counts, earnings ->
         val earningsMap = earnings.associate { it.platform to it.totalValue }
         val countsMap = counts.associate { it.platform to it.count }
+<<<<<<< HEAD
 
         val allPlatforms = (countsMap.keys + earningsMap.keys).distinct()
 
@@ -148,6 +193,12 @@ class EarningsViewModel @Inject constructor(
             // Previously, only PARTNER_PACKAGES was queried, so customer platforms like
             // Swiggy Customer, Zomato Customer, Amazon Shopping etc. would fall through to the
             // default amber color, making the breakdown visually indistinguishable.
+=======
+        val allPlatforms = (countsMap.keys + earningsMap.keys).distinct()
+
+        allPlatforms.map { platform ->
+            // Look up color from ALL_PACKAGES (both rider + customer)
+>>>>>>> e57fe8a (fix: v2.9.1 — Open App button with multi-strategy launch, notification diagnostics, remove all payment code)
             val pkg = Constants.ALL_PACKAGES.entries
                 .firstOrNull { it.value == platform }?.key
             val hexColor = pkg?.let { Constants.ALL_PLATFORM_COLORS[it] } ?: "#FFC107"

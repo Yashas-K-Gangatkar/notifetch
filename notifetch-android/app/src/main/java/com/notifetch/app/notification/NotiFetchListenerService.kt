@@ -25,18 +25,17 @@ import javax.inject.Inject
  * Core NotificationListenerService that captures notifications from delivery partner apps.
  *
  * This service uses the Android NotificationListenerService API to receive real-time
- * notifications from delivery partner/driver apps. It filters only the configured
- * partner packages, extracts relevant data, saves to local Room database, and
+ * notifications from delivery partner/driver apps AND customer apps. It filters only
+ * the configured packages, extracts relevant data, saves to local Room database, and
  * forwards to the NotiFetch backend.
  *
  * IMPORTANT LEGAL COMPLIANCE:
- * - This captures from PARTNER/DRIVER apps only, NOT customer apps
  * - We only store notification content the user can already see (title, text, bigText, subText)
  * - We do NOT store the raw notification extras bundle (may contain PII, auth tokens)
  * - We do NOT access delivery platform APIs or store credentials
  * - Platform names in the app use generic category names, not brand names
- * - This is protected under Van Buren v. United States (2021): reading data
- *   the user is authorized to access is not a CFAA violation
+ * - Per-platform enable/disable is respected (DPDPA compliance)
+ * - Android 15 redacted notifications are handled gracefully
  */
 @AndroidEntryPoint
 class NotiFetchListenerService : NotificationListenerService() {
@@ -90,6 +89,23 @@ class NotiFetchListenerService : NotificationListenerService() {
         super.onListenerConnected()
         Log.d(tag, "Notification listener connected — monitoring ${Constants.ALL_PACKAGES.size} packages (rider + customer)")
 
+        // Log ALL currently active notifications for diagnostics
+        // This helps debug why only certain apps are showing
+        try {
+            val activeNotifications = getActiveNotifications()
+            Log.d(tag, "=== DIAGNOSTIC: Active notifications on device ===")
+            Log.d(tag, "Total active notifications: ${activeNotifications.size}")
+            val trackedPackages = activeNotifications.map { it.packageName }.distinct()
+            Log.d(tag, "All packages with active notifications: $trackedPackages")
+            val matchedPackages = trackedPackages.filter { Constants.ALL_PACKAGES.containsKey(it) }
+            Log.d(tag, "Matched (tracked) packages: $matchedPackages")
+            val unmatchedPackages = trackedPackages.filter { !Constants.ALL_PACKAGES.containsKey(it) }
+            Log.d(tag, "Unmatched packages (not in our list): $unmatchedPackages")
+            Log.d(tag, "=== END DIAGNOSTIC ===")
+        } catch (e: Exception) {
+            Log.e(tag, "Failed to log active notifications diagnostic", e)
+        }
+
         // Initialize platform configs in database
         serviceScope.launch {
             try {
@@ -118,12 +134,19 @@ class NotiFetchListenerService : NotificationListenerService() {
         val userMode = Constants.getUserModeForPackage(packageName)?.name?.lowercase() ?: "rider"
 
         // Per-platform enable/disable check (DPDPA compliance — user can opt out of
+<<<<<<< HEAD
         // individual platforms). We check asynchronously and skip if disabled.
         // This is intentionally a quick DB read, not a Flow, since onNotificationPosted
         // runs on the main thread and we need a synchronous decision.
         try {
             val config = kotlinx.coroutines.runBlocking {
                 repository.getPlatformConfigSync(packageName)
+=======
+        // individual platforms). We check on IO dispatcher since this is a DB read.
+        try {
+            val config = kotlinx.coroutines.runBlocking(Dispatchers.IO) {
+                repository.getPlatformConfig(packageName)
+>>>>>>> e57fe8a (fix: v2.9.1 — Open App button with multi-strategy launch, notification diagnostics, remove all payment code)
             }
             if (config != null && !config.isEnabled) {
                 Log.d(tag, "Skipping disabled platform: $platformName ($packageName)")
@@ -162,7 +185,10 @@ class NotiFetchListenerService : NotificationListenerService() {
 
             if (isRedacted) {
                 Log.d(tag, "Android 15+ redacted notification detected from $platformName — saving with REDACTED category")
+<<<<<<< HEAD
                 // Keep the package/platform info but clear the actual text for privacy
+=======
+>>>>>>> e57fe8a (fix: v2.9.1 — Open App button with multi-strategy launch, notification diagnostics, remove all payment code)
                 title = "Content hidden by Android"
                 text = ""
                 bigText = ""
@@ -190,7 +216,10 @@ class NotiFetchListenerService : NotificationListenerService() {
             // Parse platform-specific data
             // If Android 15+ redacted the notification, force category to REDACTED
             val parsed = if (isRedacted) {
+<<<<<<< HEAD
                 // Create a minimal parsed result with REDACTED category
+=======
+>>>>>>> e57fe8a (fix: v2.9.1 — Open App button with multi-strategy launch, notification diagnostics, remove all payment code)
                 NotificationParser.ParsedNotification(
                     platform = platformName,
                     source = source,
@@ -246,17 +275,13 @@ class NotiFetchListenerService : NotificationListenerService() {
                     val id = repository.insertNotification(capturedNotification)
                     Log.d(tag, "Saved notification #$id from $platformName [${parsed.category}] ($currency)")
 
-                    // Debounced platform count increment — batch multiple notifications
-                    // from the same package to reduce DB writes (BUG #2 fix).
-                    // Previously, incrementNotificationCount was called inside
-                    // insertNotification, causing a second DB write per notification
-                    // that triggered cascading Room Flow emissions → UI fluttering.
+                    // Debounced platform count increment
                     synchronized(pendingCountIncrements) {
                         pendingCountIncrements.add(packageName)
                     }
                     countIncrementJob?.cancel()
                     countIncrementJob = serviceScope.launch {
-                        delay(2000) // Batch increments over 2-second window
+                        delay(2000)
                         val packagesToIncrement = synchronized(pendingCountIncrements) {
                             val copy = pendingCountIncrements.toList()
                             pendingCountIncrements.clear()
@@ -271,7 +296,7 @@ class NotiFetchListenerService : NotificationListenerService() {
                         }
                     }
 
-                    // Debounced sync — cancel previous, wait 5s, then sync all pending
+                    // Debounced sync
                     syncJob?.cancel()
                     syncJob = serviceScope.launch {
                         delay(5000)

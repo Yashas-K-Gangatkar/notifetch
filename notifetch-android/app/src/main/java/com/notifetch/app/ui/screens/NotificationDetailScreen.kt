@@ -1,5 +1,9 @@
 package com.notifetch.app.ui.screens
 
+<<<<<<< HEAD
+=======
+import android.content.ComponentName
+>>>>>>> e57fe8a (fix: v2.9.1 — Open App button with multi-strategy launch, notification diagnostics, remove all payment code)
 import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
@@ -45,7 +49,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+<<<<<<< HEAD
 import androidx.compose.ui.draw.clip
+=======
+>>>>>>> e57fe8a (fix: v2.9.1 — Open App button with multi-strategy launch, notification diagnostics, remove all payment code)
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
@@ -181,6 +188,7 @@ fun NotificationDetailScreen(
                 // ── Open App Button (PRIMARY ACTION) ──────────────────────
                 Button(
                     onClick = {
+<<<<<<< HEAD
                         try {
                             val launchIntent = context.packageManager.getLaunchIntentForPackage(notification.packageName)
                             if (launchIntent != null) {
@@ -197,6 +205,9 @@ fun NotificationDetailScreen(
                         } catch (e: Exception) {
                             Toast.makeText(context, "Could not open app", Toast.LENGTH_SHORT).show()
                         }
+=======
+                        openSourceApp(context, notification.packageName, displayPlatformName)
+>>>>>>> e57fe8a (fix: v2.9.1 — Open App button with multi-strategy launch, notification diagnostics, remove all payment code)
                     },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
@@ -210,7 +221,11 @@ fun NotificationDetailScreen(
                         modifier = Modifier.size(20.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
+<<<<<<< HEAD
                     Text("Open ${displayPlatformName}", fontWeight = FontWeight.Bold)
+=======
+                    Text("Open $displayPlatformName", fontWeight = FontWeight.Bold)
+>>>>>>> e57fe8a (fix: v2.9.1 — Open App button with multi-strategy launch, notification diagnostics, remove all payment code)
                 }
 
                 // ── Quick Actions Row ────────────────────────────────────
@@ -410,6 +425,66 @@ fun NotificationDetailScreen(
                 Spacer(modifier = Modifier.height(32.dp))
             }
         }
+    }
+}
+
+/**
+ * Opens the source app that generated the notification.
+ * 
+ * Uses a multi-strategy approach because many delivery apps (Zomato, Swiggy, Blinkit)
+ * don't expose a default launch intent via getLaunchIntentForPackage().
+ * 
+ * Strategy 1: getLaunchIntentForPackage() — works for most apps
+ * Strategy 2: Resolve the LAUNCHER category activity manually
+ * Strategy 3: Fall back to Play Store page (app not installed or completely locked)
+ */
+private fun openSourceApp(context: android.content.Context, packageName: String, displayName: String) {
+    try {
+        val pm = context.packageManager
+
+        // Strategy 1: Try getLaunchIntentForPackage (works for most apps)
+        var launchIntent = pm.getLaunchIntentForPackage(packageName)
+
+        // Strategy 2: If null, try to find ANY launchable activity from the package
+        if (launchIntent == null) {
+            try {
+                val mainIntent = Intent(Intent.ACTION_MAIN).apply {
+                    addCategory(Intent.CATEGORY_LAUNCHER)
+                    setPackage(packageName)
+                }
+                val resolveInfo = pm.resolveActivity(mainIntent, 0)
+                if (resolveInfo != null) {
+                    launchIntent = Intent(Intent.ACTION_MAIN).apply {
+                        addCategory(Intent.CATEGORY_LAUNCHER)
+                        setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
+                        component = ComponentName(resolveInfo.activityInfo.packageName, resolveInfo.activityInfo.name)
+                    }
+                }
+            } catch (_: Exception) { }
+        }
+
+        if (launchIntent != null) {
+            launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
+            context.startActivity(launchIntent)
+        } else {
+            // Strategy 3: App not installed or locked — open Play Store
+            try {
+                val playStoreIntent = Intent(Intent.ACTION_VIEW).apply {
+                    data = Uri.parse("market://details?id=$packageName")
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+                context.startActivity(playStoreIntent)
+            } catch (_: Exception) {
+                // Play Store app not available — use browser
+                val webIntent = Intent(Intent.ACTION_VIEW).apply {
+                    data = Uri.parse("https://play.google.com/store/apps/details?id=$packageName")
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+                context.startActivity(webIntent)
+            }
+        }
+    } catch (e: Exception) {
+        Toast.makeText(context, "Could not open $displayName", Toast.LENGTH_SHORT).show()
     }
 }
 

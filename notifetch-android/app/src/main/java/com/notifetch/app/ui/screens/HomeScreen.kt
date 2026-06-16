@@ -96,7 +96,10 @@ fun HomeScreen(
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> e57fe8a (fix: v2.9.1 — Open App button with multi-strategy launch, notification diagnostics, remove all payment code)
     // Check notification listener status and navigate to permission if needed.
     // Uses a flag to prevent navigation loops (BUG #18 cleanup).
     var hasNavigatedToPermission by remember { mutableStateOf(false) }
@@ -403,7 +406,10 @@ fun HomeScreen(
                     }
                 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> e57fe8a (fix: v2.9.1 — Open App button with multi-strategy launch, notification diagnostics, remove all payment code)
                 // ── Notifications list ─────────────────────────────────
                 if (uiState.notifications.isEmpty()) {
                     item {
@@ -456,8 +462,11 @@ fun HomeScreen(
                 item { Spacer(modifier = Modifier.height(24.dp)) }
             }
         }
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> e57fe8a (fix: v2.9.1 — Open App button with multi-strategy launch, notification diagnostics, remove all payment code)
     }
 }
 
