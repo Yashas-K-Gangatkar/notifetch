@@ -25,18 +25,17 @@ import javax.inject.Inject
  * Core NotificationListenerService that captures notifications from delivery partner apps.
  *
  * This service uses the Android NotificationListenerService API to receive real-time
- * notifications from delivery partner/driver apps. It filters only the configured
- * partner packages, extracts relevant data, saves to local Room database, and
+ * notifications from delivery partner/driver apps AND customer apps. It filters only
+ * the configured packages, extracts relevant data, saves to local Room database, and
  * forwards to the NotiFetch backend.
  *
  * IMPORTANT LEGAL COMPLIANCE:
- * - This captures from PARTNER/DRIVER apps only, NOT customer apps
  * - We only store notification content the user can already see (title, text, bigText, subText)
  * - We do NOT store the raw notification extras bundle (may contain PII, auth tokens)
  * - We do NOT access delivery platform APIs or store credentials
  * - Platform names in the app use generic category names, not brand names
- * - This is protected under Van Buren v. United States (2021): reading data
- *   the user is authorized to access is not a CFAA violation
+ * - Per-platform enable/disable is respected (DPDPA compliance)
+ * - Android 15 redacted notifications are handled gracefully
  */
 @AndroidEntryPoint
 class NotiFetchListenerService : NotificationListenerService() {
@@ -90,6 +89,23 @@ class NotiFetchListenerService : NotificationListenerService() {
         super.onListenerConnected()
         Log.d(tag, "Notification listener connected — monitoring ${Constants.ALL_PACKAGES.size} packages (rider + customer)")
 
+        // Log ALL currently active notifications for diagnostics
+        // This helps debug why only certain apps are showing
+        try {
+            val activeNotifications = getActiveNotifications()
+            Log.d(tag, "=== DIAGNOSTIC: Active notifications on device ===")
+            Log.d(tag, "Total active notifications: ${activeNotifications.size}")
+            val trackedPackages = activeNotifications.map { it.packageName }.distinct()
+            Log.d(tag, "All packages with active notifications: $trackedPackages")
+            val matchedPackages = trackedPackages.filter { Constants.ALL_PACKAGES.containsKey(it) }
+            Log.d(tag, "Matched (tracked) packages: $matchedPackages")
+            val unmatchedPackages = trackedPackages.filter { !Constants.ALL_PACKAGES.containsKey(it) }
+            Log.d(tag, "Unmatched packages (not in our list): $unmatchedPackages")
+            Log.d(tag, "=== END DIAGNOSTIC ===")
+        } catch (e: Exception) {
+            Log.e(tag, "Failed to log active notifications diagnostic", e)
+        }
+
         // Initialize platform configs in database
         serviceScope.launch {
             try {
@@ -103,12 +119,33 @@ class NotiFetchListenerService : NotificationListenerService() {
     override fun onNotificationPosted(sbn: StatusBarNotification) {
         val packageName = sbn.packageName
 
+        // Log ALL incoming notifications for diagnostics (helps debug OEM-specific capture issues)
+        Log.d(tag, "Received notification from: $packageName")
+
         // Filter: only process notifications from partner apps
-        val platformName = Constants.ALL_PACKAGES[packageName] ?: return
+        val platformName = Constants.ALL_PACKAGES[packageName]
+        if (platformName == null) {
+            // Not a tracked package — skip silently (reduce log noise)
+            return
+        }
 
         val source = Constants.ALL_PLATFORM_SOURCES[packageName] ?: packageName.replace(".", "_")
 
         val userMode = Constants.getUserModeForPackage(packageName)?.name?.lowercase() ?: "rider"
+
+        // Per-platform enable/disable check (DPDPA compliance — user can opt out of
+        // individual platforms). We check on IO dispatcher since this is a DB read.
+        try {
+            val config = kotlinx.coroutines.runBlocking(Dispatchers.IO) {
+                repository.getPlatformConfig(packageName)
+            }
+            if (config != null && !config.isEnabled) {
+                Log.d(tag, "Skipping disabled platform: $platformName ($packageName)")
+                return
+            }
+        } catch (_: Exception) {
+            // If we can't check the config, allow the notification through
+        }
 
         Log.d(tag, "Captured notification from $platformName ($packageName)")
 
@@ -117,10 +154,33 @@ class NotiFetchListenerService : NotificationListenerService() {
             val extras = notification.extras
 
             // Extract only visible notification content (what the user can see)
-            val title = extras.getString(Notification.EXTRA_TITLE)?.trim() ?: ""
-            val text = extras.getCharSequence(Notification.EXTRA_TEXT)?.toString()?.trim() ?: ""
-            val bigText = extras.getCharSequence(Notification.EXTRA_BIG_TEXT)?.toString()?.trim() ?: ""
-            val subText = extras.getCharSequence(Notification.EXTRA_SUB_TEXT)?.toString()?.trim() ?: ""
+            var title = extras.getString(Notification.EXTRA_TITLE)?.trim() ?: ""
+            var text = extras.getCharSequence(Notification.EXTRA_TEXT)?.toString()?.trim() ?: ""
+            var bigText = extras.getCharSequence(Notification.EXTRA_BIG_TEXT)?.toString()?.trim() ?: ""
+            var subText = extras.getCharSequence(Notification.EXTRA_SUB_TEXT)?.toString()?.trim() ?: ""
+
+            // Android 15+ notification redaction handling:
+            // On Android 15, untrusted notification listeners receive "Sensitive notification hidden"
+            // or similar redaction strings for financial/OTP-style notifications. We detect this
+            // and mark the category as REDACTED so the UI can show a fallback card with the
+            // Open App button instead of blank content.
+            val redactionMarkers = listOf(
+                "sensitive notification hidden",
+                "content hidden",
+                "notification hidden",
+                "hidden content",
+                "redacted"
+            )
+            val allText = "$title $text $bigText $subText".lowercase()
+            val isRedacted = redactionMarkers.any { allText.contains(it) }
+
+            if (isRedacted) {
+                Log.d(tag, "Android 15+ redacted notification detected from $platformName — saving with REDACTED category")
+                title = "Content hidden by Android"
+                text = ""
+                bigText = ""
+                subText = ""
+            }
 
             // Skip empty or group summary notifications
             if (title.isBlank() && text.isBlank() && bigText.isBlank()) {
@@ -141,16 +201,33 @@ class NotiFetchListenerService : NotificationListenerService() {
             }
 
             // Parse platform-specific data
-            val parsed = NotificationParser.parse(
-                platform = platformName,
-                source = source,
-                title = title,
-                text = text,
-                bigText = bigText,
-                subText = subText,
-                extras = extras,
-                userMode = userMode
-            )
+            // If Android 15+ redacted the notification, force category to REDACTED
+            val parsed = if (isRedacted) {
+                NotificationParser.ParsedNotification(
+                    platform = platformName,
+                    source = source,
+                    title = title,
+                    body = text,
+                    bigText = bigText,
+                    subText = subText,
+                    orderValue = null,
+                    pickupLocation = null,
+                    dropoffLocation = null,
+                    distance = null,
+                    category = "REDACTED"
+                )
+            } else {
+                NotificationParser.parse(
+                    platform = platformName,
+                    source = source,
+                    title = title,
+                    text = text,
+                    bigText = bigText,
+                    subText = subText,
+                    extras = extras,
+                    userMode = userMode
+                )
+            }
 
             // Detect currency based on platform region and text content
             val currency = Helpers.detectCurrency(packageName, platformName, "$title $text $bigText")
@@ -181,17 +258,13 @@ class NotiFetchListenerService : NotificationListenerService() {
                     val id = repository.insertNotification(capturedNotification)
                     Log.d(tag, "Saved notification #$id from $platformName [${parsed.category}] ($currency)")
 
-                    // Debounced platform count increment — batch multiple notifications
-                    // from the same package to reduce DB writes (BUG #2 fix).
-                    // Previously, incrementNotificationCount was called inside
-                    // insertNotification, causing a second DB write per notification
-                    // that triggered cascading Room Flow emissions → UI fluttering.
+                    // Debounced platform count increment
                     synchronized(pendingCountIncrements) {
                         pendingCountIncrements.add(packageName)
                     }
                     countIncrementJob?.cancel()
                     countIncrementJob = serviceScope.launch {
-                        delay(2000) // Batch increments over 2-second window
+                        delay(2000)
                         val packagesToIncrement = synchronized(pendingCountIncrements) {
                             val copy = pendingCountIncrements.toList()
                             pendingCountIncrements.clear()
@@ -206,7 +279,7 @@ class NotiFetchListenerService : NotificationListenerService() {
                         }
                     }
 
-                    // Debounced sync — cancel previous, wait 5s, then sync all pending
+                    // Debounced sync
                     syncJob?.cancel()
                     syncJob = serviceScope.launch {
                         delay(5000)

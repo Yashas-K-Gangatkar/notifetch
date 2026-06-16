@@ -178,6 +178,9 @@ class NotificationRepository @Inject constructor(
     // Platform config operations
     fun getAllPlatformConfigs(): Flow<List<PlatformConfig>> = platformConfigDao.getAllConfigs()
 
+    suspend fun getPlatformConfig(packageName: String): PlatformConfig? =
+        platformConfigDao.getConfigByPackage(packageName)
+
     fun getEnabledPlatformConfigs(): Flow<List<PlatformConfig>> = platformConfigDao.getEnabledConfigs()
 
     suspend fun updatePlatformEnabled(packageName: String, isEnabled: Boolean) =
