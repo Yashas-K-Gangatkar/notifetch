@@ -83,6 +83,28 @@ object BatteryOptimizationHelper {
                     "com.miui.permcenter.autostart.AutoStartManagementActivity"
                 ))
             )
+            manufacturer.contains("realme") -> listOf(
+                // Realme UI 7.0+ (newer ColorOS-based)
+                Intent().setComponent(android.content.ComponentName(
+                    "com.coloros.safecenter",
+                    "com.coloros.safecenter.permission.startup.StartupAppListActivity"
+                )),
+                // Realme UI 6.0 (older ColorOS)
+                Intent().setComponent(android.content.ComponentName(
+                    "com.coloros.safecenter",
+                    "com.coloros.safecenter.startupapp.StartupAppListActivity"
+                )),
+                // Realme GT / older Realme UI
+                Intent().setComponent(android.content.ComponentName(
+                    "com.realme.securitycheck",
+                    "com.realme.securitycheck.ui.startup.StartupAppListActivity"
+                )),
+                // Fallback: Realme security center main page
+                Intent().setComponent(android.content.ComponentName(
+                    "com.coloros.safecenter",
+                    "com.coloros.safecenter.MainActivity"
+                ))
+            )
             manufacturer.contains("oppo") -> listOf(
                 Intent().setComponent(android.content.ComponentName(
                     "com.coloros.safecenter",
@@ -109,12 +131,7 @@ object BatteryOptimizationHelper {
                     "com.samsung.android.sm.ui.battery.BatteryActivity"
                 ))
             )
-            manufacturer.contains("realme") -> listOf(
-                Intent().setComponent(android.content.ComponentName(
-                    "com.coloros.safecenter",
-                    "com.coloros.safecenter.permission.startup.StartupAppListActivity"
-                ))
-            )
+            // Note: Realme is handled above with 4 fallback intents
             manufacturer.contains("huawei") || manufacturer.contains("honor") -> listOf(
                 Intent().setComponent(android.content.ComponentName(
                     "com.huawei.systemmanager",
@@ -174,6 +191,54 @@ object BatteryOptimizationHelper {
             manufacturer.contains("huawei") || manufacturer.contains("honor") -> "EMUI/MagicOS (Huawei/Honor)"
             manufacturer.contains("oneplus") -> "OxygenOS (OnePlus)"
             else -> "your device"
+        }
+    }
+
+    /**
+     * v2.9.14: Detect specifically if this is a Realme device.
+     * Realme UI (ColorOS-based) has 3 separate permissions that all need granting:
+     *   1. Notification access (Android standard)
+     *   2. Battery optimization exemption (Android standard)
+     *   3. Auto-start (Realme-specific) — without this, listener dies in 1-2 minutes
+     *   4. App battery saver = "No restriction" (Realme-specific)
+     */
+    fun isRealmeDevice(): Boolean {
+        return Build.MANUFACTURER.lowercase().contains("realme") ||
+               Build.BRAND.lowercase().contains("realme")
+    }
+
+    /**
+     * v2.9.14: Open the Realme "App battery saver" settings for NotiFetch.
+     * This is separate from the standard Android battery optimization.
+     * Realme-specific path: Settings → Apps → NotiFetch → App battery saver
+     */
+    fun openRealmeAppBatterySaver(activity: Activity): Boolean {
+        if (!isRealmeDevice()) return false
+        // Try the Realme-specific app details page first
+        try {
+            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                data = Uri.parse("package:${activity.packageName}")
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            activity.startActivity(intent)
+            return true
+        } catch (_: Exception) {
+            return false
+        }
+    }
+
+    /**
+     * v2.9.14: Open the standard Android "Ignore battery optimization" settings
+     * (the global list, not app-specific). Useful as a fallback.
+     */
+    fun openBatteryOptimizationList(activity: Activity) {
+        try {
+            val intent = Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            activity.startActivity(intent)
+        } catch (_: Exception) {
+            openAppSettings(activity)
         }
     }
 

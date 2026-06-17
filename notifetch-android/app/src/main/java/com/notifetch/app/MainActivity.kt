@@ -25,6 +25,7 @@ import com.notifetch.app.notification.NotiFetchListenerService
 import com.notifetch.app.ui.components.NotiFetchScaffold
 import com.notifetch.app.ui.screens.ConsentScreen
 import com.notifetch.app.ui.screens.EarningsScreen
+import com.notifetch.app.ui.screens.ListenerHealthCheckScreen
 import com.notifetch.app.ui.screens.OnboardingScreen
 import com.notifetch.app.ui.screens.PrivacyDashboardScreen
 import com.notifetch.app.ui.screens.hasConsented
@@ -209,6 +210,9 @@ fun NotiFetchNavHost() {
                 SettingsScreen(
                     onNavigateToPrivacy = {
                         navController.navigate("privacy")
+                    },
+                    onNavigateToHealthCheck = {
+                        navController.navigate("health-check")
                     }
                 )
             }
@@ -216,6 +220,13 @@ fun NotiFetchNavHost() {
             // v2.9.11: Privacy Dashboard
             composable("privacy") {
                 PrivacyDashboardScreen(
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
+
+            // v2.9.14: Listener Health Check
+            composable("health-check") {
+                ListenerHealthCheckScreen(
                     onNavigateBack = { navController.popBackStack() }
                 )
             }
