@@ -84,19 +84,32 @@ function SignInForm() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-4 py-12 relative overflow-hidden bg-background">
-      <div className="absolute inset-0 bg-gradient-to-b from-amber-500/5 via-transparent to-transparent pointer-events-none" />
-      <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-amber-500/8 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-orange-500/8 rounded-full blur-3xl pointer-events-none" />
+      {/* Animated ambient background — v2.9.13 */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute inset-0 bg-gradient-to-b from-amber-500/8 via-transparent to-orange-500/8" />
+        {/* Floating animated blobs */}
+        <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-amber-500/12 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-orange-500/12 rounded-full blur-3xl animate-pulse" style={{ animationDelay: "1s" }} />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-r from-amber-500/5 to-orange-500/5 rounded-full blur-3xl" />
+        {/* Subtle grid pattern */}
+        <div
+          className="absolute inset-0 opacity-[0.015]"
+          style={{
+            backgroundImage: "linear-gradient(rgba(245,158,11,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(245,158,11,0.5) 1px, transparent 1px)",
+            backgroundSize: "40px 40px",
+          }}
+        />
+      </div>
 
       {/* Back button */}
-      <div className="absolute top-4 left-4 z-10">
+      <div className="absolute top-4 left-4 z-10 animate-[fadeInDown_0.5s_ease-out]">
         <BackButton fallback="/" />
       </div>
 
-      <div className="relative z-10 w-full max-w-md">
+      <div className="relative z-10 w-full max-w-md animate-[fadeUp_0.7s_ease-out]">
         {/* QR Code */}
         <div className="flex justify-center mb-6">
-          <div className="bg-white rounded-2xl p-2 shadow-xl">
+          <div className="bg-white rounded-2xl p-2 shadow-xl shadow-amber-500/15 transition-transform hover:scale-105">
             <img
               src="/qr-code.png"
               alt="Scan to install NotiFetch"
@@ -110,47 +123,58 @@ function SignInForm() {
         </div>
 
         <div className="flex flex-col items-center mb-8">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-xl shadow-amber-500/25 mb-4"><Zap className="w-8 h-8 text-white" /></div>
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-amber-500 to-orange-600 bg-clip-text text-transparent">NotiFetch</h1>
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-xl shadow-amber-500/25 mb-4 transition-transform hover:rotate-6 hover:scale-110">
+            <Zap className="w-8 h-8 text-white" fill="currentColor" />
+          </div>
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-amber-500 to-orange-600 bg-clip-text text-transparent">
+            NotiFetch
+          </h1>
           <p className="text-sm text-muted-foreground mt-1">One Feed. All Notifications. Zero Credentials.</p>
+          {/* DID slogan badge */}
+          <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 animate-[fadeIn_1s_ease-out_0.5s_both]">
+            <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-amber-600 dark:text-amber-400">
+              Doing is Doing — DID
+            </span>
+          </div>
         </div>
-        <Card className="border-border/50 shadow-2xl shadow-black/20">
+
+        <Card className="border-border/50 shadow-2xl shadow-black/20 backdrop-blur-sm transition-all duration-300 hover:shadow-amber-500/10">
           <CardHeader className="text-center pb-2">
             <CardTitle className="text-xl">{step === "email" ? "Welcome" : "Verify your email"}</CardTitle>
             <CardDescription>{step === "email" ? "Sign in to your NotiFetch account" : "We sent a code to " + email}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-5">
-            {error && <div className="rounded-lg border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive"><p>{error}</p></div>}
+            {error && <div className="rounded-lg border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive animate-[shake_0.4s_ease-out]"><p>{error}</p></div>}
             <div className="rounded-lg border border-amber-500/20 bg-amber-500/5 px-4 py-3 flex gap-3">
               <ShieldCheck className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
               <p className="text-xs leading-relaxed text-amber-200/80"><span className="font-semibold text-amber-500">NotiFetch never asks for delivery platform credentials.</span> We only need your email. No passwords needed.</p>
             </div>
-            <Button variant="outline" className="w-full h-11 border-border/70 hover:bg-muted/80 transition-all" onClick={handleGoogleSignIn} disabled={isLoading || isGoogleLoading}>
-              {isGoogleLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>}
+            <Button variant="outline" className="w-full h-11 border-border/70 hover:bg-muted/80 hover:border-amber-500/30 transition-all group" onClick={handleGoogleSignIn} disabled={isLoading || isGoogleLoading}>
+              {isGoogleLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <svg className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>}
               Continue with Google
             </Button>
             <div className="relative"><Separator /><span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-3 text-xs text-muted-foreground">or</span></div>
             {step === "email" && (
-              <div className="space-y-4">
+              <div className="space-y-4 animate-[fadeIn_0.4s_ease-out]">
                 <div className="space-y-2">
                   <Label htmlFor="email">Email address</Label>
-                  <div className="relative"><Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" /><Input id="email" type="email" placeholder="you@example.com" value={email} onChange={e => { setEmail(e.target.value); if (emailError) setEmailError(null); }} onKeyDown={e => { if (e.key === "Enter") handleSendOTP(); }} className="pl-9 h-10" disabled={isLoading || isGoogleLoading} autoComplete="email" /></div>
+                  <div className="relative"><Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" /><Input id="email" type="email" placeholder="you@example.com" value={email} onChange={e => { setEmail(e.target.value); if (emailError) setEmailError(null); }} onKeyDown={e => { if (e.key === "Enter") handleSendOTP(); }} className="pl-9 h-10 transition-all focus:ring-2 focus:ring-amber-500/20" disabled={isLoading || isGoogleLoading} autoComplete="email" /></div>
                   {emailError && <p className="text-xs text-destructive mt-1">{emailError}</p>}
                 </div>
-                <Button onClick={handleSendOTP} className="w-full h-11 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-semibold shadow-lg shadow-amber-500/20" disabled={isLoading || isGoogleLoading}>
+                <Button onClick={handleSendOTP} className="w-full h-11 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-semibold shadow-lg shadow-amber-500/20 transition-all hover:shadow-xl hover:shadow-amber-500/30 hover:-translate-y-0.5" disabled={isLoading || isGoogleLoading}>
                   {isLoading ? <><Loader2 className="w-4 h-4 animate-spin mr-2" />Sending code...</> : <><KeyRound className="w-4 h-4 mr-2" />Send login code</>}
                 </Button>
               </div>
             )}
             {step === "otp" && (
-              <div className="space-y-4">
+              <div className="space-y-4 animate-[fadeIn_0.4s_ease-out]">
                 <div className="space-y-3">
                   <Label className="text-center block">Enter 6-digit code</Label>
                   <div className="flex justify-center gap-2">
-                    {otp.map((digit, i) => <Input key={i} ref={el => { otpRefs.current[i] = el; }} type="text" inputMode="numeric" maxLength={6} value={digit} onChange={e => handleOTPChange(i, e.target.value)} onKeyDown={e => handleOTPKeyDown(i, e)} className="w-11 h-13 text-center text-lg font-bold p-0 border-border/70 focus:border-amber-500" disabled={isLoading} aria-label={"Digit " + (i + 1)} />)}
+                    {otp.map((digit, i) => <Input key={i} ref={el => { otpRefs.current[i] = el; }} type="text" inputMode="numeric" maxLength={6} value={digit} onChange={e => handleOTPChange(i, e.target.value)} onKeyDown={e => handleOTPKeyDown(i, e)} className="w-11 h-13 text-center text-lg font-bold p-0 border-border/70 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all" disabled={isLoading} aria-label={"Digit " + (i + 1)} />)}
                   </div>
                 </div>
-                <Button onClick={handleVerifyOTP} className="w-full h-11 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-semibold shadow-lg shadow-amber-500/20" disabled={isLoading || otp.join("").length !== 6}>
+                <Button onClick={handleVerifyOTP} className="w-full h-11 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-semibold shadow-lg shadow-amber-500/20 transition-all hover:shadow-xl hover:shadow-amber-500/30 hover:-translate-y-0.5" disabled={isLoading || otp.join("").length !== 6}>
                   {isLoading ? <><Loader2 className="w-4 h-4 animate-spin mr-2" />Verifying...</> : "Verify & Sign in"}
                 </Button>
                 <div className="flex items-center justify-center gap-2 text-sm">
@@ -163,10 +187,35 @@ function SignInForm() {
           </CardContent>
           <CardFooter className="justify-center pb-6"><p className="text-xs text-muted-foreground text-center">No password needed. Sign in with Google or get a one-time code.</p></CardFooter>
         </Card>
-        <div className="flex items-center justify-center gap-4 mt-6 text-xs text-muted-foreground">
-          <a href="/privacy" className="hover:text-foreground">Privacy Policy</a><span className="text-border">•</span><a href="/terms" className="hover:text-foreground">Terms of Service</a>
+        <div className="flex items-center justify-center gap-4 mt-6 text-xs text-muted-foreground animate-[fadeIn_0.8s_ease-out_0.4s_both]">
+          <a href="/privacy" className="hover:text-foreground transition-colors">Privacy Policy</a><span className="text-border">•</span><a href="/terms" className="hover:text-foreground transition-colors">Terms of Service</a>
         </div>
       </div>
+
+      {/* Inline keyframes for v2.9.13 animations */}
+      <style jsx global>{`
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInDown {
+          from { opacity: 0; transform: translateY(-10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes fadeUp {
+          from { opacity: 0; transform: translateY(30px) scale(0.98); }
+          to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes shake {
+          0%, 100% { transform: translateX(0); }
+          25% { transform: translateX(-4px); }
+          75% { transform: translateX(4px); }
+        }
+      `}</style>
     </div>
   );
 }

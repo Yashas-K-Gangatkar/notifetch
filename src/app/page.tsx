@@ -3,6 +3,8 @@
 import { useState, useCallback, useEffect } from "react";
 import { Navbar } from "@/components/navbar";
 import { HeroSection } from "@/components/hero-section";
+import { NotificationTrainTicker } from "@/components/notification-train-ticker";
+import { PageLoadAnimation } from "@/components/page-load-animation";
 import { HowItWorksSection } from "@/components/how-it-works-section";
 import { DashboardSection } from "@/components/dashboard-section";
 import { EarningsSection } from "@/components/earnings-section";
@@ -52,10 +54,17 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      {/* v2.9.13: Page Load Animation — plays once per session */}
+      <PageLoadAnimation />
+
       <Navbar activeSection={activeSection} onNavigate={handleNavigate} />
 
       <main className="flex-1">
         <HeroSection onNavigate={handleNavigate} />
+
+        {/* v2.9.13: Notification Train Ticker — live "railway train" of notifications */}
+        <NotificationTrainTicker />
+
         <Separator className="max-w-7xl mx-auto" />
         <HowItWorksSection onNavigate={handleNavigate} />
         <Separator className="max-w-7xl mx-auto" />
