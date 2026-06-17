@@ -11,6 +11,9 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- v2.9.11: Request battery optimization exemption so NotificationListenerService
+         isn't killed on Xiaomi/OPPO/Vivo/Samsung devices. User must grant via system dialog. -->
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
     <!-- v2.9.6: Removed FOREGROUND_SERVICE and FOREGROUND_SERVICE_SPECIAL_USE permissions.
          NotificationListenerService is a system-bound service, not a foreground service.
          Keeping these permissions triggered Play Store policy review for unused FGS types. -->

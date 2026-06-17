@@ -72,11 +72,10 @@ private val DarkColorScheme = darkColorScheme(
 @Composable
 fun NotiFetchTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // FIX: dynamicColor defaults to false. On Android 12+ (Material You), dynamic color
-    // replaces the app's brand colors (amber accent, platform-specific colors like
-    // Swiggy orange, Zomato red) with the user's wallpaper palette, which breaks
-    // platform identification. Platform colors are core to the UX — they must be
-    // consistent regardless of the user's wallpaper choice.
+    // v2.9.11: dynamicColor is now user-toggleable from Settings.
+    // Default is false because it replaces brand colors with wallpaper palette,
+    // which breaks platform identification (Swiggy orange, Zomato red, etc.).
+    // Power users who prefer Material You can enable it in Settings → Appearance.
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
@@ -93,7 +92,9 @@ fun NotiFetchTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = colorScheme.primary.toArgb()
+            // v2.9.11: Use transparent status bar with proper icon appearance
+            // (replaces the old hardcoded primary color that looked dated)
+            window.statusBarColor = android.graphics.Color.TRANSPARENT
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
         }
     }
