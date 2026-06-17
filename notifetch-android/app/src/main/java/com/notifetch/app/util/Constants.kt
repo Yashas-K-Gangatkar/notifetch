@@ -497,7 +497,7 @@ object Constants {
         "com.faasos.ovenstory"                           to "#D0021B",      // Oven Story Pizza
         "com.faasos.mandarinfox"                         to "#FF6F00",      // Mandarin Fox
         "com.faasos.bowlcompany"                         to "#FF6F00",      // The Bowl Company
-        "com.lenotre.android"                            to "#1A1A1A",      // LENôTRE Dessert
+        "com.lenotre.android"                            to "#1A1A1A",      // LENOTRE Dessert
     )
 
     // Combined platform colors
