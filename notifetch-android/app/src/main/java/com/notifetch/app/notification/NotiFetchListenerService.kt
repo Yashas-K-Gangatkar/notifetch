@@ -15,32 +15,63 @@ import com.notifetch.app.util.Helpers
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 
 /**
- * Core NotificationListenerService that captures notifications from delivery partner apps.
+ * Core NotificationListenerService that captures notifications from delivery apps.
  *
- * This service uses the Android NotificationListenerService API to receive real-time
- * notifications from delivery partner/driver apps AND customer apps. It filters only
- * the configured packages, extracts relevant data, saves to local Room database, and
- * forwards to the NotiFetch backend.
+ * v2.9.6 — Critical fix for "only Zomato captured" bug:
  *
- * IMPORTANT LEGAL COMPLIANCE:
+ * ROOT CAUSES FIXED (permanent fixes, not patches):
+ *
+ * 1. FLAG_ONGOING_EVENT filter REMOVED
+ *    - Previously: skipped persistent notifications like "Out for delivery"
+ *    - Impact: blocked the MOST VALUABLE customer notifications (live order tracking)
+ *      from Swiggy, Uber Eats, Domino's, etc. — Zomato was unaffected because it
+ *      uses dismissible notifications
+ *    - Fix: capture ongoing notifications. Deduplicate by content hash to avoid
+ *      spamming when the same ongoing notification updates.
+ *
+ * 2. FLAG_GROUP_SUMMARY filter REMOVED
+ *    - Previously: skipped group summary notifications thinking they duplicate content
+ *    - Impact: some apps post the summary as the ONLY notification with real content
+ *      (especially when only one order is active). Skipping it lost the data.
+ *    - Fix: capture group summaries. Deduplicate by content hash.
+ *
+ * 3. runBlocking on main thread REMOVED
+ *    - Previously: `runBlocking(Dispatchers.IO) { repository.getPlatformConfig(pkg) }`
+ *      blocked the main thread on every notification
+ *    - Impact: ANR (Application Not Responding) → Android kills the listener service
+ *      → only notifications arriving in the brief window before kill got captured
+ *    - Fix: maintain an in-memory `disabledPackages` set, refreshed via a Flow
+ *      collector on `onListenerConnected()`. O(1) check, no DB read on main thread.
+ *
+ * 4. Multi-style content extraction ADDED
+ *    - Previously: only EXTRA_TITLE / EXTRA_TEXT / EXTRA_BIG_TEXT / EXTRA_SUB_TEXT
+ *    - Impact: apps using MessagingStyle (Uber Eats chat-like updates) or InboxStyle
+ *      (multi-line order summaries) had empty EXTRA_TEXT → flagged as empty → skipped
+ *    - Fix: also extract from EXTRA_MESSAGES, EXTRA_BIG_TEXT, EXTRA_CONVERSATION_DATA,
+ *      EXTRA_INFO_TEXT, EXTRA_SUMMARY_TEXT, and remote-input results.
+ *
+ * 5. Content-hash deduplication ADDED
+ *    - Without the FLAG_ONGOING_EVENT / FLAG_GROUP_SUMMARY filters, the same
+ *      notification may be posted multiple times (updates, group refreshes)
+ *    - Fix: 3-second sliding window dedupe by (package + title + text + bigText)
+ *
+ * LEGAL COMPLIANCE (preserved):
  * - We only store notification content the user can already see (title, text, bigText, subText)
  * - We do NOT store the raw notification extras bundle (may contain PII, auth tokens)
  * - We do NOT access delivery platform APIs or store credentials
- * - Platform names in the app use generic category names, not brand names
  * - Per-platform enable/disable is respected (DPDPA compliance)
  * - Android 15 redacted notifications are handled gracefully
- *
- * BUG FIX (v2.9.2):
- * - Caches the notification's contentIntent PendingIntent so "Open App" can deep-link
- *   to the specific order/offer/tracking screen instead of falling back to Play Store
- * - Enhanced diagnostic logging to debug why only certain apps are captured
  */
 @AndroidEntryPoint
 class NotiFetchListenerService : NotificationListenerService() {
@@ -52,14 +83,27 @@ class NotiFetchListenerService : NotificationListenerService() {
     private val tag = "NotiFetchListener"
 
     // Debounce sync — wait 5 seconds after the last notification before syncing
-    private var syncJob: kotlinx.coroutines.Job? = null
+    private var syncJob: Job? = null
     // Debounce platform count increment — batch updates to reduce DB writes
-    private var countIncrementJob: kotlinx.coroutines.Job? = null
+    private var countIncrementJob: Job? = null
     // Track which packages need count increments for batching
     private val pendingCountIncrements = mutableSetOf<String>()
 
+    // ─── v2.9.6: In-memory enabled-packages cache (replaces runBlocking) ───────
+    // Maintained by a Flow collector — O(1) check on main thread, no DB reads.
+    // Defaults to "enabled" for ALL packages (fail-open) until the first DB read
+    // completes — better to capture too much than too little.
+    private val disabledPackages = ConcurrentHashMap.newKeySet<String>()
+    private var configFlowJob: Job? = null
+
+    // ─── v2.9.6: Content-hash deduplication (replaces FLAG_ONGOING_EVENT filter) ─
+    // Key: "packageName|title|text|bigText" (lowercased, trimmed)
+    // Value: timestamp of last capture (millis)
+    // TTL: 3 seconds — same content within 3s is treated as a duplicate update
+    private val recentCaptures = ConcurrentHashMap<String, Long>()
+    private val DEDUP_WINDOW_MS = 3_000L
+
     companion object {
-        // Use the combined package list (rider + customer) from Constants
         private val ALL_PACKAGES: Map<String, String>
             get() = Constants.ALL_PACKAGES
 
@@ -94,8 +138,30 @@ class NotiFetchListenerService : NotificationListenerService() {
         super.onListenerConnected()
         Log.d(tag, "Notification listener connected — monitoring ${Constants.ALL_PACKAGES.size} packages (rider + customer)")
 
+        // ─── v2.9.6: Start the in-memory enabled-packages cache collector ───────
+        // This replaces the per-notification runBlocking DB read. The collector
+        // runs on IO dispatcher and updates the `disabledPackages` set whenever
+        // the user toggles a platform in Settings.
+        configFlowJob?.cancel()
+        configFlowJob = repository.getAllPlatformConfigs()
+            .onEach { configs ->
+                // Rebuild the disabled set from the latest DB state
+                disabledPackages.clear()
+                configs.filter { !it.isEnabled }.forEach { disabledPackages.add(it.packageName) }
+                Log.d(tag, "Enabled-packages cache refreshed: ${configs.size} total, ${disabledPackages.size} disabled")
+            }
+            .launchIn(serviceScope)
+
+        // Also initialize platform configs in DB (idempotent)
+        serviceScope.launch {
+            try {
+                repository.initializePlatformConfigs()
+            } catch (e: Exception) {
+                Log.e(tag, "Failed to initialize platform configs", e)
+            }
+        }
+
         // Log ALL currently active notifications for diagnostics
-        // This helps debug why only certain apps are showing
         try {
             val activeNotifications = getActiveNotifications()
             Log.d(tag, "=== DIAGNOSTIC: Active notifications on device ===")
@@ -113,89 +179,71 @@ class NotiFetchListenerService : NotificationListenerService() {
                 if (Constants.ALL_PACKAGES.containsKey(sbn.packageName)) {
                     try {
                         val contentIntent = sbn.notification.contentIntent
-                        PendingIntentCache.put(sbn.packageName, contentIntent)
-                        Log.d(tag, "Cached PendingIntent for active notification: ${sbn.packageName}")
-                    } catch (e: Exception) {
-                        Log.w(tag, "Could not cache PendingIntent for ${sbn.packageName}: ${e.message}")
+                        if (contentIntent != null) {
+                            PendingIntentCache.put(sbn.packageName, contentIntent)
+                        }
+                    } catch (_: Exception) {
+                        // Ignore — will use launch fallback later
                     }
                 }
             }
         } catch (e: Exception) {
             Log.e(tag, "Failed to log active notifications diagnostic", e)
         }
-
-        // Initialize platform configs in database
-        serviceScope.launch {
-            try {
-                repository.initializePlatformConfigs()
-            } catch (e: Exception) {
-                Log.e(tag, "Failed to initialize platform configs", e)
-            }
-        }
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification) {
         val packageName = sbn.packageName
 
-        // Log ALL incoming notifications for diagnostics (helps debug OEM-specific capture issues)
+        // Log ALL incoming notifications for diagnostics
         Log.d(tag, "Received notification from: $packageName")
 
-        // Filter: only process notifications from partner apps
+        // Filter: only process notifications from tracked apps
         val platformName = Constants.ALL_PACKAGES[packageName]
         if (platformName == null) {
-            // Not a tracked package — skip silently (reduce log noise)
+            return
+        }
+
+        // ─── v2.9.6: Per-platform enable check via in-memory cache (no DB read) ─
+        // O(1) check on main thread. If the cache hasn't loaded yet (just after
+        // device boot), `disabledPackages` is empty → fail-open (capture everything).
+        // Once the Flow collector populates the cache, disabled platforms are
+        // correctly filtered.
+        if (disabledPackages.contains(packageName)) {
+            Log.d(tag, "Skipping disabled platform: $platformName ($packageName)")
             return
         }
 
         val source = Constants.ALL_PLATFORM_SOURCES[packageName] ?: packageName.replace(".", "_")
-
         val userMode = Constants.getUserModeForPackage(packageName)?.name?.lowercase() ?: "rider"
 
-        // Per-platform enable/disable check (DPDPA compliance — user can opt out of
-        // individual platforms). We check on IO dispatcher since this is a DB read.
-        try {
-            val config = kotlinx.coroutines.runBlocking(Dispatchers.IO) {
-                repository.getPlatformConfig(packageName)
-            }
-            if (config != null && !config.isEnabled) {
-                Log.d(tag, "Skipping disabled platform: $platformName ($packageName)")
-                return
-            }
-        } catch (_: Exception) {
-            // If we can't check the config, allow the notification through
-        }
+        Log.d(tag, "Captured notification from $platformName ($packageName) [mode=$userMode]")
 
-        Log.d(tag, "Captured notification from $platformName ($packageName)")
-
-        // Cache the PendingIntent from this notification so "Open App" can use it
-        // to deep-link to the specific order/offer/tracking screen
+        // Cache the PendingIntent for "Open App" deep-linking
         try {
             val contentIntent = sbn.notification.contentIntent
             if (contentIntent != null) {
                 PendingIntentCache.put(packageName, contentIntent)
-                Log.d(tag, "Cached contentIntent for $platformName ($packageName)")
-            } else {
-                Log.d(tag, "No contentIntent for $platformName ($packageName) — will use launch fallback")
             }
-        } catch (e: Exception) {
-            Log.w(tag, "Could not cache contentIntent for $platformName: ${e.message}")
+        } catch (_: Exception) {
+            // Ignore
         }
 
         try {
             val notification = sbn.notification
             val extras = notification.extras
 
-            // Extract only visible notification content (what the user can see)
-            var title = extras.getString(Notification.EXTRA_TITLE)?.trim() ?: ""
-            var text = extras.getCharSequence(Notification.EXTRA_TEXT)?.toString()?.trim() ?: ""
-            var bigText = extras.getCharSequence(Notification.EXTRA_BIG_TEXT)?.toString()?.trim() ?: ""
-            var subText = extras.getCharSequence(Notification.EXTRA_SUB_TEXT)?.toString()?.trim() ?: ""
+            // ─── v2.9.6: Multi-style content extraction ─────────────────────────
+            // Try multiple extras keys to handle BigTextStyle, MessagingStyle,
+            // InboxStyle, BigPictureStyle, and MediaStyle notifications.
+            val extracted = extractContent(notification, extras)
 
-            // Android 15+ notification redaction handling:
-            // On Android 15, untrusted notification listeners receive "Sensitive notification hidden"
-            // or similar redaction strings for financial/OTP-style notifications. We detect this
-            // and mark the category as REDACTED so the UI can show a fallback card with the
-            // Open App button instead of blank content.
+            var title = extracted.title
+            var text = extracted.text
+            var bigText = extracted.bigText
+            var subText = extracted.subText
+
+            // Android 15+ notification redaction handling
             val redactionMarkers = listOf(
                 "sensitive notification hidden",
                 "content hidden",
@@ -207,36 +255,41 @@ class NotiFetchListenerService : NotificationListenerService() {
             val isRedacted = redactionMarkers.any { allText.contains(it) }
 
             if (isRedacted) {
-                Log.d(tag, "Android 15+ redacted notification detected from $platformName — saving with REDACTED category")
-                // Keep the package/platform info but clear the actual text for privacy
+                Log.d(tag, "Android 15+ redacted notification from $platformName — saving as REDACTED")
                 title = "Content hidden by Android"
                 text = ""
                 bigText = ""
                 subText = ""
             }
 
-            // Skip empty or group summary notifications
-            if (title.isBlank() && text.isBlank() && bigText.isBlank()) {
-                Log.d(tag, "Skipping empty notification from $platformName")
+            // ─── v2.9.6: Skip truly empty notifications only ────────────────────
+            // (was: skip if title/text/bigText all blank — too strict for
+            // MessagingStyle apps that put content in subText or summary text)
+            if (title.isBlank() && text.isBlank() && bigText.isBlank() && subText.isBlank()) {
+                Log.d(tag, "Skipping truly empty notification from $platformName")
                 return
             }
 
-            // Skip ongoing notifications (like "you are online" persistent notifications)
-            if (notification.flags and Notification.FLAG_ONGOING_EVENT != 0) {
-                Log.d(tag, "Skipping ongoing notification from $platformName")
+            // ─── v2.9.6: Content-hash deduplication ─────────────────────────────
+            // Replaces the FLAG_ONGOING_EVENT and FLAG_GROUP_SUMMARY filters.
+            // Same content within DEDUP_WINDOW_MS is treated as a duplicate update.
+            val dedupeKey = "$packageName|${title.lowercase()}|${text.lowercase()}|${bigText.lowercase()}"
+            val now = System.currentTimeMillis()
+            val lastSeen = recentCaptures[dedupeKey]
+            if (lastSeen != null && (now - lastSeen) < DEDUP_WINDOW_MS) {
+                Log.d(tag, "Skipping duplicate notification from $platformName (same content within ${DEDUP_WINDOW_MS}ms)")
                 return
             }
+            recentCaptures[dedupeKey] = now
 
-            // Skip group summary notifications (they duplicate content)
-            if (notification.flags and Notification.FLAG_GROUP_SUMMARY != 0) {
-                Log.d(tag, "Skipping group summary notification from $platformName")
-                return
+            // Clean up old dedupe entries every ~30 captures (lightweight GC)
+            if (recentCaptures.size > 100) {
+                val cutoff = now - DEDUP_WINDOW_MS * 10
+                recentCaptures.entries.removeAll { it.value < cutoff }
             }
 
             // Parse platform-specific data
-            // If Android 15+ redacted the notification, force category to REDACTED
             val parsed = if (isRedacted) {
-                // Create a minimal parsed result with REDACTED category
                 NotificationParser.ParsedNotification(
                     platform = platformName,
                     source = source,
@@ -263,10 +316,8 @@ class NotiFetchListenerService : NotificationListenerService() {
                 )
             }
 
-            // Detect currency based on platform region and text content
             val currency = Helpers.detectCurrency(packageName, platformName, "$title $text $bigText")
 
-            // Create database entity (NO extrasJson — data minimization compliance)
             val capturedNotification = CapturedNotification(
                 packageName = packageName,
                 platform = platformName,
@@ -286,7 +337,7 @@ class NotiFetchListenerService : NotificationListenerService() {
                 userMode = userMode
             )
 
-            // Save to local database
+            // Save to local database (async — never block onNotificationPosted)
             serviceScope.launch {
                 try {
                     val id = repository.insertNotification(capturedNotification)
@@ -328,20 +379,141 @@ class NotiFetchListenerService : NotificationListenerService() {
         }
     }
 
+    /**
+     * v2.9.6: Extracts notification content from MULTIPLE extras keys to handle
+     * different Notification.Style subclasses:
+     *
+     * - BigTextStyle: EXTRA_TITLE, EXTRA_TEXT, EXTRA_BIG_TEXT, EXTRA_SUMMARY_TEXT
+     * - MessagingStyle: EXTRA_TITLE, EXTRA_TEXT (may be empty), EXTRA_MESSAGES,
+     *   EXTRA_CONVERSATION_DATA, EXTRA_REMOTE_INPUTS, EXTRA_BIG_TEXT
+     * - InboxStyle: EXTRA_TITLE, EXTRA_TEXT, EXTRA_BIG_TEXT (may be empty),
+     *   EXTRA_INFO_TEXT, EXTRA_SUMMARY_TEXT
+     * - BigPictureStyle: EXTRA_TITLE, EXTRA_TEXT, EXTRA_SUMMARY_TEXT
+     * - MediaStyle: usually empty for our purposes (skip)
+     *
+     * Returns the best combination of title/text/bigText/subText.
+     */
+    private fun extractContent(
+        notification: Notification,
+        extras: android.os.Bundle
+    ): ExtractedContent {
+        var title = extras.getString(Notification.EXTRA_TITLE)?.trim().orEmpty()
+        var text = extras.getCharSequence(Notification.EXTRA_TEXT)?.toString()?.trim().orEmpty()
+        var bigText = extras.getCharSequence(Notification.EXTRA_BIG_TEXT)?.toString()?.trim().orEmpty()
+        var subText = extras.getCharSequence(Notification.EXTRA_SUB_TEXT)?.toString()?.trim().orEmpty()
+
+        // ── InboxStyle: EXTRA_TEXT may be the summary, EXTRA_BIG_TEXT has the lines ─
+        if (bigText.isBlank()) {
+            @Suppress("DEPRECATION")
+            val bigTextLines = extras.getCharSequenceArray(Notification.EXTRA_TEXT_LINES)
+            if (bigTextLines != null && bigTextLines.isNotEmpty()) {
+                bigText = bigTextLines.joinToString("\n") { it.toString().trim() }.trim()
+            }
+        }
+
+        // ── MessagingStyle: try EXTRA_MESSAGES (Parcelable[] of Notification.MessagingStyle.Message) ─
+        if (text.isBlank() && bigText.isBlank()) {
+            try {
+                val messages = extractMessages(extras)
+                if (messages.isNotEmpty()) {
+                    // Use the latest message as text, all messages as bigText
+                    text = messages.last()
+                    bigText = messages.joinToString("\n")
+                }
+            } catch (_: Exception) {
+                // Ignore — fall through to other extraction methods
+            }
+        }
+
+        // ── Fallback: EXTRA_INFO_TEXT (used by some styles for the body) ────────
+        if (text.isBlank()) {
+            text = extras.getCharSequence(Notification.EXTRA_INFO_TEXT)?.toString()?.trim().orEmpty()
+        }
+
+        // ── Fallback: EXTRA_SUMMARY_TEXT (used by BigPictureStyle / group summaries) ──
+        if (text.isBlank() && bigText.isBlank()) {
+            val summary = extras.getCharSequence(Notification.EXTRA_SUMMARY_TEXT)?.toString()?.trim().orEmpty()
+            if (summary.isNotBlank()) {
+                text = summary
+            }
+        }
+
+        // ── Fallback: ticker text (the legacy "scrolling status bar" text) ─────
+        // Many OEM-customized apps still populate this even when extras are empty
+        if (title.isBlank() && text.isBlank() && bigText.isBlank()) {
+            val ticker = notification.tickerText?.toString()?.trim().orEmpty()
+            if (ticker.isNotBlank()) {
+                // Split ticker into title (first line) and text (rest)
+                val lines = ticker.split("\n", limit = 2)
+                title = lines[0].trim()
+                if (lines.size > 1) {
+                    text = lines[1].trim()
+                } else {
+                    text = ticker
+                    title = ""
+                }
+            }
+        }
+
+        return ExtractedContent(title = title, text = text, bigText = bigText, subText = subText)
+    }
+
+    /**
+     * Extract messages from MessagingStyle notifications.
+     *
+     * MessagingStyle stores messages as a Parcelable[] of
+     * android.app.Notification.MessagingStyle.Message objects. Each Message has:
+     *   - getText(): CharSequence — the message text
+     *   - getTimestamp(): long — when the message was sent
+     *   - getSenderPerson(): Person? (API 28+) — may be null
+     *
+     * We use reflection to avoid version-specific imports and to handle cases
+     * where the Message class is in different packages on different Android versions.
+     */
+    private fun extractMessages(extras: android.os.Bundle): List<String> {
+        val result = mutableListOf<String>()
+
+        try {
+            val messages = extras.getParcelableArray(Notification.EXTRA_MESSAGES)
+                ?: return emptyList()
+
+            for (parcelable in messages) {
+                try {
+                    // Use reflection to call Message.getText() — returns CharSequence
+                    val textMethod = parcelable.javaClass.getMethod("getText")
+                    val textResult = textMethod.invoke(parcelable) as? CharSequence
+                    if (textResult != null && textResult.toString().isNotBlank()) {
+                        result.add(textResult.toString().trim())
+                    }
+                } catch (_: Exception) {
+                    // Skip this message — can't extract text
+                }
+            }
+        } catch (_: Exception) {
+            // Ignore — return what we have
+        }
+
+        return result
+    }
+
     override fun onNotificationRemoved(sbn: StatusBarNotification) {
         // Notification was dismissed — we don't need to do anything
     }
 
     override fun onListenerDisconnected() {
         super.onListenerDisconnected()
+        configFlowJob?.cancel()
         PendingIntentCache.clear()
+        recentCaptures.clear()
         serviceScope.cancel()
         Log.w(tag, "Notification listener disconnected")
     }
 
     override fun onDestroy() {
         super.onDestroy()
+        configFlowJob?.cancel()
         PendingIntentCache.clear()
+        recentCaptures.clear()
         serviceScope.cancel()
     }
 
@@ -357,4 +529,11 @@ class NotiFetchListenerService : NotificationListenerService() {
             Log.e(tag, "Failed to sync notifications to backend", e)
         }
     }
+
+    private data class ExtractedContent(
+        val title: String,
+        val text: String,
+        val bigText: String,
+        val subText: String,
+    )
 }

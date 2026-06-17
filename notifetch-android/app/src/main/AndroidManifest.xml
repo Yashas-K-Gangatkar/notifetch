@@ -11,8 +11,9 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <!-- v2.9.6: Removed FOREGROUND_SERVICE and FOREGROUND_SERVICE_SPECIAL_USE permissions.
+         NotificationListenerService is a system-bound service, not a foreground service.
+         Keeping these permissions triggered Play Store policy review for unused FGS types. -->
 
     <application
         android:name=".NotiFetchApp"
@@ -58,11 +59,18 @@
             </intent-filter>
         </activity>
 
-        <!-- Notification Listener Service -->
+        <!-- Notification Listener Service
+             v2.9.6: Removed foregroundServiceType="specialUse" — it was set but
+             startForeground() was never called, which causes:
+               1. Android 14+ to refuse to start the service
+               2. Play Store policy warnings about undeclared foreground service usage
+             NotificationListenerService is a system-bound service (BIND_NOTIFICATION_LISTENER_SERVICE),
+             it does NOT need to be a foreground service. The system keeps it alive
+             automatically as long as the user has granted notification access.
+        -->
         <service
             android:name=".notification.NotiFetchListenerService"
             android:exported="true"
-            android:foregroundServiceType="specialUse"
             android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
             <intent-filter>
                 <action android:name="android.service.notification.NotificationListenerService" />
@@ -73,7 +81,7 @@
                  - Users reported only Zomato notifications appearing, not other apps
                  - The pipe-separated syntax (conversations|alerting|ongoing|silent) is not universally supported
                  - Some OEMs ignore these entirely and use their own filtering logic
-                 
+
                  By removing these metadata entries, the listener will receive ALL notifications
                  and filter programmatically in onNotificationPosted() against Constants.ALL_PACKAGES.
                  This ensures consistent behavior across all Android devices and OEMs.
