@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">NotiFetch</string>
+    <string name="permission_title">सूचना एक्सेस सक्षम करें</string>
+    <string name="permission_description">NotiFetch को डिलीवरी पार्टनर सूचनाएं कैप्चर करने और आपकी कमाई ट्रैक करने के लिए सूचना एक्सेस की आवश्यकता है।</string>
+    <string name="permission_open_settings">सूचना सेटिंग्स खोलें</string>
+    <string name="home_title">NotiFetch</string>
+    <string name="home_empty_title">अभी तक कोई सूचना नहीं</string>
+    <string name="home_empty_subtitle">डिलीवरी पार्टनर ऐप्स से सूचनाएं यहां दिखाई देंगी</string>
+    <string name="home_mark_all_read">सभी पढ़ा हुआ चिह्नित करें</string>
+    <string name="home_search_placeholder">सूचनाएं खोजें…</string>
+    <string name="home_today">आज</string>
+    <string name="home_this_week">इस सप्ताह</string>
+    <string name="settings_title">सेटिंग्स</string>
+    <string name="settings_dark_mode">डार्क मोड</string>
+    <string name="settings_auto_sync">ऑटो सिंक</string>
+    <string name="nav_home">होम</string>
+    <string name="nav_settings">सेटिंग्स</string>
+    <string name="nav_profile">प्रोफ़ाइल</string>
+    <string name="widget_description">NotiFetch से नवीनतम डिलीवरी सूचनाएं</string>
+    <string name="earnings_title">कमाई</string>
+    <string name="earnings_today">आज</string>
+    <string name="earnings_week">इस सप्ताह</string>
+    <string name="earnings_cash_out">निकासी</string>
+    <string name="earnings_waitlist">वेटलिस्ट में शामिल हों</string>
+    <string name="earnings_points">पॉइंट्स</string>
+</resources>

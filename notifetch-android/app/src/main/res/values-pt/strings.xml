@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">NotiFetch</string>
+    <string name="permission_title">Habilitar acesso a notificações</string>
+    <string name="permission_description">O NotiFetch precisa de acesso a notificações para capturar notificações de parceiros de entrega e ajudar você a rastrear seus ganhos.</string>
+    <string name="permission_open_settings">Abrir configurações de notificação</string>
+    <string name="home_title">NotiFetch</string>
+    <string name="home_empty_title">Ainda não há notificações</string>
+    <string name="home_empty_subtitle">As notificações de aplicativos de parceiros de entrega aparecerão aqui assim que capturadas</string>
+    <string name="home_mark_all_read">Marcar tudo como lido</string>
+    <string name="home_search_placeholder">Buscar notificações…</string>
+    <string name="home_today">Hoje</string>
+    <string name="home_this_week">Esta semana</string>
+    <string name="settings_title">Configurações</string>
+    <string name="settings_dark_mode">Modo escuro</string>
+    <string name="settings_auto_sync">Sincronização automática</string>
+    <string name="nav_home">Início</string>
+    <string name="nav_settings">Configurações</string>
+    <string name="nav_profile">Perfil</string>
+    <string name="widget_description">Últimas notificações de entrega do NotiFetch</string>
+    <string name="earnings_title">Ganhos</string>
+    <string name="earnings_today">Hoje</string>
+    <string name="earnings_week">Esta semana</string>
+    <string name="earnings_cash_out">Sacar</string>
+    <string name="earnings_waitlist">Entrar na lista de espera</string>
+    <string name="earnings_points">Pontos</string>
+</resources>

@@ -192,6 +192,19 @@ class NotificationRepository @Inject constructor(
     suspend fun updatePlatformEnabled(packageName: String, isEnabled: Boolean) =
         platformConfigDao.updateEnabled(packageName, isEnabled)
 
+    // v2.9.12: Favorites/mute list
+    suspend fun updatePlatformFavorite(packageName: String, isFavorite: Boolean) =
+        platformConfigDao.updateFavorite(packageName, isFavorite)
+
+    suspend fun updatePlatformMuted(packageName: String, isMuted: Boolean) =
+        platformConfigDao.updateMuted(packageName, isMuted)
+
+    fun getFavoritePlatforms(): Flow<List<PlatformConfig>> = platformConfigDao.getFavoriteConfigs()
+    fun getMutedPlatforms(): Flow<List<PlatformConfig>> = platformConfigDao.getMutedConfigs()
+
+    suspend fun isPlatformMuted(packageName: String): Boolean =
+        platformConfigDao.isPlatformMuted(packageName) ?: false
+
     suspend fun incrementPlatformNotificationCount(packageName: String) =
         platformConfigDao.incrementNotificationCount(packageName, System.currentTimeMillis())
 

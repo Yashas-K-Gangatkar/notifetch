@@ -30,6 +30,25 @@ interface PlatformConfigDao {
     @Query("UPDATE platform_configs SET customDisplayName = :customName WHERE packageName = :packageName")
     suspend fun updateCustomDisplayName(packageName: String, customName: String?)
 
+    // v2.9.12: Favorites/mute list
+    @Query("UPDATE platform_configs SET isFavorite = :isFavorite WHERE packageName = :packageName")
+    suspend fun updateFavorite(packageName: String, isFavorite: Boolean)
+
+    @Query("UPDATE platform_configs SET isMuted = :isMuted WHERE packageName = :packageName")
+    suspend fun updateMuted(packageName: String, isMuted: Boolean)
+
+    @Query("SELECT * FROM platform_configs WHERE isFavorite = 1 ORDER BY displayName")
+    fun getFavoriteConfigs(): Flow<List<PlatformConfig>>
+
+    @Query("SELECT * FROM platform_configs WHERE isMuted = 1 ORDER BY displayName")
+    fun getMutedConfigs(): Flow<List<PlatformConfig>>
+
+    @Query("SELECT isMuted FROM platform_configs WHERE packageName = :packageName")
+    suspend fun isPlatformMuted(packageName: String): Boolean?
+
+    @Query("SELECT isFavorite FROM platform_configs WHERE packageName = :packageName")
+    suspend fun isPlatformFavorite(packageName: String): Boolean?
+
     @Query("UPDATE platform_configs SET notificationCount = notificationCount + 1, lastNotificationAt = :timestamp WHERE packageName = :packageName")
     suspend fun incrementNotificationCount(packageName: String, timestamp: Long)
 

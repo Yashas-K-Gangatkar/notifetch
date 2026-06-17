@@ -22,7 +22,10 @@ data class PlatformConfig(
     val isEnabled: Boolean = true,
     val notificationCount: Int = 0,
     val lastNotificationAt: Long? = null,
-    val userMode: String = "rider" // "rider" or "customer"
+    val userMode: String = "rider", // "rider" or "customer"
+    // v2.9.12: Favorites/mute list
+    val isFavorite: Boolean = false, // Starred platforms appear at top of Home
+    val isMuted: Boolean = false    // Muted platforms don't trigger smart alerts
 ) {
     /**
      * Returns the display name the user sees.

@@ -29,6 +29,11 @@ object Helpers {
     }
 
     /**
+     * v2.9.12: Alias for formatTimeAgo — used by the home screen widget.
+     */
+    fun formatRelativeTime(timestamp: Long): String = formatTimeAgo(timestamp)
+
+    /**
      * Format currency based on the currency code.
      * Supports multi-currency for worldwide platforms.
      */

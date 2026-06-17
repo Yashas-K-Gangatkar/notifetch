@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">NotiFetch</string>
+    <string name="permission_title">启用通知访问权限</string>
+    <string name="permission_description">NotiFetch 需要通知访问权限来捕获配送合作伙伴通知并帮助您跟踪收入。</string>
+    <string name="permission_open_settings">打开通知设置</string>
+    <string name="home_title">NotiFetch</string>
+    <string name="home_empty_title">暂无通知</string>
+    <string name="home_empty_subtitle">配送合作伙伴应用的通知将在捕获后显示在此处</string>
+    <string name="home_mark_all_read">全部标记为已读</string>
+    <string name="home_search_placeholder">搜索通知…</string>
+    <string name="home_today">今天</string>
+    <string name="home_this_week">本周</string>
+    <string name="settings_title">设置</string>
+    <string name="settings_dark_mode">深色模式</string>
+    <string name="settings_auto_sync">自动同步</string>
+    <string name="nav_home">主页</string>
+    <string name="nav_settings">设置</string>
+    <string name="nav_profile">个人资料</string>
+    <string name="widget_description">来自 NotiFetch 的最新配送通知</string>
+    <string name="earnings_title">收入</string>
+    <string name="earnings_today">今天</string>
+    <string name="earnings_week">本周</string>
+    <string name="earnings_cash_out">提现</string>
+    <string name="earnings_waitlist">加入等待名单</string>
+    <string name="earnings_points">积分</string>
+</resources>

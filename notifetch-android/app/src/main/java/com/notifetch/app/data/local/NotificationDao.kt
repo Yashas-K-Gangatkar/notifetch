@@ -29,6 +29,10 @@ interface NotificationDao {
     @Query("SELECT * FROM captured_notifications ORDER BY receivedAt DESC")
     fun getAllNotifications(): Flow<List<CapturedNotification>>
 
+    // v2.9.12: For home screen widget — fetch latest N notifications (suspend, no Flow)
+    @Query("SELECT * FROM captured_notifications ORDER BY receivedAt DESC LIMIT :limit")
+    suspend fun getLatestNotifications(limit: Int): List<CapturedNotification>
+
     @Query("SELECT * FROM captured_notifications WHERE id = :id")
     suspend fun getNotificationById(id: Long): CapturedNotification?
 

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">NotiFetch</string>
+    <string name="permission_title">Aktifkan Akses Notifikasi</string>
+    <string name="permission_description">NotiFetch memerlukan akses notifikasi untuk menangkap notifikasi mitra pengiriman dan membantu Anda melacak penghasilan.</string>
+    <string name="permission_open_settings">Buka Pengaturan Notifikasi</string>
+    <string name="home_title">NotiFetch</string>
+    <string name="home_empty_title">Belum ada notifikasi</string>
+    <string name="home_empty_subtitle">Notifikasi dari aplikasi mitra pengiriman akan muncul di sini setelah ditangkap</string>
+    <string name="home_mark_all_read">Tandai semua dibaca</string>
+    <string name="home_search_placeholder">Cari notifikasi…</string>
+    <string name="home_today">Hari ini</string>
+    <string name="home_this_week">Minggu ini</string>
+    <string name="settings_title">Pengaturan</string>
+    <string name="settings_dark_mode">Mode Gelap</string>
+    <string name="settings_auto_sync">Sinkronisasi Otomatis</string>
+    <string name="nav_home">Beranda</string>
+    <string name="nav_settings">Pengaturan</string>
+    <string name="nav_profile">Profil</string>
+    <string name="widget_description">Notifikasi pengiriman terbaru dari NotiFetch</string>
+    <string name="earnings_title">Penghasilan</string>
+    <string name="earnings_today">Hari ini</string>
+    <string name="earnings_week">Minggu ini</string>
+    <string name="earnings_cash_out">Tarik</string>
+    <string name="earnings_waitlist">Gabung Daftar Tunggu</string>
+    <string name="earnings_points">Poin</string>
+</resources>

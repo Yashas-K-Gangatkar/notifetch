@@ -1,13 +1,16 @@
 package com.notifetch.app.data.local
 
+import android.content.Context
 import androidx.room.Database
+import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.notifetch.app.util.Constants
 
 @Database(
     entities = [CapturedNotification::class, PlatformConfig::class],
-    version = 6,
+    version = 7,
     exportSchema = false
 )
 abstract class NotiFetchDatabase : RoomDatabase() {
@@ -58,12 +61,51 @@ abstract class NotiFetchDatabase : RoomDatabase() {
         }
 
         /**
+         * v7 (v2.9.12): Favorites/mute list.
+         * Adds isFavorite and isMuted columns to platform_configs.
+         * Both default to 0 (false) so existing platforms are unaffected.
+         */
+        val MIGRATION_6_7 = object : Migration(6, 7) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "ALTER TABLE platform_configs ADD COLUMN isFavorite INTEGER NOT NULL DEFAULT 0"
+                )
+                db.execSQL(
+                    "ALTER TABLE platform_configs ADD COLUMN isMuted INTEGER NOT NULL DEFAULT 0"
+                )
+            }
+        }
+
+        /**
          * Returns all migrations in order.
          * Room will automatically run the necessary chain of migrations.
          */
         fun allMigrations(): Array<Migration> = arrayOf(
             MIGRATION_4_5,
-            MIGRATION_5_6
+            MIGRATION_5_6,
+            MIGRATION_6_7
         )
+
+        /**
+         * v2.9.12: Singleton database instance for use outside Hilt (e.g., widget).
+         * Uses @Volatile + synchronized for thread-safe lazy initialization.
+         */
+        @Volatile
+        private var INSTANCE: NotiFetchDatabase? = null
+
+        fun getDatabase(context: Context): NotiFetchDatabase {
+            return INSTANCE ?: synchronized(this) {
+                val instance = Room.databaseBuilder(
+                    context.applicationContext,
+                    NotiFetchDatabase::class.java,
+                    Constants.DATABASE_NAME
+                )
+                    .addMigrations(*allMigrations())
+                    .fallbackToDestructiveMigrationFrom(1, 2, 3)
+                    .build()
+                INSTANCE = instance
+                instance
+            }
+        }
     }
 }

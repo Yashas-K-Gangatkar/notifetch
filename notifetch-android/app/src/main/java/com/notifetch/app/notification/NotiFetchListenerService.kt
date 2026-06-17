@@ -380,6 +380,23 @@ class NotiFetchListenerService : NotificationListenerService() {
                     val id = repository.insertNotification(capturedNotification)
                     Log.d(tag, "Saved notification #$id from $platformName [${parsed.category}] ($currency)")
 
+                    // v2.9.12: Smart offer alert — check if this is a high-value offer
+                    // and the platform isn't muted, then post a high-priority notification
+                    try {
+                        val isMuted = repository.isPlatformMuted(packageName)
+                        val alertCandidate = capturedNotification.copy(id = id)
+                        if (SmartAlertManager.shouldAlert(alertCandidate, isMuted)) {
+                            SmartAlertManager.postOfferAlert(
+                                context = this@NotiFetchListenerService,
+                                notification = alertCandidate,
+                                notificationId = id
+                            )
+                            Log.d(tag, "Posted smart offer alert for $platformName (50%+ off offer detected)")
+                        }
+                    } catch (e: Exception) {
+                        Log.w(tag, "Smart alert check failed: ${e.message}")
+                    }
+
                     // Debounced platform count increment
                     synchronized(pendingCountIncrements) {
                         pendingCountIncrements.add(packageName)
@@ -406,6 +423,15 @@ class NotiFetchListenerService : NotificationListenerService() {
                     syncJob = serviceScope.launch {
                         delay(5000)
                         syncToBackend()
+                    }
+
+                    // v2.9.12: Refresh home screen widget
+                    try {
+                        com.notifetch.app.widget.NotiFetchWidgetProvider.refreshAllWidgets(
+                            this@NotiFetchListenerService
+                        )
+                    } catch (_: Exception) {
+                        // Widget refresh is non-critical
                     }
                 } catch (e: Exception) {
                     Log.e(tag, "Failed to save notification from $platformName", e)

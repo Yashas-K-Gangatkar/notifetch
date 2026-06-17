@@ -84,4 +84,19 @@
     <string name="nav_home">Home</string>
     <string name="nav_settings">Settings</string>
     <string name="nav_profile">Profile</string>
+
+    <!-- v2.9.12: Widget -->
+    <string name="widget_description">Latest delivery notifications from NotiFetch</string>
+
+    <!-- v2.9.12: Earnings -->
+    <string name="earnings_title">Earnings</string>
+    <string name="earnings_today">Today</string>
+    <string name="earnings_week">This Week</string>
+    <string name="earnings_month">This Month</string>
+    <string name="earnings_total">Total Estimated</string>
+    <string name="earnings_cash_out">Cash Out</string>
+    <string name="earnings_waitlist">Join Cash Out Waitlist</string>
+    <string name="earnings_points">Points</string>
+    <string name="earnings_estimated">Estimated Earnings</string>
+    <string name="earnings_disclaimer">Earnings are estimates based on captured notifications. Real cash payouts begin once NotiFetch monetization launches (targeting Q1 2027). Join the waitlist to be notified first.</string>
 </resources>

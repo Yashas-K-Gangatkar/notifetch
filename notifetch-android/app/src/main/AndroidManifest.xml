@@ -167,6 +167,20 @@
             </intent-filter>
         </receiver>
 
+        <!-- v2.9.12: Home Screen Widget — shows latest 3 notifications -->
+        <receiver
+            android:name=".widget.NotiFetchWidgetProvider"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.notifetch.app.REFRESH_WIDGET" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/notifetch_widget_info" />
+        </receiver>
+
         <!-- WorkManager initialization -->
         <provider
             android:name="androidx.startup.InitializationProvider"
