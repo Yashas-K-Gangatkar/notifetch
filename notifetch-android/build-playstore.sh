@@ -88,22 +88,35 @@ UPLOAD_KEYSTORE="$PROJECT_DIR/upload/keystore.jks"
 GEN_KEYSTORE="$ANDROID_DIR/upload-keystore.jks"
 KEYSTORE_PROPS="$ANDROID_DIR/keystore.properties"
 
-# Option A: Use existing upload keystore (from previous Play Store signing setup)
-if [[ -f "$UPLOAD_KEYSTORE" ]] && [[ -n "${NOTIFETCH_STORE_PASSWORD:-}" ]]; then
-    echo "  Using existing upload/keystore.jks (with env vars for credentials)"
+# Default Play Store upload keystore credentials (override via env vars in CI)
+export NOTIFETCH_STORE_PASSWORD="${NOTIFETCH_STORE_PASSWORD:-changeme_notifetch_store_2024}"
+export NOTIFETCH_KEY_ALIAS="${NOTIFETCH_KEY_ALIAS:-notifetch}"
+export NOTIFETCH_KEY_PASSWORD="${NOTIFETCH_KEY_PASSWORD:-changeme_notifetch_store_2024}"
+
+# Option A: Use the original Play Store upload keystore (matches SHA-1 59:70:88:1E...)
+if [[ -f "$UPLOAD_KEYSTORE" ]]; then
+    echo "  Using upload/keystore.jks (Play Store upload key)"
+    echo "  SHA-1 expected: 59:70:88:1E:B8:0B:CE:1B:F4:A8:0E:D2:35:C4:06:3E:99:89:F5:ED"
+    # Verify the keystore can be unlocked with the configured password
+    if ! "$JAVA_HOME/bin/keytool" -list -keystore "$UPLOAD_KEYSTORE" \
+            -storepass "$NOTIFETCH_STORE_PASSWORD" > /dev/null 2>&1; then
+        echo "  ERROR: Keystore password incorrect. Set NOTIFETCH_STORE_PASSWORD env var."
+        exit 1
+    fi
+    echo "  Keystore unlocked successfully."
     SIGNING_MODE="release-upload"
 
-# Option B: Use existing generated keystore + properties file
+# Option B: Use existing generated keystore + properties file (fallback)
 elif [[ -f "$GEN_KEYSTORE" ]] && [[ -f "$KEYSTORE_PROPS" ]]; then
     echo "  Using existing upload-keystore.jks + keystore.properties"
     SIGNING_MODE="release-generated"
 
-# Option C: Generate a new upload keystore
+# Option C: Generate a new upload keystore (NEW listing only — won't update existing Play Store listing)
 else
     echo "  No keystore found — generating a NEW upload keystore."
-    echo "  IMPORTANT: To upload this AAB to Play Store as an update to an existing listing,"
-    echo "  you must reset your upload key in Play Console → App integrity → Request upload key reset."
-    echo "  Or use Play App Signing (recommended)."
+    echo "  WARNING: This AAB will NOT be uploadable as an update to your existing Play Store listing."
+    echo "           To fix: place the original keystore at upload/keystore.jks"
+    echo "           OR request a Play Console upload key reset."
     echo ""
 
     KEYSTORE_PASSWORD="$(openssl rand -base64 18 | tr -d '/+=' | head -c 20)"
@@ -121,7 +134,6 @@ else
         -dname "CN=NotiFetch, OU=Mobile, O=NotiFetch, L=Bengaluru, ST=Karnataka, C=IN" \
         -storetype JKS
 
-    # Save credentials (gitignored — never committed)
     cat > "$KEYSTORE_PROPS" <<EOF
 storeFile=$GEN_KEYSTORE
 storePassword=$KEYSTORE_PASSWORD
@@ -130,7 +142,6 @@ keyPassword=$KEY_PASSWORD
 EOF
     chmod 600 "$KEYSTORE_PROPS" "$GEN_KEYSTORE"
     echo "  Generated: $GEN_KEYSTORE"
-    echo "  Credentials: $KEYSTORE_PROPS (gitignored, keep safe)"
     SIGNING_MODE="release-generated"
 fi
 
