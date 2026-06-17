@@ -67,6 +67,9 @@ google-services.json
 **/google-services.json
 *.jks
 *.keystore
+# Signing credentials — NEVER commit (contains keystore passwords)
+**/keystore.properties
+**/signing.properties
 tool-results/
 # Download directory - build outputs
 download/*.apk
@@ -79,5 +82,7 @@ download/crashlytics-mapping-*.txt
 
 # JDK (too large for git)
 /jdk/
+/jdk21/
+/jdk-*/
 # Auth service — separate repo, not tracked as submodule
 notifetch-auth/
