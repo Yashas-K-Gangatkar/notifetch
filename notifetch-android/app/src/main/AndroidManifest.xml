@@ -15,6 +15,56 @@
          NotificationListenerService is a system-bound service, not a foreground service.
          Keeping these permissions triggered Play Store policy review for unused FGS types. -->
 
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         v2.9.7 — Package Visibility (Android 11+ / API 30+)
+
+         THE BUG: When user tapped "Open Zomato" in NotiFetch, they were taken to
+         the Play Store instead of the Zomato app.
+
+         ROOT CAUSE: Android 11+ restricts which packages an app can see. Without
+         a <queries> declaration, these APIs return NULL for all third-party apps:
+           - PackageManager.getLaunchIntentForPackage()
+           - PackageManager.resolveActivity()
+         The "Open App" button's fallback logic (Strategy 4) then opened Play Store.
+
+         THE FIX: Declare <queries> so the system lets NotiFetch see all delivery
+         apps. Two query types:
+
+         1. <intent> query for the LAUNCHER action — lets us see ANY app that has
+            a launcher icon. This is the broadest, Play-Store-policy-compliant way.
+            It's what we need for getLaunchIntentForPackage() to work.
+
+         2. <intent> query for VIEW https — lets us see apps that handle web URLs
+            (some delivery apps use deep links via https:// scheme).
+
+         NOTE: We deliberately do NOT use <package> entries for each of the 169
+         delivery platforms because:
+           (a) it would be a maintenance burden (169 lines)
+           (b) Play Store reviews <package> queries more strictly than <intent>
+           (c) the <intent> LAUNCHER query covers all cases we need
+
+         This is the Android-recommended approach for apps that need to launch
+         other apps by package name:
+         https://developer.android.com/training/package-visibility
+         ═══════════════════════════════════════════════════════════════════════ -->
+    <queries>
+        <!-- See apps with a launcher icon (covers getLaunchIntentForPackage) -->
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+        <!-- See apps that handle https:// deep links (some delivery apps use these) -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="https" />
+        </intent>
+        <!-- See apps that handle custom scheme deep links (e.g., zomato://, swiggy://) -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="*" />
+        </intent>
+    </queries>
+
     <application
         android:name=".NotiFetchApp"
         android:allowBackup="true"

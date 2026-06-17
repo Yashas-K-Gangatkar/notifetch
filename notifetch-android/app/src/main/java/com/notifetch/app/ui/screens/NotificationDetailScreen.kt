@@ -408,6 +408,10 @@ fun NotificationDetailScreen(
 /**
  * Opens the source app that generated the notification.
  *
+ * v2.9.7 FIX: Added <queries> to AndroidManifest so getLaunchIntentForPackage()
+ * works on Android 11+. Previously, this returned null on Android 11+ due to
+ * package visibility restrictions, causing the button to fall through to Play Store.
+ *
  * v2.9.2 FIX: Uses a 4-strategy approach to ensure the app opens properly
  * and ideally deep-links to the specific order/offer/tracking screen:
  *
@@ -415,13 +419,17 @@ fun NotificationDetailScreen(
  *   This is the BEST option — it opens the exact screen the source app intended
  *   (e.g., a specific order, offer, or tracking page). The PendingIntent is
  *   cached by NotiFetchListenerService when the notification arrives.
+ *   NOTE: Cache is lost when the NotiFetch app process is killed (swiped away
+ *   or system memory pressure). In that case, falls through to Strategy 2.
  *
  * Strategy 2: getLaunchIntentForPackage() — opens the app's main screen.
  *   Works for most apps but doesn't deep-link to a specific page.
+ *   Requires <queries> in manifest on Android 11+ (added in v2.9.7).
  *
  * Strategy 3: Resolve the LAUNCHER category activity manually.
  *   Some apps don't expose a default launch intent via getLaunchIntentForPackage()
  *   (especially on Samsung/Xiaomi devices with OEM customizations).
+ *   Also requires <queries> on Android 11+.
  *
  * Strategy 4: Fall back to Play Store page (app not installed or completely locked).
  *   This is the LAST resort — the user will at least see the app's Play Store page.
@@ -436,19 +444,24 @@ private fun openSourceApp(context: android.content.Context, packageName: String,
         if (cachedPendingIntent != null) {
             try {
                 cachedPendingIntent.send()
+                android.util.Log.d("NotiFetchOpen", "Opened $packageName via cached PendingIntent (deep link)")
                 return // Success — deep link opened
             } catch (e: Exception) {
                 // PendingIntent may have been cancelled or the target app was uninstalled
+                android.util.Log.w("NotiFetchOpen", "Cached PendingIntent for $packageName failed: ${e.message}. Falling back to launch intent.")
                 // Fall through to strategy 2
             }
+        } else {
+            android.util.Log.d("NotiFetchOpen", "No cached PendingIntent for $packageName (cache cleared on app restart). Using launch intent.")
         }
 
         // Strategy 2: Try getLaunchIntentForPackage (works for most apps)
+        // v2.9.7: Now works on Android 11+ thanks to <queries> in manifest
         var launchIntent = pm.getLaunchIntentForPackage(packageName)
 
         // Strategy 3: If null, try to find ANY launchable activity from the package
         // Some OEM ROMs (Samsung, Xiaomi) return null from getLaunchIntentForPackage
-        // even for installed apps
+        // even for installed apps. v2.9.7: <queries> makes this work on Android 11+.
         if (launchIntent == null) {
             try {
                 val mainIntent = Intent(Intent.ACTION_MAIN).apply {
@@ -462,6 +475,7 @@ private fun openSourceApp(context: android.content.Context, packageName: String,
                         setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
                         component = ComponentName(resolveInfo.activityInfo.packageName, resolveInfo.activityInfo.name)
                     }
+                    android.util.Log.d("NotiFetchOpen", "Resolved launcher activity manually for $packageName")
                 }
             } catch (_: Exception) { }
         }
@@ -469,8 +483,11 @@ private fun openSourceApp(context: android.content.Context, packageName: String,
         if (launchIntent != null) {
             launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
             context.startActivity(launchIntent)
+            android.util.Log.d("NotiFetchOpen", "Opened $packageName via launch intent (main screen)")
         } else {
             // Strategy 4: App not installed or locked — open Play Store
+            android.util.Log.w("NotiFetchOpen", "App $packageName not visible/installed. Opening Play Store.")
+            Toast.makeText(context, "$displayName not installed — opening Play Store", Toast.LENGTH_SHORT).show()
             try {
                 val playStoreIntent = Intent(Intent.ACTION_VIEW).apply {
                     data = Uri.parse("market://details?id=$packageName")
@@ -487,6 +504,7 @@ private fun openSourceApp(context: android.content.Context, packageName: String,
             }
         }
     } catch (e: Exception) {
+        android.util.Log.e("NotiFetchOpen", "Failed to open $packageName", e)
         Toast.makeText(context, "Could not open $displayName", Toast.LENGTH_SHORT).show()
     }
 }
