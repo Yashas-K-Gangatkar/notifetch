@@ -37,5 +37,22 @@ data class CapturedNotification(
     val isRead: Boolean = false,
     val category: String?,
     val currency: String = "INR", // Currency for order value
-    val userMode: String = "rider" // "rider" or "customer" — which mode captured this
+    val userMode: String = "rider", // "rider" or "customer" — which mode captured this
+
+    // ─── v2.9.8: Deep link persistence ────────────────────────────────────────
+    // When the source app posts a notification, it includes a contentIntent
+    // (PendingIntent) that fires when the user taps the notification in the
+    // status bar. That PendingIntent's target Intent usually deep-links to the
+    // specific screen the notification is about (offer, order tracking, etc.).
+    //
+    // We extract the target Intent's data URI and component (package + class)
+    // and store them here. When the user taps "Open App" in NotiFetch, we
+    // try to launch this deep link FIRST, before falling back to the app's
+    // main screen. This survives process death (the in-memory PendingIntentCache
+    // does not).
+    //
+    // Privacy: We only store the URI string and component name — never the
+    // extras bundle (which could contain PII/auth tokens).
+    val deepLinkUri: String? = null,
+    val deepLinkComponent: String? = null, // "packageName/className" if resolvable
 )

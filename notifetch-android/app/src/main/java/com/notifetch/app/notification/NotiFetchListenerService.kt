@@ -220,13 +220,48 @@ class NotiFetchListenerService : NotificationListenerService() {
         Log.d(tag, "Captured notification from $platformName ($packageName) [mode=$userMode]")
 
         // Cache the PendingIntent for "Open App" deep-linking
+        // v2.9.8: Also extract the underlying Intent's URI and component, and persist
+        // them to the database. The in-memory cache is cleared on process death, but
+        // the persisted URI survives — so deep-linking works even after NotiFetch
+        // is killed by Android memory pressure.
+        var extractedDeepLinkUri: String? = null
+        var extractedDeepLinkComponent: String? = null
         try {
             val contentIntent = sbn.notification.contentIntent
             if (contentIntent != null) {
                 PendingIntentCache.put(packageName, contentIntent)
+
+                // Extract the target Intent's URI and component for persistence.
+                // PendingIntent.getTargetIntent() returns the underlying Intent that
+                // the source app built — it usually deep-links to the specific
+                // offer/order/tracking screen.
+                //
+                // We use reflection because getTargetIntent() is sometimes hidden
+                // from the Kotlin compiler in certain SDK configurations, even
+                // though it's a public API since API 1.
+                val targetIntent: Intent? = try {
+                    val method = android.app.PendingIntent::class.java.getMethod("getTargetIntent")
+                    method.invoke(contentIntent) as? Intent
+                } catch (_: Exception) {
+                    null
+                }
+
+                if (targetIntent != null) {
+                    val dataUri = targetIntent.data
+                    if (dataUri != null) {
+                        val uriString = dataUri.toString()
+                        if (uriString.isNotBlank()) {
+                            extractedDeepLinkUri = uriString
+                        }
+                    }
+                    val component = targetIntent.component
+                    if (component != null) {
+                        extractedDeepLinkComponent = "${component.packageName}/${component.className}"
+                    }
+                }
             }
         } catch (_: Exception) {
-            // Ignore
+            // Reflection or security exceptions — ignore, deep link will be null
         }
 
         try {
@@ -334,7 +369,9 @@ class NotiFetchListenerService : NotificationListenerService() {
                 isSynced = false,
                 category = parsed.category,
                 currency = currency,
-                userMode = userMode
+                userMode = userMode,
+                deepLinkUri = extractedDeepLinkUri,
+                deepLinkComponent = extractedDeepLinkComponent
             )
 
             // Save to local database (async — never block onNotificationPosted)
