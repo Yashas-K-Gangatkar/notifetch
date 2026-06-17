@@ -106,6 +106,10 @@ object Constants {
         "com.zomato.deliverypartner" to "Zomato Delivery",         // Zomato alternate package
         "com.amazon.flex" to "Amazon Flex",                        // Amazon Flex old package (redirects to .rabbit)
         "com.flipkart.logistics" to "Ekart Delivery",              // Flipkart old package
+
+        // ── Freight (Driver Apps) ───────────────────────────────────────────
+        "com.convoy.driverapp"                                   to "Convoy Driver",               // Convoy Driver (US)
+        "com.blackbuck.driver"                                   to "BlackBuck Driver",            // BlackBuck Driver (India)
     )
 
     // Source identifiers for API (machine-readable, not user-facing)
@@ -198,6 +202,8 @@ object Constants {
         "com.zomato.deliverypartner" to "#E23744",      // Zomato alt — Red
         "com.amazon.flex" to "#FF9900",                 // Amazon Flex old — Orange
         "com.flipkart.logistics" to "#2874F0",          // Flipkart old — Blue
+        "com.convoy.driverapp"                           to "#1A1A1A",      // Convoy Driver
+        "com.blackbuck.driver"                           to "#FFC107",      // BlackBuck Driver
     )
 
     // Time constants
@@ -265,6 +271,107 @@ object Constants {
         "com.delhivery.track" to "Delhivery",                      // Delhivery Customer (India)
         "com.xpressbees.track" to "Xpressbees",                    // Xpressbees Customer (India)
         "com.dunzo.user" to "Dunzo",                               // Dunzo Customer (India)
+
+        // ── Food (China) — Customer Apps ──────────────────────────────────
+        "com.sankuai.meituan"                                    to "Meituan",                     // Meituan (China)
+        "me.ele"                                                 to "Ele.me",                      // Ele.me (China)
+
+        // ── Grocery (EU) — Customer Apps ──────────────────────────────────
+        "com.gorillasapp"                                        to "Gorillas",                    // Gorillas (EU/UK — acquired by Getir)
+        "com.getir"                                              to "Getir",                       // Getir (EU/UK/MENA)
+
+        // ── Package & Parcel — Customer Apps ───────────────────────────────
+        "com.fedex.android.apps.fedexmobile"                     to "FedEx",                       // FedEx (Global)
+        "com.dhl.parcel.uk"                                      to "DHL",                         // DHL (Global)
+        "com.sf.activity"                                        to "SF Express",                  // SF Express (China)
+
+        // ── Medical / Pharmacy — Customer Apps ────────────────────────────
+        "com.capsule.pharmacy"                                   to "Capsule",                     // Capsule (US)
+        "com.nowrx.android"                                      to "NowRx",                       // NowRx (US)
+        "com.indpro.pharmeasy"                                   to "PharmEasy",                   // PharmEasy (India)
+        "com.netmeds.android"                                    to "Netmeds",                     // Netmeds (India)
+        "com.aranoah.healthkart.plus"                            to "1mg",                         // 1mg (India)
+
+        // ── Alcohol — Customer Apps ────────────────────────────────────────
+        "com.drizly.drizly"                                      to "Drizly",                      // Drizly (US — acquired by Uber)
+        "com.minibar.android"                                    to "Minibar",                     // Minibar (US)
+        "com.saucey.android"                                     to "Saucey",                      // Saucey (US)
+        "com.hipbar.android"                                     to "HipBar",                      // HipBar (India)
+
+        // ── Flowers — Customer Apps ────────────────────────────────────────
+        "com.bloomnation.bloomnation"                            to "BloomNation",                 // BloomNation (US)
+        "com.ftd.app.bloom"                                      to "1-800-Flowers",               // 1-800-Flowers (US)
+        "com.interflora.android"                                 to "Interflora",                  // Interflora (Europe/Oceania)
+        "com.fnp.android"                                        to "Ferns N Petals",              // Ferns N Petals (India)
+
+        // ── Laundry — Customer Apps ────────────────────────────────────────
+        "com.rinse.app"                                          to "Rinse",                       // Rinse (US)
+        "com.flycleaners.android"                                to "FlyCleaners",                 // FlyCleaners (US)
+        "com.laundrokart.app"                                    to "LaundroKart",                 // LaundroKart (India)
+        "com.presso.app"                                         to "Presso",                      // Presso (SEA/MENA)
+
+        // ── Pet Supplies — Customer Apps ───────────────────────────────────
+        "com.chewy.android"                                      to "Chewy",                       // Chewy (US)
+        "com.petsathome.android"                                 to "Pets at Home",                // Pets at Home (UK)
+        "com.hutf.android"                                       to "Heads Up For Tails",          // Heads Up For Tails (India)
+
+        // ── Furniture — Customer Apps ──────────────────────────────────────
+        "com.wayfair.wayfair"                                    to "Wayfair",                     // Wayfair (US/Europe)
+        "com.castlery.app"                                       to "Castlery",                    // Castlery (SEA/Oceania)
+        "com.urbanladder.app"                                    to "Urban Ladder",                // Urban Ladder (India)
+
+        // ── Bicycle Courier ────────────────────────────────────────────────
+        "com.couriersplease.app"                                 to "Courier Please",              // Courier Please (Australia)
+
+        // ── Document ───────────────────────────────────────────────────────
+        "com.dex.android"                                        to "Dex",                         // Dex (US)
+        "com.couriire.app"                                       to "Couriire",                    // Couriire (India)
+
+        // ── Same-Day (China) ───────────────────────────────────────────────
+        "com.cainiao.wireless.dumps"                             to "Cainiao",                     // Cainiao (China)
+
+        // ── White-Glove ────────────────────────────────────────────────────
+        "com.xpo.logistics"                                      to "XPO Logistics",               // XPO Logistics (US/Europe)
+        "com.jingdong.app.mall"                                  to "JD Logistics",                // JD Logistics (China)
+
+        // ── Cannabis ───────────────────────────────────────────────────────
+        "com.eaze.android"                                       to "Eaze",                        // Eaze (US)
+        "com.dutchie.android"                                    to "Dutchie",                     // Dutchie (US)
+
+        // ── QSR (Quick Service Restaurants) — Customer Apps ────────────────
+        "com.dominos"                                            to "Domino's India",              // Domino's India (India)
+        "com.dominos.android"                                    to "Domino's US",                 // Domino's US (US)
+        "com.pizzahut.android"                                   to "Pizza Hut India",             // Pizza Hut India (India)
+        "com.pizzahut.android.global"                            to "Pizza Hut",                   // Pizza Hut (Global)
+        "com.papajohns.android"                                  to "Papa John's",                 // Papa John's (US/Global)
+        "com.mcdonalds.mcdeliveryindia"                          to "McDelivery India",            // McDelivery India (India)
+        "com.mcdonalds.app"                                      to "McDonald's",                  // McDonald's (Global)
+        "com.bkindia"                                            to "Burger King India",           // Burger King India (India)
+        "com.bk"                                                 to "Burger King",                 // Burger King (Global)
+        "com.wendys.nutritiontool"                               to "Wendy's",                     // Wendy's (US)
+        "com.fiveguys.android"                                   to "Five Guys",                   // Five Guys (US/Europe)
+        "com.kfc.india"                                          to "KFC India",                   // KFC India (India)
+        "com.kfc.android"                                        to "KFC",                         // KFC (Global)
+        "com.chickfila.app"                                      to "Chick-fil-A",                 // Chick-fil-A (US)
+        "com.popeyes.android"                                    to "Popeyes",                     // Popeyes (US/Global)
+        "com.chipotle.android"                                   to "Chipotle",                    // Chipotle (US/Europe)
+        "com.tacobell"                                           to "Taco Bell",                   // Taco Bell (US/Europe/LATAM)
+        "com.subway.subwaymobile"                                to "Subway",                      // Subway (Global)
+        "com.panera.bread"                                       to "Panera Bread",                // Panera Bread (US)
+        "com.starbucks.mobilecard"                               to "Starbucks",                   // Starbucks (Global)
+        "com.starbucks.in"                                       to "Starbucks India",             // Starbucks India (India)
+        "com.dunkinbrands.dunkindonuts"                          to "Dunkin'",                     // Dunkin' (US)
+        "com.timhortons.app"                                     to "Tim Hortons",                 // Tim Hortons (US/Canada)
+        "com.eatsure"                                            to "EatSure",                     // EatSure (India)
+        "com.box8.app"                                           to "Box8",                        // Box8 (India)
+        "com.faasos.behrouz"                                     to "Behrouz Biryani",             // Behrouz Biryani (India)
+        "com.chaayos"                                            to "Chaayos",                     // Chaayos (India)
+        "com.wowmomo"                                            to "Wow! Momo",                   // Wow! Momo (India)
+        "com.faasos"                                             to "Faasos",                      // Faasos (India)
+        "com.faasos.ovenstory"                                   to "Oven Story Pizza",            // Oven Story Pizza (India)
+        "com.faasos.mandarinfox"                                 to "Mandarin Fox",                // Mandarin Fox (India)
+        "com.faasos.bowlcompany"                                 to "The Bowl Company",            // The Bowl Company (India)
+        "com.lenotre.android"                                    to "LENOTRE Dessert",              // LENOTRE Dessert (MENA)
     )
 
     // Combined map for the notification listener to use
@@ -320,6 +427,77 @@ object Constants {
         "com.delhivery.track" to "#1A73E8",            // Delhivery — Blue
         "com.xpressbees.track" to "#E91E63",           // Xpressbees — Pink
         "com.dunzo.user" to "#00D290",                 // Dunzo — Green
+        "com.sankuai.meituan"                            to "#FFD100",      // Meituan
+        "me.ele"                                         to "#0097FF",      // Ele.me
+        "com.gorillasapp"                                to "#FFD100",      // Gorillas
+        "com.getir"                                      to "#5D00B7",      // Getir
+        "com.fedex.android.apps.fedexmobile"             to "#4D148C",      // FedEx
+        "com.dhl.parcel.uk"                              to "#FFCC00",      // DHL
+        "com.sf.activity"                                to "#DC0019",      // SF Express
+        "com.capsule.pharmacy"                           to "#000000",      // Capsule
+        "com.nowrx.android"                              to "#00A3E0",      // NowRx
+        "com.indpro.pharmeasy"                           to "#3BB871",      // PharmEasy
+        "com.netmeds.android"                            to "#E61E2A",      // Netmeds
+        "com.aranoah.healthkart.plus"                    to "#FF6F00",      // 1mg
+        "com.drizly.drizly"                              to "#FF4A1C",      // Drizly
+        "com.minibar.android"                            to "#1A1A1A",      // Minibar
+        "com.saucey.android"                             to "#FF6B35",      // Saucey
+        "com.hipbar.android"                             to "#FF1744",      // HipBar
+        "com.bloomnation.bloomnation"                    to "#E8336A",      // BloomNation
+        "com.ftd.app.bloom"                              to "#000000",      // 1-800-Flowers
+        "com.interflora.android"                         to "#E6007E",      // Interflora
+        "com.fnp.android"                                to "#E6007E",      // Ferns N Petals
+        "com.rinse.app"                                  to "#00B8A9",      // Rinse
+        "com.flycleaners.android"                        to "#1E88E5",      // FlyCleaners
+        "com.laundrokart.app"                            to "#00BCD4",      // LaundroKart
+        "com.presso.app"                                 to "#212121",      // Presso
+        "com.chewy.android"                              to "#1B6EC2",      // Chewy
+        "com.petsathome.android"                         to "#00A651",      // Pets at Home
+        "com.hutf.android"                               to "#FF6F00",      // Heads Up For Tails
+        "com.wayfair.wayfair"                            to "#7B1899",      // Wayfair
+        "com.castlery.app"                               to "#1A1A1A",      // Castlery
+        "com.urbanladder.app"                            to "#FF6F00",      // Urban Ladder
+        "com.couriersplease.app"                         to "#FF6B00",      // Courier Please
+        "com.dex.android"                                to "#1E88E5",      // Dex
+        "com.couriire.app"                               to "#212121",      // Couriire
+        "com.cainiao.wireless.dumps"                     to "#FF6A00",      // Cainiao
+        "com.xpo.logistics"                              to "#E61E2A",      // XPO Logistics
+        "com.jingdong.app.mall"                          to "#E1251B",      // JD Logistics
+        "com.eaze.android"                               to "#00C853",      // Eaze
+        "com.dutchie.android"                            to "#00C853",      // Dutchie
+        "com.dominos"                                    to "#006491",      // Domino's India
+        "com.dominos.android"                            to "#006491",      // Domino's US
+        "com.pizzahut.android"                           to "#EE3124",      // Pizza Hut India
+        "com.pizzahut.android.global"                    to "#EE3124",      // Pizza Hut
+        "com.papajohns.android"                          to "#008515",      // Papa John's
+        "com.mcdonalds.mcdeliveryindia"                  to "#FFC72C",      // McDelivery India
+        "com.mcdonalds.app"                              to "#FFC72C",      // McDonald's
+        "com.bkindia"                                    to "#D62300",      // Burger King India
+        "com.bk"                                         to "#D62300",      // Burger King
+        "com.wendys.nutritiontool"                       to "#E31837",      // Wendy's
+        "com.fiveguys.android"                           to "#E94B3C",      // Five Guys
+        "com.kfc.india"                                  to "#F40009",      // KFC India
+        "com.kfc.android"                                to "#F40009",      // KFC
+        "com.chickfila.app"                              to "#DD0031",      // Chick-fil-A
+        "com.popeyes.android"                            to "#FF7D00",      // Popeyes
+        "com.chipotle.android"                           to "#451400",      // Chipotle
+        "com.tacobell"                                   to "#702083",      // Taco Bell
+        "com.subway.subwaymobile"                        to "#008C15",      // Subway
+        "com.panera.bread"                               to "#1B998B",      // Panera Bread
+        "com.starbucks.mobilecard"                       to "#00704A",      // Starbucks
+        "com.starbucks.in"                               to "#00704A",      // Starbucks India
+        "com.dunkinbrands.dunkindonuts"                  to "#FF671F",      // Dunkin'
+        "com.timhortons.app"                             to "#C8102E",      // Tim Hortons
+        "com.eatsure"                                    to "#FF6F00",      // EatSure
+        "com.box8.app"                                   to "#FF6F00",      // Box8
+        "com.faasos.behrouz"                             to "#1A1A1A",      // Behrouz Biryani
+        "com.chaayos"                                    to "#00A651",      // Chaayos
+        "com.wowmomo"                                    to "#FF6F00",      // Wow! Momo
+        "com.faasos"                                     to "#FF6F00",      // Faasos
+        "com.faasos.ovenstory"                           to "#D0021B",      // Oven Story Pizza
+        "com.faasos.mandarinfox"                         to "#FF6F00",      // Mandarin Fox
+        "com.faasos.bowlcompany"                         to "#FF6F00",      // The Bowl Company
+        "com.lenotre.android"                            to "#1A1A1A",      // LENôTRE Dessert
     )
 
     // Combined platform colors
@@ -423,4 +601,77 @@ enum class PlatformSource(val displayName: String, val packageName: String, val 
     DRIVEU("DriveU Partner", "com.driveu.partner", "driveu_partner", "ride"),
     YULU("Yulu Partner", "app.yulu.android.partner", "yulu_partner", "ride"),
     GOJEK("Gojek Driver", "com.gojek.partner", "gojek_driver", "food"),
+    MEITUAN("Meituan", "com.sankuai.meituan", "meituan", "food"),
+    ELE_ME("Ele.me", "me.ele", "ele_me", "food"),
+    GORILLAS("Gorillas", "com.gorillasapp", "gorillas", "grocery"),
+    GETIR("Getir", "com.getir", "getir", "grocery"),
+    FEDEX("FedEx", "com.fedex.android.apps.fedexmobile", "fedex", "package"),
+    DHL("DHL", "com.dhl.parcel.uk", "dhl", "package"),
+    SF_EXPRESS("SF Express", "com.sf.activity", "sf_express", "last-mile"),
+    CAPSULE("Capsule", "com.capsule.pharmacy", "capsule", "medical"),
+    NOWRX("NowRx", "com.nowrx.android", "nowrx", "medical"),
+    PHARMEASY("PharmEasy", "com.indpro.pharmeasy", "pharmeasy", "medical"),
+    NETMEDS("Netmeds", "com.netmeds.android", "netmeds", "medical"),
+    ONE_MG("1mg", "com.aranoah.healthkart.plus", "1mg", "medical"),
+    DRIZLY("Drizly", "com.drizly.drizly", "drizly", "alcohol"),
+    MINIBAR("Minibar", "com.minibar.android", "minibar", "alcohol"),
+    SAUCEY("Saucey", "com.saucey.android", "saucey", "alcohol"),
+    HIPBAR("HipBar", "com.hipbar.android", "hipbar", "alcohol"),
+    BLOOMNATION("BloomNation", "com.bloomnation.bloomnation", "bloomnation", "flower"),
+    FLOWERS_1800("1-800-Flowers", "com.ftd.app.bloom", "1800_flowers", "flower"),
+    INTERFLORA("Interflora", "com.interflora.android", "interflora", "flower"),
+    FERNS_PETALS("Ferns N Petals", "com.fnp.android", "ferns_petals", "flower"),
+    RINSE("Rinse", "com.rinse.app", "rinse", "laundry"),
+    FLYCLEANERS("FlyCleaners", "com.flycleaners.android", "flycleaners", "laundry"),
+    LAUNDROKART("LaundroKart", "com.laundrokart.app", "laundrokart", "laundry"),
+    PRESSO("Presso", "com.presso.app", "presso", "laundry"),
+    CHEWY("Chewy", "com.chewy.android", "chewy", "pet-supplies"),
+    PETS_AT_HOME("Pets at Home", "com.petsathome.android", "pets_at_home", "pet-supplies"),
+    HEADS_UP_FOR_TAILS("Heads Up For Tails", "com.hutf.android", "heads_up_for_tails", "pet-supplies"),
+    WAYFAIR_DELIVERY("Wayfair", "com.wayfair.wayfair", "wayfair_delivery", "furniture"),
+    CASTLERY("Castlery", "com.castlery.app", "castlery", "furniture"),
+    URBAN_LADDER("Urban Ladder", "com.urbanladder.app", "urban_ladder", "furniture"),
+    COURIER_PLEASE("Courier Please", "com.couriersplease.app", "courier_please", "bicycle-courier"),
+    DEX("Dex", "com.dex.android", "dex", "document"),
+    COURIIRE("Couriire", "com.couriire.app", "couriire", "document"),
+    CAINIAO("Cainiao", "com.cainiao.wireless.dumps", "cainiao", "same-day"),
+    XPO("XPO Logistics", "com.xpo.logistics", "xpo", "white-glove"),
+    JD_LOGISTICS("JD Logistics", "com.jingdong.app.mall", "jd_logistics", "white-glove"),
+    EAZE("Eaze", "com.eaze.android", "eaze", "cannabis"),
+    DUTCHIE("Dutchie", "com.dutchie.android", "dutchie", "cannabis"),
+    CONVOY("Convoy Driver", "com.convoy.driverapp", "convoy", "freight"),
+    BLACKBUCK("BlackBuck Driver", "com.blackbuck.driver", "blackbuck", "freight"),
+    DOMINOS_INDIA("Domino's India", "com.dominos", "dominos_india", "qsr"),
+    DOMINOS_US("Domino's US", "com.dominos.android", "dominos_us", "qsr"),
+    PIZZA_HUT_INDIA("Pizza Hut India", "com.pizzahut.android", "pizza_hut_india", "qsr"),
+    PIZZA_HUT("Pizza Hut", "com.pizzahut.android.global", "pizza_hut", "qsr"),
+    PAPA_JOHNS("Papa John's", "com.papajohns.android", "papa_johns", "qsr"),
+    MCDELIVERY_INDIA("McDelivery India", "com.mcdonalds.mcdeliveryindia", "mcdelivery_india", "qsr"),
+    MCDONALDS("McDonald's", "com.mcdonalds.app", "mcdonalds", "qsr"),
+    BURGER_KING_INDIA("Burger King India", "com.bkindia", "burger_king_india", "qsr"),
+    BURGER_KING("Burger King", "com.bk", "burger_king", "qsr"),
+    WENDYS("Wendy's", "com.wendys.nutritiontool", "wendys", "qsr"),
+    FIVE_GUYS("Five Guys", "com.fiveguys.android", "five_guys", "qsr"),
+    KFC_INDIA("KFC India", "com.kfc.india", "kfc_india", "qsr"),
+    KFC("KFC", "com.kfc.android", "kfc", "qsr"),
+    CHICK_FIL_A("Chick-fil-A", "com.chickfila.app", "chick_fil_a", "qsr"),
+    POPEYES("Popeyes", "com.popeyes.android", "popeyes", "qsr"),
+    CHIPOTLE("Chipotle", "com.chipotle.android", "chipotle", "qsr"),
+    TACO_BELL("Taco Bell", "com.tacobell", "taco_bell", "qsr"),
+    SUBWAY("Subway", "com.subway.subwaymobile", "subway", "qsr"),
+    PANERA("Panera Bread", "com.panera.bread", "panera", "qsr"),
+    STARBUCKS("Starbucks", "com.starbucks.mobilecard", "starbucks", "qsr"),
+    STARBUCKS_INDIA("Starbucks India", "com.starbucks.in", "starbucks_india", "qsr"),
+    DUNKIN("Dunkin'", "com.dunkinbrands.dunkindonuts", "dunkin", "qsr"),
+    TIM_HORTONS("Tim Hortons", "com.timhortons.app", "tim_hortons", "qsr"),
+    EATSURE("EatSure", "com.eatsure", "eatsure", "qsr"),
+    BOX8("Box8", "com.box8.app", "box8", "qsr"),
+    BEHROUZ("Behrouz Biryani", "com.faasos.behrouz", "behrouz", "qsr"),
+    CHAAYOS("Chaayos", "com.chaayos", "chaayos", "qsr"),
+    WOW_MOMO("Wow! Momo", "com.wowmomo", "wow_momo", "qsr"),
+    FAASOS("Faasos", "com.faasos", "faasos", "qsr"),
+    OVEN_STORY("Oven Story Pizza", "com.faasos.ovenstory", "oven_story", "qsr"),
+    MANDARIN_FOX("Mandarin Fox", "com.faasos.mandarinfox", "mandarin_fox", "qsr"),
+    THE_BOWL_COMPANY("The Bowl Company", "com.faasos.bowlcompany", "the_bowl_company", "qsr"),
+    LENOTRE_DESSERT("LENOTRE Dessert", "com.lenotre.android", "lenotre_dessert", "qsr"),
 }

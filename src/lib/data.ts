@@ -282,7 +282,7 @@ export const PLATFORMS: Platform[] = [
   { id: "oven-story", name: "Oven Story Pizza", category: "qsr", regions: ["india"], color: "text-orange-400", bgColor: "bg-orange-500/10", borderColor: "border-orange-500/30", icon: "🍕", connected: false, notificationsToday: 3, earningsToday: 410, currency: "INR" },
   { id: "mandarin-fox", name: "Mandarin Fox", category: "qsr", regions: ["india"], color: "text-red-400", bgColor: "bg-red-500/10", borderColor: "border-red-500/30", icon: "🍜", connected: false, notificationsToday: 3, earningsToday: 360, currency: "INR" },
   { id: "the-bowl-company", name: "The Bowl Company", category: "qsr", regions: ["india"], color: "text-blue-400", bgColor: "bg-blue-500/10", borderColor: "border-blue-500/30", icon: "🥣", connected: false, notificationsToday: 4, earningsToday: 320, currency: "INR" },
-  { id: "lenotre-dessert", name: "LENôTRE Dessert", category: "qsr", regions: ["mena"], color: "text-amber-400", bgColor: "bg-amber-500/10", borderColor: "border-amber-500/30", icon: "🍰", connected: false, notificationsToday: 2, earningsToday: 65.00, currency: "AED" },
+  { id: "lenotre-dessert", name: "LENOTRE Dessert", category: "qsr", regions: ["mena"], color: "text-amber-400", bgColor: "bg-amber-500/10", borderColor: "border-amber-500/30", icon: "🍰", connected: false, notificationsToday: 2, earningsToday: 65.00, currency: "AED" },
 ];
 
 // ─── Order ───────────────────────────────────────────────────────────────────
