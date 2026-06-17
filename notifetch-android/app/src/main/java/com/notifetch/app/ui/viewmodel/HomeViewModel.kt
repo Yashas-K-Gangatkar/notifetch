@@ -1,5 +1,7 @@
 package com.notifetch.app.ui.viewmodel
 
+import android.app.Application
+import android.content.pm.PackageManager
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.notifetch.app.data.local.CapturedNotification
@@ -7,6 +9,7 @@ import com.notifetch.app.data.local.NotificationDao
 import com.notifetch.app.data.local.PlatformConfig
 import com.notifetch.app.data.repository.AuthRepository
 import com.notifetch.app.data.repository.NotificationRepository
+import com.notifetch.app.util.Constants
 import com.notifetch.app.util.Helpers
 import com.notifetch.app.util.UserMode
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -86,7 +89,8 @@ data class HomeUiState(
 @OptIn(kotlinx.coroutines.FlowPreview::class)
 class HomeViewModel @Inject constructor(
     private val repository: NotificationRepository,
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val application: Application
 ) : ViewModel() {
 
     private val _searchQuery = MutableStateFlow("")
@@ -94,7 +98,19 @@ class HomeViewModel @Inject constructor(
     private val _isSyncing = MutableStateFlow(false)
     private val _isRefreshing = MutableStateFlow(false)
     private val _isListenerEnabled = MutableStateFlow(true)
-    private val _userMode = MutableStateFlow(UserMode.RIDER)
+
+    // ── v2.9.9: Auto-detect user mode based on installed apps ──────────────
+    // Previously defaulted to RIDER, which meant customer notifications
+    // (Swiggy, Zomato, Zepto, Blinkit, Uber Eats, etc.) were FILTERED OUT
+    // unless the user manually tapped the "Customer" tab.
+    //
+    // Detection logic:
+    //   1. Count installed PARTNER_PACKAGES (rider/driver apps)
+    //   2. Count installed CUSTOMER_PACKAGES (customer apps)
+    //   3. If customer_apps > rider_apps → default to CUSTOMER mode
+    //   4. If rider_apps > 0 → default to RIDER mode
+    //   5. Otherwise → default to CUSTOMER (most users are customers, not drivers)
+    private val _userMode = MutableStateFlow(detectInitialUserMode())
 
     // ── Room flows ──────────────────────────────────────────────────────────
     // Each flow is stateIn'd with a 5-second timeout so it stays alive briefly
@@ -354,6 +370,61 @@ class HomeViewModel @Inject constructor(
             sb.appendLine("\"$date\",\"${n.platform}\",\"$title\",\"$body\",\"$category\",\"$orderValue\",\"$mode\"")
         }
         return sb.toString()
+    }
+
+    /**
+     * v2.9.9: Auto-detect the best initial user mode based on which apps are
+     * installed on the device.
+     *
+     * Why this matters: the previous default of RIDER meant that customer
+     * notifications (Swiggy offers, Zomato order updates, Zepto/Blinkit
+     * deliveries, Uber Eats promos) were filtered out and invisible to
+     * the user — they had to manually tap the "Customer" tab to see them.
+     *
+     * Most NotiFetch users are CUSTOMERS, not delivery drivers. So when
+     * in doubt, default to CUSTOMER mode.
+     */
+    private fun detectInitialUserMode(): UserMode {
+        return try {
+            val pm = application.packageManager
+            var partnerCount = 0
+            var customerCount = 0
+
+            // Count installed partner (rider/driver) apps
+            for (pkgName in Constants.PARTNER_PACKAGES.keys) {
+                try {
+                    pm.getPackageInfo(pkgName, 0)
+                    partnerCount++
+                } catch (_: PackageManager.NameNotFoundException) {
+                    // Not installed — skip
+                }
+            }
+
+            // Count installed customer apps
+            for (pkgName in Constants.CUSTOMER_PACKAGES.keys) {
+                try {
+                    pm.getPackageInfo(pkgName, 0)
+                    customerCount++
+                } catch (_: PackageManager.NameNotFoundException) {
+                    // Not installed — skip
+                }
+            }
+
+            // Decision matrix:
+            //   - If user has more customer apps than partner apps → CUSTOMER
+            //   - If user has only partner apps → RIDER
+            //   - If user has neither (fresh install) → CUSTOMER (safest default
+            //     because most users will install customer apps)
+            //   - Tie → CUSTOMER
+            when {
+                customerCount > partnerCount -> UserMode.CUSTOMER
+                partnerCount > customerCount && customerCount == 0 -> UserMode.RIDER
+                else -> UserMode.CUSTOMER
+            }
+        } catch (_: Exception) {
+            // If anything fails, default to CUSTOMER (safe choice for most users)
+            UserMode.CUSTOMER
+        }
     }
 }
 
