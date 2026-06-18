@@ -27,6 +27,7 @@ import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.filled.Feedback
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.NewReleases
 import androidx.compose.material.icons.filled.NotificationsActive
@@ -96,6 +97,7 @@ import com.notifetch.app.ui.viewmodel.ProfileViewModel
 fun SettingsScreen(
     onNavigateToPrivacy: () -> Unit = {},
     onNavigateToHealthCheck: () -> Unit = {},
+    onNavigateToFeedback: () -> Unit = {},
     viewModel: SettingsViewModel = hiltViewModel(),
     profileViewModel: ProfileViewModel = hiltViewModel()
 ) {
@@ -290,6 +292,33 @@ fun SettingsScreen(
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = "Listener Health Check",
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Spacer(modifier = Modifier.weight(1f))
+                    Icon(
+                        Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+
+            // v2.9.16: Feedback button
+            item {
+                OutlinedButton(
+                    onClick = onNavigateToFeedback,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Icon(
+                        Icons.Default.Feedback,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp),
+                        tint = MaterialTheme.colorScheme.tertiary
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Send Feedback",
                         fontWeight = FontWeight.SemiBold
                     )
                     Spacer(modifier = Modifier.weight(1f))

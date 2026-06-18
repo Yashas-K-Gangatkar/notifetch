@@ -24,7 +24,9 @@ import androidx.navigation.navArgument
 import com.notifetch.app.notification.NotiFetchListenerService
 import com.notifetch.app.ui.components.NotiFetchScaffold
 import com.notifetch.app.ui.screens.ConsentScreen
+import com.notifetch.app.ui.screens.EarningsDashboardScreen
 import com.notifetch.app.ui.screens.EarningsScreen
+import com.notifetch.app.ui.screens.FeedbackScreen
 import com.notifetch.app.ui.screens.ListenerHealthCheckScreen
 import com.notifetch.app.ui.screens.OnboardingScreen
 import com.notifetch.app.ui.screens.PrivacyDashboardScreen
@@ -203,7 +205,9 @@ fun NotiFetchNavHost() {
             }
 
             composable("earnings") {
-                EarningsScreen()
+                EarningsDashboardScreen(
+                    onNavigateBack = { navController.popBackStack() }
+                )
             }
 
             composable("settings") {
@@ -213,6 +217,9 @@ fun NotiFetchNavHost() {
                     },
                     onNavigateToHealthCheck = {
                         navController.navigate("health-check")
+                    },
+                    onNavigateToFeedback = {
+                        navController.navigate("feedback")
                     }
                 )
             }
@@ -227,6 +234,13 @@ fun NotiFetchNavHost() {
             // v2.9.14: Listener Health Check
             composable("health-check") {
                 ListenerHealthCheckScreen(
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
+
+            // v2.9.16: Feedback Screen
+            composable("feedback") {
+                FeedbackScreen(
                     onNavigateBack = { navController.popBackStack() }
                 )
             }
