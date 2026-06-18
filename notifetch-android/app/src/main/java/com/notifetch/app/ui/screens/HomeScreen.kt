@@ -299,15 +299,21 @@ fun HomeScreen(
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         StatCard(
-                            title = if (uiState.userMode == UserMode.RIDER) "Today's Earnings" else "Today's Savings",
+                            title = if (uiState.userMode == UserMode.RIDER) "Today's Earnings" else "Notifications Today",
                             value = uiState.todayCount.toString(),
                             icon = Icons.Default.ReceiptLong,
-                            subtitle = Helpers.formatCurrency(uiState.todayEarnings),
+                            subtitle = if (uiState.userMode == UserMode.RIDER)
+                                Helpers.formatCurrency(uiState.todayEarnings)
+                            else
+                                "${uiState.unreadCount} unread",
                             modifier = Modifier.weight(1f)
                         )
                         StatCard(
-                            title = if (uiState.userMode == UserMode.RIDER) "Week Earnings" else "Week Savings",
-                            value = Helpers.formatCurrency(uiState.weekEarnings),
+                            title = if (uiState.userMode == UserMode.RIDER) "Week Earnings" else "Total Captured",
+                            value = if (uiState.userMode == UserMode.RIDER)
+                                Helpers.formatCurrency(uiState.weekEarnings)
+                            else
+                                uiState.totalCount.toString(),
                             icon = Icons.Default.Payments,
                             modifier = Modifier.weight(1f)
                         )

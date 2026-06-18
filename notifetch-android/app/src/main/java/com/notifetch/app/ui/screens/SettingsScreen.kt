@@ -22,7 +22,11 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.HealthAndSafety
+import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.NewReleases
 import androidx.compose.material.icons.filled.NotificationsActive
@@ -110,6 +114,14 @@ fun SettingsScreen(
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showSignOutDialog by remember { mutableStateOf(false) }
 
+    // v2.9.15: Expanded category state for grouped platform list
+    val expandedCategories = remember { mutableStateOf<Set<String>>(emptySet()) }
+    fun toggleCategory(category: String) {
+        expandedCategories.value = expandedCategories.value.toMutableSet().apply {
+            if (contains(category)) remove(category) else add(category)
+        }
+    }
+
     // Google Sign-In launcher
     val googleSignInLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
@@ -145,6 +157,67 @@ fun SettingsScreen(
                 .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            // v2.9.15: About section moved to TOP (was at bottom)
+            item {
+                val packageInfo = try {
+                    context.packageManager.getPackageInfo(context.packageName, 0)
+                } catch (_: Exception) { null }
+                val versionName = packageInfo?.versionName ?: "Unknown"
+                val versionCode = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+                    packageInfo?.longVersionCode?.toInt() ?: 0
+                } else {
+                    @Suppress("DEPRECATION")
+                    packageInfo?.versionCode ?: 0
+                }
+
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            val intent = android.content.Intent(
+                                android.content.Intent.ACTION_VIEW,
+                                android.net.Uri.parse("https://play.google.com/store/apps/details?id=com.notifetch.app")
+                            )
+                            context.startActivity(intent)
+                        },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+                    )
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.NewReleases,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                "v$versionName ($versionCode)",
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                "Tap to check for updates on Play Store",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
+
             // Notification Listener Status
             item {
                 Card(
@@ -342,21 +415,84 @@ fun SettingsScreen(
                 }
             }
 
-            // Platform list with rename capability
-            items(
-                items = uiState.platformConfigs,
-                key = { it.packageName }
-            ) { config ->
-                PlatformNameCard(
-                    config = config,
-                    onToggle = { enabled ->
-                        viewModel.togglePlatform(config.packageName, enabled)
-                    },
-                    onRename = {
-                        renamingPlatform = config
-                        showRenameDialog = true
+            // v2.9.15: Platform list grouped by category (expand/collapse)
+            // Like choosing sports in college: pick a category, then see platforms
+            val groupedPlatforms = uiState.platformConfigs.groupBy {
+                com.notifetch.app.util.Constants.getCategoryForPackage(it.packageName)
+            }.toSortedMap()
+
+            groupedPlatforms.forEach { (category, platforms) ->
+                // Category header (clickable to expand/collapse)
+                item(key = "category_$category") {
+                    val isExpanded = expandedCategories.value.contains(category)
+                    val categoryName = com.notifetch.app.util.Constants.getCategoryDisplayName(category)
+                    val categoryIcon = com.notifetch.app.util.Constants.getCategoryIcon(category)
+                    val enabledCount = platforms.count { it.isEnabled }
+
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = if (isExpanded)
+                                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f)
+                            else
+                                MaterialTheme.colorScheme.surface
+                        )
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { toggleCategory(category) }
+                                .padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = categoryIcon,
+                                style = MaterialTheme.typography.titleMedium,
+                                modifier = Modifier.size(24.dp)
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = categoryName,
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                                Text(
+                                    text = "$enabledCount enabled · ${platforms.size} platforms",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            Icon(
+                                imageVector = if (isExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                                contentDescription = if (isExpanded) "Collapse" else "Expand",
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     }
-                )
+                }
+
+                // Platform cards (only shown when category is expanded)
+                if (expandedCategories.value.contains(category)) {
+                    items(
+                        items = platforms,
+                        key = { it.packageName }
+                    ) { config ->
+                        PlatformNameCard(
+                            config = config,
+                            onToggle = { enabled ->
+                                viewModel.togglePlatform(config.packageName, enabled)
+                            },
+                            onRename = {
+                                renamingPlatform = config
+                                showRenameDialog = true
+                            }
+                        )
+                    }
+                }
             }
 
             // Privacy note
@@ -568,6 +704,52 @@ fun SettingsScreen(
                         Icon(Icons.Default.Logout, contentDescription = null, modifier = Modifier.size(18.dp))
                         Spacer(modifier = Modifier.width(8.dp))
                         Text("Sign Out")
+                    }
+                }
+
+                // v2.9.15: Show Google login error visibly (was silent before)
+                val profileError = profileState.error
+                if (profileError != null) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(8.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.5f)
+                        )
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(12.dp),
+                            verticalAlignment = Alignment.Top
+                        ) {
+                            Icon(
+                                Icons.Default.Error,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.error,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Column {
+                                Text(
+                                    text = "Google Sign-In Failed",
+                                    style = MaterialTheme.typography.labelMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.error
+                                )
+                                Text(
+                                    text = profileError,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = "If this persists, use Email login instead — it works reliably.",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
+                                )
+                            }
+                        }
                     }
                 }
             }

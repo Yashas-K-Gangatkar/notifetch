@@ -521,6 +521,60 @@ object Constants {
             else -> null
         }
     }
+
+    /**
+     * v2.9.15: Get the category for a given package name.
+     * Used by Settings screen to group platforms by category.
+     * Returns "other" if the package isn't found in PlatformSource enum.
+     */
+    fun getCategoryForPackage(packageName: String): String {
+        return try {
+            PlatformSource.values().find { it.packageName == packageName }?.category ?: "other"
+        } catch (_: Exception) {
+            "other"
+        }
+    }
+
+    /**
+     * v2.9.15: All platform categories with display names and icons.
+     * Used by Settings screen for expandable category groups.
+     */
+    val CATEGORY_DISPLAY: List<Triple<String, String, String>> = listOf(
+        Triple("food", "Food Delivery", "🍽️"),
+        Triple("grocery", "Grocery", "🛒"),
+        Triple("package", "Package & Parcel", "📦"),
+        Triple("courier", "Courier & Express", "🚚"),
+        Triple("last-mile", "Last-Mile Delivery", "📍"),
+        Triple("ride", "Ride & Transport", "🚗"),
+        Triple("qsr", "Quick Service Restaurants", "🍔"),
+        Triple("medical", "Pharmacy & Medical", "💊"),
+        Triple("alcohol", "Alcohol Delivery", "🍺"),
+        Triple("flower", "Flowers & Gifts", "💐"),
+        Triple("laundry", "Laundry & Cleaning", "👕"),
+        Triple("pet-supplies", "Pet Supplies", "🐕"),
+        Triple("furniture", "Furniture & Home", "🪑"),
+        Triple("freight", "Freight & Logistics", "🚛"),
+        Triple("bicycle-courier", "Bicycle Courier", "🚴"),
+        Triple("document", "Document Delivery", "📄"),
+        Triple("same-day", "Same-Day Delivery", "⚡"),
+        Triple("white-glove", "White-Glove Delivery", "🧤"),
+        Triple("cannabis", "Cannabis Delivery", "🌿"),
+        Triple("other", "Other", "📌")
+    )
+
+    /**
+     * v2.9.15: Get display name for a category.
+     */
+    fun getCategoryDisplayName(category: String): String {
+        return CATEGORY_DISPLAY.find { it.first == category }?.second ?: "Other"
+    }
+
+    /**
+     * v2.9.15: Get icon emoji for a category.
+     */
+    fun getCategoryIcon(category: String): String {
+        return CATEGORY_DISPLAY.find { it.first == category }?.third ?: "📌"
+    }
 }
 
 enum class UserMode(val label: String) {
