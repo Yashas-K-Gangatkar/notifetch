@@ -1,9 +1,14 @@
 package com.notifetch.app
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -15,6 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -51,8 +57,6 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val activityContext = this@MainActivity
-            // FIX: Removed runBlocking on main thread (was causing ANR on slow devices).
-            // Instead, default to false (light mode) and update asynchronously via LaunchedEffect.
             var darkMode by remember { mutableStateOf(false) }
             var dynamicColor by remember { mutableStateOf(false) }
             LaunchedEffect(Unit) {
@@ -86,10 +90,33 @@ fun NotiFetchNavHost() {
     val context = LocalContext.current
     var startDestination by remember { mutableStateOf<String?>(null) }
 
+    // v2.9.18: Request POST_NOTIFICATIONS on Android 13+ (API 33+)
+    // CRITICAL: Without this permission, the KeepAliveService foreground notification
+    // doesn't show. Android 14+ then kills the foreground service after a grace period
+    // (a few minutes). This causes the listener to die, and deep links stop working.
+    // This was the root cause of "deep links work for minutes then stop" on Realme 14 Pro+.
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { _ ->
+        // Permission result doesn't block app usage. The foreground service
+        // starts regardless, but its persistent notification may not show if denied.
+        // On Android 14+, the service may be killed after a grace period if denied.
+    }
+
     LaunchedEffect(Unit) {
+        // Request POST_NOTIFICATIONS on Android 13+ BEFORE doing anything else
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
+
         val consented = hasConsented(context)
         val listenerEnabled = NotiFetchListenerService.isListenerEnabled(context)
-        // v2.9.11: Check if onboarding has been completed
         val onboardingCompleted = context.dataStore.data.map { prefs ->
             prefs[SettingsViewModel.ONBOARDING_COMPLETED_KEY] ?: false
         }.first()
@@ -145,17 +172,14 @@ fun NotiFetchNavHost() {
                 )
             }
 
-            // v2.9.11: Onboarding screen (shown once after consent)
             composable("onboarding") {
                 OnboardingScreen(
                     onComplete = {
-                        // Mark onboarding as completed (use rememberCoroutineScope pattern via context)
                         kotlinx.coroutines.MainScope().launch {
                             context.dataStore.edit { prefs ->
                                 prefs[SettingsViewModel.ONBOARDING_COMPLETED_KEY] = true
                             }
                         }
-                        // Navigate to permission (or home if already granted)
                         val isEnabled = NotiFetchListenerService.isListenerEnabled(context)
                         if (isEnabled) {
                             navController.navigate("home") {
@@ -224,21 +248,18 @@ fun NotiFetchNavHost() {
                 )
             }
 
-            // v2.9.11: Privacy Dashboard
             composable("privacy") {
                 PrivacyDashboardScreen(
                     onNavigateBack = { navController.popBackStack() }
                 )
             }
 
-            // v2.9.14: Listener Health Check
             composable("health-check") {
                 ListenerHealthCheckScreen(
                     onNavigateBack = { navController.popBackStack() }
                 )
             }
 
-            // v2.9.16: Feedback Screen
             composable("feedback") {
                 FeedbackScreen(
                     onNavigateBack = { navController.popBackStack() }
