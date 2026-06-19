@@ -210,6 +210,19 @@ class NotiFetchListenerService : NotificationListenerService() {
 
         // Filter: only process notifications from tracked apps
         val platformName = Constants.ALL_PACKAGES[packageName]
+
+        // v2.9.19: Log to diagnostic file — tracks ALL packages (tracked + untracked)
+        // This is how we'll discover which package names are wrong/missing
+        try {
+            val title = sbn.notification.extras?.getString(android.app.Notification.EXTRA_TITLE) ?: ""
+            DiagnosticLogger.logNotification(
+                context = this,
+                packageName = packageName,
+                title = title,
+                isTracked = platformName != null
+            )
+        } catch (_: Exception) {}
+
         if (platformName == null) {
             return
         }
