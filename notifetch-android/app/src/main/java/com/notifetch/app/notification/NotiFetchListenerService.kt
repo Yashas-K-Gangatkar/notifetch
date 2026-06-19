@@ -138,6 +138,16 @@ class NotiFetchListenerService : NotificationListenerService() {
         super.onListenerConnected()
         Log.d(tag, "Notification listener connected — monitoring ${Constants.ALL_PACKAGES.size} packages (rider + customer)")
 
+        // v2.9.17: Start the foreground keep-alive service.
+        // This prevents Realme/Xiaomi/OPPO from killing the app process (and thus
+        // the listener) after 5-10 minutes of backgrounding.
+        try {
+            KeepAliveService.start(this)
+            Log.d(tag, "KeepAliveService started — process will stay alive")
+        } catch (e: Exception) {
+            Log.w(tag, "Failed to start KeepAliveService: ${e.message}")
+        }
+
         // ─── v2.9.6: Start the in-memory enabled-packages cache collector ───────
         // This replaces the per-notification runBlocking DB read. The collector
         // runs on IO dispatcher and updates the `disabledPackages` set whenever
@@ -565,6 +575,10 @@ class NotiFetchListenerService : NotificationListenerService() {
 
     override fun onListenerDisconnected() {
         super.onListenerDisconnected()
+        // v2.9.17: Stop the keep-alive service since the listener is gone
+        try {
+            KeepAliveService.stop(this)
+        } catch (_: Exception) {}
         configFlowJob?.cancel()
         PendingIntentCache.clear()
         recentCaptures.clear()
