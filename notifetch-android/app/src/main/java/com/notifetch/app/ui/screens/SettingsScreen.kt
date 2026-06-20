@@ -711,18 +711,33 @@ fun SettingsScreen(
                         }
                     }
                 } else if (!profileState.isSignedIn || profileState.isAnonymous) {
-                    Button(
-                        onClick = {
-                            val signInIntent = profileViewModel.getSignInIntent()
-                            googleSignInLauncher.launch(signInIntent)
-                        },
-                        modifier = Modifier.fillMaxWidth().height(48.dp),
+                    // v2.9.23: Removed Google Sign-In button (was broken with redirect_uri_mismatch).
+                    // The app works WITHOUT login — notifications are captured and stored locally.
+                    // Login is only needed for cloud sync + earnings tracking.
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                        )
                     ) {
-                        Icon(Icons.Default.Login, contentDescription = null, modifier = Modifier.size(18.dp))
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("Continue with Google", fontWeight = FontWeight.SemiBold)
+                        Column(
+                            modifier = Modifier.padding(16.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = "Not signed in",
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = "The app works without login — your notifications are captured and stored on your device. Sign in at notifetch.in to sync across devices and track earnings.",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                            )
+                        }
                     }
                 } else {
                     OutlinedButton(
@@ -733,52 +748,6 @@ fun SettingsScreen(
                         Icon(Icons.Default.Logout, contentDescription = null, modifier = Modifier.size(18.dp))
                         Spacer(modifier = Modifier.width(8.dp))
                         Text("Sign Out")
-                    }
-                }
-
-                // v2.9.15: Show Google login error visibly (was silent before)
-                val profileError = profileState.error
-                if (profileError != null) {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(8.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.5f)
-                        )
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(12.dp),
-                            verticalAlignment = Alignment.Top
-                        ) {
-                            Icon(
-                                Icons.Default.Error,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.error,
-                                modifier = Modifier.size(18.dp)
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Column {
-                                Text(
-                                    text = "Google Sign-In Failed",
-                                    style = MaterialTheme.typography.labelMedium,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.error
-                                )
-                                Text(
-                                    text = profileError,
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Text(
-                                    text = "If this persists, use Email login instead — it works reliably.",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
-                                )
-                            }
-                        }
                     }
                 }
             }

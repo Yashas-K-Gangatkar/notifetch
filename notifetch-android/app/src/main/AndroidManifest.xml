@@ -14,14 +14,9 @@
     <!-- v2.9.11: Request battery optimization exemption so NotificationListenerService
          isn't killed on Xiaomi/OPPO/Vivo/Samsung devices. User must grant via system dialog. -->
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
-    <!-- v2.9.17: RESTORED FOREGROUND_SERVICE permissions.
-         Realme/Xiaomi/OPPO kill NotificationListenerService within 5-10 minutes of backgrounding.
-         The ONLY reliable fix is to run a companion foreground service that displays a persistent
-         notification. Android guarantees foreground services are never killed (except in extreme
-         memory pressure). This is what Spotify, WhatsApp, Truecaller use to stay alive.
-         We use type="specialUse" because we're not playing media, navigating, or calling. -->
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <!-- v2.9.23: Removed FOREGROUND_SERVICE permissions.
+         NotificationListenerService is a system-managed service, not a foreground service.
+         The foreground service was causing crashes and interfering with other apps' notifications. -->
 
     <!-- ═══════════════════════════════════════════════════════════════════════
          v2.9.7 — Package Visibility (Android 11+ / API 30+)
@@ -146,20 +141,9 @@
             -->
         </service>
 
-        <!-- v2.9.17: Foreground Keep-Alive Service
-             Companion service to NotificationListenerService. Runs as a FOREGROUND
-             service with a persistent notification. This prevents Realme/Xiaomi/OPPO
-             from killing the app process, which in turn keeps NotificationListenerService
-             alive. Without this, the listener dies within 5-10 minutes on aggressive OEMs. -->
-        <service
-            android:name=".notification.KeepAliveService"
-            android:enabled="true"
-            android:exported="false"
-            android:foregroundServiceType="specialUse">
-            <property
-                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
-                android:value="Continuous notification monitoring for delivery aggregations" />
-        </service>
+        <!-- v2.9.23: Removed KeepAliveService (foreground service).
+             Was causing crashes + interfering with other apps' notifications.
+             NotificationListenerService is system-managed and doesn't need a foreground service. -->
 
         <!-- Firebase Messaging Service -->
         <service

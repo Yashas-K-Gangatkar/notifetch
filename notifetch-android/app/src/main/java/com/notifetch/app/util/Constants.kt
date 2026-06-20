@@ -91,6 +91,7 @@ object Constants {
         // ── Other Delivery Partners ────────────────────────────────────────
         "com.theporter.android.driverapp" to "Porter Driver",      // Porter Driver (India)
         "com.rapido.rider" to "Rapido Captain",                    // Rapido Captain (India)
+        "com.rapido.passenger" to "Rapido Passenger",              // Rapido Customer (India) — v2.9.24 fix
         "in.shadowfax.gandalf" to "Shadowfax Delivery",            // Shadowfax Delivery Partner (India)
         "com.gojek.partner" to "Gojek Driver",                     // Gojek Driver/GoPartner (Indonesia/SE Asia)
         "com.delhivery.delhiverypartner" to "Delhivery Partner",   // Delhivery Partner (India)
@@ -187,6 +188,8 @@ object Constants {
         // Other
         "com.theporter.android.driverapp" to "#2E5BFF", // Porter — Blue
         "com.rapido.rider" to "#FFCC00",                // Rapido — Yellow
+        "com.rapido.passenger" to "#FFCC00",          // Rapido Passenger — Yellow
+        "com.rapido.passenger" to "#FFCC00",          // Rapido Passenger — Yellow
         "in.shadowfax.gandalf" to "#FF6B35",            // Shadowfax — Orange
         "com.gojek.partner" to "#00AA13",               // Gojek — Green
         "com.delhivery.delhiverypartner" to "#1A73E8",  // Delhivery — Blue
@@ -227,6 +230,8 @@ object Constants {
         // ── Food Delivery (Customer Apps) ─────────────────────────────────
         "in.swiggy.android" to "Swiggy",                           // Swiggy Customer (India)
         "com.application.zomato" to "Zomato",                      // Zomato Customer (India)
+        "com.application.zomato.district" to "Zomato District",     // Zomato District — v2.9.24: new product
+        "com.magicpin.local" to "Magicpin",                         // Magicpin — v2.9.24: deals + delivery
         "com.ubercab.eats" to "Uber Eats",                         // Uber Eats Customer (Global)
         "com.doordash.consumerapp" to "DoorDash",                  // DoorDash Customer (US/CA/AU/JP)
         "com.grubhub.android" to "Grubhub",                        // Grubhub Customer (US)
@@ -246,7 +251,8 @@ object Constants {
         "com.instacart.app" to "Instacart",                        // Instacart Customer (US/CA)
         "app.blinkit" to "Blinkit",                                // Blinkit Customer (India)
         "com.bigbasket.mobileapp" to "BigBasket",                  // BigBasket Customer (India)
-        "com.zepto.app" to "Zepto",                                // Zepto Customer (India)
+        "com.zepto.app" to "Zepto",                                // Zepto Customer (India) — old package
+        "com.zeptoconsumerapp" to "Zepto",                          // Zepto Customer (India) — v2.9.24 fix: actual package name
         "com.shipt.android" to "Shipt",                            // Shipt Customer (US)
         "au.com.woolworths.android" to "Woolworths",               // Woolworths Customer (AU)
 
@@ -339,13 +345,15 @@ object Constants {
         "com.dutchie.android"                                    to "Dutchie",                     // Dutchie (US)
 
         // ── QSR (Quick Service Restaurants) — Customer Apps ────────────────
-        "com.dominos"                                            to "Domino's India",              // Domino's India (India)
+        "com.Dominos"                                            to "Domino's India",              // Domino's India — v2.9.24 fix: capital D
+        "com.dominos"                                            to "Domino's India",              // Domino's India — old lowercase (fallback)
         "com.dominos.android"                                    to "Domino's US",                 // Domino's US (US)
         "com.pizzahut.android"                                   to "Pizza Hut India",             // Pizza Hut India (India)
         "com.pizzahut.android.global"                            to "Pizza Hut",                   // Pizza Hut (Global)
         "com.papajohns.android"                                  to "Papa John's",                 // Papa John's (US/Global)
         "com.mcdonalds.mcdeliveryindia"                          to "McDelivery India",            // McDelivery India (India)
-        "com.mcdonalds.app"                                      to "McDonald's",                  // McDonald's (Global)
+        "com.mcdonalds.app"                                      to "McDonald's",                  // McDonald's (Global) — old package
+        "com.mcdonalds.mobileapp"                                to "McDonald's",                  // McDonald's — v2.9.24 fix: actual package name
         "com.bkindia"                                            to "Burger King India",           // Burger King India (India)
         "com.bk"                                                 to "Burger King",                 // Burger King (Global)
         "com.wendys.nutritiontool"                               to "Wendy's",                     // Wendy's (US)
@@ -353,7 +361,8 @@ object Constants {
         "com.kfc.india"                                          to "KFC India",                   // KFC India (India)
         "com.kfc.android"                                        to "KFC",                         // KFC (Global)
         "com.chickfila.app"                                      to "Chick-fil-A",                 // Chick-fil-A (US)
-        "com.popeyes.android"                                    to "Popeyes",                     // Popeyes (US/Global)
+        "com.popeyes.android"                                    to "Popeyes",                     // Popeyes (US/Global) — old package
+        "com.jubl.popeyes"                                      to "Popeyes",                     // Popeyes — v2.9.24 fix: actual package name (Jubilant FoodWorks)
         "com.chipotle.android"                                   to "Chipotle",                    // Chipotle (US/Europe)
         "com.tacobell"                                           to "Taco Bell",                   // Taco Bell (US/Europe/LATAM)
         "com.subway.subwaymobile"                                to "Subway",                      // Subway (Global)
@@ -383,6 +392,8 @@ object Constants {
         // Food Delivery
         "in.swiggy.android" to "#FC8019",              // Swiggy — Orange
         "com.application.zomato" to "#E23744",         // Zomato — Red
+        "com.application.zomato.district" to "#E23744", // Zomato District — Red
+        "com.magicpin.local" to "#FF4444",             // Magicpin — Red/Orange
         "com.ubercab.eats" to "#05944F",               // Uber Eats — Green
         "com.doordash.consumerapp" to "#FF3008",       // DoorDash — Red
         "com.grubhub.android" to "#F7871D",            // Grubhub — Orange
@@ -403,6 +414,8 @@ object Constants {
         "app.blinkit" to "#F8E71C",                    // Blinkit — Yellow
         "com.bigbasket.mobileapp" to "#84C225",        // BigBasket — Green
         "com.zepto.app" to "#8B008B",                  // Zepto — Purple
+        "com.zeptoconsumerapp" to "#8B008B",          // Zepto — Purple (v2.9.24)
+        "com.zeptoconsumerapp" to "#8B008B",          // Zepto — Purple (v2.9.24)
         "com.shipt.android" to "#33A198",              // Shipt — Teal
         "au.com.woolworths.android" to "#009444",      // Woolworths — Green
 
@@ -472,6 +485,7 @@ object Constants {
         "com.papajohns.android"                          to "#008515",      // Papa John's
         "com.mcdonalds.mcdeliveryindia"                  to "#FFC72C",      // McDelivery India
         "com.mcdonalds.app"                              to "#FFC72C",      // McDonald's
+        "com.mcdonalds.mobileapp"                        to "#FFC72C",      // McDonald's (v2.9.24)
         "com.bkindia"                                    to "#D62300",      // Burger King India
         "com.bk"                                         to "#D62300",      // Burger King
         "com.wendys.nutritiontool"                       to "#E31837",      // Wendy's
@@ -480,6 +494,7 @@ object Constants {
         "com.kfc.android"                                to "#F40009",      // KFC
         "com.chickfila.app"                              to "#DD0031",      // Chick-fil-A
         "com.popeyes.android"                            to "#FF7D00",      // Popeyes
+        "com.jubl.popeyes"                              to "#FF7D00",      // Popeyes (v2.9.24)
         "com.chipotle.android"                           to "#451400",      // Chipotle
         "com.tacobell"                                   to "#702083",      // Taco Bell
         "com.subway.subwaymobile"                        to "#008C15",      // Subway

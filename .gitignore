@@ -86,3 +86,6 @@ download/crashlytics-mapping-*.txt
 /jdk-*/
 # Auth service — separate repo, not tracked as submodule
 notifetch-auth/
+upload/client_secret*
+upload/google-services*
+upload/Pasted*

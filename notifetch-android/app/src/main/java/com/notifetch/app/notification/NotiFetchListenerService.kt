@@ -138,15 +138,11 @@ class NotiFetchListenerService : NotificationListenerService() {
         super.onListenerConnected()
         Log.d(tag, "Notification listener connected — monitoring ${Constants.ALL_PACKAGES.size} packages (rider + customer)")
 
-        // v2.9.17: Start the foreground keep-alive service.
-        // This prevents Realme/Xiaomi/OPPO from killing the app process (and thus
-        // the listener) after 5-10 minutes of backgrounding.
-        try {
-            KeepAliveService.start(this)
-            Log.d(tag, "KeepAliveService started — process will stay alive")
-        } catch (e: Exception) {
-            Log.w(tag, "Failed to start KeepAliveService: ${e.message}")
-        }
+        // v2.9.23: Removed KeepAliveService (foreground service).
+        // It was causing crashes and interfering with other apps' notifications.
+        // NotificationListenerService is a SYSTEM-managed service — Android keeps
+        // it alive as long as notification access is granted. No foreground service needed.
+        // The BootReceiver + WorkManager heartbeat handle reconnection after reboot.
 
         // ─── v2.9.6: Start the in-memory enabled-packages cache collector ───────
         // This replaces the per-notification runBlocking DB read. The collector
@@ -202,32 +198,20 @@ class NotiFetchListenerService : NotificationListenerService() {
         }
     }
 
-    // v2.9.20: System package blocklist — these packages generate noise that
-    // drowns out real delivery notifications. They fire every 3 seconds and
-    // overwhelm the listener. NEVER process or log them.
-    private val SYSTEM_BLOCKLIST = setOf(
-        "android",
-        "com.android.systemui",
-        "com.android.settings",
-        "com.android.phone",
-        "com.android.networkstack.inprocess",
-        "com.android.networkstack.tethering.inprocess",
-        "com.android.networkstack.tethering",
-        "com.notifetch.app", // Don't capture our own notifications
-        "com.notifetch.app.debug",
-        "com.google.android.gms", // Google Play Services system notifications
-        "com.google.android.gsf",
-        "com.google.android.googlequicksearchbox"
-    )
+    // v2.9.25: Removed the blocklist per user request.
+    // The listener now processes ALL notifications but only CAPTURES those
+    // from tracked delivery apps (Constants.ALL_PACKAGES).
+    // Non-delivery apps (WhatsApp, games, banking, etc.) are silently ignored —
+    // they return early at the platformName == null check.
+    // The only exception: "android" system package (hotspot spam) is still
+    // blocked because it fires every 3 seconds and truly serves no purpose.
 
     override fun onNotificationPosted(sbn: StatusBarNotification) {
         val packageName = sbn.packageName
 
-        // v2.9.20: IMMEDIATELY skip system package noise.
-        // The "android" package fires every 3 seconds for hotspot notifications.
-        // This was flooding the listener with 542 useless notifications, preventing
-        // real delivery app notifications from being processed.
-        if (SYSTEM_BLOCKLIST.contains(packageName)) {
+        // Only block the "android" system package (hotspot spam every 3 sec)
+        // Everything else is processed normally and filtered by ALL_PACKAGES check.
+        if (packageName == "android" || packageName == "com.notifetch.app" || packageName == "com.notifetch.app.debug") {
             return
         }
 
@@ -615,10 +599,7 @@ class NotiFetchListenerService : NotificationListenerService() {
 
     override fun onListenerDisconnected() {
         super.onListenerDisconnected()
-        // v2.9.17: Stop the keep-alive service since the listener is gone
-        try {
-            KeepAliveService.stop(this)
-        } catch (_: Exception) {}
+        // v2.9.23: Removed KeepAliveService.stop() — service no longer exists
         configFlowJob?.cancel()
         PendingIntentCache.clear()
         recentCaptures.clear()
