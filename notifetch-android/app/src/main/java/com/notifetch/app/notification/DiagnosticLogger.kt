@@ -66,8 +66,8 @@ object DiagnosticLogger {
             val lines = logFile.readLines()
             val recent = lines.takeLast(maxLines).reversed()
 
-            val tracked = lines.count { it.contains("TRACKED") }
-            val untracked = lines.count { it.contains("UNTRACKED") }
+            val tracked = lines.count { it.contains("| TRACKED |") }
+            val untracked = lines.count { it.contains("| UNTRACKED |") }
 
             buildString {
                 appendLine("=== Diagnostic Summary ===")
@@ -78,7 +78,7 @@ object DiagnosticLogger {
 
                 // List unique untracked package names
                 val untrackedPackages = lines
-                    .filter { it.contains("UNTRACKED") }
+                    .filter { it.contains("| UNTRACKED |") }
                     .map { extractPackage(it) }
                     .distinct()
                     .sorted()
@@ -86,7 +86,7 @@ object DiagnosticLogger {
                 if (untrackedPackages.isNotEmpty()) {
                     appendLine("=== UNTRACKED Packages (NOT being captured) ===")
                     untrackedPackages.forEach { pkg ->
-                        val count = lines.count { it.contains("UNTRACKED") && it.contains("pkg=$pkg") }
+                        val count = lines.count { it.contains("| UNTRACKED |") && it.contains("pkg=$pkg") }
                         appendLine("  $pkg ($count notifications)")
                     }
                     appendLine()
@@ -115,7 +115,7 @@ object DiagnosticLogger {
             if (!logFile.exists()) return emptyList()
 
             logFile.readLines()
-                .filter { it.contains("UNTRACKED") }
+                .filter { it.contains("| UNTRACKED |") }
                 .map { extractPackage(it) }
                 .distinct()
                 .sorted()

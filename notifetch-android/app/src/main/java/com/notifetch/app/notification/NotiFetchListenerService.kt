@@ -202,8 +202,34 @@ class NotiFetchListenerService : NotificationListenerService() {
         }
     }
 
+    // v2.9.20: System package blocklist — these packages generate noise that
+    // drowns out real delivery notifications. They fire every 3 seconds and
+    // overwhelm the listener. NEVER process or log them.
+    private val SYSTEM_BLOCKLIST = setOf(
+        "android",
+        "com.android.systemui",
+        "com.android.settings",
+        "com.android.phone",
+        "com.android.networkstack.inprocess",
+        "com.android.networkstack.tethering.inprocess",
+        "com.android.networkstack.tethering",
+        "com.notifetch.app", // Don't capture our own notifications
+        "com.notifetch.app.debug",
+        "com.google.android.gms", // Google Play Services system notifications
+        "com.google.android.gsf",
+        "com.google.android.googlequicksearchbox"
+    )
+
     override fun onNotificationPosted(sbn: StatusBarNotification) {
         val packageName = sbn.packageName
+
+        // v2.9.20: IMMEDIATELY skip system package noise.
+        // The "android" package fires every 3 seconds for hotspot notifications.
+        // This was flooding the listener with 542 useless notifications, preventing
+        // real delivery app notifications from being processed.
+        if (SYSTEM_BLOCKLIST.contains(packageName)) {
+            return
+        }
 
         // Log ALL incoming notifications for diagnostics
         Log.d(tag, "Received notification from: $packageName")
@@ -213,6 +239,7 @@ class NotiFetchListenerService : NotificationListenerService() {
 
         // v2.9.19: Log to diagnostic file — tracks ALL packages (tracked + untracked)
         // This is how we'll discover which package names are wrong/missing
+        // v2.9.20: System packages already filtered above, so only real apps get logged
         try {
             val title = sbn.notification.extras?.getString(android.app.Notification.EXTRA_TITLE) ?: ""
             DiagnosticLogger.logNotification(
