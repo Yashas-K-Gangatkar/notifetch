@@ -47,6 +47,17 @@ class SyncWorker @AssistedInject constructor(
             try { forceListenerRebind(applicationContext) } catch (_: Exception) {}
         }
 
+        // v2.9.27: Auto-cleanup old notifications
+        // Delete read notifications older than 2 hours, all notifications older than 24 hours
+        try {
+            val deleted = repository.cleanupOldNotifications()
+            if (deleted > 0) {
+                Log.d(tag, "Auto-cleanup: deleted $deleted old notifications")
+            }
+        } catch (e: Exception) {
+            Log.w(tag, "Cleanup failed: ${e.message}")
+        }
+
         // Sync pending notifications to backend
         Log.d(tag, "Starting notification sync...")
         return try {

@@ -265,14 +265,8 @@ class NotiFetchListenerService : NotificationListenerService() {
             if (contentIntent != null) {
                 PendingIntentCache.put(packageName, contentIntent)
 
-                // Extract the target Intent's URI and component for persistence.
-                // PendingIntent.getTargetIntent() returns the underlying Intent that
-                // the source app built — it usually deep-links to the specific
-                // offer/order/tracking screen.
-                //
-                // We use reflection because getTargetIntent() is sometimes hidden
-                // from the Kotlin compiler in certain SDK configurations, even
-                // though it's a public API since API 1.
+                // v2.9.27: Extract deep link using multiple strategies.
+                // Strategy 1: getTargetIntent() via reflection (preferred — gets the actual Intent)
                 val targetIntent: Intent? = try {
                     val method = android.app.PendingIntent::class.java.getMethod("getTargetIntent")
                     method.invoke(contentIntent) as? Intent
@@ -281,21 +275,39 @@ class NotiFetchListenerService : NotificationListenerService() {
                 }
 
                 if (targetIntent != null) {
+                    // Extract URI
                     val dataUri = targetIntent.data
-                    if (dataUri != null) {
-                        val uriString = dataUri.toString()
-                        if (uriString.isNotBlank()) {
-                            extractedDeepLinkUri = uriString
-                        }
+                    if (dataUri != null && dataUri.toString().isNotBlank()) {
+                        extractedDeepLinkUri = dataUri.toString()
                     }
+
+                    // Extract component
                     val component = targetIntent.component
                     if (component != null) {
                         extractedDeepLinkComponent = "${component.packageName}/${component.className}"
                     }
+
+                    // v2.9.27: If no URI but has extras with "url" or "link" or "deep_link", extract that
+                    if (extractedDeepLinkUri == null) {
+                        val extras = targetIntent.extras
+                        if (extras != null) {
+                            for (key in listOf("url", "link", "deep_link", "deepLink", "destination", "screen", "path")) {
+                                val value = extras.getString(key)
+                                if (value != null && value.isNotBlank() && (value.startsWith("http") || value.startsWith("/") || value.contains("://"))) {
+                                    extractedDeepLinkUri = value
+                                    break
+                                }
+                            }
+                        }
+                    }
+
+                    Log.d(tag, "Deep link extracted for $platformName: uri=$extractedDeepLinkUri, component=$extractedDeepLinkComponent")
+                } else {
+                    Log.w(tag, "getTargetIntent() returned null for $platformName — deep link will fallback to launch intent")
                 }
             }
-        } catch (_: Exception) {
-            // Reflection or security exceptions — ignore, deep link will be null
+        } catch (e: Exception) {
+            Log.w(tag, "Deep link extraction failed for $platformName: ${e.message}")
         }
 
         try {

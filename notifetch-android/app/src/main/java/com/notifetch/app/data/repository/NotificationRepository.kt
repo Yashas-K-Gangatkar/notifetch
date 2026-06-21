@@ -70,6 +70,19 @@ class NotificationRepository @Inject constructor(
 
     suspend fun deleteAllNotifications() = notificationDao.deleteAll()
 
+    // v2.9.27: Auto-cleanup — delete notifications older than 24 hours
+    suspend fun cleanupOldNotifications(): Int {
+        val cutoff = System.currentTimeMillis() - (24 * 60 * 60 * 1000L) // 24 hours ago
+        val deleted = notificationDao.deleteOlderThan(cutoff)
+        // Also delete read notifications older than 2 hours (faster cleanup for read items)
+        val readCutoff = System.currentTimeMillis() - (2 * 60 * 60 * 1000L) // 2 hours ago
+        notificationDao.deleteReadOlderThan(readCutoff)
+        return deleted
+    }
+
+    // v2.9.27: Get total count (for cleanup logic)
+    suspend fun getTotalNotificationCount(): Int = notificationDao.getTotalCountSync()
+
     /**
      * Delete all user data including server-side data.
      * DPDP Act 2023 §8 & GDPR Article 17 (Right to Erasure).

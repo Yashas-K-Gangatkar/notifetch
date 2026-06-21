@@ -26,6 +26,18 @@ interface NotificationDao {
     @Query("DELETE FROM captured_notifications")
     suspend fun deleteAll()
 
+    // v2.9.27: Auto-cleanup — delete notifications older than X milliseconds
+    @Query("DELETE FROM captured_notifications WHERE receivedAt < :cutoffTimestamp")
+    suspend fun deleteOlderThan(cutoffTimestamp: Long): Int
+
+    // v2.9.27: Delete read notifications older than X milliseconds
+    @Query("DELETE FROM captured_notifications WHERE isRead = 1 AND receivedAt < :cutoffTimestamp")
+    suspend fun deleteReadOlderThan(cutoffTimestamp: Long): Int
+
+    // v2.9.27: Count total notifications (for cleanup logic)
+    @Query("SELECT COUNT(*) FROM captured_notifications")
+    suspend fun getTotalCountSync(): Int
+
     @Query("SELECT * FROM captured_notifications ORDER BY receivedAt DESC")
     fun getAllNotifications(): Flow<List<CapturedNotification>>
 
