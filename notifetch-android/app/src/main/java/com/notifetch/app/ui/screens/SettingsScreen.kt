@@ -838,6 +838,32 @@ fun SettingsScreen(
                 }
             }
 
+            // v2.9.31: Trademark disclaimer
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+                    )
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(
+                            text = "Legal Disclaimer",
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "NotiFetch is an independent notification aggregation tool. NotiFetch is NOT affiliated with, endorsed by, or partnered with any delivery platform, restaurant, or brand. All trademarks belong to their respective owners. Platform names shown are generic and can be customized by the user. NotiFetch only reads notification content visible to the user — it does not access credentials, OTPs, or payment information.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            lineHeight = 16.sp
+                        )
+                    }
+                }
+            }
+
             item { Spacer(modifier = Modifier.height(24.dp)) }
         }
     }

@@ -101,6 +101,11 @@ export default function Home() {
               Doing is Doing — DID
             </p>
           </div>
+          <div className="mt-4 pt-4 border-t border-border/50 text-center">
+            <p className="text-xs text-muted-foreground/70 max-w-3xl mx-auto">
+              NotiFetch is an independent notification aggregation tool. NotiFetch is NOT affiliated with, endorsed by, sponsored by, or partnered with any delivery platform, restaurant, or brand. All trademarks, logos, and brand names are the property of their respective owners. NotiFetch uses generic platform names by default. Users may customize display names at their own discretion. NotiFetch only reads notification content that the user can already see on their device — it does not access credentials, OTPs, or payment information.
+            </p>
+          </div>
         </div>
       </footer>
     </div>
