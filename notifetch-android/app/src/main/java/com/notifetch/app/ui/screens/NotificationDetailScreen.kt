@@ -418,9 +418,19 @@ fun NotificationDetailScreen(
 /**
  * Opens the source app that generated the notification.
  *
- * v2.9.28: SIMPLIFIED — always opens the app first, then tries deep link.
- * The old approach tried deep links FIRST, which failed silently.
- * New approach: getLaunchIntentForPackage FIRST (always works), deep link as bonus.
+ * v2.9.29: CORRECT ORDER — try specific page FIRST, fall back to main screen.
+ *
+ * When you tap a notification in Android's status bar, the system fires the
+ * notification's contentIntent (PendingIntent). This opens the EXACT screen
+ * the app intended (offer page, order tracking, etc.).
+ *
+ * We cache that same PendingIntent. By firing it FIRST, we replicate the
+ * exact same behavior as tapping the notification in the status bar.
+ *
+ * If the cache is empty (process was killed), we fall back to:
+ *   - Persisted deep link URI (from database)
+ *   - getLaunchIntentForPackage (opens main screen — always works)
+ *   - Play Store (app not installed)
  */
 private fun openSourceApp(
     context: android.content.Context,
@@ -432,10 +442,48 @@ private fun openSourceApp(
     try {
         val pm = context.packageManager
 
-        // Strategy 1: getLaunchIntentForPackage — ALWAYS works if app is installed
+        // ── Strategy 1: Cached PendingIntent — opens SPECIFIC PAGE ────────
+        // This is the SAME PendingIntent that fires when you tap the notification
+        // in Android's status bar. It opens the exact screen the app intended.
+        // Only works while the NotiFetch process is alive (in-memory cache).
+        val cachedPendingIntent = PendingIntentCache.get(packageName)
+        if (cachedPendingIntent != null) {
+            try {
+                cachedPendingIntent.send()
+                android.util.Log.d("NotiFetchOpen", "Opened $packageName via cached PendingIntent → specific page")
+                return // Success — specific page opened!
+            } catch (e: Exception) {
+                android.util.Log.w("NotiFetchOpen", "Cached PendingIntent failed: ${e.message} — falling back")
+            }
+        } else {
+            android.util.Log.d("NotiFetchOpen", "No cached PendingIntent for $packageName — trying deep link URI")
+        }
+
+        // ── Strategy 2: Persisted deep link URI — opens SPECIFIC PAGE ─────
+        // Extracted from the notification's contentIntent when it was captured.
+        // Survives process death (stored in database).
+        if (!deepLinkUri.isNullOrBlank()) {
+            try {
+                val uri = Uri.parse(deepLinkUri)
+                val deepLinkIntent = Intent(Intent.ACTION_VIEW).apply {
+                    data = uri
+                    setPackage(packageName)
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                }
+                if (deepLinkIntent.resolveActivity(pm) != null) {
+                    context.startActivity(deepLinkIntent)
+                    android.util.Log.d("NotiFetchOpen", "Opened $packageName via persisted deep link: $deepLinkUri")
+                    return // Success — specific page opened!
+                }
+            } catch (_: Exception) { }
+        }
+
+        // ── Strategy 3: getLaunchIntentForPackage — opens MAIN SCREEN ──────
+        // Always works if the app is installed. Opens the app's main screen.
+        // This is the reliable fallback when deep links aren't available.
         var launchIntent = pm.getLaunchIntentForPackage(packageName)
 
-        // Strategy 2: If null, resolve launcher activity manually
+        // Strategy 3b: If null, resolve launcher activity manually
         if (launchIntent == null) {
             try {
                 val mainIntent = Intent(Intent.ACTION_MAIN).apply {
@@ -454,27 +502,14 @@ private fun openSourceApp(
         }
 
         if (launchIntent != null) {
-            // Add deep link URI as bonus (app may open specific screen)
-            if (!deepLinkUri.isNullOrBlank()) {
-                try {
-                    launchIntent.data = Uri.parse(deepLinkUri)
-                } catch (_: Exception) { }
-            }
             launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
             context.startActivity(launchIntent)
+            android.util.Log.d("NotiFetchOpen", "Opened $packageName via launch intent → main screen")
             return
         }
 
-        // Strategy 3: Try cached PendingIntent
-        val cachedPendingIntent = PendingIntentCache.get(packageName)
-        if (cachedPendingIntent != null) {
-            try {
-                cachedPendingIntent.send()
-                return
-            } catch (_: Exception) { }
-        }
-
-        // Strategy 4: Play Store
+        // ── Strategy 4: Play Store (app not installed) ─────────────────────
+        android.util.Log.w("NotiFetchOpen", "App $packageName not installed — opening Play Store")
         Toast.makeText(context, "$displayName not installed", Toast.LENGTH_SHORT).show()
         try {
             val playStoreIntent = Intent(Intent.ACTION_VIEW).apply {
@@ -490,6 +525,7 @@ private fun openSourceApp(
             context.startActivity(webIntent)
         }
     } catch (e: Exception) {
+        android.util.Log.e("NotiFetchOpen", "Failed to open $packageName", e)
         Toast.makeText(context, "Could not open $displayName", Toast.LENGTH_SHORT).show()
     }
 }
