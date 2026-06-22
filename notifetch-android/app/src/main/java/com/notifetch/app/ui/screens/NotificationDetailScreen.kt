@@ -459,23 +459,37 @@ private fun openSourceApp(
             android.util.Log.d("NotiFetchOpen", "No cached PendingIntent for $packageName — trying deep link URI")
         }
 
-        // ── Strategy 2: Persisted deep link URI — opens SPECIFIC PAGE ─────
-        // Extracted from the notification's contentIntent when it was captured.
-        // Survives process death (stored in database).
+        // ── Strategy 2: Persisted deep link — PARSE FULL INTENT ───────────
+        // v2.9.30: deepLinkUri now stores the FULL serialized Intent (via Intent.toUri)
+        // We use Intent.parseUri() to recreate the EXACT same Intent the source app created.
+        // This opens the specific offer/order/tracking page — not just the main screen.
         if (!deepLinkUri.isNullOrBlank()) {
             try {
-                val uri = Uri.parse(deepLinkUri)
-                val deepLinkIntent = Intent(Intent.ACTION_VIEW).apply {
-                    data = uri
-                    setPackage(packageName)
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                }
-                if (deepLinkIntent.resolveActivity(pm) != null) {
-                    context.startActivity(deepLinkIntent)
-                    android.util.Log.d("NotiFetchOpen", "Opened $packageName via persisted deep link: $deepLinkUri")
+                // Check if it's a serialized Intent (starts with "intent:" or "#Intent;")
+                if (deepLinkUri.startsWith("intent:") || deepLinkUri.startsWith("#Intent;")) {
+                    // Parse as full Intent — recreates action, data, component, extras, everything
+                    val intent = Intent.parseUri(deepLinkUri, Intent.URI_INTENT_SCHEME)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                    context.startActivity(intent)
+                    android.util.Log.d("NotiFetchOpen", "Opened $packageName via PARSED Intent → specific page")
                     return // Success — specific page opened!
+                } else {
+                    // It's a regular URI (http://, app://, etc.)
+                    val uri = Uri.parse(deepLinkUri)
+                    val deepLinkIntent = Intent(Intent.ACTION_VIEW).apply {
+                        data = uri
+                        setPackage(packageName)
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                    }
+                    if (deepLinkIntent.resolveActivity(pm) != null) {
+                        context.startActivity(deepLinkIntent)
+                        android.util.Log.d("NotiFetchOpen", "Opened $packageName via deep link URI: $deepLinkUri")
+                        return
+                    }
                 }
-            } catch (_: Exception) { }
+            } catch (e: Exception) {
+                android.util.Log.w("NotiFetchOpen", "Deep link parse failed for $packageName: ${e.message}")
+            }
         }
 
         // ── Strategy 3: getLaunchIntentForPackage — opens MAIN SCREEN ──────

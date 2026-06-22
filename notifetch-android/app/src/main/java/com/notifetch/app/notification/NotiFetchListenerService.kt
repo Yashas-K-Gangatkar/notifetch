@@ -254,10 +254,11 @@ class NotiFetchListenerService : NotificationListenerService() {
         Log.d(tag, "Captured notification from $platformName ($packageName) [mode=$userMode]")
 
         // Cache the PendingIntent for "Open App" deep-linking
-        // v2.9.8: Also extract the underlying Intent's URI and component, and persist
-        // them to the database. The in-memory cache is cleared on process death, but
-        // the persisted URI survives — so deep-linking works even after NotiFetch
-        // is killed by Android memory pressure.
+        // v2.9.30: Serialize the ENTIRE target Intent using Intent.toUri()
+        // This captures action, data, component, categories, flags, AND extras.
+        // When the user taps, we parseUri() to recreate the EXACT same Intent
+        // that the source app created — opening the specific offer/order page.
+        // This survives process death (stored in database as deepLinkUri).
         var extractedDeepLinkUri: String? = null
         var extractedDeepLinkComponent: String? = null
         try {
@@ -265,8 +266,7 @@ class NotiFetchListenerService : NotificationListenerService() {
             if (contentIntent != null) {
                 PendingIntentCache.put(packageName, contentIntent)
 
-                // v2.9.27: Extract deep link using multiple strategies.
-                // Strategy 1: getTargetIntent() via reflection (preferred — gets the actual Intent)
+                // v2.9.30: Get the target Intent and serialize it FULLY
                 val targetIntent: Intent? = try {
                     val method = android.app.PendingIntent::class.java.getMethod("getTargetIntent")
                     method.invoke(contentIntent) as? Intent
@@ -275,33 +275,26 @@ class NotiFetchListenerService : NotificationListenerService() {
                 }
 
                 if (targetIntent != null) {
-                    // Extract URI
-                    val dataUri = targetIntent.data
-                    if (dataUri != null && dataUri.toString().isNotBlank()) {
-                        extractedDeepLinkUri = dataUri.toString()
+                    // Serialize the ENTIRE Intent to a URI string
+                    // This captures: action, data, component, categories, flags, extras
+                    try {
+                        val intentUri = targetIntent.toUri(Intent.URI_INTENT_SCHEME)
+                        if (intentUri.isNotBlank()) {
+                            extractedDeepLinkUri = intentUri
+                            Log.d(tag, "Deep link SERIALIZED for $platformName: ${intentUri.take(100)}...")
+                        }
+                    } catch (e: Exception) {
+                        Log.w(tag, "Intent.toUri() failed for $platformName: ${e.message}")
                     }
 
-                    // Extract component
+                    // Also store component as fallback
                     val component = targetIntent.component
                     if (component != null) {
                         extractedDeepLinkComponent = "${component.packageName}/${component.className}"
                     }
 
-                    // v2.9.27: If no URI but has extras with "url" or "link" or "deep_link", extract that
-                    if (extractedDeepLinkUri == null) {
-                        val extras = targetIntent.extras
-                        if (extras != null) {
-                            for (key in listOf("url", "link", "deep_link", "deepLink", "destination", "screen", "path")) {
-                                val value = extras.getString(key)
-                                if (value != null && value.isNotBlank() && (value.startsWith("http") || value.startsWith("/") || value.contains("://"))) {
-                                    extractedDeepLinkUri = value
-                                    break
-                                }
-                            }
-                        }
-                    }
-
-                    Log.d(tag, "Deep link extracted for $platformName: uri=$extractedDeepLinkUri, component=$extractedDeepLinkComponent")
+                    // Log what we found for debugging
+                    Log.d(tag, "Target Intent for $platformName: action=${targetIntent.action}, data=${targetIntent.data}, component=${targetIntent.component}, extras_keys=${targetIntent.extras?.keySet()}")
                 } else {
                     Log.w(tag, "getTargetIntent() returned null for $platformName — deep link will fallback to launch intent")
                 }
