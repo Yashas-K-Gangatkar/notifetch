@@ -161,11 +161,20 @@ export async function POST(request: NextRequest) {
     if (!title || typeof title !== "string") {
       return NextResponse.json({ error: "title is required" }, { status: 400 });
     }
+    if (title.length > 255) {
+      return NextResponse.json({ error: "title is too long" }, { status: 400 });
+    }
     if (!messageBody || typeof messageBody !== "string") {
       return NextResponse.json({ error: "body is required" }, { status: 400 });
     }
+    if (messageBody.length > 2048) {
+      return NextResponse.json({ error: "body is too long" }, { status: 400 });
+    }
     if (!source || typeof source !== "string") {
       return NextResponse.json({ error: "source is required" }, { status: 400 });
+    }
+    if (source.length > 100) {
+      return NextResponse.json({ error: "source is too long" }, { status: 400 });
     }
 
     const notification = await db.notification.create({
