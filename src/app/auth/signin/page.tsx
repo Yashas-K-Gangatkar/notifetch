@@ -45,6 +45,7 @@ function SignInForm() {
 
   const validateEmail = (): boolean => {
     if (!email.trim()) { setEmailError("Email is required"); return false; }
+    if (email.length > 320) { setEmailError("Email is too long"); return false; }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setEmailError("Please enter a valid email"); return false; }
     setEmailError(null); return true;
   };
