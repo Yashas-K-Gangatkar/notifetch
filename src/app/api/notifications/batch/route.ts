@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { verifyFirebaseToken, getOrCreateUserFromFirebase } from "@/lib/firebase-admin";
 import { db } from "@/lib/db";
+import { checkRateLimit } from "@/lib/rate-limit";
+import { audit } from "@/lib/audit";
 
 /**
  * Authenticate via NextAuth session or Firebase Bearer token.
@@ -38,9 +40,29 @@ async function authenticateRequest(request: Request): Promise<string | null> {
  */
 export async function POST(request: NextRequest) {
   try {
+    const contentLength = parseInt(request.headers.get("content-length") || "0", 10);
+    if (contentLength > 2_000_000) { // 2 MB hard cap
+      return NextResponse.json({ error: "Payload too large" }, { status: 413 });
+    }
+
     const userId = await authenticateRequest(request);
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Rate limiting: 10 requests per minute per user for batch
+    const limiter = checkRateLimit("notifications.batch", userId, 10);
+    if (!limiter.allowed) {
+      await audit({
+        userId,
+        action: "notification.batch.rejected.rate_limit",
+        entity: "notification",
+        details: "Batch notification rate limit exceeded",
+      });
+      return NextResponse.json(
+        { error: "Rate limit exceeded" },
+        { status: 429, headers: { "Retry-After": "60" } }
+      );
     }
 
     const body = await request.json();
@@ -70,17 +92,43 @@ export async function POST(request: NextRequest) {
           { status: 400 }
         );
       }
+      if (n.title.length > 255) {
+        await audit({ userId, action: "notification.rejected.oversized", entity: "notification", details: `notifications[${i}].title too long` });
+        return NextResponse.json({ error: `notifications[${i}].title is too long` }, { status: 400 });
+      }
       if (!n.body || typeof n.body !== "string") {
         return NextResponse.json(
           { error: `notifications[${i}].body is required` },
           { status: 400 }
         );
       }
+      if (n.body.length > 2048) {
+        await audit({ userId, action: "notification.rejected.oversized", entity: "notification", details: `notifications[${i}].body too long` });
+        return NextResponse.json({ error: `notifications[${i}].body is too long` }, { status: 400 });
+      }
       if (!n.source || typeof n.source !== "string") {
         return NextResponse.json(
           { error: `notifications[${i}].source is required` },
           { status: 400 }
         );
+      }
+      if (n.source.length > 100) {
+        await audit({ userId, action: "notification.rejected.oversized", entity: "notification", details: `notifications[${i}].source too long` });
+        return NextResponse.json({ error: `notifications[${i}].source is too long` }, { status: 400 });
+      }
+
+      // Optional fields length validation
+      const limits: Record<string, number> = {
+        bigText: 4096, subText: 4096,
+        pickupLocation: 500, dropoffLocation: 500, distance: 500,
+        platform: 100, packageName: 100, category: 100, sourceIcon: 100
+      };
+
+      for (const [field, limit] of Object.entries(limits)) {
+        if (n[field] && typeof n[field] === "string" && n[field].length > limit) {
+          await audit({ userId, action: "notification.rejected.oversized", entity: "notification", details: `notifications[${i}].${field} too long` });
+          return NextResponse.json({ error: `notifications[${i}].${field} is too long` }, { status: 400 });
+        }
       }
     }
 

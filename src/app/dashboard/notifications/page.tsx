@@ -267,6 +267,7 @@ export default function NotificationsPage() {
               size="icon"
               onClick={handleRefresh}
               disabled={isRefreshing}
+              aria-label="Refresh notifications"
             >
               <RefreshCw className={`w-4 h-4 ${isRefreshing ? "animate-spin" : ""}`} />
             </Button>
@@ -403,7 +404,13 @@ export default function NotificationsPage() {
                           </div>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={(e) => e.stopPropagation()}>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 shrink-0"
+                                onClick={(e) => e.stopPropagation()}
+                                aria-label={`Actions for ${notification.title}`}
+                              >
                                 <MoreHorizontal className="w-4 h-4" />
                               </Button>
                             </DropdownMenuTrigger>

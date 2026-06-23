@@ -84,6 +84,9 @@ download/crashlytics-mapping-*.txt
 /jdk/
 /jdk21/
 /jdk-*/
+
+# Jules context
+.jules/
 # Auth service — separate repo, not tracked as submodule
 notifetch-auth/
 upload/client_secret*
