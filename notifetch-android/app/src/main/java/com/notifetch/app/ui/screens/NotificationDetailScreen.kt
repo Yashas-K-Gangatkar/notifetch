@@ -442,23 +442,11 @@ private fun openSourceApp(
     try {
         val pm = context.packageManager
 
-        // ── Strategy 1: Cached PendingIntent — opens SPECIFIC PAGE ────────
-        val cachedPendingIntent = PendingIntentCache.get(packageName)
-        if (cachedPendingIntent != null) {
-            try {
-                cachedPendingIntent.send()
-                android.util.Log.d("NotiFetchOpen", "Opened $packageName via cached PendingIntent → specific page")
-                return
-            } catch (e: Exception) {
-                android.util.Log.w("NotiFetchOpen", "Cached PendingIntent failed: ${e.message} — falling back")
-            }
-        }
-
-        // ── Strategy 2: getLaunchIntentForPackage — opens MAIN SCREEN ──────
-        // v2.9.33: This is now Strategy 2 (was Strategy 3).
-        // The v2.9.30 Intent.parseUri() approach was BROKEN — it created Intents
-        // with unexported components that started but immediately closed.
-        // getLaunchIntentForPackage ALWAYS works and was confirmed working in v2.9.28.
+        // ── Strategy 1: getLaunchIntentForPackage — opens MAIN SCREEN ──────
+        // v2.9.34: This is NOW Strategy 1 (was Strategy 2).
+        // The cached PendingIntent was "succeeding" without throwing but the
+        // app wasn't actually opening. Then `return` prevented the fallback.
+        // getLaunchIntentForPackage ALWAYS works — confirmed in v2.9.28.
         var launchIntent = pm.getLaunchIntentForPackage(packageName)
 
         // Strategy 2b: If null, resolve launcher activity manually
