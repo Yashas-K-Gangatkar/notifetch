@@ -9,6 +9,14 @@ const IP_SEND_WINDOW = 60 * 60 * 1000; // 1 hour
 function checkIpLimit(ip: string): boolean {
   const now = Date.now();
   const entry = ipLimiter.get(ip);
+
+  // Periodic cleanup
+  if (Math.random() < 0.05) {
+    for (const [k, e] of ipLimiter.entries()) {
+      if (now > e.resetAt) ipLimiter.delete(k);
+    }
+  }
+
   if (!entry || now > entry.resetAt) {
     ipLimiter.set(ip, { count: 1, resetAt: now + IP_SEND_WINDOW });
     return true;
@@ -34,6 +42,9 @@ export async function POST(request: NextRequest) {
     const { email } = await request.json();
     if (!email || typeof email !== "string") {
       return NextResponse.json({ error: "Email is required" }, { status: 400 });
+    }
+    if (email.length > 320) {
+      return NextResponse.json({ error: "Email is too long" }, { status: 400 });
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return NextResponse.json({ error: "Invalid email" }, { status: 400 });

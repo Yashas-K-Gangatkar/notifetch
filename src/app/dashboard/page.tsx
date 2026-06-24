@@ -265,6 +265,7 @@ export default function DashboardPage() {
               size="sm"
               onClick={() => signOut({ callbackUrl: "/" })}
               className="text-muted-foreground hover:text-foreground"
+              aria-label="Sign out"
             >
               <LogOut className="w-4 h-4" />
             </Button>
@@ -426,6 +427,7 @@ export default function DashboardPage() {
                 size="sm"
                 onClick={() => fetchDashboardData()}
                 className="text-muted-foreground"
+                aria-label="Refresh dashboard"
               >
                 <RefreshCw className="w-4 h-4" />
               </Button>

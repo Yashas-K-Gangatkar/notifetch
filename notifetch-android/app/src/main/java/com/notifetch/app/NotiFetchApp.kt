@@ -10,6 +10,13 @@ import androidx.work.WorkManager
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.notifetch.app.data.repository.dataStore
+import android.content.Intent
+import android.content.IntentFilter
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.OnLifecycleEvent
+import androidx.lifecycle.ProcessLifecycleOwner
+import com.notifetch.app.notification.ScreenOnReceiver
 import com.notifetch.app.util.Constants
 import com.notifetch.app.ui.viewmodel.SettingsViewModel
 import com.notifetch.app.worker.SyncWorker
@@ -39,6 +46,18 @@ class NotiFetchApp : Application(), Configuration.Provider {
         initCrashlytics()
         createNotificationChannels()
         schedulePeriodicSyncIfEnabled()
+
+        // v2.9.35: Foreground health check watchdog
+        ProcessLifecycleOwner.get().lifecycle.addObserver(object : LifecycleObserver {
+            @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
+            fun onAppForegrounded() {
+                SyncWorker.checkListenerHealthNow(this@NotiFetchApp)
+            }
+        })
+
+        // v2.9.35: Screen-on health check watchdog (runtime registration)
+        val screenOnFilter = IntentFilter(Intent.ACTION_SCREEN_ON)
+        registerReceiver(ScreenOnReceiver(), screenOnFilter)
     }
 
     private fun initCrashlytics() {

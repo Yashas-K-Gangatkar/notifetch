@@ -125,6 +125,7 @@ export function Navbar({ activeSection, onNavigate }: NavbarProps) {
                   setTheme(isDark ? "light" : "dark");
                 }}
                 className="h-9 w-9 relative"
+                aria-label="Toggle theme"
               >
                 <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
                 <Moon className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
@@ -188,7 +189,7 @@ export function Navbar({ activeSection, onNavigate }: NavbarProps) {
               {/* Mobile menu */}
               <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
                 <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon" className="md:hidden h-9 w-9">
+                  <Button variant="ghost" size="icon" className="md:hidden h-9 w-9" aria-label="Open mobile menu">
                     <Menu className="h-5 w-5" />
                   </Button>
                 </SheetTrigger>

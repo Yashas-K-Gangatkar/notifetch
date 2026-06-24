@@ -25,8 +25,8 @@ export function PageLoadAnimation() {
     // Skip animation if user already saw it this session
     if (typeof window === "undefined") return;
     if (sessionStorage.getItem("notifetch_intro_played")) {
-      setVisible(false);
-      return;
+      const t0 = setTimeout(() => setVisible(false), 0);
+      return () => clearTimeout(t0);
     }
     sessionStorage.setItem("notifetch_intro_played", "1");
 

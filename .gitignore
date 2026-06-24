@@ -12,6 +12,9 @@ node_modules
 
 # testing
 /coverage
+/test-results/
+/playwright-report/
+/playwright/.cache/
 
 # next.js
 /.next/
@@ -89,3 +92,6 @@ notifetch-auth/
 upload/client_secret*
 upload/google-services*
 upload/Pasted*
+
+# Jules
+.jules/
