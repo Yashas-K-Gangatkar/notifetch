@@ -194,6 +194,49 @@ export default function DashboardPage() {
     fetchDashboardData();
   }, [fetchDashboardData]);
 
+  // v2.9.35: Auto-poll for new notifications every 30s when the tab is visible.
+  // Uses the Page Visibility API so we don't waste requests when the user
+  // is on another tab. Also re-fetches immediately when the tab regains focus.
+  useEffect(() => {
+    let interval: ReturnType<typeof setInterval> | null = null;
+
+    const startPolling = () => {
+      if (interval) return; // already polling
+      interval = setInterval(() => {
+        fetchDashboardData();
+      }, 30_000); // 30 seconds
+    };
+
+    const stopPolling = () => {
+      if (interval) {
+        clearInterval(interval);
+        interval = null;
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        stopPolling();
+      } else {
+        // Tab regained focus — fetch immediately, then resume polling
+        fetchDashboardData();
+        startPolling();
+      }
+    };
+
+    // Start polling if tab is initially visible
+    if (!document.hidden) {
+      startPolling();
+    }
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      stopPolling();
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [fetchDashboardData]);
+
   if (status === "loading" || isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">

@@ -33,23 +33,24 @@ interface TickerNotification {
   bgColor: string;
 }
 
+// Trademark-safe generic names — no real brand names (matches de-branded data.ts)
 const SAMPLE_NOTIFICATIONS: TickerNotification[] = [
-  { platform: "Swiggy", icon: "🍽️", value: "₹247", pickup: "Indiranagar", dropoff: "Koramangala", timeAgo: "2m ago", color: "text-orange-600", bgColor: "bg-orange-500/10" },
-  { platform: "Zomato", icon: "🍕", value: "₹312", pickup: "HSR Layout", dropoff: "Bellandur", timeAgo: "5m ago", color: "text-red-600", bgColor: "bg-red-500/10" },
-  { platform: "Blinkit", icon: "🛒", value: "₹189", pickup: "Dark Store", dropoff: "Sector 56", timeAgo: "Just now", color: "text-yellow-600", bgColor: "bg-yellow-500/10" },
-  { platform: "Zepto", icon: "⚡", value: "₹156", pickup: "Cloud Store", dropoff: "Powai", timeAgo: "1m ago", color: "text-purple-600", bgColor: "bg-purple-500/10" },
-  { platform: "Uber Eats", icon: "🚗", value: "$12.50", pickup: "Downtown", dropoff: "Midtown", timeAgo: "3m ago", color: "text-green-600", bgColor: "bg-green-500/10" },
-  { platform: "Domino's", icon: "🍕", value: "₹449", pickup: "Pizza Hub", dropoff: "JP Nagar", timeAgo: "8m ago", color: "text-blue-600", bgColor: "bg-blue-500/10" },
-  { platform: "DoorDash", icon: "🚪", value: "$18.75", pickup: "Restaurant", dropoff: "Brooklyn", timeAgo: "4m ago", color: "text-red-700", bgColor: "bg-red-700/10" },
-  { platform: "Instamart", icon: "🛍️", value: "₹234", pickup: "Swiggy Hub", dropoff: "Whitefield", timeAgo: "6m ago", color: "text-orange-600", bgColor: "bg-orange-500/10" },
-  { platform: "BigBasket", icon: "🥬", value: "₹567", pickup: "Warehouse", dropoff: "Indiranagar", timeAgo: "12m ago", color: "text-green-700", bgColor: "bg-green-700/10" },
-  { platform: "Amazon Flex", icon: "📦", value: "₹85", pickup: "Sort Center", dropoff: "HSR Layout", timeAgo: "9m ago", color: "text-orange-700", bgColor: "bg-orange-700/10" },
-  { platform: "McDonald's", icon: "🍔", value: "₹299", pickup: "McDonald's", dropoff: "Andheri East", timeAgo: "7m ago", color: "text-yellow-700", bgColor: "bg-yellow-700/10" },
-  { platform: "Starbucks", icon: "☕", value: "₹450", pickup: "Starbucks", dropoff: "BKC", timeAgo: "10m ago", color: "text-green-800", bgColor: "bg-green-800/10" },
-  { platform: "Flipkart", icon: "📦", value: "₹1249", pickup: "Flipkart Hub", dropoff: "Koramangala", timeAgo: "15m ago", color: "text-blue-700", bgColor: "bg-blue-700/10" },
-  { platform: "Pizza Hut", icon: "🍕", value: "₹399", pickup: "Pizza Hut", dropoff: "Sector 18", timeAgo: "11m ago", color: "text-red-700", bgColor: "bg-red-700/10" },
-  { platform: "KFC", icon: "🍗", value: "₹349", pickup: "KFC", dropoff: "CP", timeAgo: "13m ago", color: "text-red-600", bgColor: "bg-red-500/10" },
-  { platform: "Lalamove", icon: "🚚", value: "₹120", pickup: "Customer", dropoff: "3km away", timeAgo: "Just now", color: "text-orange-600", bgColor: "bg-orange-500/10" },
+  { platform: "Food Delivery IN", icon: "🍽️", value: "₹247", pickup: "Indiranagar", dropoff: "Koramangala", timeAgo: "2m ago", color: "text-amber-600", bgColor: "bg-amber-500/10" },
+  { platform: "Food Delivery IN 2", icon: "🍕", value: "₹312", pickup: "HSR Layout", dropoff: "Bellandur", timeAgo: "5m ago", color: "text-orange-600", bgColor: "bg-orange-500/10" },
+  { platform: "Grocery Quick IN", icon: "🛒", value: "₹189", pickup: "Dark Store", dropoff: "Sector 56", timeAgo: "Just now", color: "text-yellow-600", bgColor: "bg-yellow-500/10" },
+  { platform: "Quick Grocery IN", icon: "⚡", value: "₹156", pickup: "Cloud Store", dropoff: "Powai", timeAgo: "1m ago", color: "text-purple-600", bgColor: "bg-purple-500/10" },
+  { platform: "Food Courier US", icon: "🚗", value: "$12.50", pickup: "Downtown", dropoff: "Midtown", timeAgo: "3m ago", color: "text-emerald-600", bgColor: "bg-emerald-500/10" },
+  { platform: "Food Courier IN", icon: "🍕", value: "₹449", pickup: "Pizza Hub", dropoff: "JP Nagar", timeAgo: "8m ago", color: "text-blue-600", bgColor: "bg-blue-500/10" },
+  { platform: "Courier US", icon: "🚪", value: "$18.75", pickup: "Restaurant", dropoff: "Brooklyn", timeAgo: "4m ago", color: "text-rose-700", bgColor: "bg-rose-700/10" },
+  { platform: "Grocery IN", icon: "🛍️", value: "₹234", pickup: "Hub", dropoff: "Whitefield", timeAgo: "6m ago", color: "text-orange-600", bgColor: "bg-orange-500/10" },
+  { platform: "Grocery EU", icon: "🥬", value: "₹567", pickup: "Warehouse", dropoff: "Indiranagar", timeAgo: "12m ago", color: "text-emerald-700", bgColor: "bg-emerald-700/10" },
+  { platform: "Package Flex", icon: "📦", value: "₹85", pickup: "Sort Center", dropoff: "HSR Layout", timeAgo: "9m ago", color: "text-amber-700", bgColor: "bg-amber-700/10" },
+  { platform: "Food Courier EU", icon: "🍔", value: "₹299", pickup: "Restaurant", dropoff: "Andheri East", timeAgo: "7m ago", color: "text-yellow-700", bgColor: "bg-yellow-700/10" },
+  { platform: "Food Rider MENA", icon: "☕", value: "₹450", pickup: "Cafe", dropoff: "BKC", timeAgo: "10m ago", color: "text-emerald-800", bgColor: "bg-emerald-800/10" },
+  { platform: "Package IN", icon: "📦", value: "₹1249", pickup: "Hub", dropoff: "Koramangala", timeAgo: "15m ago", color: "text-blue-700", bgColor: "bg-blue-700/10" },
+  { platform: "Food Rider EU", icon: "🍕", value: "₹399", pickup: "Restaurant", dropoff: "Sector 18", timeAgo: "11m ago", color: "text-rose-700", bgColor: "bg-rose-700/10" },
+  { platform: "Food Rider Asia", icon: "🍗", value: "₹349", pickup: "Restaurant", dropoff: "CP", timeAgo: "13m ago", color: "text-rose-600", bgColor: "bg-rose-500/10" },
+  { platform: "Logistics Relay", icon: "🚚", value: "₹120", pickup: "Customer", dropoff: "3km away", timeAgo: "Just now", color: "text-amber-600", bgColor: "bg-amber-500/10" },
 ];
 
 /**

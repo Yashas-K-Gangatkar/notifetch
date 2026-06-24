@@ -46,10 +46,23 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "NotiFetch — One Feed. All Notifications. Every Platform. Worldwide.",
-    description: "Aggregate all your delivery notifications into a single real-time feed — no credentials needed.",
+    description: "Aggregate all your delivery notifications into a single real-time feed — no credentials needed. From food to freight, groceries to pharmacy — every platform, every category, every continent.",
     siteName: "NotiFetch",
     type: "website",
+    url: "https://notifetch.in",
+    locale: "en_US",
   },
+  twitter: {
+    card: "summary_large_image",
+    title: "NotiFetch — One Feed. All Notifications. Every Platform. Worldwide.",
+    description: "Aggregate all your delivery notifications into a single real-time feed — no credentials needed.",
+    creator: "@notifetch",
+  },
+  metadataBase: new URL("https://notifetch.in"),
+  alternates: {
+    canonical: "https://notifetch.in",
+  },
+  category: "technology",
 };
 
 export default function RootLayout({

@@ -12,9 +12,6 @@ node_modules
 
 # testing
 /coverage
-/test-results/
-/playwright-report/
-/playwright/.cache/
 
 # next.js
 /.next/
@@ -92,6 +89,8 @@ notifetch-auth/
 upload/client_secret*
 upload/google-services*
 upload/Pasted*
-
-# Jules
-.jules/
+# Build artifacts
+notifetch-android/*.aab
+notifetch-android/app/build/
+notifetch-android/.gradle/
+notifetch-android/local.properties

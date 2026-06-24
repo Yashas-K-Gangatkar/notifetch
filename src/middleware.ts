@@ -1,117 +1,49 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
-import { getToken } from "next-auth/jwt";
+import { NextRequest, NextResponse } from "next/server";
 
 /**
- * NextAuth + Firebase middleware for route protection.
+ * Middleware for route protection.
  *
- * Protected routes:
- *   - /dashboard (NextAuth session only)
- *   - /api/user, /api/platforms, /api/orders, /api/earnings, /api/notifications
- *   - /api/payments (except /api/payments/webhook)
+ * Currently protects:
+ *   - /api/admin/* → requires X-Admin-Secret header matching ADMIN_SECRET env var
  *
- * Authentication methods:
- *   - NextAuth JWT (web app)
- *   - Firebase Bearer token (Android app) — route handlers verify the token
+ * Why middleware (not per-route check):
+ *   - Single source of truth for admin auth
+ *   - Easier to audit
+ *   - Avoids accidental exposure if a future admin route forgets the check
  *
- * Public routes:
- *   - / (root), /auth/*, /legal, /privacy, /terms
- *   - /api/auth/*, /api/payments/webhook
+ * Routes NOT protected here (protected elsewhere):
+ *   - /dashboard/* → client-side auth check via useSession, redirects to /auth/signin
+ *   - /api/notifications/* etc. → per-route authenticateRequest() helper
+ *
+ * Set ADMIN_SECRET in Vercel env vars. Generate with:
+ *   openssl rand -base64 32
  */
-export async function middleware(request: NextRequest) {
+export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Allow public routes
-  if (pathname === "/") {
-    return NextResponse.next();
-  }
-
-  // Allow legal pages
-  if (pathname === "/legal" || pathname === "/privacy" || pathname === "/terms") {
-    return NextResponse.next();
-  }
-
-  // Allow auth routes (sign-in page + NextAuth API)
-  if (pathname.startsWith("/auth") || pathname.startsWith("/api/auth")) {
-    return NextResponse.next();
-  }
-
-  // Allow webhook route (Stripe/Razorpay need unauthenticated access)
-  // Allow health route (debug/diagnostic — no secrets exposed)
-  if (pathname === "/api/payments/webhook" || pathname === "/api/payments/health") {
-    return NextResponse.next();
-  }
-
-  // Protect /dashboard page — redirect to sign-in if not authenticated
-  if (pathname.startsWith("/dashboard")) {
-    const token = await getToken({
-      req: request,
-      secret: process.env.NEXTAUTH_SECRET,
-    });
-
-    if (!token) {
-      const signInUrl = new URL("/auth/signin", request.url);
-      signInUrl.searchParams.set("callbackUrl", pathname);
-      return NextResponse.redirect(signInUrl);
+  // Protect /api/admin/*
+  if (pathname.startsWith("/api/admin")) {
+    const adminSecret = process.env.ADMIN_SECRET;
+    if (!adminSecret) {
+      // ADMIN_SECRET not configured — fail closed
+      console.error("[middleware] ADMIN_SECRET env var is not set — refusing admin access");
+      return NextResponse.json(
+        { error: "Admin access not configured" },
+        { status: 503 }
+      );
     }
-
-    return NextResponse.next();
-  }
-
-  // Check if the API path requires authentication
-  const protectedPrefixes = [
-    "/api/user",
-    "/api/platforms",
-    "/api/orders",
-    "/api/earnings",
-    "/api/payments",
-    "/api/notifications",
-    "/api/preferences",
-    "/api/devices",
-  ];
-
-  const isProtected = protectedPrefixes.some(
-    (prefix) => pathname === prefix || pathname.startsWith(prefix + "/")
-  );
-
-  if (!isProtected) {
-    return NextResponse.next();
-  }
-
-  // ── Check for Firebase Bearer token (Android app) ─────────────────────────
-  // If the request carries an Authorization: Bearer header, let it through.
-  // The route handler will verify the Firebase ID token itself.
-  // This is critical for the Android app which uses Firebase Auth, not NextAuth.
-  const authHeader = request.headers.get("authorization");
-  if (authHeader?.startsWith("Bearer ")) {
-    return NextResponse.next();
-  }
-
-  // ── Check for NextAuth JWT token (web app) ────────────────────────────────
-  const token = await getToken({
-    req: request,
-    secret: process.env.NEXTAUTH_SECRET,
-  });
-
-  if (!token) {
-    return NextResponse.json(
-      { error: "Authentication required" },
-      { status: 401 }
-    );
+    const provided = request.headers.get("x-admin-secret");
+    if (provided !== adminSecret) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: [
-    /*
-     * Match all request paths except:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public files (images, etc.)
-     */
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
-  ],
+  matcher: ["/api/admin/:path*"],
 };

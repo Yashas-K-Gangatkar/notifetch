@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import {
   Zap, Bell, Trash2, Check, CheckCheck,
   RefreshCw, Search, MapPin, IndianRupee,
-  Clock, Package, Navigation, MoreHorizontal
+  Clock, Package, Navigation, MoreHorizontal, Download
 } from "lucide-react";
 import { BackButton } from "@/components/back-button";
 import {
@@ -156,6 +156,17 @@ export default function NotificationsPage() {
     fetchNotifications();
   };
 
+  const handleExportCsv = () => {
+    // Build query string from current filters
+    const params = new URLSearchParams();
+    if (filter && filter !== "all") params.set("source", filter);
+    params.set("limit", "10000");
+
+    // Trigger download via browser navigation — server returns Content-Disposition: attachment
+    const url = `/api/notifications/export?${params.toString()}`;
+    window.location.href = url;
+  };
+
   const handleMarkAsRead = async (id: string, isRead: boolean) => {
     try {
       const res = await fetch(`/api/notifications/${id}`, {
@@ -261,6 +272,16 @@ export default function NotificationsPage() {
             >
               <CheckCheck className="w-4 h-4 mr-1" />
               <span className="hidden sm:inline">Mark all read</span>
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleExportCsv}
+              className="text-muted-foreground"
+              aria-label="Export notifications as CSV"
+            >
+              <Download className="w-4 h-4 mr-1" />
+              <span className="hidden sm:inline">Export CSV</span>
             </Button>
             <Button
               variant="ghost"

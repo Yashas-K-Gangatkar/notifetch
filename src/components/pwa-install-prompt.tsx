@@ -24,11 +24,31 @@ export function PWAInstallPrompt() {
     if (typeof window === "undefined") return false;
     return window.matchMedia("(display-mode: standalone)").matches;
   });
+  const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
 
     if (isInstalled) return;
+
+    // Check if user previously dismissed the prompt
+    try {
+      const dismissedAt = localStorage.getItem("notifetch_pwa_dismissed");
+      if (dismissedAt) {
+        const dismissedDate = new Date(parseInt(dismissedAt, 10));
+        const daysSince = (Date.now() - dismissedDate.getTime()) / (1000 * 60 * 60 * 24);
+        // Re-show after 30 days
+        if (daysSince < 30) {
+          setDismissed(true);
+          return;
+        } else {
+          // 30 days passed — clear the dismissal so we can show again
+          localStorage.removeItem("notifetch_pwa_dismissed");
+        }
+      }
+    } catch {
+      // localStorage unavailable — proceed with default behavior
+    }
 
     // Show floating button after 3 seconds
     const timer = setTimeout(() => {
@@ -49,6 +69,8 @@ export function PWAInstallPrompt() {
       setShowFab(false);
       setShowModal(false);
       setDeferredPrompt(null);
+      // Clear any previous dismissal
+      try { localStorage.removeItem("notifetch_pwa_dismissed"); } catch {}
     });
 
     return () => {
@@ -70,7 +92,16 @@ export function PWAInstallPrompt() {
     }
   };
 
-  if (isInstalled || !showFab) return null;
+  const handleDontShowAgain = () => {
+    try {
+      localStorage.setItem("notifetch_pwa_dismissed", Date.now().toString());
+    } catch {}
+    setDismissed(true);
+    setShowFab(false);
+    setShowModal(false);
+  };
+
+  if (isInstalled || !showFab || dismissed) return null;
 
   return (
     <>
@@ -133,6 +164,15 @@ export function PWAInstallPrompt() {
                 </p>
               </div>
             )}
+
+            {/* Don't show again — gives users control, re-prompts after 30 days */}
+            <button
+              onClick={handleDontShowAgain}
+              className="w-full mt-3 text-xs text-muted-foreground hover:text-foreground transition-colors py-2"
+              aria-label="Don't show install prompt again for 30 days"
+            >
+              Don&apos;t show again for 30 days
+            </button>
           </div>
         </DialogContent>
       </Dialog>
