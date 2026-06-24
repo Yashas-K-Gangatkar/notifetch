@@ -114,6 +114,7 @@ export default function NotificationsPage() {
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState("all");
+  const [dateRange, setDateRange] = useState<"today" | "7d" | "30d" | "all">("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [unreadCount, setUnreadCount] = useState(0);
   const [todayCount, setTodayCount] = useState(0);
@@ -126,10 +127,28 @@ export default function NotificationsPage() {
     }
   }, [status, router]);
 
+  // Compute startDate from dateRange preset
+  const getStartDate = (range: typeof dateRange): string | null => {
+    if (range === "all") return null;
+    const now = new Date();
+    if (range === "today") {
+      now.setHours(0, 0, 0, 0);
+    } else if (range === "7d") {
+      now.setDate(now.getDate() - 7);
+    } else if (range === "30d") {
+      now.setDate(now.getDate() - 30);
+    }
+    return now.toISOString();
+  };
+
   const fetchNotifications = useCallback(async () => {
     try {
-      const sourceFilter = filter !== "all" ? `&source=${filter}` : "";
-      const res = await fetch(`/api/notifications?limit=100${sourceFilter}`);
+      const params = new URLSearchParams();
+      params.set("limit", "100");
+      if (filter !== "all") params.set("source", filter);
+      const startDate = getStartDate(dateRange);
+      if (startDate) params.set("startDate", startDate);
+      const res = await fetch(`/api/notifications?${params.toString()}`);
       if (res.ok) {
         const data = await res.json();
         setNotifications(data.notifications || []);
@@ -143,7 +162,7 @@ export default function NotificationsPage() {
       setIsLoading(false);
       setIsRefreshing(false);
     }
-  }, [filter]);
+  }, [filter, dateRange]);
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -347,6 +366,32 @@ export default function NotificationsPage() {
                 </Button>
               );
             })}
+          </div>
+
+          {/* Date range filter — presets, not calendar picker (faster UX) */}
+          <div className="flex gap-2 items-center">
+            <span className="text-xs text-muted-foreground shrink-0">Date:</span>
+            <div className="flex gap-1 bg-muted/50 rounded-lg p-0.5">
+              {([
+                { key: "today", label: "Today" },
+                { key: "7d", label: "7d" },
+                { key: "30d", label: "30d" },
+                { key: "all", label: "All" },
+              ] as const).map((opt) => (
+                <button
+                  key={opt.key}
+                  onClick={() => setDateRange(opt.key)}
+                  className={`px-2.5 py-1 text-xs rounded-md transition-colors ${
+                    dateRange === opt.key
+                      ? "bg-background text-foreground shadow-sm font-medium"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                  aria-pressed={dateRange === opt.key}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 

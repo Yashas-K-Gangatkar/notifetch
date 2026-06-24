@@ -24,8 +24,8 @@ android {
         applicationId = "com.notifetch.app"
         minSdk = 24
         targetSdk = 35
-        versionCode = 62
-        versionName = "2.9.36"
+        versionCode = 63
+        versionName = "2.9.37"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 

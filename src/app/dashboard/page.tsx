@@ -554,22 +554,22 @@ export default function DashboardPage() {
                             {new Date(notif.createdAt).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}
                           </span>
                         </div>
-                        {/* Show pickup/dropoff if available */}
+                        {/* Show pickup/dropoff if available — responsive truncation */}
                         {(notif.pickupLocation || notif.dropoffLocation) && (
-                          <div className="flex items-center gap-1 mt-2 text-[10px] text-muted-foreground">
+                          <div className="flex items-center gap-1 mt-2 text-[10px] text-muted-foreground flex-wrap">
                             {notif.pickupLocation && (
                               <>
-                                <MapPin className="w-3 h-3 text-green-500" />
-                                <span className="truncate max-w-[100px]">{notif.pickupLocation}</span>
+                                <MapPin className="w-3 h-3 text-green-500 shrink-0" />
+                                <span className="truncate max-w-[80px] sm:max-w-[120px] md:max-w-[160px]">{notif.pickupLocation}</span>
                               </>
                             )}
                             {notif.pickupLocation && notif.dropoffLocation && (
-                              <span className="text-border">→</span>
+                              <span className="text-border shrink-0">→</span>
                             )}
                             {notif.dropoffLocation && (
                               <>
-                                <MapPin className="w-3 h-3 text-red-500" />
-                                <span className="truncate max-w-[100px]">{notif.dropoffLocation}</span>
+                                <MapPin className="w-3 h-3 text-red-500 shrink-0" />
+                                <span className="truncate max-w-[80px] sm:max-w-[120px] md:max-w-[160px]">{notif.dropoffLocation}</span>
                               </>
                             )}
                           </div>

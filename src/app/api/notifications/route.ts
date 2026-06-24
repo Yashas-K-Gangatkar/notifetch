@@ -41,6 +41,8 @@ export async function GET(request: NextRequest) {
     const isRead = searchParams.get("isRead");
     const category = searchParams.get("category");
     const platform = searchParams.get("platform");
+    const startDate = searchParams.get("startDate");
+    const endDate = searchParams.get("endDate");
     const page = parseInt(searchParams.get("page") || "1", 10);
     const limit = Math.min(parseInt(searchParams.get("limit") || "50", 10), 100);
     const skip = (page - 1) * limit;
@@ -50,6 +52,15 @@ export async function GET(request: NextRequest) {
     if (isRead !== null && isRead !== undefined && isRead !== "") where.isRead = isRead === "true";
     if (category) where.category = category;
     if (platform) where.platform = platform;
+    if (startDate || endDate) {
+      where.createdAt = {} as { gte?: Date; lte?: Date };
+      if (startDate) (where.createdAt as { gte?: Date }).gte = new Date(startDate);
+      if (endDate) {
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999);
+        (where.createdAt as { lte?: Date }).lte = end;
+      }
+    }
 
     const [notifications, total] = await Promise.all([
       db.notification.findMany({
