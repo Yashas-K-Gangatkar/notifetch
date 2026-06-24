@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { verifyFirebaseToken, getOrCreateUserFromFirebase } from "@/lib/firebase-admin";
 import { db } from "@/lib/db";
+import { rateLimit } from "@/lib/rate-limit";
+import { audit } from "@/lib/audit";
 
 /**
  * Authenticate via NextAuth session or Firebase Bearer token.
@@ -26,21 +28,32 @@ async function authenticateRequest(request: Request): Promise<string | null> {
 /**
  * POST /api/notifications/batch
  * Batch create notifications from the Android app.
- *
- * Body: {
- *   notifications: [{
- *     source, platform, title, body, orderValue?, pickupLocation?,
- *     dropoffLocation?, distance?, receivedAt?, packageName?,
- *     category?, bigText?, subText?
- *   }],
- *   deviceId?: string
- * }
  */
 export async function POST(request: NextRequest) {
   try {
+    // ── Payload size guard (2MB) ──────────────────────────────────────────
+    const contentLength = parseInt(request.headers.get("content-length") || "0", 10);
+    if (contentLength > 2_000_000) {
+      return NextResponse.json({ error: "Payload too large" }, { status: 413 });
+    }
+
     const userId = await authenticateRequest(request);
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // ── Rate limiting (10 requests / minute / user) ───────────────────────
+    if (!rateLimit("notification-batch", userId, 10, 60 * 1000)) {
+      await audit({
+        userId,
+        action: "notification.rejected.rate_limit",
+        entity: "notification",
+        details: "Batch rate limit exceeded"
+      });
+      return NextResponse.json({ error: "Rate limit exceeded" }, {
+        status: 429,
+        headers: { "Retry-After": "60" }
+      });
     }
 
     const body = await request.json();
@@ -64,23 +77,57 @@ export async function POST(request: NextRequest) {
     // Validate each notification
     for (let i = 0; i < notifications.length; i++) {
       const n = notifications[i];
-      if (!n.title || typeof n.title !== "string") {
-        return NextResponse.json(
-          { error: `notifications[${i}].title is required` },
-          { status: 400 }
-        );
+
+      // Required fields
+      if (!n.title || typeof n.title !== "string" || n.title.length > 255) {
+        await audit({ userId, action: "notification.rejected.invalid", entity: "notification", details: `Batch: notifications[${i}].title invalid/too long` });
+        return NextResponse.json({ error: `notifications[${i}].title is required (max 255)` }, { status: 400 });
       }
-      if (!n.body || typeof n.body !== "string") {
-        return NextResponse.json(
-          { error: `notifications[${i}].body is required` },
-          { status: 400 }
-        );
+      if (!n.body || typeof n.body !== "string" || n.body.length > 2048) {
+        await audit({ userId, action: "notification.rejected.invalid", entity: "notification", details: `Batch: notifications[${i}].body invalid/too long` });
+        return NextResponse.json({ error: `notifications[${i}].body is required (max 2048)` }, { status: 400 });
       }
-      if (!n.source || typeof n.source !== "string") {
-        return NextResponse.json(
-          { error: `notifications[${i}].source is required` },
-          { status: 400 }
-        );
+      if (!n.source || typeof n.source !== "string" || n.source.length > 100) {
+        await audit({ userId, action: "notification.rejected.invalid", entity: "notification", details: `Batch: notifications[${i}].source invalid/too long` });
+        return NextResponse.json({ error: `notifications[${i}].source is required (max 100)` }, { status: 400 });
+      }
+
+      // Optional fields length limits
+      if (n.bigText && n.bigText.length > 4096) {
+        await audit({ userId, action: "notification.rejected.oversized", entity: "notification", details: `Batch: notifications[${i}].bigText too long` });
+        return NextResponse.json({ error: `notifications[${i}].bigText too long` }, { status: 400 });
+      }
+      if (n.subText && n.subText.length > 4096) {
+        await audit({ userId, action: "notification.rejected.oversized", entity: "notification", details: `Batch: notifications[${i}].subText too long` });
+        return NextResponse.json({ error: `notifications[${i}].subText too long` }, { status: 400 });
+      }
+      if (n.pickupLocation && n.pickupLocation.length > 500) {
+        await audit({ userId, action: "notification.rejected.oversized", entity: "notification", details: `Batch: notifications[${i}].pickupLocation too long` });
+        return NextResponse.json({ error: `notifications[${i}].pickupLocation too long` }, { status: 400 });
+      }
+      if (n.dropoffLocation && n.dropoffLocation.length > 500) {
+        await audit({ userId, action: "notification.rejected.oversized", entity: "notification", details: `Batch: notifications[${i}].dropoffLocation too long` });
+        return NextResponse.json({ error: `notifications[${i}].dropoffLocation too long` }, { status: 400 });
+      }
+      if (n.distance && n.distance.length > 500) {
+        await audit({ userId, action: "notification.rejected.oversized", entity: "notification", details: `Batch: notifications[${i}].distance too long` });
+        return NextResponse.json({ error: `notifications[${i}].distance too long` }, { status: 400 });
+      }
+      if (n.platform && n.platform.length > 100) {
+        await audit({ userId, action: "notification.rejected.oversized", entity: "notification", details: `Batch: notifications[${i}].platform too long` });
+        return NextResponse.json({ error: `notifications[${i}].platform too long` }, { status: 400 });
+      }
+      if (n.packageName && n.packageName.length > 100) {
+        await audit({ userId, action: "notification.rejected.oversized", entity: "notification", details: `Batch: notifications[${i}].packageName too long` });
+        return NextResponse.json({ error: `notifications[${i}].packageName too long` }, { status: 400 });
+      }
+      if (n.category && n.category.length > 100) {
+        await audit({ userId, action: "notification.rejected.oversized", entity: "notification", details: `Batch: notifications[${i}].category too long` });
+        return NextResponse.json({ error: `notifications[${i}].category too long` }, { status: 400 });
+      }
+      if (n.sourceIcon && n.sourceIcon.length > 100) {
+        await audit({ userId, action: "notification.rejected.oversized", entity: "notification", details: `Batch: notifications[${i}].sourceIcon too long` });
+        return NextResponse.json({ error: `notifications[${i}].sourceIcon too long` }, { status: 400 });
       }
     }
 
@@ -115,9 +162,7 @@ export async function POST(request: NextRequest) {
       await db.deviceAuth.updateMany({
         where: { deviceId },
         data: { lastActiveAt: new Date() },
-      }).catch(() => {
-        // Ignore if device not found
-      });
+      }).catch(() => {});
     }
 
     return NextResponse.json({

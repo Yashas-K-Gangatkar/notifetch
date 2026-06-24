@@ -35,6 +35,9 @@ export async function POST(request: NextRequest) {
     if (!email || typeof email !== "string") {
       return NextResponse.json({ error: "Email is required" }, { status: 400 });
     }
+    if (email.length > 320) {
+      return NextResponse.json({ error: "Email is too long" }, { status: 400 });
+    }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return NextResponse.json({ error: "Invalid email" }, { status: 400 });
     }
