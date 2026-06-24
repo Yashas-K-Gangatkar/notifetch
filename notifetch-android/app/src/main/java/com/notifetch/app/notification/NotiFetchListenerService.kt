@@ -184,10 +184,9 @@ class NotiFetchListenerService : NotificationListenerService() {
             for (sbn in activeNotifications) {
                 if (Constants.ALL_PACKAGES.containsKey(sbn.packageName)) {
                     try {
-                        val contentIntent = sbn.notification.contentIntent
-                        if (contentIntent != null) {
-                            PendingIntentCache.put(sbn.packageName, contentIntent)
-                        }
+                        // v2.9.35: PendingIntentCache removed — was dead code (writes only, no reads)
+                        // since v2.9.34 switched openSourceApp to use deepLinkUri from DB.
+                        // contentIntent is still extracted below for deep link serialization.
                     } catch (_: Exception) {
                         // Ignore — will use launch fallback later
                     }
@@ -264,7 +263,7 @@ class NotiFetchListenerService : NotificationListenerService() {
         try {
             val contentIntent = sbn.notification.contentIntent
             if (contentIntent != null) {
-                PendingIntentCache.put(packageName, contentIntent)
+                // v2.9.35: PendingIntentCache removed — dead write since v2.9.34.
 
                 // v2.9.30: Get the target Intent and serialize it FULLY
                 val targetIntent: Intent? = try {
@@ -606,7 +605,7 @@ class NotiFetchListenerService : NotificationListenerService() {
         super.onListenerDisconnected()
         // v2.9.23: Removed KeepAliveService.stop() — service no longer exists
         configFlowJob?.cancel()
-        PendingIntentCache.clear()
+        // v2.9.35: PendingIntentCache.clear() removed — cache deleted in v2.9.35
         recentCaptures.clear()
         serviceScope.cancel()
         Log.w(tag, "Notification listener disconnected")
@@ -615,7 +614,7 @@ class NotiFetchListenerService : NotificationListenerService() {
     override fun onDestroy() {
         super.onDestroy()
         configFlowJob?.cancel()
-        PendingIntentCache.clear()
+        // v2.9.35: PendingIntentCache.clear() removed — cache deleted in v2.9.35
         recentCaptures.clear()
         serviceScope.cancel()
     }
