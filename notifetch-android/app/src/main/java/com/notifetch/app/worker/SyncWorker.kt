@@ -7,7 +7,9 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.Constraints
 import androidx.work.CoroutineWorker
 import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
@@ -15,6 +17,7 @@ import com.notifetch.app.data.repository.NotificationRepository
 import com.notifetch.app.notification.NotiFetchListenerService
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import kotlinx.coroutines.delay
 import java.util.concurrent.TimeUnit
 
 @HiltWorker
@@ -98,7 +101,7 @@ class SyncWorker @AssistedInject constructor(
          *    This is a fallback that works on some OEM ROMs where requestRebind()
          *    is ignored.
          */
-        private fun forceListenerRebind(context: Context) {
+        private suspend fun forceListenerRebind(context: Context) {
             try {
                 // Strategy 1: requestRebind() — official API
                 val componentName = ComponentName(context, NotiFetchListenerService::class.java)
@@ -112,7 +115,7 @@ class SyncWorker @AssistedInject constructor(
                 )
 
                 // Small delay to let the system process the disable
-                Thread.sleep(500)
+                delay(500)
 
                 pm.setComponentEnabledSetting(
                     componentName,
@@ -150,6 +153,28 @@ class SyncWorker @AssistedInject constructor(
          *   - NotiFetchApp.onCreate() on first launch
          *   - BootReceiver.onReceive() after device restart
          */
+        /**
+         * v2.9.35: Fire a one-shot listener health check immediately.
+         *
+         * Called when:
+         *   - App comes to foreground (ProcessLifecycleOwner ON_RESUME)
+         *   - Screen turns on (ACTION_SCREEN_ON broadcast)
+         *   - FCM push received
+         *
+         * This brings worst-case blind window from ~15 min down to "next user interaction".
+         */
+        fun checkListenerHealthNow(context: Context) {
+            val request = OneTimeWorkRequestBuilder<SyncWorker>()
+                .setConstraints(Constraints.Builder().build())  // no network constraint — rebind works offline
+                .build()
+            WorkManager.getInstance(context).enqueueUniqueWork(
+                "notifetch_listener_health_check",
+                ExistingWorkPolicy.REPLACE,
+                request
+            )
+            Log.d(TAG, "One-shot listener health check enqueued")
+        }
+
         fun schedulePeriodicSync(context: Context) {
             val constraints = Constraints.Builder()
                 .setRequiredNetworkType(NetworkType.CONNECTED)

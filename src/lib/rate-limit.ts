@@ -6,12 +6,7 @@ interface RateLimitEntry {
 const limiters = new Map<string, Map<string, RateLimitEntry>>();
 
 /**
- * Basic in-memory rate limiter.
- * @param type The type of rate limit (e.g., 'notification-single', 'notification-batch')
- * @param key The unique key for the user/client (e.g., userId or IP)
- * @param limit Max requests allowed in the window
- * @param window Window size in milliseconds
- * @returns boolean true if allowed, false if rate limited
+ * Basic in-memory rate limiter with expiration cleanup.
  */
 export function rateLimit(type: string, key: string, limit: number, window: number): boolean {
   const now = Date.now();
@@ -22,6 +17,13 @@ export function rateLimit(type: string, key: string, limit: number, window: numb
 
   const typeLimiter = limiters.get(type)!;
   const entry = typeLimiter.get(key);
+
+  // Cleanup expired entries periodically (approx 1 in 50 calls)
+  if (Math.random() < 0.02) {
+    for (const [k, e] of typeLimiter.entries()) {
+      if (now > e.resetAt) typeLimiter.delete(k);
+    }
+  }
 
   if (!entry || now > entry.resetAt) {
     typeLimiter.set(key, { count: 1, resetAt: now + window });
