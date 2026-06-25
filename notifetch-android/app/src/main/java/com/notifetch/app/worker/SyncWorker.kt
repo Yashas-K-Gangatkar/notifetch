@@ -17,6 +17,7 @@ import com.notifetch.app.data.repository.NotificationRepository
 import com.notifetch.app.notification.NotiFetchListenerService
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import kotlinx.coroutines.delay
 import java.util.concurrent.TimeUnit
 
 @HiltWorker
@@ -99,8 +100,12 @@ class SyncWorker @AssistedInject constructor(
          * 2. Component toggle — disable and re-enable the listener component.
          *    This is a fallback that works on some OEM ROMs where requestRebind()
          *    is ignored.
+         *
+         * v2.9.38: Converted from `private fun` to `private suspend fun` and
+         * replaced `Thread.sleep(500)` with `delay(500)` — Thread.sleep blocks
+         * the worker thread, while delay() properly suspends the coroutine.
          */
-        private fun forceListenerRebind(context: Context) {
+        private suspend fun forceListenerRebind(context: Context) {
             try {
                 // Strategy 1: requestRebind() — official API
                 val componentName = ComponentName(context, NotiFetchListenerService::class.java)
@@ -114,7 +119,9 @@ class SyncWorker @AssistedInject constructor(
                 )
 
                 // Small delay to let the system process the disable
-                Thread.sleep(500)
+                // v2.9.38: Use coroutine delay() instead of Thread.sleep() —
+                // doesn't block the worker thread, allows other coroutines to run
+                delay(500)
 
                 pm.setComponentEnabledSetting(
                     componentName,

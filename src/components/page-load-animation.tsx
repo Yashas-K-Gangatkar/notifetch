@@ -18,16 +18,18 @@ import { Zap } from "lucide-react";
  * Only plays on first visit per session (sessionStorage flag).
  */
 export function PageLoadAnimation() {
-  const [visible, setVisible] = useState(true);
+  // v2.9.38: Initialize visible=false if user already saw the intro this session.
+  // This is the proper React pattern — avoids the 1-frame orange flash that
+  // Jules's setTimeout(0) workaround would cause. Lazy initial state means
+  // the very first render already returns null, no flash, no warning.
+  const [visible, setVisible] = useState(() => {
+    if (typeof window === "undefined") return true;
+    return !sessionStorage.getItem("notifetch_intro_played");
+  });
   const [phase, setPhase] = useState<"logo" | "slogan" | "exit">("logo");
 
   useEffect(() => {
-    // Skip animation if user already saw it this session
-    if (typeof window === "undefined") return;
-    if (sessionStorage.getItem("notifetch_intro_played")) {
-      setVisible(false);
-      return;
-    }
+    if (!visible) return;
     sessionStorage.setItem("notifetch_intro_played", "1");
 
     const t1 = setTimeout(() => setPhase("slogan"), 600);

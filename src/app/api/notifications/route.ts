@@ -216,7 +216,7 @@ export async function POST(request: NextRequest) {
         distance: distance || null,
         category: category || null,
         deviceId: deviceId || null,
-        receivedAt: receivedAt ? new Date(receivedAt) : null,
+        receivedAt: (receivedAt && !isNaN(Date.parse(receivedAt))) ? new Date(receivedAt) : null,
       },
     });
 

@@ -151,7 +151,7 @@ export async function POST(request: NextRequest) {
             distance: (n.distance as string) || null,
             category: (n.category as string) || null,
             deviceId: deviceId || null,
-            receivedAt: n.receivedAt ? new Date(n.receivedAt as string) : null,
+            receivedAt: (n.receivedAt && !isNaN(Date.parse(n.receivedAt as string))) ? new Date(n.receivedAt as string) : null,
           },
         })
       )

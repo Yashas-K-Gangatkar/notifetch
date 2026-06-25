@@ -24,8 +24,8 @@ android {
         applicationId = "com.notifetch.app"
         minSdk = 24
         targetSdk = 35
-        versionCode = 63
-        versionName = "2.9.37"
+        versionCode = 64
+        versionName = "2.9.38"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -37,12 +37,18 @@ android {
     signingConfigs {
         create("release") {
             // Keystore resolution order:
-            //   1. upload/keystore.jks + env vars (NOTIFETCH_STORE_PASSWORD / NOTIFETCH_KEY_ALIAS / NOTIFETCH_KEY_PASSWORD)
+            //   1. NOTIFETCH_KEYSTORE_PATH env var (absolute path to keystore)
+            //   2. upload/keystore.jks + env vars (NOTIFETCH_STORE_PASSWORD / NOTIFETCH_KEY_ALIAS / NOTIFETCH_KEY_PASSWORD)
             //      — This is the ORIGINAL Play Store upload key (SHA-1 59:70:88:1E...).
             //      — Used by build-playstore.sh which sets the env vars automatically.
-            //   2. notifetch-android/upload-keystore.jks + keystore.properties (auto-generated fallback for fresh listings)
-            //   3. Falls back to debug signing (build succeeds but AAB is NOT Play-Store uploadable)
-            val uploadKeystore = file("${rootProject.projectDir}/../upload/keystore.jks")
+            //   3. notifetch-android/upload-keystore.jks + keystore.properties (auto-generated fallback for fresh listings)
+            //   4. Falls back to debug signing (build succeeds but AAB is NOT Play-Store uploadable)
+            val envKeystorePath = System.getenv("NOTIFETCH_KEYSTORE_PATH")
+            val uploadKeystore = if (!envKeystorePath.isNullOrBlank()) {
+                file(envKeystorePath)
+            } else {
+                file("${rootProject.projectDir}/../upload/keystore.jks")
+            }
             val generatedKeystore = file("${rootProject.projectDir}/upload-keystore.jks")
             val keystoreProps = file("${rootProject.projectDir}/keystore.properties")
 

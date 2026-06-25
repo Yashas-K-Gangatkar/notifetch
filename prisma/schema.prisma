@@ -168,6 +168,12 @@ model AuditLog {
   details   String?
   ip        String?
   createdAt DateTime @default(now())
+
+  // v2.9.38: Indexes for common query patterns
+  // - userId: filter audit logs by user (admin panel "user activity" view)
+  // - createdAt: sort by recency (default sort for audit log views)
+  @@index([userId])
+  @@index([createdAt])
 }
 
 // ─── Device Authentication ──────────────────────────────────────────────────
