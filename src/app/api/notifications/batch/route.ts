@@ -1,27 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import { verifyFirebaseToken, getOrCreateUserFromFirebase } from "@/lib/firebase-admin";
+import { authenticateRequest } from "@/lib/auth-helpers";
 import { db } from "@/lib/db";
+import { z } from "zod";
 
-/**
- * Authenticate via NextAuth session or Firebase Bearer token.
- */
-async function authenticateRequest(request: Request): Promise<string | null> {
-  const authHeader = request.headers.get("authorization");
-  if (authHeader?.startsWith("Bearer ")) {
-    const idToken = authHeader.substring(7);
-    const firebaseUid = await verifyFirebaseToken(idToken);
-    if (firebaseUid) {
-      try {
-        const userInfo = await getOrCreateUserFromFirebase(firebaseUid, undefined);
-        if (userInfo) return userInfo.id;
-      } catch { /* fall through */ }
-    }
-  }
-  const session = await getServerSession(authOptions);
-  return session?.user?.id || null;
-}
+const notificationSchema = z.object({
+  title: z.string().min(1).max(255),
+  body: z.string().min(1).max(2000),
+  source: z.string().min(1).max(100),
+  sourceIcon: z.string().max(500).optional().nullable(),
+  platform: z.string().max(100).optional().nullable(),
+  packageName: z.string().max(255).optional().nullable(),
+  bigText: z.string().max(5000).optional().nullable(),
+  subText: z.string().max(500).optional().nullable(),
+  orderValue: z.number().optional().nullable(),
+  pickupLocation: z.string().max(500).optional().nullable(),
+  dropoffLocation: z.string().max(500).optional().nullable(),
+  distance: z.string().max(100).optional().nullable(),
+  category: z.string().max(50).optional().nullable(),
+  receivedAt: z.string().datetime({ offset: true }).optional().nullable(),
+});
+
+const batchSchema = z.object({
+  notifications: z.array(notificationSchema).min(1).max(100),
+  deviceId: z.string().max(255).optional().nullable(),
+});
 
 /**
  * POST /api/notifications/batch
@@ -43,68 +45,39 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const body = await request.json();
-    const { notifications, deviceId } = body;
+    const json = await request.json();
+    const result = batchSchema.safeParse(json);
 
-    if (!Array.isArray(notifications) || notifications.length === 0) {
+    if (!result.success) {
       return NextResponse.json(
-        { error: "notifications array is required and must not be empty" },
+        { error: "Invalid request data", details: result.error.format() },
         { status: 400 }
       );
     }
 
-    // Limit batch size to prevent abuse
-    if (notifications.length > 100) {
-      return NextResponse.json(
-        { error: "Batch size cannot exceed 100 notifications" },
-        { status: 400 }
-      );
-    }
-
-    // Validate each notification
-    for (let i = 0; i < notifications.length; i++) {
-      const n = notifications[i];
-      if (!n.title || typeof n.title !== "string") {
-        return NextResponse.json(
-          { error: `notifications[${i}].title is required` },
-          { status: 400 }
-        );
-      }
-      if (!n.body || typeof n.body !== "string") {
-        return NextResponse.json(
-          { error: `notifications[${i}].body is required` },
-          { status: 400 }
-        );
-      }
-      if (!n.source || typeof n.source !== "string") {
-        return NextResponse.json(
-          { error: `notifications[${i}].source is required` },
-          { status: 400 }
-        );
-      }
-    }
+    const { notifications, deviceId } = result.data;
 
     // Create all notifications
     const created = await db.$transaction(
-      notifications.map((n: Record<string, unknown>) =>
+      notifications.map((n) =>
         db.notification.create({
           data: {
             userId,
-            title: n.title as string,
-            body: n.body as string,
-            source: n.source as string,
-            sourceIcon: (n.sourceIcon as string) || null,
-            platform: (n.platform as string) || null,
-            packageName: (n.packageName as string) || null,
-            bigText: (n.bigText as string) || null,
-            subText: (n.subText as string) || null,
-            orderValue: typeof n.orderValue === "number" ? n.orderValue : null,
-            pickupLocation: (n.pickupLocation as string) || null,
-            dropoffLocation: (n.dropoffLocation as string) || null,
-            distance: (n.distance as string) || null,
-            category: (n.category as string) || null,
+            title: n.title,
+            body: n.body,
+            source: n.source,
+            sourceIcon: n.sourceIcon || null,
+            platform: n.platform || null,
+            packageName: n.packageName || null,
+            bigText: n.bigText || null,
+            subText: n.subText || null,
+            orderValue: n.orderValue || null,
+            pickupLocation: n.pickupLocation || null,
+            dropoffLocation: n.dropoffLocation || null,
+            distance: n.distance || null,
+            category: n.category || null,
             deviceId: deviceId || null,
-            receivedAt: n.receivedAt ? new Date(n.receivedAt as string) : null,
+            receivedAt: n.receivedAt ? new Date(n.receivedAt) : null,
           },
         })
       )

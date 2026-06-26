@@ -19,6 +19,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { toast } from "sonner";
 
 interface NotificationItem {
   id: string;
@@ -176,21 +177,18 @@ export default function NotificationsPage() {
 
   const handleMarkAllRead = async () => {
     try {
-      await Promise.all(
-        notifications
-          .filter((n) => !n.isRead)
-          .map((n) =>
-            fetch(`/api/notifications/${n.id}`, {
-              method: "PATCH",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ isRead: true }),
-            })
-          )
-      );
-      setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
-      setUnreadCount(0);
+      const res = await fetch("/api/notifications", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ markAllRead: true }),
+      });
+      if (res.ok) {
+        setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+        setUnreadCount(0);
+        toast.success("All notifications marked as read");
+      }
     } catch {
-      // Silently handle
+      toast.error("Failed to mark all as read");
     }
   };
 
@@ -203,9 +201,10 @@ export default function NotificationsPage() {
         if (deleted && !deleted.isRead) {
           setUnreadCount((prev) => prev - 1);
         }
+        toast.success("Notification deleted");
       }
     } catch {
-      // Silently handle
+      toast.error("Failed to delete notification");
     }
   };
 
@@ -267,6 +266,7 @@ export default function NotificationsPage() {
               size="icon"
               onClick={handleRefresh}
               disabled={isRefreshing}
+              aria-label="Refresh notifications"
             >
               <RefreshCw className={`w-4 h-4 ${isRefreshing ? "animate-spin" : ""}`} />
             </Button>
@@ -403,7 +403,13 @@ export default function NotificationsPage() {
                           </div>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={(e) => e.stopPropagation()}>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 shrink-0"
+                                onClick={(e) => e.stopPropagation()}
+                                aria-label="Notification actions"
+                              >
                                 <MoreHorizontal className="w-4 h-4" />
                               </Button>
                             </DropdownMenuTrigger>

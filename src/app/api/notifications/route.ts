@@ -1,35 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import { verifyFirebaseToken, getOrCreateUserFromFirebase } from "@/lib/firebase-admin";
+import { authenticateRequest } from "@/lib/auth-helpers";
 import { db } from "@/lib/db";
+import { z } from "zod";
 
-/**
- * Authenticate a request via NextAuth session or Firebase Bearer token.
- * Returns userId or null.
- */
-async function authenticateRequest(request: Request): Promise<string | null> {
-  // ── Try Firebase Bearer token (Android app) ─────────────────────────────
-  const authHeader = request.headers.get("authorization");
-  if (authHeader?.startsWith("Bearer ")) {
-    const idToken = authHeader.substring(7);
-    const firebaseUid = await verifyFirebaseToken(idToken);
-    if (firebaseUid) {
-      try {
-        const userInfo = await getOrCreateUserFromFirebase(firebaseUid, undefined);
-        if (userInfo) {
-          return userInfo.id;
-        }
-      } catch {
-        // Fall through to NextAuth
-      }
-    }
-  }
-
-  // ── Fallback to NextAuth session (web app) ───────────────────────────────
-  const session = await getServerSession(authOptions);
-  return session?.user?.id || null;
-}
+const notificationSchema = z.object({
+  title: z.string().min(1).max(255),
+  body: z.string().min(1).max(2000),
+  source: z.string().min(1).max(100),
+  sourceIcon: z.string().max(500).optional().nullable(),
+  platform: z.string().max(100).optional().nullable(),
+  packageName: z.string().max(255).optional().nullable(),
+  bigText: z.string().max(5000).optional().nullable(),
+  subText: z.string().max(500).optional().nullable(),
+  orderValue: z.number().optional().nullable(),
+  pickupLocation: z.string().max(500).optional().nullable(),
+  dropoffLocation: z.string().max(500).optional().nullable(),
+  distance: z.string().max(100).optional().nullable(),
+  category: z.string().max(50).optional().nullable(),
+  receivedAt: z.string().datetime({ offset: true }).optional().nullable(),
+  deviceId: z.string().max(255).optional().nullable(),
+});
 
 /**
  * GET /api/notifications
@@ -123,6 +113,40 @@ export async function GET(request: NextRequest) {
 }
 
 /**
+ * PATCH /api/notifications
+ * Bulk update notifications for the authenticated user.
+ * Currently supports: { markAllRead: true }
+ */
+export async function PATCH(request: NextRequest) {
+  try {
+    const userId = await authenticateRequest(request);
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const body = await request.json();
+    const { markAllRead } = body;
+
+    if (markAllRead === true) {
+      const { count } = await db.notification.updateMany({
+        where: { userId, isRead: false },
+        data: { isRead: true },
+      });
+
+      return NextResponse.json({ success: true, count });
+    }
+
+    return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+  } catch (error) {
+    console.error("[API] Bulk update error:", error);
+    return NextResponse.json(
+      { error: "Failed to bulk update notifications" },
+      { status: 500 }
+    );
+  }
+}
+
+/**
  * POST /api/notifications
  * Create a notification. Supports both web app (NextAuth session) and
  * Android app (Firebase token / device auth) authentication.
@@ -139,53 +163,36 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const body = await request.json();
-    const {
-      title,
-      body: messageBody,
-      source,
-      sourceIcon,
-      platform,
-      packageName,
-      bigText,
-      subText,
-      orderValue,
-      pickupLocation,
-      dropoffLocation,
-      distance,
-      category,
-      receivedAt,
-      deviceId,
-    } = body;
+    const json = await request.json();
+    const result = notificationSchema.safeParse(json);
 
-    if (!title || typeof title !== "string") {
-      return NextResponse.json({ error: "title is required" }, { status: 400 });
+    if (!result.success) {
+      return NextResponse.json(
+        { error: "Invalid request data", details: result.error.format() },
+        { status: 400 }
+      );
     }
-    if (!messageBody || typeof messageBody !== "string") {
-      return NextResponse.json({ error: "body is required" }, { status: 400 });
-    }
-    if (!source || typeof source !== "string") {
-      return NextResponse.json({ error: "source is required" }, { status: 400 });
-    }
+
+    const data = result.data;
 
     const notification = await db.notification.create({
       data: {
         userId,
-        title,
-        body: messageBody,
-        source,
-        sourceIcon: sourceIcon || null,
-        platform: platform || null,
-        packageName: packageName || null,
-        bigText: bigText || null,
-        subText: subText || null,
-        orderValue: typeof orderValue === "number" ? orderValue : null,
-        pickupLocation: pickupLocation || null,
-        dropoffLocation: dropoffLocation || null,
-        distance: distance || null,
-        category: category || null,
-        deviceId: deviceId || null,
-        receivedAt: receivedAt ? new Date(receivedAt) : null,
+        title: data.title,
+        body: data.body,
+        source: data.source,
+        sourceIcon: data.sourceIcon || null,
+        platform: data.platform || null,
+        packageName: data.packageName || null,
+        bigText: data.bigText || null,
+        subText: data.subText || null,
+        orderValue: data.orderValue || null,
+        pickupLocation: data.pickupLocation || null,
+        dropoffLocation: data.dropoffLocation || null,
+        distance: data.distance || null,
+        category: data.category || null,
+        deviceId: data.deviceId || null,
+        receivedAt: data.receivedAt ? new Date(data.receivedAt) : null,
       },
     });
 
