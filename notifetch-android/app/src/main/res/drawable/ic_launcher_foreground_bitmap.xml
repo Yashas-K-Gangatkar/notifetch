@@ -1,10 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-  v2.9.39: Adaptive-icon foreground now uses the user-uploaded NotiFetch logo
-  (N|F blocks) instead of the previous bell vector. The bitmap is in
-  drawable-nodpi/ic_launcher_foreground.png (432x432, with 20% padding for
-  the adaptive-icon safe zone).
--->
+<!-- v2.9.41: New Canva-designed N|F logo -->
 <bitmap xmlns:android="http://schemas.android.com/apk/res/android"
     android:src="@drawable/ic_launcher_foreground_png"
     android:gravity="center" />
