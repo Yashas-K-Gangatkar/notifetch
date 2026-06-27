@@ -18,19 +18,31 @@ import { NFLogo } from "@/components/nf-logo";
  * Only plays on first visit per session (sessionStorage flag).
  */
 export function PageLoadAnimation() {
-  // v2.9.38: Initialize visible=false if user already saw the intro this session.
-  // This is the proper React pattern — avoids the 1-frame orange flash that
-  // Jules's setTimeout(0) workaround would cause. Lazy initial state means
-  // the very first render already returns null, no flash, no warning.
-  const [visible, setVisible] = useState(() => {
-    if (typeof window === "undefined") return true;
-    return !sessionStorage.getItem("notifetch_intro_played");
-  });
+  // v2.9.41: Hydration-safe pattern — always render null on the server AND
+  // on the client's first render, then read sessionStorage in useEffect
+  // (which only runs on the client, after hydration completes).
+  //
+  // Previous versions used lazy useState(() => sessionStorage.getItem(...))
+  // which caused hydration mismatches: server renders <Overlay/> (visible=true)
+  // but client renders null (visible=false because sessionStorage has the flag).
+  // React 19 throws a hydration error when this happens.
+  //
+  // Trade-off: the animation may not appear on the very first paint for
+  // users who already saw it this session — that's fine, because for those
+  // users the animation SHOULD be hidden anyway. For first-time visitors,
+  // sessionStorage is empty on both server and client, so the animation
+  // shows correctly after a 1-frame delay (imperceptible).
+  const [visible, setVisible] = useState(false);
   const [phase, setPhase] = useState<"logo" | "slogan" | "exit">("logo");
 
   useEffect(() => {
-    if (!visible) return;
+    // Client-only: check sessionStorage after mount
+    if (sessionStorage.getItem("notifetch_intro_played")) {
+      // Already saw it this session — don't show again
+      return;
+    }
     sessionStorage.setItem("notifetch_intro_played", "1");
+    setVisible(true);
 
     const t1 = setTimeout(() => setPhase("slogan"), 600);
     const t2 = setTimeout(() => setPhase("exit"), 1400);
