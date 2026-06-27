@@ -1,35 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import { verifyFirebaseToken, getOrCreateUserFromFirebase } from "@/lib/firebase-admin";
+import { authenticateRequest } from "@/lib/auth-helpers";
 import { db } from "@/lib/db";
+import { z } from "zod";
 
-/**
- * Authenticate a request via NextAuth session or Firebase Bearer token.
- * Returns userId or null.
- */
-async function authenticateRequest(request: Request): Promise<string | null> {
-  // ── Try Firebase Bearer token (Android app) ─────────────────────────────
-  const authHeader = request.headers.get("authorization");
-  if (authHeader?.startsWith("Bearer ")) {
-    const idToken = authHeader.substring(7);
-    const firebaseUid = await verifyFirebaseToken(idToken);
-    if (firebaseUid) {
-      try {
-        const userInfo = await getOrCreateUserFromFirebase(firebaseUid, undefined);
-        if (userInfo) {
-          return userInfo.id;
-        }
-      } catch {
-        // Fall through to NextAuth
-      }
-    }
-  }
-
-  // ── Fallback to NextAuth session (web app) ───────────────────────────────
-  const session = await getServerSession(authOptions);
-  return session?.user?.id || null;
-}
+// Zod schema for notification validation to prevent DoS and DB bloat
+const notificationSchema = z.object({
+  title: z.string().min(1).max(255),
+  body: z.string().min(1).max(2048),
+  source: z.string().min(1).max(100),
+  sourceIcon: z.string().max(255).optional().nullable(),
+  platform: z.string().max(100).optional().nullable(),
+  packageName: z.string().max(255).optional().nullable(),
+  bigText: z.string().max(4096).optional().nullable(),
+  subText: z.string().max(1000).optional().nullable(),
+  orderValue: z.number().optional().nullable(),
+  pickupLocation: z.string().max(512).optional().nullable(),
+  dropoffLocation: z.string().max(512).optional().nullable(),
+  distance: z.string().max(100).optional().nullable(),
+  category: z.string().max(100).optional().nullable(),
+  receivedAt: z.string().optional().nullable(),
+  deviceId: z.string().max(255).optional().nullable(),
+});
 
 /**
  * GET /api/notifications
@@ -139,7 +130,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const body = await request.json();
+    const json = await request.json();
+    const result = notificationSchema.safeParse(json);
+
+    if (!result.success) {
+      return NextResponse.json(
+        { error: "Invalid request payload", details: result.error.format() },
+        { status: 400 }
+      );
+    }
+
     const {
       title,
       body: messageBody,
@@ -156,17 +156,7 @@ export async function POST(request: NextRequest) {
       category,
       receivedAt,
       deviceId,
-    } = body;
-
-    if (!title || typeof title !== "string") {
-      return NextResponse.json({ error: "title is required" }, { status: 400 });
-    }
-    if (!messageBody || typeof messageBody !== "string") {
-      return NextResponse.json({ error: "body is required" }, { status: 400 });
-    }
-    if (!source || typeof source !== "string") {
-      return NextResponse.json({ error: "source is required" }, { status: 400 });
-    }
+    } = result.data;
 
     const notification = await db.notification.create({
       data: {
@@ -179,7 +169,7 @@ export async function POST(request: NextRequest) {
         packageName: packageName || null,
         bigText: bigText || null,
         subText: subText || null,
-        orderValue: typeof orderValue === "number" ? orderValue : null,
+        orderValue: orderValue || null,
         pickupLocation: pickupLocation || null,
         dropoffLocation: dropoffLocation || null,
         distance: distance || null,
