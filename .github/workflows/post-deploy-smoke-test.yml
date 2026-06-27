@@ -1,0 +1,89 @@
+name: Post-Deploy Smoke Test
+
+# v2.9.40: Observability loop — after every deploy to production, automatically
+# verify that the site is up and the health endpoint returns 200.
+#
+# This closes the "ship → detect breakage" loop:
+#   1. Code merges to main
+#   2. Vercel deploys (~2-3 min)
+#   3. This workflow waits for deploy to finish, then pings /api/health
+#   4. If health check fails, this workflow fails → GitHub shows red X on main
+#   5. (Future) Slack/Discord webhook sends alert
+#
+# Why this matters: without it, a bad deploy can sit broken for hours until
+# a user complains. With it, you know within 5 minutes of merging.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: # Allow manual trigger for testing
+
+jobs:
+  smoke-test:
+    name: Verify notifetch.in is healthy after deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Wait for Vercel deploy (90s)
+        run: sleep 90
+
+      - name: Health check — GET /api/health
+        id: health
+        run: |
+          echo "Pinging https://notifetch.in/api/health ..."
+          RESPONSE=$(curl -s -w "\n%{http_code}" https://notifetch.in/api/health)
+          HTTP_CODE=$(echo "$RESPONSE" | tail -1)
+          BODY=$(echo "$RESPONSE" | head -n -1)
+
+          echo "HTTP status: $HTTP_CODE"
+          echo "Response body: $BODY"
+
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "::error::Health check failed — /api/health returned $HTTP_CODE"
+            exit 1
+          fi
+
+          # Verify the response says "healthy"
+          if ! echo "$BODY" | grep -q '"status":"healthy"'; then
+            echo "::error::Health check returned 200 but status is not 'healthy'"
+            exit 1
+          fi
+
+          echo "::notice::Site is healthy ✅"
+
+      - name: Smoke test — homepage loads
+        run: |
+          echo "Pinging https://notifetch.in/ ..."
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://notifetch.in/)
+
+          echo "HTTP status: $HTTP_CODE"
+
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "::error::Homepage returned $HTTP_CODE (expected 200)"
+            exit 1
+          fi
+
+          echo "::notice::Homepage loads ✅"
+
+      - name: Smoke test — favicon loads
+        run: |
+          echo "Pinging https://notifetch.in/favicon.png ..."
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://notifetch.in/favicon.png)
+
+          echo "HTTP status: $HTTP_CODE"
+
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "::error::Favicon returned $HTTP_CODE (expected 200)"
+            exit 1
+          fi
+
+          echo "::notice::Favicon loads ✅"
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "### Post-Deploy Smoke Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- Health endpoint: ${{ steps.health.outcome == 'success' && '✅ Pass' || '❌ Fail' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Homepage: checked in subsequent steps" >> $GITHUB_STEP_SUMMARY
+          echo "- Timestamp: $(date -u)" >> $GITHUB_STEP_SUMMARY
