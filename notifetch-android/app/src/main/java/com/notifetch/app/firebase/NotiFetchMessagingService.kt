@@ -38,8 +38,24 @@ class NotiFetchMessagingService : FirebaseMessagingService() {
             Log.d(tag, "Message data payload: ${remoteMessage.data}")
             val action = remoteMessage.data["action"]
             when (action) {
-                "sync" -> Log.d(tag, "Sync triggered via FCM")
-                "config_update" -> Log.d(tag, "Config update triggered via FCM")
+                "sync" -> {
+                    Log.d(tag, "Sync triggered via FCM")
+                    // v2.9.35: FCM push triggers an immediate listener health check.
+                    // This closes the rebind gap completely — when the backend sends
+                    // a push (e.g. when a new notification is captured by another
+                    // device, or a config update is pushed), we immediately verify
+                    // the listener is alive.
+                    com.notifetch.app.worker.SyncWorker.checkListenerHealthNow(applicationContext)
+                }
+                "config_update" -> {
+                    Log.d(tag, "Config update triggered via FCM")
+                    // Config changes might affect what we capture — also rebind
+                    com.notifetch.app.worker.SyncWorker.checkListenerHealthNow(applicationContext)
+                }
+                "listener_check" -> {
+                    Log.d(tag, "Explicit listener health check requested via FCM")
+                    com.notifetch.app.worker.SyncWorker.checkListenerHealthNow(applicationContext)
+                }
             }
         }
 

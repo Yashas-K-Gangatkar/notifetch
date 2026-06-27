@@ -21,6 +21,20 @@ ANDROID_DIR="$SCRIPT_DIR"                          # /home/z/my-project/notifetc
 SDK_DIR="/home/z/android-sdk"
 DOWNLOAD_DIR="$PROJECT_DIR/download"
 
+# v2.9.35: Keystore resolution — explicit env var wins, then default location.
+# The original Play Store upload keystore MUST be at one of:
+#   1. $NOTIFETCH_KEYSTORE_PATH (env var, absolute path)
+#   2. $PROJECT_DIR/upload/keystore.jks (i.e., /home/z/my-project/upload/keystore.jks)
+#   3. $ANDROID_DIR/../upload/keystore.jks (same as #2, redundant safety)
+#
+# If none of these exist, the script falls through to generating a NEW keystore
+# — but that keystore will NOT be uploadable as an update to the existing Play
+# Store listing. A loud warning is printed in that case.
+#
+# Set NOTIFETCH_KEYSTORE_PATH if your keystore lives outside the repo.
+DEFAULT_KEYSTORE_PATH="$PROJECT_DIR/upload/keystore.jks"
+UPLOAD_KEYSTORE="${NOTIFETCH_KEYSTORE_PATH:-$DEFAULT_KEYSTORE_PATH}"
+
 # JDK 21 resolution: prefer bundled jdk21/, fall back to system JDK
 if [[ -d "$PROJECT_DIR/jdk21" ]]; then
     export JAVA_HOME="$PROJECT_DIR/jdk21"
@@ -84,7 +98,19 @@ echo "  SDK ready."
 echo ""
 echo "── Step 2: Keystore setup ────────────────────────────────────"
 
-UPLOAD_KEYSTORE="$PROJECT_DIR/upload/keystore.jks"
+# v2.9.35: UPLOAD_KEYSTORE is now resolved at the top of the script (with
+# NOTIFETCH_KEYSTORE_PATH env var support). Don't reassign it here.
+# Print which keystore we're using for debugging.
+echo "  Keystore path: $UPLOAD_KEYSTORE"
+if [[ -f "$UPLOAD_KEYSTORE" ]]; then
+    echo "  ✅ Keystore found"
+else
+    echo "  ⚠️  Keystore NOT found at $UPLOAD_KEYSTORE"
+    echo "      Set NOTIFETCH_KEYSTORE_PATH env var to point to your keystore."
+    echo "      Without it, a NEW keystore will be generated and the AAB will NOT"
+    echo "      be uploadable as an update to your existing Play Store listing."
+fi
+
 GEN_KEYSTORE="$ANDROID_DIR/upload-keystore.jks"
 KEYSTORE_PROPS="$ANDROID_DIR/keystore.properties"
 

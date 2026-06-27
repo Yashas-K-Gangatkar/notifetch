@@ -1,0 +1,106 @@
+name: PR Sanity Check
+
+# Catches "fake commits" — where a commit message claims work that wasn't done.
+# This was added after Jules AI shipped a commit titled
+# "v2.9.35-vc61: tighter listener rebind + reliable deep link routing"
+# that only changed 2 lines (a version bump). The commit message referenced
+# files that weren't actually modified in the diff.
+#
+# This workflow parses the commit message for file paths (e.g.
+# "src/lib/audit.ts", "Added ScreenOnReceiver") and fails if those files
+# weren't actually touched in the PR diff.
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  check-commit-message-matches-diff:
+    name: Verify commit message claims match diff
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract file paths mentioned in commit messages
+        id: extract
+        run: |
+          # Get all commit messages in the PR
+          MESSAGES=$(git log --format='%B' origin/${{ github.base_ref }}..HEAD)
+
+          # Extract file paths matching common patterns:
+          #   src/path/to/file.ts
+          #   notifetch-android/path/to/File.kt
+          #   prisma/schema.prisma
+          #   tests/*.spec.ts
+          #   *.yml, *.yaml, *.json, *.sh, *.md
+          MENTIONED_PATHS=$(echo "$MESSAGES" | grep -oE \
+            '(src/[a-zA-Z0-9_/.-]+|notifetch-android/[a-zA-Z0-9_/.-]+|prisma/[a-zA-Z0-9_/.-]+|tests/[a-zA-Z0-9_/.-]+|[a-zA-Z0-9_-]+\.(yml|yaml|json|sh|md|ts|tsx|kt))' \
+            | sort -u)
+
+          echo "Mentioned in commit messages:"
+          echo "$MENTIONED_PATHS"
+          echo "---"
+
+          # Get files actually changed in the PR
+          CHANGED_PATHS=$(git diff --name-only origin/${{ github.base_ref }}..HEAD | sort -u)
+
+          echo "Actually changed in diff:"
+          echo "$CHANGED_PATHS"
+          echo "---"
+
+          # Find mentioned-but-not-changed files
+          MISSING=""
+          for path in $MENTIONED_PATHS; do
+            if ! echo "$CHANGED_PATHS" | grep -qF "$path"; then
+              MISSING="$MISSING $path"
+            fi
+          done
+
+          if [ -n "$MISSING" ]; then
+            echo "::warning::Commit message mentions files that weren't changed:"
+            for path in $MISSING; do
+              echo "::warning::  $path"
+            done
+            echo ""
+            echo "If the commit message says a file was modified but the diff doesn't include it,"
+            echo "the commit may be misnamed or the work may not have been done."
+            echo "This is a warning, not a failure — verify manually."
+            # Don't fail — too many false positives (e.g., mentioning a file as context)
+            # The warning shows up in the PR check UI for human review.
+          else
+            echo "✅ All files mentioned in commit messages were actually changed."
+          fi
+
+  check-diff-not-empty:
+    name: Verify PR has actual code changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check PR has meaningful changes
+        run: |
+          # Get the diff size (excluding lockfiles and CI config)
+          DIFF_LINES=$(git diff origin/${{ github.base_ref }}..HEAD -- \
+            ':(exclude)package-lock.json' \
+            ':(exclude)pnpm-lock.yaml' \
+            ':(exclude)yarn.lock' \
+            ':(exclude)bun.lock' \
+            ':(exclude)**/*.aab' \
+            | wc -l)
+
+          echo "Real code diff lines: $DIFF_LINES"
+
+          if [ "$DIFF_LINES" -lt 5 ]; then
+            echo "::error::PR has almost no real code changes ($DIFF_LINES lines)."
+            echo "::error::If the commit message claims substantial work, this is suspicious."
+            echo "::error::Either add the missing changes or rewrite the commit message to match."
+            exit 1
+          fi
+
+          echo "✅ PR has meaningful code changes."

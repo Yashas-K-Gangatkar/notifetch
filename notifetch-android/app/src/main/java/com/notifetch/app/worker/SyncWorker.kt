@@ -7,7 +7,9 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.Constraints
 import androidx.work.CoroutineWorker
 import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
@@ -15,6 +17,7 @@ import com.notifetch.app.data.repository.NotificationRepository
 import com.notifetch.app.notification.NotiFetchListenerService
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import kotlinx.coroutines.delay
 import java.util.concurrent.TimeUnit
 
 @HiltWorker
@@ -97,8 +100,12 @@ class SyncWorker @AssistedInject constructor(
          * 2. Component toggle — disable and re-enable the listener component.
          *    This is a fallback that works on some OEM ROMs where requestRebind()
          *    is ignored.
+         *
+         * v2.9.38: Converted from `private fun` to `private suspend fun` and
+         * replaced `Thread.sleep(500)` with `delay(500)` — Thread.sleep blocks
+         * the worker thread, while delay() properly suspends the coroutine.
          */
-        private fun forceListenerRebind(context: Context) {
+        private suspend fun forceListenerRebind(context: Context) {
             try {
                 // Strategy 1: requestRebind() — official API
                 val componentName = ComponentName(context, NotiFetchListenerService::class.java)
@@ -112,7 +119,9 @@ class SyncWorker @AssistedInject constructor(
                 )
 
                 // Small delay to let the system process the disable
-                Thread.sleep(500)
+                // v2.9.38: Use coroutine delay() instead of Thread.sleep() —
+                // doesn't block the worker thread, allows other coroutines to run
+                delay(500)
 
                 pm.setComponentEnabledSetting(
                     componentName,
@@ -136,6 +145,36 @@ class SyncWorker @AssistedInject constructor(
         }
 
         /**
+         * v2.9.35: Fire a one-shot listener health check immediately.
+         *
+         * Called when:
+         *   - App comes to foreground (ProcessLifecycleOwner ON_RESUME)
+         *   - Screen turns on (ACTION_SCREEN_ON broadcast via ScreenOnReceiver)
+         *
+         * This brings the worst-case blind window down from "15-60 min" (when
+         * Realme/Xiaomi kills the listener and delays the periodic worker) to
+         * "next time the user touches their phone".
+         *
+         * Uses ExistingWorkPolicy.REPLACE so multiple rapid triggers (e.g.
+         * screen-on while app is also in foreground) coalesce into a single
+         * health-check run instead of stacking up.
+         *
+         * No network constraint — listener rebind works offline, and we don't
+         * want to delay the rebind waiting for network.
+         */
+        fun checkListenerHealthNow(context: Context) {
+            val request = OneTimeWorkRequestBuilder<SyncWorker>()
+                .setConstraints(Constraints.Builder().build())
+                .build()
+            WorkManager.getInstance(context).enqueueUniqueWork(
+                "notifetch_listener_health_check",
+                ExistingWorkPolicy.REPLACE,
+                request
+            )
+            Log.d(TAG, "One-shot listener health check enqueued")
+        }
+
+        /**
          * Schedule a periodic sync worker that runs every 15 minutes.
          *
          * v2.9.26: This worker now does TWO things:
@@ -145,6 +184,11 @@ class SyncWorker @AssistedInject constructor(
          * The 15-minute interval is the minimum allowed by Android for periodic
          * WorkManager tasks. This means worst case, the listener is dead for
          * at most 15 minutes before being revived.
+         *
+         * v2.9.35: The 15-min periodic schedule is now a SAFETY NET. The
+         * primary rebind trigger is [checkListenerHealthNow], which fires on
+         * foreground and screen-on events. This periodic schedule catches
+         * the case where the user leaves their phone untouched for hours.
          *
          * Called from:
          *   - NotiFetchApp.onCreate() on first launch

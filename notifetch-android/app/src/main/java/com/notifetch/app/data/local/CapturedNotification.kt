@@ -48,8 +48,7 @@ data class CapturedNotification(
     // We extract the target Intent's data URI and component (package + class)
     // and store them here. When the user taps "Open App" in NotiFetch, we
     // try to launch this deep link FIRST, before falling back to the app's
-    // main screen. This survives process death (the in-memory PendingIntentCache
-    // does not).
+    // main screen. This survives process death.
     //
     // Privacy: We only store the URI string and component name — never the
     // extras bundle (which could contain PII/auth tokens).

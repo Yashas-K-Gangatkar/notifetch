@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Zap } from "lucide-react";
+import { NFLogo } from "@/components/nf-logo";
 
 /**
  * v2.9.13: Page Load Animation
@@ -18,16 +18,18 @@ import { Zap } from "lucide-react";
  * Only plays on first visit per session (sessionStorage flag).
  */
 export function PageLoadAnimation() {
-  const [visible, setVisible] = useState(true);
+  // v2.9.38: Initialize visible=false if user already saw the intro this session.
+  // This is the proper React pattern — avoids the 1-frame orange flash that
+  // Jules's setTimeout(0) workaround would cause. Lazy initial state means
+  // the very first render already returns null, no flash, no warning.
+  const [visible, setVisible] = useState(() => {
+    if (typeof window === "undefined") return true;
+    return !sessionStorage.getItem("notifetch_intro_played");
+  });
   const [phase, setPhase] = useState<"logo" | "slogan" | "exit">("logo");
 
   useEffect(() => {
-    // Skip animation if user already saw it this session
-    if (typeof window === "undefined") return;
-    if (sessionStorage.getItem("notifetch_intro_played")) {
-      setVisible(false);
-      return;
-    }
+    if (!visible) return;
     sessionStorage.setItem("notifetch_intro_played", "1");
 
     const t1 = setTimeout(() => setPhase("slogan"), 600);
@@ -65,8 +67,8 @@ export function PageLoadAnimation() {
               : "opacity-100 scale-100 translate-y-0"
           }`}
         >
-          <div className="w-20 h-20 rounded-2xl bg-white flex items-center justify-center shadow-2xl">
-            <Zap className="w-12 h-12 text-amber-500" fill="currentColor" />
+          <div className="w-20 h-20 rounded-2xl bg-white flex items-center justify-center shadow-2xl p-2">
+            <NFLogo className="w-16 h-8" />
           </div>
           <span className="text-5xl sm:text-6xl font-extrabold text-white tracking-tight">
             NotiFetch

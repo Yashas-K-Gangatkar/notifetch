@@ -89,3 +89,8 @@ notifetch-auth/
 upload/client_secret*
 upload/google-services*
 upload/Pasted*
+# Build artifacts
+notifetch-android/*.aab
+notifetch-android/app/build/
+notifetch-android/.gradle/
+notifetch-android/local.properties

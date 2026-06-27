@@ -12,7 +12,8 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { Zap, Menu, Moon, Sun, LogIn, LogOut, User, QrCode, Smartphone, Download, Play } from "lucide-react";
+import { Menu, Moon, Sun, LogIn, LogOut, User, QrCode, Smartphone, Download, Play } from "lucide-react";
+import { NFLogo } from "@/components/nf-logo";
 import { useTheme } from "next-themes";
 
 interface NavbarProps {
@@ -66,10 +67,8 @@ export function Navbar({ activeSection, onNavigate }: NavbarProps) {
               onClick={handleLogoClick}
               className="flex items-center gap-2 hover:opacity-80 transition-opacity"
             >
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center">
-                <Zap className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-lg font-bold bg-gradient-to-r from-amber-500 to-orange-600 bg-clip-text text-transparent">
+              <NFLogo className="w-8 h-8" />
+              <span className="text-lg font-bold text-foreground">
                 NotiFetch
               </span>
             </button>
@@ -125,6 +124,7 @@ export function Navbar({ activeSection, onNavigate }: NavbarProps) {
                   setTheme(isDark ? "light" : "dark");
                 }}
                 className="h-9 w-9 relative"
+                aria-label="Toggle theme"
               >
                 <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
                 <Moon className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
@@ -188,16 +188,14 @@ export function Navbar({ activeSection, onNavigate }: NavbarProps) {
               {/* Mobile menu */}
               <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
                 <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon" className="md:hidden h-9 w-9">
+                  <Button variant="ghost" size="icon" className="md:hidden h-9 w-9" aria-label="Open mobile menu">
                     <Menu className="h-5 w-5" />
                   </Button>
                 </SheetTrigger>
                 <SheetContent side="right" className="w-72 bg-background">
                   <SheetTitle className="flex items-center gap-2 mb-6">
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center">
-                      <Zap className="w-5 h-5 text-white" />
-                    </div>
-                    <span className="font-bold text-amber-500">NotiFetch</span>
+                    <NFLogo className="w-8 h-8" />
+                    <span className="font-bold text-foreground">NotiFetch</span>
                   </SheetTitle>
                   <div className="flex flex-col gap-1">
                     {NAV_ITEMS.map((item) => (

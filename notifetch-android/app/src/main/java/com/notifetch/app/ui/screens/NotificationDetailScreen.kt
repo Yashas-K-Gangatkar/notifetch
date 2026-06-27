@@ -52,7 +52,6 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.notifetch.app.notification.PendingIntentCache
 import com.notifetch.app.ui.components.CategoryBadge
 import com.notifetch.app.ui.components.PlatformIcon
 import com.notifetch.app.ui.theme.getPlatformColor
@@ -418,19 +417,37 @@ fun NotificationDetailScreen(
 /**
  * Opens the source app that generated the notification.
  *
- * v2.9.29: CORRECT ORDER — try specific page FIRST, fall back to main screen.
+ * v2.9.35: 4-tier fallback strategy — each tier guarded by [resolveActivity]
+ * pre-check to prevent the silent failures that plagued v2.9.30–v2.9.34.
  *
  * When you tap a notification in Android's status bar, the system fires the
  * notification's contentIntent (PendingIntent). This opens the EXACT screen
  * the app intended (offer page, order tracking, etc.).
  *
- * We cache that same PendingIntent. By firing it FIRST, we replicate the
- * exact same behavior as tapping the notification in the status bar.
+ * The listener service extracts that Intent's URI (via [Intent.toUri] with
+ * [Intent.URI_INTENT_SCHEME]) and persists it as `deepLinkUri`. We also
+ * persist the explicit component (`deepLinkComponent`) as a fallback.
  *
- * If the cache is empty (process was killed), we fall back to:
- *   - Persisted deep link URI (from database)
- *   - getLaunchIntentForPackage (opens main screen — always works)
- *   - Play Store (app not installed)
+ * Tier 1: Reconstruct the original Intent from [deepLinkUri] using
+ *         [Intent.parseUri] with [Intent.URI_INTENT_SCHEME]. This is the
+ *         exact same Intent the source app posted — opens the specific page.
+ *
+ * Tier 2: If [deepLinkComponent] is set (e.g. "in.swiggy.partner/.HomeActivity"),
+ *         build a component-only Intent. Less precise than Tier 1 (no extras,
+ *         no action, no data) but still lands on a specific Activity.
+ *
+ * Tier 3: [PackageManager.getLaunchIntentForPackage] — opens the app's MAIN
+ *         screen. Always works if the app is installed. This is the
+ *         guaranteed fallback that v2.9.28 confirmed as reliable.
+ *
+ * Tier 4: Play Store (app not installed).
+ *
+ * CRITICAL SAFETY: Every tier except Tier 4 calls [PackageManager.resolveActivity]
+ * BEFORE [Context.startActivity]. This returns null when the Intent doesn't
+ * resolve (e.g. the source app was uninstalled, or the deep link targets a
+ * component that no longer exists in the current app version). Without this
+ * pre-check, [startActivity] would throw [ActivityNotFoundException] — and
+ * the catch block in v2.9.30–v2.9.33 didn't fall through to the next tier.
  */
 private fun openSourceApp(
     context: android.content.Context,
@@ -439,67 +456,104 @@ private fun openSourceApp(
     deepLinkUri: String? = null,
     deepLinkComponent: String? = null
 ) {
-    try {
-        val pm = context.packageManager
+    val pm = context.packageManager
+    val logTag = "NotiFetchOpen"
+    val newTaskFlags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED
 
-        // ── Strategy 1: getLaunchIntentForPackage — opens MAIN SCREEN ──────
-        // v2.9.34: This is NOW Strategy 1 (was Strategy 2).
-        // The cached PendingIntent was "succeeding" without throwing but the
-        // app wasn't actually opening. Then `return` prevented the fallback.
-        // getLaunchIntentForPackage ALWAYS works — confirmed in v2.9.28.
-        var launchIntent = pm.getLaunchIntentForPackage(packageName)
+    // ── Tier 1: Reconstruct the original Intent from the serialized URI ────
+    // This opens the EXACT page the source app intended (order detail, offer, etc.)
+    if (!deepLinkUri.isNullOrBlank()) {
+        try {
+            val deepIntent = Intent.parseUri(deepLinkUri, Intent.URI_INTENT_SCHEME)
+            deepIntent.addFlags(newTaskFlags)
 
-        // Strategy 2b: If null, resolve launcher activity manually
-        if (launchIntent == null) {
-            try {
-                val mainIntent = Intent(Intent.ACTION_MAIN).apply {
-                    addCategory(Intent.CATEGORY_LAUNCHER)
-                    setPackage(packageName)
-                }
-                val resolveInfo = pm.resolveActivity(mainIntent, 0)
-                if (resolveInfo != null) {
-                    launchIntent = Intent(Intent.ACTION_MAIN).apply {
-                        addCategory(Intent.CATEGORY_LAUNCHER)
-                        setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
-                        component = ComponentName(resolveInfo.activityInfo.packageName, resolveInfo.activityInfo.name)
-                    }
-                }
-            } catch (_: Exception) { }
-        }
-
-        if (launchIntent != null) {
-            // v2.9.33: If we have a deep link URI that's a regular URL (not serialized Intent),
-            // add it as data — the app MAY open the specific page
-            if (!deepLinkUri.isNullOrBlank() && !deepLinkUri.startsWith("intent:") && !deepLinkUri.startsWith("#Intent;")) {
-                try {
-                    launchIntent.data = Uri.parse(deepLinkUri)
-                } catch (_: Exception) { }
+            // CRITICAL: verify the intent resolves BEFORE calling startActivity.
+            // resolveActivity returns null when the target Activity doesn't exist
+            // (e.g. app uninstalled, component removed in new version, deep link
+            // scheme not registered). Without this check, startActivity throws
+            // ActivityNotFoundException and the catch block aborts the fallback.
+            val resolves = pm.resolveActivity(deepIntent, 0)
+            if (resolves != null) {
+                context.startActivity(deepIntent)
+                android.util.Log.d(logTag, "Opened $packageName via deep link → ${resolves.activityInfo.name}")
+                return
+            } else {
+                android.util.Log.w(logTag, "Deep link did not resolve: $deepLinkUri — falling through")
             }
-            launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
+        } catch (e: Exception) {
+            android.util.Log.w(logTag, "Deep link parse failed: ${e.message} — falling through")
+        }
+    }
+
+    // ── Tier 2: Component-only intent from deepLinkComponent ───────────────
+    // Less precise than Tier 1 (no extras, no action, no data) but lands on a
+    // specific Activity rather than the main launcher screen.
+    if (!deepLinkComponent.isNullOrBlank()) {
+        try {
+            val parts = deepLinkComponent.split("/", limit = 2)
+            if (parts.size == 2) {
+                val componentIntent = Intent().apply {
+                    component = ComponentName(parts[0], parts[1])
+                    addFlags(newTaskFlags)
+                }
+                val resolves = pm.resolveActivity(componentIntent, 0)
+                if (resolves != null) {
+                    context.startActivity(componentIntent)
+                    android.util.Log.d(logTag, "Opened $packageName via component → ${parts[1]}")
+                    return
+                } else {
+                    android.util.Log.w(logTag, "Component did not resolve: $deepLinkComponent — falling through")
+                }
+            }
+        } catch (e: Exception) {
+            android.util.Log.w(logTag, "Component launch failed: ${e.message} — falling through")
+        }
+    }
+
+    // ── Tier 3: getLaunchIntentForPackage — opens MAIN SCREEN ──────────────
+    // This is the guaranteed fallback that v2.9.28 confirmed as reliable.
+    try {
+        var launchIntent = pm.getLaunchIntentForPackage(packageName)
+        if (launchIntent == null) {
+            // Manual fallback for OEMs that block getLaunchIntentForPackage
+            val mainIntent = Intent(Intent.ACTION_MAIN).apply {
+                addCategory(Intent.CATEGORY_LAUNCHER)
+                setPackage(packageName)
+            }
+            val resolveInfo = pm.resolveActivity(mainIntent, 0)
+            if (resolveInfo != null) {
+                launchIntent = Intent(Intent.ACTION_MAIN).apply {
+                    addCategory(Intent.CATEGORY_LAUNCHER)
+                    setFlags(newTaskFlags)
+                    component = ComponentName(resolveInfo.activityInfo.packageName, resolveInfo.activityInfo.name)
+                }
+            }
+        }
+        if (launchIntent != null) {
+            launchIntent.addFlags(newTaskFlags)
             context.startActivity(launchIntent)
-            android.util.Log.d("NotiFetchOpen", "Opened $packageName via launch intent → main screen")
+            android.util.Log.d(logTag, "Opened $packageName via launch intent → main screen")
             return
         }
-
-        // ── Strategy 3: Play Store (app not installed) ─────────────────────
-        android.util.Log.w("NotiFetchOpen", "App $packageName not installed — opening Play Store")
-        Toast.makeText(context, "$displayName not installed", Toast.LENGTH_SHORT).show()
-        try {
-            val playStoreIntent = Intent(Intent.ACTION_VIEW).apply {
-                data = Uri.parse("market://details?id=$packageName")
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
-            context.startActivity(playStoreIntent)
-        } catch (_: Exception) {
-            val webIntent = Intent(Intent.ACTION_VIEW).apply {
-                data = Uri.parse("https://play.google.com/store/apps/details?id=$packageName")
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
-            context.startActivity(webIntent)
-        }
     } catch (e: Exception) {
-        android.util.Log.e("NotiFetchOpen", "Failed to open $packageName", e)
-        Toast.makeText(context, "Could not open $displayName", Toast.LENGTH_SHORT).show()
+        android.util.Log.w(logTag, "Launch intent failed: ${e.message} — falling through")
+    }
+
+    // ── Tier 4: Play Store (app not installed) ─────────────────────────────
+    android.util.Log.w(logTag, "App $packageName not installed — opening Play Store")
+    Toast.makeText(context, "$displayName not installed", Toast.LENGTH_SHORT).show()
+    try {
+        val playStoreIntent = Intent(Intent.ACTION_VIEW).apply {
+            data = Uri.parse("market://details?id=$packageName")
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        context.startActivity(playStoreIntent)
+    } catch (_: Exception) {
+        val webIntent = Intent(Intent.ACTION_VIEW).apply {
+            data = Uri.parse("https://play.google.com/store/apps/details?id=$packageName")
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        context.startActivity(webIntent)
     }
 }
 @Composable

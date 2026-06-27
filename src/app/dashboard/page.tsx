@@ -194,6 +194,49 @@ export default function DashboardPage() {
     fetchDashboardData();
   }, [fetchDashboardData]);
 
+  // v2.9.35: Auto-poll for new notifications every 30s when the tab is visible.
+  // Uses the Page Visibility API so we don't waste requests when the user
+  // is on another tab. Also re-fetches immediately when the tab regains focus.
+  useEffect(() => {
+    let interval: ReturnType<typeof setInterval> | null = null;
+
+    const startPolling = () => {
+      if (interval) return; // already polling
+      interval = setInterval(() => {
+        fetchDashboardData();
+      }, 30_000); // 30 seconds
+    };
+
+    const stopPolling = () => {
+      if (interval) {
+        clearInterval(interval);
+        interval = null;
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        stopPolling();
+      } else {
+        // Tab regained focus — fetch immediately, then resume polling
+        fetchDashboardData();
+        startPolling();
+      }
+    };
+
+    // Start polling if tab is initially visible
+    if (!document.hidden) {
+      startPolling();
+    }
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      stopPolling();
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [fetchDashboardData]);
+
   if (status === "loading" || isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -265,6 +308,7 @@ export default function DashboardPage() {
               size="sm"
               onClick={() => signOut({ callbackUrl: "/" })}
               className="text-muted-foreground hover:text-foreground"
+              aria-label="Sign out"
             >
               <LogOut className="w-4 h-4" />
             </Button>
@@ -426,6 +470,7 @@ export default function DashboardPage() {
                 size="sm"
                 onClick={() => fetchDashboardData()}
                 className="text-muted-foreground"
+                aria-label="Refresh dashboard"
               >
                 <RefreshCw className="w-4 h-4" />
               </Button>
@@ -509,22 +554,22 @@ export default function DashboardPage() {
                             {new Date(notif.createdAt).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}
                           </span>
                         </div>
-                        {/* Show pickup/dropoff if available */}
+                        {/* Show pickup/dropoff if available — responsive truncation */}
                         {(notif.pickupLocation || notif.dropoffLocation) && (
-                          <div className="flex items-center gap-1 mt-2 text-[10px] text-muted-foreground">
+                          <div className="flex items-center gap-1 mt-2 text-[10px] text-muted-foreground flex-wrap">
                             {notif.pickupLocation && (
                               <>
-                                <MapPin className="w-3 h-3 text-green-500" />
-                                <span className="truncate max-w-[100px]">{notif.pickupLocation}</span>
+                                <MapPin className="w-3 h-3 text-green-500 shrink-0" />
+                                <span className="truncate max-w-[80px] sm:max-w-[120px] md:max-w-[160px]">{notif.pickupLocation}</span>
                               </>
                             )}
                             {notif.pickupLocation && notif.dropoffLocation && (
-                              <span className="text-border">→</span>
+                              <span className="text-border shrink-0">→</span>
                             )}
                             {notif.dropoffLocation && (
                               <>
-                                <MapPin className="w-3 h-3 text-red-500" />
-                                <span className="truncate max-w-[100px]">{notif.dropoffLocation}</span>
+                                <MapPin className="w-3 h-3 text-red-500 shrink-0" />
+                                <span className="truncate max-w-[80px] sm:max-w-[120px] md:max-w-[160px]">{notif.dropoffLocation}</span>
                               </>
                             )}
                           </div>

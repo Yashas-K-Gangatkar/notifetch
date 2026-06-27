@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Bell, ArrowRight, ChevronDown, Smartphone, Zap, TrendingUp, Globe, QrCode, Mail, LayoutDashboard, Download, Play } from "lucide-react";
+import { NFLogo } from "@/components/nf-logo";
 import { PLATFORMS, DELIVERY_CATEGORIES, REGIONS } from "@/lib/data";
 import {
   Dialog,
@@ -170,8 +171,8 @@ export function HeroSection({ onNavigate }: HeroProps) {
             </div>
           ))}
           <ArrowRight className="w-6 h-6 text-amber-500 animate-pulse" />
-          <div className="w-14 h-20 sm:w-16 sm:h-24 rounded-xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 border border-amber-500/30 flex flex-col items-center justify-center gap-1 shadow-lg shadow-amber-500/10">
-            <Zap className="w-5 h-5 sm:w-6 sm:h-6 text-amber-500" />
+          <div className="w-14 h-20 sm:w-16 sm:h-24 rounded-xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 border border-amber-500/30 flex flex-col items-center justify-center gap-1 shadow-lg shadow-amber-500/10 p-1.5">
+            <NFLogo className="w-10 h-5" />
             <span className="text-[10px] text-amber-500 font-bold">Fetch</span>
           </div>
         </div>

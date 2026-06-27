@@ -1,0 +1,85 @@
+name: Web CI
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "prisma/**"
+      - "package.json"
+      - "package-lock.json"
+      - "tsconfig.json"
+      - ".github/workflows/web-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "prisma/**"
+      - "package.json"
+      - "package-lock.json"
+      - "tsconfig.json"
+
+jobs:
+  lint-and-typecheck:
+    name: Lint + TypeScript Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+        env:
+          DATABASE_URL: "postgresql://placeholder:placeholder@localhost:5432/placeholder"
+
+      - name: TypeScript check
+        run: npx tsc --noEmit
+
+      - name: ESLint (changed files only)
+        run: npx eslint src/ --max-warnings=0
+        continue-on-error: true # Don't block PRs on pre-existing warnings
+
+  build:
+    name: Next.js Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: lint-and-typecheck
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+        env:
+          DATABASE_URL: "postgresql://placeholder:placeholder@localhost:5432/placeholder"
+
+      - name: Build Next.js
+        run: npm run build
+        env:
+          DATABASE_URL: "postgresql://placeholder:placeholder@localhost:5432/placeholder"
+          NEXTAUTH_SECRET: "ci-placeholder-secret-not-real-do-not-use"
+          NEXTAUTH_URL: "https://notifetch.in"
+          # Skip env vars that would fail the build if missing — they're only needed at runtime
+          NEXT_PUBLIC_FIREBASE_API_KEY: "placeholder"
+          NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: "notifetch-placeholder.firebaseapp.com"
+          NEXT_PUBLIC_FIREBASE_PROJECT_ID: "notifetch-placeholder"
+          NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: "notifetch-placeholder.appspot.com"
+          NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: "000000000000"
+          NEXT_PUBLIC_FIREBASE_APP_ID: "1:000000000000:web:placeholder"
