@@ -43,6 +43,7 @@ class NotiFetchApp : Application(), Configuration.Provider {
     override fun onCreate() {
         super.onCreate()
         initCrashlytics()
+        initSentry()
         createNotificationChannels()
         schedulePeriodicSyncIfEnabled()
         setupForegroundListenerWatchdog()
@@ -56,6 +57,53 @@ class NotiFetchApp : Application(), Configuration.Provider {
         // Log app version for crash reports
         crashlytics.setCustomKey("app_version", BuildConfig.VERSION_NAME)
         crashlytics.setCustomKey("version_code", BuildConfig.VERSION_CODE)
+        // v2.9.40: Tag Crashlytics with platform so web errors can be filtered out
+        crashlytics.setCustomKey("platform", "android")
+    }
+
+    /**
+     * v2.9.40: Initialize Sentry Android SDK.
+     *
+     * Sentry provides:
+     *   - Crash reporting (overlaps with Crashlytics — both run, Sentry is the
+     *     primary dashboard going forward since it unifies with web)
+     *   - Non-fatal error reporting (Crashlytics catches only crashes)
+     *   - ANR (Application Not Responding) detection
+     *   - Performance monitoring (slow API calls, frozen frames)
+     *   - Session replay (visual recording of user actions before crash)
+     *
+     * Uses the same DSN as the web app — Sentry auto-tags errors with
+     * platform=android so you can filter by platform in the dashboard.
+     */
+    private fun initSentry() {
+        try {
+            io.sentry.android.core.SentryAndroid.init(this) { options ->
+                options.dsn = BuildConfig.SENTRY_DSN
+                // Enable in release builds, disable in debug (devs don't need telemetry)
+                options.isEnableAutoSessionTracking = !BuildConfig.DEBUG
+                options.isEnableNdk = true  // Catch native crashes (NDK errors)
+                options.isEnableActivityLifecycleBreadcrumbs = true
+                options.isEnableAppLifecycleBreadcrumbs = true
+                options.isEnableSystemEventBreadcrumbs = true
+                options.isEnableUserInteractionBreadcrumbs = true
+                // 10% sample rate for performance transactions (high volume otherwise)
+                options.tracesSampleRate = if (BuildConfig.DEBUG) 1.0 else 0.1
+                // Attach a screenshot on crash (Sentry Pro feature, free tier ignores)
+                options.isAttachScreenshot = false
+                // Attach view hierarchy on crash (helps debug Compose UI issues)
+                options.isAttachViewHierarchy = true
+                options.release = "notifetch-android@${BuildConfig.VERSION_NAME}"
+                options.environment = if (BuildConfig.DEBUG) "debug" else "production"
+                // Tag all events with platform=android for filtering in dashboard
+                options.tags["platform"] = "android"
+                options.tags["app_version"] = BuildConfig.VERSION_NAME
+            }
+            android.util.Log.d("NotiFetchApp", "Sentry initialized (DSN: ${BuildConfig.SENTRY_DSN.take(30)}...)")
+        } catch (e: Exception) {
+            // Don't crash the app if Sentry fails to init — observability is best-effort
+            android.util.Log.e("NotiFetchApp", "Sentry init failed", e)
+            FirebaseCrashlytics.getInstance().recordException(e)
+        }
     }
 
     private fun createNotificationChannels() {
