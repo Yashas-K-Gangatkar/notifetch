@@ -20,6 +20,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.HealthAndSafety
 import androidx.compose.material.icons.filled.ExpandMore
@@ -40,6 +41,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -634,6 +636,46 @@ fun SettingsScreen(
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
+                            }
+                        }
+
+                        // v2.9.40: Debug-only test crash button — verifies Sentry/Crashlytics
+                        // are wired up correctly. Tap to send test exception to both dashboards,
+                        // then check Sentry (notifetch.sentry.io) within 30 seconds.
+                        if (com.notifetch.app.BuildConfig.DEBUG) {
+                            HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        com.google.firebase.crashlytics.FirebaseCrashlytics.getInstance()
+                                            .recordException(RuntimeException("Test crash from NotiFetch debug menu"))
+                                        io.sentry.Sentry.captureException(
+                                            RuntimeException("Test crash from NotiFetch debug menu (Sentry)")
+                                        )
+                                    }
+                                    .padding(16.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.BugReport,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.error
+                                )
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        "Send Test Crash (Debug)",
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        fontWeight = FontWeight.Medium,
+                                        color = MaterialTheme.colorScheme.error
+                                    )
+                                    Text(
+                                        "Verify Sentry + Crashlytics are working",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
                             }
                         }
                     }
