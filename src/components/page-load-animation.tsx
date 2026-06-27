@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Zap } from "lucide-react";
+import { NFLogo } from "@/components/nf-logo";
 
 /**
  * v2.9.13: Page Load Animation
@@ -67,8 +67,8 @@ export function PageLoadAnimation() {
               : "opacity-100 scale-100 translate-y-0"
           }`}
         >
-          <div className="w-20 h-20 rounded-2xl bg-white flex items-center justify-center shadow-2xl">
-            <Zap className="w-12 h-12 text-amber-500" fill="currentColor" />
+          <div className="w-20 h-20 rounded-2xl bg-white flex items-center justify-center shadow-2xl p-2">
+            <NFLogo className="w-16 h-8" />
           </div>
           <span className="text-5xl sm:text-6xl font-extrabold text-white tracking-tight">
             NotiFetch

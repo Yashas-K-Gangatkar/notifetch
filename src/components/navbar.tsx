@@ -12,7 +12,8 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { Zap, Menu, Moon, Sun, LogIn, LogOut, User, QrCode, Smartphone, Download, Play } from "lucide-react";
+import { Menu, Moon, Sun, LogIn, LogOut, User, QrCode, Smartphone, Download, Play } from "lucide-react";
+import { NFLogo } from "@/components/nf-logo";
 import { useTheme } from "next-themes";
 
 interface NavbarProps {
@@ -66,10 +67,8 @@ export function Navbar({ activeSection, onNavigate }: NavbarProps) {
               onClick={handleLogoClick}
               className="flex items-center gap-2 hover:opacity-80 transition-opacity"
             >
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center">
-                <Zap className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-lg font-bold bg-gradient-to-r from-amber-500 to-orange-600 bg-clip-text text-transparent">
+              <NFLogo className="w-8 h-8" />
+              <span className="text-lg font-bold text-foreground">
                 NotiFetch
               </span>
             </button>
@@ -195,10 +194,8 @@ export function Navbar({ activeSection, onNavigate }: NavbarProps) {
                 </SheetTrigger>
                 <SheetContent side="right" className="w-72 bg-background">
                   <SheetTitle className="flex items-center gap-2 mb-6">
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center">
-                      <Zap className="w-5 h-5 text-white" />
-                    </div>
-                    <span className="font-bold text-amber-500">NotiFetch</span>
+                    <NFLogo className="w-8 h-8" />
+                    <span className="font-bold text-foreground">NotiFetch</span>
                   </SheetTitle>
                   <div className="flex flex-col gap-1">
                     {NAV_ITEMS.map((item) => (
