@@ -1,30 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import { verifyFirebaseToken, getOrCreateUserFromFirebase } from "@/lib/firebase-admin";
 import { db } from "@/lib/db";
 import { rateLimit } from "@/lib/rate-limit";
 import { audit } from "@/lib/audit";
-
-/**
- * Authenticate a request via NextAuth session or Firebase Bearer token.
- * Returns userId or null.
- */
-async function authenticateRequest(request: Request): Promise<string | null> {
-  const authHeader = request.headers.get("authorization");
-  if (authHeader?.startsWith("Bearer ")) {
-    const idToken = authHeader.substring(7);
-    const firebaseUid = await verifyFirebaseToken(idToken);
-    if (firebaseUid) {
-      try {
-        const userInfo = await getOrCreateUserFromFirebase(firebaseUid, undefined);
-        if (userInfo) return userInfo.id;
-      } catch { /* fall through */ }
-    }
-  }
-  const session = await getServerSession(authOptions);
-  return session?.user?.id || null;
-}
+import { authenticateRequest } from "@/lib/auth-helpers";
 
 /**
  * GET /api/notifications
