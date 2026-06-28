@@ -51,18 +51,19 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
-      - name: Compile Kotlin (debug)
-        run: ./gradlew :app:compileDebugKotlin --no-daemon --stacktrace
-
+      # v2.9.44: Skip debug variant — google-services.json only has the release
+      # package (com.notifetch.app) registered, not com.notifetch.app.debug.
+      # Debug build needs its own Firebase project registration to compile.
+      # CI only validates the release variant (which is what we ship).
       - name: Compile Kotlin (release)
         run: ./gradlew :app:compileReleaseKotlin --no-daemon --stacktrace
 
       - name: Run lint
-        run: ./gradlew :app:lintDebug --no-daemon
+        run: ./gradlew :app:lintRelease --no-daemon
         continue-on-error: true # Lint warnings shouldn't block PRs
 
-  build-debug-apk:
-    name: Build Debug APK (smoke test)
+  build-release-apk:
+    name: Build Release APK (smoke test)
     runs-on: ubuntu-latest
     timeout-minutes: 30
     needs: compile-and-lint
@@ -101,16 +102,22 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
-      # Build a debug APK to verify the full pipeline (resource linking, etc.)
-      # We don't build the release AAB here because that requires the keystore
+      # v2.9.44: Build release APK (not debug) because debug variant requires
+      # a separate google-services.json registration for com.notifetch.app.debug
+      # which we don't have. Release APK uses the release Firebase config.
+      # We don't build the signed AAB here because that requires the keystore
       # which lives in GitHub Secrets — see android-release.yml for that.
-      - name: Build debug APK
-        run: ./gradlew :app:assembleDebug --no-daemon
+      - name: Build release APK (unsigned)
+        run: ./gradlew :app:assembleRelease --no-daemon
+        env:
+          NOTIFETCH_STORE_PASSWORD: ${{ secrets.NOTIFETCH_STORE_PASSWORD }}
+          NOTIFETCH_KEY_ALIAS: ${{ secrets.NOTIFETCH_KEY_ALIAS }}
+          NOTIFETCH_KEY_PASSWORD: ${{ secrets.NOTIFETCH_KEY_PASSWORD }}
 
-      - name: Upload debug APK artifact
+      - name: Upload release APK artifact
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: notifetch-debug-apk
-          path: notifetch-android/app/build/outputs/apk/debug/*.apk
+          name: notifetch-release-apk-unsigned
+          path: notifetch-android/app/build/outputs/apk/release/*.apk
           retention-days: 7

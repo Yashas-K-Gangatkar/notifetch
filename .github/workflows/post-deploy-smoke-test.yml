@@ -31,7 +31,8 @@ jobs:
         id: health
         run: |
           echo "Pinging https://notifetch.in/api/health ..."
-          RESPONSE=$(curl -s -w "\n%{http_code}" https://notifetch.in/api/health)
+          # v2.9.44: Added -L to follow 308 redirect (notifetch.in → www.notifetch.in)
+          RESPONSE=$(curl -sL -w "\n%{http_code}" https://notifetch.in/api/health)
           HTTP_CODE=$(echo "$RESPONSE" | tail -1)
           BODY=$(echo "$RESPONSE" | head -n -1)
 
@@ -54,7 +55,8 @@ jobs:
       - name: Smoke test — homepage loads
         run: |
           echo "Pinging https://notifetch.in/ ..."
-          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://notifetch.in/)
+          # v2.9.44: Added -L to follow redirect
+          HTTP_CODE=$(curl -sL -o /dev/null -w "%{http_code}" https://notifetch.in/)
 
           echo "HTTP status: $HTTP_CODE"
 
@@ -68,7 +70,8 @@ jobs:
       - name: Smoke test — favicon loads
         run: |
           echo "Pinging https://notifetch.in/favicon.png ..."
-          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://notifetch.in/favicon.png)
+          # v2.9.44: Added -L to follow redirect
+          HTTP_CODE=$(curl -sL -o /dev/null -w "%{http_code}" https://notifetch.in/favicon.png)
 
           echo "HTTP status: $HTTP_CODE"
 
