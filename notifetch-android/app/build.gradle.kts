@@ -24,8 +24,8 @@ android {
         applicationId = "com.notifetch.app"
         minSdk = 24
         targetSdk = 35
-        versionCode = 69
-        versionName = "2.9.43"
+        versionCode = 70
+        versionName = "2.9.44"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -91,8 +91,12 @@ android {
             buildConfigField("Boolean", "IS_DEBUG", "true")
         }
         release {
-            isMinifyEnabled = true
-            isShrinkResources = true
+            // v2.9.44 SAFE MODE: Disabled R8 minification + resource shrinking
+            // to avoid build timeouts in low-memory environments.
+            // The app will be ~3MB larger but will build reliably.
+            // Re-enable in v2.9.45+ once the crash is fixed.
+            isMinifyEnabled = false
+            isShrinkResources = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
