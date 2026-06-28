@@ -42,49 +42,52 @@ class NotiFetchApp : Application(), Configuration.Provider {
 
     override fun onCreate() {
         super.onCreate()
-        initCrashlytics()
-        initSentry()
+        // v2.9.44 SAFE MODE: All observability disabled to isolate the crash.
+        // The app was crashing on launch after v2.9.40 added Sentry + Crashlytics
+        // + ProcessLifecycleObserver + ScreenOnReceiver. Disabling ALL of them
+        // to determine which one is the culprit.
+        //
+        // If v2.9.44 stops crashing → the cause is one of these 4 systems.
+        // If v2.9.44 still crashes → the cause is elsewhere (logo, listener, etc.)
+        //
+        // We'll re-enable them ONE BY ONE in v2.9.45+ once we know the app opens.
+        // initCrashlytics()    // disabled in safe mode
+        // initSentry()         // disabled in safe mode
         createNotificationChannels()
         schedulePeriodicSyncIfEnabled()
-        setupForegroundListenerWatchdog()
-        registerScreenOnReceiver()
+        // setupForegroundListenerWatchdog()  // disabled in safe mode
+        // registerScreenOnReceiver()         // disabled in safe mode
+        android.util.Log.w("NotiFetchApp", "v2.9.44 SAFE MODE: all observability disabled")
     }
 
+    @Suppress("unused")
     private fun initCrashlytics() {
-        val crashlytics = FirebaseCrashlytics.getInstance()
-        // Enable Crashlytics collection (respects user preferences in release)
-        crashlytics.setCrashlyticsCollectionEnabled(!BuildConfig.DEBUG)
-        // Log app version for crash reports
-        crashlytics.setCustomKey("app_version", BuildConfig.VERSION_NAME)
-        crashlytics.setCustomKey("version_code", BuildConfig.VERSION_CODE)
-        // v2.9.40: Tag Crashlytics with platform so web errors can be filtered out
-        crashlytics.setCustomKey("platform", "android")
+        try {
+            val crashlytics = FirebaseCrashlytics.getInstance()
+            crashlytics.setCrashlyticsCollectionEnabled(!BuildConfig.DEBUG)
+            crashlytics.setCustomKey("app_version", BuildConfig.VERSION_NAME)
+            crashlytics.setCustomKey("version_code", BuildConfig.VERSION_CODE)
+            crashlytics.setCustomKey("platform", "android")
+        } catch (e: Exception) {
+            android.util.Log.e("NotiFetchApp", "Crashlytics init failed", e)
+        }
     }
 
     /**
-     * v2.9.40: Initialize Sentry Android SDK.
-     *
-     * Sentry provides:
-     *   - Crash reporting (overlaps with Crashlytics — both run, Sentry is the
-     *     primary dashboard going forward since it unifies with web)
-     *   - Non-fatal error reporting (Crashlytics catches only crashes)
-     *   - ANR (Application Not Responding) detection
-     *   - Performance monitoring (slow API calls, frozen frames)
-     *   - Session replay (visual recording of user actions before crash)
-     *
-     * Uses the same DSN as the web app — Sentry auto-tags errors with
-     * platform=android so you can filter by platform in the dashboard.
+     * v2.9.44 SAFE MODE: Sentry init DISABLED.
+     * Was added in v2.9.40, suspected cause of launch crash.
+     * Will re-enable in v2.9.45+ once we confirm the app opens without it.
      */
+    @Suppress("unused")
     private fun initSentry() {
+        // Intentionally disabled in safe mode — see onCreate() comment
+    }
+
+    @Suppress("UNUSED_PARAMETER")
+    private fun unusedSentryInit() {
         try {
             io.sentry.android.core.SentryAndroid.init(this) { options ->
                 options.dsn = BuildConfig.SENTRY_DSN
-                // v2.9.43: Disabled features that may crash on Realme/older Android:
-                //   - isAttachViewHierarchy: requires Compose integration that may
-                //     not initialize on all ROMs → disabled to fix launch crash
-                //   - isEnableUserInteractionBreadcrumbs: heavy, can cause ANRs on
-                //     low-end devices → disabled
-                // Kept the essentials: crashes, NDK, lifecycle breadcrumbs
                 options.isEnableAutoSessionTracking = !BuildConfig.DEBUG
                 options.isEnableNdk = true
                 options.isEnableActivityLifecycleBreadcrumbs = true
@@ -92,7 +95,7 @@ class NotiFetchApp : Application(), Configuration.Provider {
                 options.isEnableSystemEventBreadcrumbs = true
                 options.tracesSampleRate = if (BuildConfig.DEBUG) 1.0 else 0.1
                 options.isAttachScreenshot = false
-                options.isAttachViewHierarchy = false  // v2.9.43: was true, caused crash
+                options.isAttachViewHierarchy = false
                 options.release = "notifetch-android@${BuildConfig.VERSION_NAME}"
                 options.environment = if (BuildConfig.DEBUG) "debug" else "production"
                 options.tags["platform"] = "android"
