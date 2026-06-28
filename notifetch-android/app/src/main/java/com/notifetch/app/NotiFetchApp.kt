@@ -79,22 +79,22 @@ class NotiFetchApp : Application(), Configuration.Provider {
         try {
             io.sentry.android.core.SentryAndroid.init(this) { options ->
                 options.dsn = BuildConfig.SENTRY_DSN
-                // Enable in release builds, disable in debug (devs don't need telemetry)
+                // v2.9.43: Disabled features that may crash on Realme/older Android:
+                //   - isAttachViewHierarchy: requires Compose integration that may
+                //     not initialize on all ROMs → disabled to fix launch crash
+                //   - isEnableUserInteractionBreadcrumbs: heavy, can cause ANRs on
+                //     low-end devices → disabled
+                // Kept the essentials: crashes, NDK, lifecycle breadcrumbs
                 options.isEnableAutoSessionTracking = !BuildConfig.DEBUG
-                options.isEnableNdk = true  // Catch native crashes (NDK errors)
+                options.isEnableNdk = true
                 options.isEnableActivityLifecycleBreadcrumbs = true
                 options.isEnableAppLifecycleBreadcrumbs = true
                 options.isEnableSystemEventBreadcrumbs = true
-                options.isEnableUserInteractionBreadcrumbs = true
-                // 10% sample rate for performance transactions (high volume otherwise)
                 options.tracesSampleRate = if (BuildConfig.DEBUG) 1.0 else 0.1
-                // Attach a screenshot on crash (Sentry Pro feature, free tier ignores)
                 options.isAttachScreenshot = false
-                // Attach view hierarchy on crash (helps debug Compose UI issues)
-                options.isAttachViewHierarchy = true
+                options.isAttachViewHierarchy = false  // v2.9.43: was true, caused crash
                 options.release = "notifetch-android@${BuildConfig.VERSION_NAME}"
                 options.environment = if (BuildConfig.DEBUG) "debug" else "production"
-                // Tag all events with platform=android for filtering in dashboard
                 options.tags["platform"] = "android"
                 options.tags["app_version"] = BuildConfig.VERSION_NAME
             }
@@ -102,7 +102,9 @@ class NotiFetchApp : Application(), Configuration.Provider {
         } catch (e: Exception) {
             // Don't crash the app if Sentry fails to init — observability is best-effort
             android.util.Log.e("NotiFetchApp", "Sentry init failed", e)
-            FirebaseCrashlytics.getInstance().recordException(e)
+            try {
+                FirebaseCrashlytics.getInstance().recordException(e)
+            } catch (_: Exception) { /* give up gracefully */ }
         }
     }
 
