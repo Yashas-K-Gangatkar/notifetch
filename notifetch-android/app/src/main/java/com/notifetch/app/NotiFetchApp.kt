@@ -42,25 +42,19 @@ class NotiFetchApp : Application(), Configuration.Provider {
 
     override fun onCreate() {
         super.onCreate()
-        // v2.9.44 SAFE MODE: All observability disabled to isolate the crash.
-        // The app was crashing on launch after v2.9.40 added Sentry + Crashlytics
-        // + ProcessLifecycleObserver + ScreenOnReceiver. Disabling ALL of them
-        // to determine which one is the culprit.
-        //
-        // If v2.9.44 stops crashing → the cause is one of these 4 systems.
-        // If v2.9.44 still crashes → the cause is elsewhere (logo, listener, etc.)
-        //
-        // We'll re-enable them ONE BY ONE in v2.9.45+ once we know the app opens.
-        // initCrashlytics()    // disabled in safe mode
-        // initSentry()         // disabled in safe mode
+        // v2.9.45: Sentry SDK REMOVED entirely. Was causing launch crash via
+        // SentryInitProvider ContentProvider auto-init. Crashlytics (which was
+        // already in v2.9.34 and working) handles all crash reporting.
+        // ProcessLifecycleObserver + ScreenOnReceiver also disabled — will
+        // re-enable one by one once we confirm the app opens.
+        initCrashlytics()
         createNotificationChannels()
         schedulePeriodicSyncIfEnabled()
-        // setupForegroundListenerWatchdog()  // disabled in safe mode
-        // registerScreenOnReceiver()         // disabled in safe mode
-        android.util.Log.w("NotiFetchApp", "v2.9.44 SAFE MODE: all observability disabled")
+        // setupForegroundListenerWatchdog()  // disabled — re-enable after crash fix
+        // registerScreenOnReceiver()         // disabled — re-enable after crash fix
+        android.util.Log.w("NotiFetchApp", "v2.9.45: Sentry removed, Crashlytics only")
     }
 
-    @Suppress("unused")
     private fun initCrashlytics() {
         try {
             val crashlytics = FirebaseCrashlytics.getInstance()
@@ -70,44 +64,6 @@ class NotiFetchApp : Application(), Configuration.Provider {
             crashlytics.setCustomKey("platform", "android")
         } catch (e: Exception) {
             android.util.Log.e("NotiFetchApp", "Crashlytics init failed", e)
-        }
-    }
-
-    /**
-     * v2.9.44 SAFE MODE: Sentry init DISABLED.
-     * Was added in v2.9.40, suspected cause of launch crash.
-     * Will re-enable in v2.9.45+ once we confirm the app opens without it.
-     */
-    @Suppress("unused")
-    private fun initSentry() {
-        // Intentionally disabled in safe mode — see onCreate() comment
-    }
-
-    @Suppress("UNUSED_PARAMETER")
-    private fun unusedSentryInit() {
-        try {
-            io.sentry.android.core.SentryAndroid.init(this) { options ->
-                options.dsn = BuildConfig.SENTRY_DSN
-                options.isEnableAutoSessionTracking = !BuildConfig.DEBUG
-                options.isEnableNdk = true
-                options.isEnableActivityLifecycleBreadcrumbs = true
-                options.isEnableAppLifecycleBreadcrumbs = true
-                options.isEnableSystemEventBreadcrumbs = true
-                options.tracesSampleRate = if (BuildConfig.DEBUG) 1.0 else 0.1
-                options.isAttachScreenshot = false
-                options.isAttachViewHierarchy = false
-                options.release = "notifetch-android@${BuildConfig.VERSION_NAME}"
-                options.environment = if (BuildConfig.DEBUG) "debug" else "production"
-                options.tags["platform"] = "android"
-                options.tags["app_version"] = BuildConfig.VERSION_NAME
-            }
-            android.util.Log.d("NotiFetchApp", "Sentry initialized (DSN: ${BuildConfig.SENTRY_DSN.take(30)}...)")
-        } catch (e: Exception) {
-            // Don't crash the app if Sentry fails to init — observability is best-effort
-            android.util.Log.e("NotiFetchApp", "Sentry init failed", e)
-            try {
-                FirebaseCrashlytics.getInstance().recordException(e)
-            } catch (_: Exception) { /* give up gracefully */ }
         }
     }
 

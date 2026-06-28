@@ -6,7 +6,6 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.notifetch.app.BuildConfig
 import com.notifetch.app.notification.NotiFetchListenerService
-import io.sentry.Sentry
 
 /**
  * v2.9.40: Centralized health monitoring for the Android app.
@@ -114,27 +113,11 @@ object HealthMonitor {
     }
 
     /**
-     * Add a Sentry breadcrumb with the health snapshot.
-     *
-     * Breadcrumbs show up in the issue timeline — when a crash happens, you can
-     * scroll back through breadcrumbs and see "10 min ago: listener disconnected"
-     * which tells you the crash is probably related to the dead listener.
+     * v2.9.45: Sentry removed — this method is now a no-op.
+     * Kept for API compatibility; will be deleted once all callers are updated.
      */
     fun reportToSentry(report: HealthReport) {
-        try {
-            Sentry.addBreadcrumb(
-                io.sentry.Breadcrumb().apply {
-                    category = "health"
-                    message = report.summary()
-                    level = if (report.isDegraded) io.sentry.SentryLevel.WARNING else io.sentry.SentryLevel.INFO
-                    setData("listener_connected", report.listenerConnected)
-                    setData("pending_notifications", report.pendingNotificationsCount)
-                    setData("app_version", report.appVersion)
-                }
-            )
-        } catch (e: Exception) {
-            Log.w(TAG, "Failed to report to Sentry", e)
-        }
+        // No-op — Sentry SDK removed in v2.9.45
     }
 
     /**
@@ -176,19 +159,12 @@ object HealthMonitor {
     }
 
     /**
-     * Capture an exception in BOTH Crashlytics and Sentry.
-     *
-     * Use this for non-fatal errors (caught exceptions that don't crash the app
-     * but indicate something went wrong — e.g., a network request failed, a
-     * deep link didn't resolve, a JSON parse failed).
-     *
-     * Both dashboards will show the error. Sentry groups by stack trace;
-     * Crashlytics groups by exception type.
+     * Capture an exception in Crashlytics.
+     * v2.9.45: Sentry removed — Crashlytics only.
      */
     fun captureException(throwable: Throwable, tag: String? = null) {
         try {
             FirebaseCrashlytics.getInstance().recordException(throwable)
-            Sentry.captureException(throwable)
             Log.w(TAG, "Captured exception from $tag: ${throwable.message}", throwable)
         } catch (e: Exception) {
             Log.e(TAG, "Failed to capture exception", e)

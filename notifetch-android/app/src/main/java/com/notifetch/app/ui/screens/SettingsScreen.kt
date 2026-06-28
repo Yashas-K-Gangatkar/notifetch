@@ -650,9 +650,6 @@ fun SettingsScreen(
                                     .clickable {
                                         com.google.firebase.crashlytics.FirebaseCrashlytics.getInstance()
                                             .recordException(RuntimeException("Test crash from NotiFetch debug menu"))
-                                        io.sentry.Sentry.captureException(
-                                            RuntimeException("Test crash from NotiFetch debug menu (Sentry)")
-                                        )
                                     }
                                     .padding(16.dp),
                                 verticalAlignment = Alignment.CenterVertically
