@@ -24,8 +24,8 @@ android {
         applicationId = "com.notifetch.app"
         minSdk = 24
         targetSdk = 35
-        versionCode = 70
-        versionName = "2.9.44"
+        versionCode = 71
+        versionName = "2.9.45"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -33,13 +33,9 @@ android {
         buildConfigField("String", "BASE_URL", "\"https://www.notifetch.in/\"")
         buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"895827826409-4k5eqvhsve0n3504tk6lb62ijbkhsi7o.apps.googleusercontent.com\"")
 
-        // v2.9.40: Sentry DSN for Android crash reporting.
-        // Same DSN as web — Sentry groups errors by platform automatically.
-        // Read from local.properties NOTIFETCH_SENTRY_DSN, fallback to hardcoded
-        // public DSN (it's a public key, safe to embed).
-        val sentryDsn = (project.findProperty("NOTIFETCH_SENTRY_DSN") as String?)
-            ?: "https://5b6c7f324265e955e1831fb5400566a2@o4511639067754496.ingest.de.sentry.io/4511639231201360"
-        buildConfigField("String", "SENTRY_DSN", "\"$sentryDsn\"")
+        // v2.9.45: Sentry SDK REMOVED — was causing launch crash via
+        // SentryInitProvider ContentProvider auto-init. Crashlytics handles
+        // all Android crash reporting now (same as v2.9.34).
     }
 
     signingConfigs {
@@ -189,9 +185,6 @@ dependencies {
     implementation(libs.firebase.crashlytics)
     implementation(libs.firebase.crashlytics.ndk)
 
-    // v2.9.40: Sentry Android — error monitoring that unifies with web dashboard
-    // (same Sentry org, same dashboard, different platform filter)
-    implementation(libs.sentry.android)
 
     // Google Auth
     implementation(libs.play.services.auth)
