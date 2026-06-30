@@ -48,6 +48,7 @@ export async function GET() {
       notificationsToday,
       activeUsers,
       topCategoriesRaw,
+      configuredPlatforms,
     ] = await Promise.all([
       db.notification.count(),
       db.notification.count({
@@ -69,17 +70,18 @@ export async function GET() {
         orderBy: { _count: { id: "desc" } },
         take: 6,
       }),
+      // Count platforms from the NotificationSource table (configured platforms)
+      // Fall back to a constant if the table is empty (early-stage deployment)
+      db.notificationSource
+        .findMany({
+          select: { platformId: true },
+          distinct: ["platformId"],
+        })
+        .catch(() => []),
     ]);
 
-    // Count platforms from the NotificationSource table (configured platforms)
-    // Fall back to a constant if the table is empty (early-stage deployment)
-    const configuredPlatforms = await db.notificationSource
-      .findMany({
-        select: { platformId: true },
-        distinct: ["platformId"],
-      })
-      .catch(() => []);
-    const platformsSupported = configuredPlatforms.length || 119; // fallback to documented count
+    const platformsSupported =
+      (configuredPlatforms as Array<{ platformId: string }>).length || 119; // fallback to documented count
 
     const stats: PublicStats = {
       totalNotificationsCaptured: totalNotifications,
