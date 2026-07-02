@@ -131,31 +131,29 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Create all notifications
-    const created = await db.$transaction(
-      notifications.map((n: Record<string, unknown>) =>
-        db.notification.create({
-          data: {
-            userId,
-            title: n.title as string,
-            body: n.body as string,
-            source: n.source as string,
-            sourceIcon: (n.sourceIcon as string) || null,
-            platform: (n.platform as string) || null,
-            packageName: (n.packageName as string) || null,
-            bigText: (n.bigText as string) || null,
-            subText: (n.subText as string) || null,
-            orderValue: typeof n.orderValue === "number" ? n.orderValue : null,
-            pickupLocation: (n.pickupLocation as string) || null,
-            dropoffLocation: (n.dropoffLocation as string) || null,
-            distance: (n.distance as string) || null,
-            category: (n.category as string) || null,
-            deviceId: deviceId || null,
-            receivedAt: (n.receivedAt && !isNaN(Date.parse(n.receivedAt as string))) ? new Date(n.receivedAt as string) : null,
-          },
-        })
-      )
-    );
+    // Create all notifications in a single batch
+    // v2.9.39: Optimized using createManyAndReturn to reduce DB roundtrips from O(n) to O(1)
+    const created = await db.notification.createManyAndReturn({
+      data: notifications.map((n: Record<string, unknown>) => ({
+        userId,
+        title: n.title as string,
+        body: n.body as string,
+        source: n.source as string,
+        sourceIcon: (n.sourceIcon as string) || null,
+        platform: (n.platform as string) || null,
+        packageName: (n.packageName as string) || null,
+        bigText: (n.bigText as string) || null,
+        subText: (n.subText as string) || null,
+        orderValue: typeof n.orderValue === "number" ? n.orderValue : null,
+        pickupLocation: (n.pickupLocation as string) || null,
+        dropoffLocation: (n.dropoffLocation as string) || null,
+        distance: (n.distance as string) || null,
+        category: (n.category as string) || null,
+        deviceId: deviceId || null,
+        receivedAt: (n.receivedAt && !isNaN(Date.parse(n.receivedAt as string))) ? new Date(n.receivedAt as string) : null,
+      })),
+      select: { id: true },
+    });
 
     // Update device last active time if deviceId provided
     if (deviceId) {
