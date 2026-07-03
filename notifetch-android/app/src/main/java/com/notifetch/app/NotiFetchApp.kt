@@ -42,17 +42,15 @@ class NotiFetchApp : Application(), Configuration.Provider {
 
     override fun onCreate() {
         super.onCreate()
-        // v2.9.45: Sentry SDK REMOVED entirely. Was causing launch crash via
-        // SentryInitProvider ContentProvider auto-init. Crashlytics (which was
-        // already in v2.9.34 and working) handles all crash reporting.
-        // ProcessLifecycleObserver + ScreenOnReceiver also disabled — will
-        // re-enable one by one once we confirm the app opens.
+        // v2.9.46: Sentry SDK remains REMOVED (caused launch crash).
+        // Crashlytics handles all crash reporting.
+        // Re-enabled the listener watchdogs (they were not the crash cause).
         initCrashlytics()
         createNotificationChannels()
         schedulePeriodicSyncIfEnabled()
-        // setupForegroundListenerWatchdog()  // disabled — re-enable after crash fix
-        // registerScreenOnReceiver()         // disabled — re-enable after crash fix
-        android.util.Log.w("NotiFetchApp", "v2.9.45: Sentry removed, Crashlytics only")
+        setupForegroundListenerWatchdog()
+        registerScreenOnReceiver()
+        android.util.Log.w("NotiFetchApp", "v2.9.46: Watchdogs restored, Crashlytics only")
     }
 
     private fun initCrashlytics() {

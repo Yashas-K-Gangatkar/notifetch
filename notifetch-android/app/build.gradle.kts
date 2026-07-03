@@ -24,8 +24,8 @@ android {
         applicationId = "com.notifetch.app"
         minSdk = 24
         targetSdk = 35
-        versionCode = 71
-        versionName = "2.9.45"
+        versionCode = 72
+        versionName = "2.9.46"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -87,12 +87,11 @@ android {
             buildConfigField("Boolean", "IS_DEBUG", "true")
         }
         release {
-            // v2.9.44 SAFE MODE: Disabled R8 minification + resource shrinking
-            // to avoid build timeouts in low-memory environments.
-            // The app will be ~3MB larger but will build reliably.
-            // Re-enable in v2.9.45+ once the crash is fixed.
-            isMinifyEnabled = false
-            isShrinkResources = false
+            // v2.9.46: Re-enabled R8 minification + resource shrinking.
+            // Reduces AAB size from ~17MB to ~10MB and generates mapping.txt
+            // for Crashlytics stack trace de-obfuscation.
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
