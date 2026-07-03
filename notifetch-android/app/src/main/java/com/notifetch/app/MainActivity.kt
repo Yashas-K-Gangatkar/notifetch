@@ -10,6 +10,9 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -72,7 +75,13 @@ class MainActivity : ComponentActivity() {
             }
             NotiFetchTheme(darkTheme = darkMode, dynamicColor = dynamicColor) {
                 Surface(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        // v2.9.46: Edge-to-Edge fix for Android 15.
+                        // Apply system bars padding so content doesn't overlap
+                        // the status bar (top) or navigation bar (bottom).
+                        // This resolves the Play Console "Edge-to-edge" warning.
+                        .windowInsetsPadding(WindowInsets.systemBars),
                     color = MaterialTheme.colorScheme.background
                 ) {
                     NotiFetchNavHost()
