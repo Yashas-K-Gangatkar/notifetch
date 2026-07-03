@@ -442,12 +442,16 @@ fun NotificationDetailScreen(
  *
  * Tier 4: Play Store (app not installed).
  *
- * CRITICAL SAFETY: Every tier except Tier 4 calls [PackageManager.resolveActivity]
- * BEFORE [Context.startActivity]. This returns null when the Intent doesn't
- * resolve (e.g. the source app was uninstalled, or the deep link targets a
- * component that no longer exists in the current app version). Without this
- * pre-check, [startActivity] would throw [ActivityNotFoundException] — and
- * the catch block in v2.9.30–v2.9.33 didn't fall through to the next tier.
+ * v2.9.47: Removed resolveActivity() pre-checks. On Android 11+ (API 30+),
+ * package visibility filtering causes resolveActivity() to return null even
+ * when the target activity exists and is launchable. This caused deep links
+ * to silently fall through to the main screen (Tier 3) instead of opening
+ * the specific order/offer page.
+ *
+ * The fix: call startActivity() directly and catch ActivityNotFoundException.
+ * startActivity() bypasses package visibility filtering for explicit component
+ * intents and parsed URI intents — it only throws if the activity truly doesn't
+ * exist. This is the correct Android 11+ pattern for deep link resolution.
  */
 private fun openSourceApp(
     context: android.content.Context,
@@ -467,27 +471,20 @@ private fun openSourceApp(
             val deepIntent = Intent.parseUri(deepLinkUri, Intent.URI_INTENT_SCHEME)
             deepIntent.addFlags(newTaskFlags)
 
-            // CRITICAL: verify the intent resolves BEFORE calling startActivity.
-            // resolveActivity returns null when the target Activity doesn't exist
-            // (e.g. app uninstalled, component removed in new version, deep link
-            // scheme not registered). Without this check, startActivity throws
-            // ActivityNotFoundException and the catch block aborts the fallback.
-            val resolves = pm.resolveActivity(deepIntent, 0)
-            if (resolves != null) {
-                context.startActivity(deepIntent)
-                android.util.Log.d(logTag, "Opened $packageName via deep link → ${resolves.activityInfo.name}")
-                return
-            } else {
-                android.util.Log.w(logTag, "Deep link did not resolve: $deepLinkUri — falling through")
-            }
+            // v2.9.47: Try startActivity directly — no resolveActivity pre-check.
+            // On Android 11+, resolveActivity returns null due to package visibility
+            // even when the activity exists. startActivity works for explicit intents.
+            context.startActivity(deepIntent)
+            android.util.Log.d(logTag, "Opened $packageName via deep link → ${deepIntent.component?.className ?: "unknown"}")
+            return
+        } catch (e: android.content.ActivityNotFoundException) {
+            android.util.Log.w(logTag, "Deep link activity not found: $deepLinkUri — falling through")
         } catch (e: Exception) {
-            android.util.Log.w(logTag, "Deep link parse failed: ${e.message} — falling through")
+            android.util.Log.w(logTag, "Deep link parse/launch failed: ${e.message} — falling through")
         }
     }
 
     // ── Tier 2: Component-only intent from deepLinkComponent ───────────────
-    // Less precise than Tier 1 (no extras, no action, no data) but lands on a
-    // specific Activity rather than the main launcher screen.
     if (!deepLinkComponent.isNullOrBlank()) {
         try {
             val parts = deepLinkComponent.split("/", limit = 2)
@@ -496,39 +493,21 @@ private fun openSourceApp(
                     component = ComponentName(parts[0], parts[1])
                     addFlags(newTaskFlags)
                 }
-                val resolves = pm.resolveActivity(componentIntent, 0)
-                if (resolves != null) {
-                    context.startActivity(componentIntent)
-                    android.util.Log.d(logTag, "Opened $packageName via component → ${parts[1]}")
-                    return
-                } else {
-                    android.util.Log.w(logTag, "Component did not resolve: $deepLinkComponent — falling through")
-                }
+                // v2.9.47: Direct startActivity, no resolveActivity pre-check
+                context.startActivity(componentIntent)
+                android.util.Log.d(logTag, "Opened $packageName via component → ${parts[1]}")
+                return
             }
+        } catch (e: android.content.ActivityNotFoundException) {
+            android.util.Log.w(logTag, "Component activity not found: $deepLinkComponent — falling through")
         } catch (e: Exception) {
             android.util.Log.w(logTag, "Component launch failed: ${e.message} — falling through")
         }
     }
 
     // ── Tier 3: getLaunchIntentForPackage — opens MAIN SCREEN ──────────────
-    // This is the guaranteed fallback that v2.9.28 confirmed as reliable.
     try {
-        var launchIntent = pm.getLaunchIntentForPackage(packageName)
-        if (launchIntent == null) {
-            // Manual fallback for OEMs that block getLaunchIntentForPackage
-            val mainIntent = Intent(Intent.ACTION_MAIN).apply {
-                addCategory(Intent.CATEGORY_LAUNCHER)
-                setPackage(packageName)
-            }
-            val resolveInfo = pm.resolveActivity(mainIntent, 0)
-            if (resolveInfo != null) {
-                launchIntent = Intent(Intent.ACTION_MAIN).apply {
-                    addCategory(Intent.CATEGORY_LAUNCHER)
-                    setFlags(newTaskFlags)
-                    component = ComponentName(resolveInfo.activityInfo.packageName, resolveInfo.activityInfo.name)
-                }
-            }
-        }
+        val launchIntent = pm.getLaunchIntentForPackage(packageName)
         if (launchIntent != null) {
             launchIntent.addFlags(newTaskFlags)
             context.startActivity(launchIntent)
