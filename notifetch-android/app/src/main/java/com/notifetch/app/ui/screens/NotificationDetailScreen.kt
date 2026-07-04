@@ -52,6 +52,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.notifetch.app.notification.PendingIntentCache
 import com.notifetch.app.ui.components.CategoryBadge
 import com.notifetch.app.ui.components.PlatformIcon
 import com.notifetch.app.ui.theme.getPlatformColor
@@ -464,18 +465,32 @@ private fun openSourceApp(
     val logTag = "NotiFetchOpen"
     val newTaskFlags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED
 
-    // ── Tier 1: Reconstruct the original Intent from the serialized URI ────
-    // This opens the EXACT page the source app intended (order detail, offer, etc.)
+    // ── Tier 1: PendingIntent.send() — opens EXACT page (including non-exported activities) ──
+    // v2.9.48: RESTORED. This is the ONLY way to open non-exported activities
+    // (which most delivery apps use for order detail pages).
+    // PendingIntent carries the original app's identity and permissions.
+    val pendingIntent = PendingIntentCache.get(packageName)
+    if (pendingIntent != null) {
+        try {
+            pendingIntent.send()
+            android.util.Log.d(logTag, "Opened $packageName via PendingIntent.send() → exact page")
+            return
+        } catch (e: Exception) {
+            android.util.Log.w(logTag, "PendingIntent.send() failed: ${e.message} — falling through")
+        }
+    } else {
+        android.util.Log.w(logTag, "No cached PendingIntent for $packageName — trying Intent.parseUri()")
+    }
+
+    // ── Tier 2: Intent.parseUri() + startActivity() — for exported activities only ──
+    // This won't work for non-exported activities (throws SecurityException),
+    // but works as a fallback if the PendingIntent cache was cleared (process death).
     if (!deepLinkUri.isNullOrBlank()) {
         try {
             val deepIntent = Intent.parseUri(deepLinkUri, Intent.URI_INTENT_SCHEME)
             deepIntent.addFlags(newTaskFlags)
-
-            // v2.9.47: Try startActivity directly — no resolveActivity pre-check.
-            // On Android 11+, resolveActivity returns null due to package visibility
-            // even when the activity exists. startActivity works for explicit intents.
             context.startActivity(deepIntent)
-            android.util.Log.d(logTag, "Opened $packageName via deep link → ${deepIntent.component?.className ?: "unknown"}")
+            android.util.Log.d(logTag, "Opened $packageName via Intent.parseUri() → ${deepIntent.component?.className ?: "unknown"}")
             return
         } catch (e: android.content.ActivityNotFoundException) {
             android.util.Log.w(logTag, "Deep link activity not found: $deepLinkUri — falling through")
