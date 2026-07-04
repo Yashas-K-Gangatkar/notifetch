@@ -102,11 +102,9 @@ object Constants {
 
         // ── Alternate/legacy packages (for compatibility) ──────────────────
         "in.swiggy.partner" to "Swiggy Restaurant",                  // Swiggy Restaurant Partner 
-        "com.zomato.deliverypartner" to "Zomato alternate package
-        "com.amazon.flex" to "Amazon Flex old package",         // Zomato alternate package",
+        "com.zomato.deliverypartner" to "Zomato Delivery",         // Zomato alternate package
         "com.amazon.flex" to "Amazon Flex",
-        "com.flipkart.logistics" to "Flipkart old package
-
+        "com.flipkart.logistics" to "Flipkart",           // Flipkart old package
         // ── Freight",              // Flipkart old package
 
         // ── Freight  ───────────────────────────────────────────
@@ -231,16 +229,13 @@ object Constants {
         // ── Food Delivery (Customer Apps) ─────────────────────────────────
         "in.swiggy.android" to "Swiggy",                           // Swiggy Customer 
         "com.application.zomato" to "Zomato",                      // Zomato Customer 
-        "com.application.zomato.district" to "Zomato District — v2.9.24: new product
-        "com.magicpin.local" to "Magicpin",
-        "com.ubercab.eats" to "Uber Eats",     // Zomato District",
+        "com.application.zomato.district" to "Zomato District",          // Zomato District
         "com.magicpin.local" to "Magicpin",
         "com.ubercab.eats" to "Uber Eats",
         "com.doordash.consumerapp" to "DoorDash",                  // DoorDash Customer 
         "com.grubhub.android" to "Grubhub",                        // Grubhub Customer 
         "com.deliveroo.orderapp" to "Deliveroo",                    // Deliveroo Customer 
-        "com.justeat.app.uk" to "Just Eat Customer UK
-        "com.takeaway.android" to "Takeaway.com",                        // Just Eat Customer UK",
+        "com.justeat.app.uk" to "Just Eat",                  // Just Eat Customer UK
         "com.takeaway.android" to "Takeaway.com",
         "com.lieferando.android" to "Lieferando",                  // Lieferando Customer 
         "com.foodpanda.android" to "Foodpanda",                    // Foodpanda Customer 

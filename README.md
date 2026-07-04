@@ -1,94 +1,62 @@
-# NotiFetch
+# NotiFetch 🚀
 
-Passive-income Android app that captures delivery-platform notifications (Swiggy, Zomato, Domino's, etc.), aggregates them, and sells anonymized data as market intelligence. Users earn virtual points convertible to cash when monetization launches.
+**One Feed. All Notifications. Every Platform. Worldwide.**
 
-## Architecture
+NotiFetch is a passive-income Android app that captures delivery-platform notifications (Swiggy, Zomato, Domino's, DoorDash, Uber Eats, and 119+ more) into a single real-time feed — no credentials needed.
 
-- **Web:** Next.js 16 + TypeScript + Tailwind + shadcn/ui, hosted on Vercel (`notifetch.in`)
-- **Android:** Kotlin + Jetpack Compose + Room + Hilt, package `com.notifetch.app`
-- **Auth:** Firebase (Android) + NextAuth (Web); email/OTP works, Google login needs setup
-- **DB:** Postgres via Prisma (`prisma/schema.prisma`)
-- **Repo:** `github.com/Yashas-K-Gangatkar/d2`
+## 👤 Author
 
-## Quick Start (Web)
+**Created and Maintained by: [Yashas K](https://github.com/Yashas-K-Gangatkar)**
+- **Status:** Sole Original Creator & Active Developer
+- **Website:** [notifetch.in](https://notifetch.in)
+- **Play Store:** [NotiFetch on Google Play](https://play.google.com/store/apps/details?id=com.notifetch.app)
 
-```bash
-npm install
-npx prisma generate
-npx prisma db push    # apply schema to Postgres
-npm run dev           # http://localhost:3000
-```
+## ✨ Features
 
-## Quick Start (Android)
+- **119+ Platform Support:** Captures notifications from Swiggy, Zomato, DoorDash, Uber Eats, Amazon Flex, Blinkit, Zepto, and 110+ more delivery platforms worldwide
+- **Tap-to-Open Deep Links:** Tap any captured notification to open the exact order/offer page in the source app
+- **Smart Offer Alerts:** Get notified instantly when high-value delivery offers come in
+- **Earnings Tracker:** Track earnings across all platforms in one dashboard
+- **Privacy-First:** All data stays on-device. We never access platform APIs or store credentials
+- **Battery-Friendly Animated Background:** GPU-accelerated gradient shader
+- **Crash Reporting:** Firebase Crashlytics for real-time crash detection
+- **Multi-Language Support:** 6 languages (English, Hindi, Spanish, Arabic, French, German)
 
-See `notifetch-android/README.md` for full setup. TL;DR:
+## 🛠️ Tech Stack
 
-```bash
-cd notifetch-android
-bash build-playstore.sh    # builds signed AAB for Play Store
-./gradlew :app:assembleDebug    # debug APK for testing
-```
+### Android App
+- **Language:** Kotlin + Jetpack Compose
+- **Architecture:** MVVM with Hilt DI
+- **Database:** Room (local) + Postgres (backend)
+- **Background:** WorkManager + NotificationListenerService
+- **Crash Reporting:** Firebase Crashlytics
+- **Min SDK:** 24 (Android 7.0)
+- **Target SDK:** 35 (Android 15)
 
-## Environment Variables
+### Web App
+- **Framework:** Next.js 16 + TypeScript
+- **UI:** Tailwind CSS + shadcn/ui
+- **Database:** Postgres via Prisma ORM
+- **Hosting:** Vercel (notifetch.in)
+- **Auth:** NextAuth + Firebase
+- **Monitoring:** Sentry + Vercel Analytics
 
-### Web (Vercel)
+## 📱 Download
 
-| Variable | Required | Description |
-|---|---|---|
-| `DATABASE_URL` | ✅ | Postgres connection string (`postgresql://user:pass@host:port/db`) |
-| `NEXTAUTH_SECRET` | ✅ | Random 32+ char string — `openssl rand -base64 32` |
-| `NEXTAUTH_URL` | ✅ | `https://notifetch.in` (production) or `http://localhost:3000` (dev) |
-| `NEXT_PUBLIC_FIREBASE_API_KEY` | ✅ | Firebase project API key (Android + Web share project) |
-| `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN` | ✅ | `xxx.firebaseapp.com` |
-| `NEXT_PUBLIC_FIREBASE_PROJECT_ID` | ✅ | Firebase project ID |
-| `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET` | ✅ | `xxx.appspot.com` |
-| `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID` | ✅ | Numeric sender ID from Firebase console |
-| `NEXT_PUBLIC_FIREBASE_APP_ID` | ✅ | Web app ID from Firebase console |
-| `FIREBASE_CLIENT_EMAIL` | ✅ | Service account email from Firebase Admin SDK JSON |
-| `FIREBASE_PRIVATE_KEY` | ✅ | Service account private key (with `\n` escapes) |
-| `GOOGLE_CLIENT_ID` | ⚠️ | Google OAuth client ID (for Google login — currently broken) |
-| `GOOGLE_CLIENT_SECRET` | ⚠️ | Google OAuth client secret |
-| `RESEND_API_KEY` | ⚠️ | Resend API key for email OTP delivery |
-| `ADMIN_SECRET` | 🔴 | Random string protecting `/api/admin/*` — **CURRENTLY NOT SET, admin routes are blocked** |
-| `RAZORPAY_KEY_ID` | ⚠️ | Razorpay payment gateway key ID |
-| `RAZORPAY_KEY_SECRET` | ⚠️ | Razorpay payment gateway secret |
-| `RAZORPAY_WEBHOOK_SECRET` | ⚠️ | Razorpay webhook verification secret |
+**Google Play:** https://play.google.com/store/apps/details?id=com.notifetch.app
 
-### Android (`google-services.json`)
+**Website:** https://notifetch.in
 
-Place at `notifetch-android/app/google-services.json`. The current version has 5 SHA-1 fingerprints registered:
-- Debug (auto-generated)
-- Release upload key (`59:70:88:1E:B8:0B:CE:1B:F4:A8:0E:D2:35:C4:06:3E:99:89:F5:ED`)
-- Plus 3 additional SHA-1s for CI/test environments
+## 📝 License
 
-### Build-time (GitHub Actions / local)
+Copyright © 2026 Yashas K. All rights reserved.
 
-| Variable | Description |
-|---|---|
-| `NOTIFETCH_KEYSTORE_PATH` | Absolute path to `keystore.jks` (Play Store upload key). If unset, defaults to `../upload/keystore.jks` relative to `notifetch-android/` |
-| `NOTIFETCH_STORE_PASSWORD` | Keystore password (default: `changeme_notifetch_store_2024`) |
-| `NOTIFETCH_KEY_ALIAS` | Key alias inside keystore (default: `notifetch`) |
-| `NOTIFETCH_KEY_PASSWORD` | Key password (default: same as store password) |
+## 🔗 Links
 
-## CI/CD
+- **Website:** [notifetch.in](https://notifetch.in)
+- **Play Store:** [NotiFetch](https://play.google.com/store/apps/details?id=com.notifetch.app)
+- **GitHub:** [Yashas-K-Gangatkar](https://github.com/Yashas-K-Gangatkar)
 
-GitHub Actions workflows live in `.github/workflows/`:
+---
 
-- **`web-ci.yml`** — runs on every PR touching `src/` or `prisma/`. Lint + TypeScript check + Next.js build
-- **`android-ci.yml`** — runs on every PR touching `notifetch-android/`. Kotlin compile (debug + release) + lint + debug APK build
-- **`pr-sanity-check.yml`** — runs on every PR. Warns if commit message mentions files that weren't actually changed (catches "fake commits")
-
-## Pending Setup (requires manual action)
-
-| Task | Where | Why |
-|---|---|---|
-| Set `ADMIN_SECRET` env var on Vercel | Vercel dashboard | Admin API routes are blocked until this is set |
-| Set `GOOGLE_CLIENT_ID` + `GOOGLE_CLIENT_SECRET` on Vercel | Vercel dashboard + Google Cloud Console | Google login on web is currently broken |
-| Verify `notifetch.in` domain in Resend | Resend dashboard + DNS | Email OTPs may land in spam |
-| Add Google OAuth redirect URI for Android | Google Cloud Console | Google login on Android was removed (broken) |
-| Configure branch protection on `main` | GitHub repo settings | Require PR review + status checks before merge |
-| Set up Postgres daily backups | Vercel/Neon dashboard | Currently no automated backups |
-
-## License
-
-Proprietary. See `LICENSE` (if present) or contact the repo owner.
+*Doing is Doing — DID* 🎯

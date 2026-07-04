@@ -33,7 +33,9 @@ export const metadata: Metadata = {
   title: "NotiFetch — One Feed. All Notifications. Every Platform. Worldwide.",
   description: "Aggregate all your delivery notifications into a single real-time feed — no credentials needed. From food to freight, groceries to pharmacy — every platform, every category, every continent.",
   keywords: ["delivery", "driver", "notifications", "notification listener", "earnings", "delivery aggregator", "gig worker", "multi-platform"],
-  authors: [{ name: "NotiFetch" }],
+  authors: [{ name: "Yashas K", url: "https://notifetch.in" }],
+  creator: "Yashas K",
+  publisher: "Yashas K",
   manifest: "/manifest.json",
   icons: {
     icon: [
