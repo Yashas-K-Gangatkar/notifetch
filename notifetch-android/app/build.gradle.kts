@@ -87,9 +87,7 @@ android {
             buildConfigField("Boolean", "IS_DEBUG", "true")
         }
         release {
-            // v2.9.46: Re-enabled R8 minification + resource shrinking.
-            // Reduces AAB size from ~17MB to ~10MB and generates mapping.txt
-            // for Crashlytics stack trace de-obfuscation.
+            // v2.9.48: R8 re-enabled (GitHub Actions CI handles it fine).
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(

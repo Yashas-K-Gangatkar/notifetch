@@ -62,8 +62,8 @@ jobs:
         run: ./gradlew :app:lintRelease --no-daemon
         continue-on-error: true # Lint warnings shouldn't block PRs
 
-  build-release-apk:
-    name: Build Release APK (smoke test)
+  build-signed-aab:
+    name: Build Signed AAB (for Play Store)
     runs-on: ubuntu-latest
     timeout-minutes: 30
     needs: compile-and-lint
@@ -102,22 +102,25 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
-      # v2.9.44: Build release APK (not debug) because debug variant requires
-      # a separate google-services.json registration for com.notifetch.app.debug
-      # which we don't have. Release APK uses the release Firebase config.
-      # We don't build the signed AAB here because that requires the keystore
-      # which lives in GitHub Secrets — see android-release.yml for that.
-      - name: Build release APK (unsigned)
-        run: ./gradlew :app:assembleRelease --no-daemon
+      # v2.9.48: Decode keystore from base64 secret
+      - name: Decode keystore
+        run: |
+          echo "${{ secrets.NOTIFETCH_KEYSTORE_BASE64 }}" | base64 -d > /tmp/keystore.jks
+          echo "Keystore decoded: $(wc -c < /tmp/keystore.jks) bytes"
+
+      # Build signed AAB with R8 minification
+      - name: Build signed AAB
+        run: ./gradlew :app:bundleRelease --no-daemon
         env:
+          NOTIFETCH_KEYSTORE_PATH: /tmp/keystore.jks
           NOTIFETCH_STORE_PASSWORD: ${{ secrets.NOTIFETCH_STORE_PASSWORD }}
           NOTIFETCH_KEY_ALIAS: ${{ secrets.NOTIFETCH_KEY_ALIAS }}
           NOTIFETCH_KEY_PASSWORD: ${{ secrets.NOTIFETCH_KEY_PASSWORD }}
 
-      - name: Upload release APK artifact
+      - name: Upload signed AAB artifact
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: notifetch-release-apk-unsigned
-          path: notifetch-android/app/build/outputs/apk/release/*.apk
-          retention-days: 7
+          name: notifetch-signed-aab
+          path: notifetch-android/app/build/outputs/bundle/release/*.aab
+          retention-days: 30
