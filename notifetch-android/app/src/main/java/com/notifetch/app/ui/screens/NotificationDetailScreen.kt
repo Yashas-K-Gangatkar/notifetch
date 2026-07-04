@@ -465,9 +465,15 @@ private fun openSourceApp(
     val logTag = "NotiFetchOpen"
     val newTaskFlags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED
 
+    // v2.9.53: Diagnostic Toast to prove the button is working
+    Toast.makeText(context, "Opening $displayName... (pkg: $packageName)", Toast.LENGTH_SHORT).show()
+
+    if (packageName.isBlank()) {
+        Toast.makeText(context, "Error: Package name is missing!", Toast.LENGTH_LONG).show()
+        return
+    }
+
     // ── Tier 1: PendingIntent.send() — opens EXACT page (including non-exported activities) ──
-    // v2.9.52: If cache is empty (process was killed), try to repopulate from
-    // active system notifications before giving up.
     if (!PendingIntentCache.has(packageName)) {
         android.util.Log.d(logTag, "Cache empty for $packageName — repopulating from active notifications...")
         com.notifetch.app.notification.NotiFetchListenerService.repopulatePendingIntentCache()
