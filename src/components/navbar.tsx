@@ -12,7 +12,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { Menu, Moon, Sun, LogIn, LogOut, User, QrCode, Smartphone, Download, Play } from "lucide-react";
+import { Menu, Moon, Sun, LogIn, LogOut, User, QrCode, Smartphone, Download, Play, MessageCircle } from "lucide-react";
 import { NFLogo } from "@/components/nf-logo";
 import { useTheme } from "next-themes";
 
@@ -102,6 +102,18 @@ export function Navbar({ activeSection, onNavigate }: NavbarProps) {
               >
                 <Play className="w-3 h-3 fill-white" />
                 Get App
+              </a>
+
+              {/* WhatsApp Community button */}
+              <a
+                href="https://chat.whatsapp.com/IHYTQwoyu8hDiXg3MRgWko"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hidden sm:inline-flex items-center gap-1.5 bg-[#25D366] text-white text-xs font-semibold px-3 h-9 rounded-lg hover:bg-[#1da851] transition-colors"
+                title="Join NotiFetch WhatsApp Community"
+              >
+                <MessageCircle className="w-3 h-3" />
+                Join
               </a>
 
               {/* QR Code button */}
@@ -220,6 +232,15 @@ export function Navbar({ activeSection, onNavigate }: NavbarProps) {
                       >
                         <Play className="w-4 h-4 fill-white" />
                         Download on Play Store
+                      </a>
+                      <a
+                        href="https://chat.whatsapp.com/IHYTQwoyu8hDiXg3MRgWko"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center gap-2 bg-[#25D366] text-white text-sm font-semibold px-4 h-10 rounded-lg hover:bg-[#1da851] transition-colors w-full"
+                      >
+                        <MessageCircle className="w-4 h-4" />
+                        Join WhatsApp Community
                       </a>
                       {isLoggedIn ? (
                         <>
