@@ -10,11 +10,13 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -55,6 +57,10 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    // v2.9.49: Animated gradient background reference for lifecycle management
+    private var gradientView: com.notifetch.app.ui.components.AnimatedGradientView? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -74,20 +80,43 @@ class MainActivity : ComponentActivity() {
                 }
             }
             NotiFetchTheme(darkTheme = darkMode, dynamicColor = dynamicColor) {
-                Surface(
+                // v2.9.49: Animated gradient background (battery-friendly GPU shader)
+                Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        // v2.9.46: Edge-to-Edge fix for Android 15.
-                        // Apply system bars padding so content doesn't overlap
-                        // the status bar (top) or navigation bar (bottom).
-                        // This resolves the Play Console "Edge-to-edge" warning.
-                        .windowInsetsPadding(WindowInsets.systemBars),
-                    color = MaterialTheme.colorScheme.background
+                        .windowInsetsPadding(WindowInsets.systemBars)
                 ) {
-                    NotiFetchNavHost()
+                    // Animated gradient sits behind everything
+                    gradientView = com.notifetch.app.ui.components.AnimatedGradientView(activityContext).apply {
+                        layoutParams = android.view.ViewGroup.LayoutParams(
+                            android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                            android.view.ViewGroup.LayoutParams.MATCH_PARENT
+                        )
+                    }
+                    AndroidView(
+                        factory = { gradientView!! },
+                        modifier = Modifier.fillMaxSize()
+                    )
+                    // Semi-transparent overlay so text/cards are readable
+                    Surface(
+                        modifier = Modifier.fillMaxSize(),
+                        color = MaterialTheme.colorScheme.background.copy(alpha = 0.92f)
+                    ) {
+                        NotiFetchNavHost()
+                    }
                 }
             }
         }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        gradientView?.pause()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        gradientView?.resume()
     }
 }
 
