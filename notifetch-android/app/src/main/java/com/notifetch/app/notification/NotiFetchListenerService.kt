@@ -79,12 +79,6 @@ class NotiFetchListenerService : NotificationListenerService() {
     @Inject lateinit var repository: NotificationRepository
     @Inject lateinit var authRepository: AuthRepository
 
-    // v2.9.52: Singleton instance reference for cache repopulation
-    companion object {
-        @Volatile
-        private var currentInstance: NotiFetchListenerService? = null
-    }
-
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val tag = "NotiFetchListener"
 
@@ -110,6 +104,9 @@ class NotiFetchListenerService : NotificationListenerService() {
     private val DEDUP_WINDOW_MS = 3_000L
 
     companion object {
+        @Volatile
+        private var currentInstance: NotiFetchListenerService? = null
+
         private val ALL_PACKAGES: Map<String, String>
             get() = Constants.ALL_PACKAGES
 
