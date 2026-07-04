@@ -466,9 +466,12 @@ private fun openSourceApp(
     val newTaskFlags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED
 
     // ── Tier 1: PendingIntent.send() — opens EXACT page (including non-exported activities) ──
-    // v2.9.48: RESTORED. This is the ONLY way to open non-exported activities
-    // (which most delivery apps use for order detail pages).
-    // PendingIntent carries the original app's identity and permissions.
+    // v2.9.52: If cache is empty (process was killed), try to repopulate from
+    // active system notifications before giving up.
+    if (!PendingIntentCache.has(packageName)) {
+        android.util.Log.d(logTag, "Cache empty for $packageName — repopulating from active notifications...")
+        com.notifetch.app.notification.NotiFetchListenerService.repopulatePendingIntentCache()
+    }
     val pendingIntent = PendingIntentCache.get(packageName)
     if (pendingIntent != null) {
         try {

@@ -79,6 +79,12 @@ class NotiFetchListenerService : NotificationListenerService() {
     @Inject lateinit var repository: NotificationRepository
     @Inject lateinit var authRepository: AuthRepository
 
+    // v2.9.52: Singleton instance reference for cache repopulation
+    companion object {
+        @Volatile
+        private var currentInstance: NotiFetchListenerService? = null
+    }
+
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val tag = "NotiFetchListener"
 
@@ -127,6 +133,45 @@ class NotiFetchListenerService : NotificationListenerService() {
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             context.startActivity(intent)
         }
+
+        /**
+         * v2.9.52: Repopulate the PendingIntentCache from active system notifications.
+         *
+         * Called when the user opens a notification detail screen. If the app process
+         * was killed (Realme/Xiaomi battery optimization), the in-memory cache is empty.
+         * This method asks the system for currently active notifications and refills
+         * the cache so PendingIntent.send() can be used for deep linking.
+         *
+         * This is safe to call from any thread — it uses the NotificationListenerService
+         * instance if available, or does nothing if the listener isn't connected.
+         *
+         * @return true if cache was repopulated, false if listener not connected
+         */
+        fun repopulatePendingIntentCache(): Boolean {
+            return try {
+                // Get the singleton instance of the listener service
+                val instance = currentInstance ?: return false
+                val activeNotifications = instance.getActiveNotifications()
+
+                var count = 0
+                for (sbn in activeNotifications) {
+                    if (ALL_PACKAGES.containsKey(sbn.packageName)) {
+                        try {
+                            val contentIntent = sbn.notification.contentIntent
+                            if (contentIntent != null) {
+                                PendingIntentCache.put(sbn.packageName, contentIntent)
+                                count++
+                            }
+                        } catch (_: Exception) { }
+                    }
+                }
+                android.util.Log.d("NotiFetchListener", "Repopulated PendingIntentCache: $count entries")
+                count > 0
+            } catch (e: Exception) {
+                android.util.Log.w("NotiFetchListener", "Failed to repopulate cache: ${e.message}")
+                false
+            }
+        }
     }
 
     override fun onCreate() {
@@ -136,6 +181,7 @@ class NotiFetchListenerService : NotificationListenerService() {
 
     override fun onListenerConnected() {
         super.onListenerConnected()
+        currentInstance = this  // v2.9.52: Set singleton for cache repopulation
         Log.d(tag, "Notification listener connected — monitoring ${Constants.ALL_PACKAGES.size} packages (rider + customer)")
 
         // v2.9.23: Removed KeepAliveService (foreground service).
@@ -609,8 +655,8 @@ class NotiFetchListenerService : NotificationListenerService() {
 
     override fun onListenerDisconnected() {
         super.onListenerDisconnected()
+        currentInstance = null  // v2.9.52: Clear singleton
         configFlowJob?.cancel()
-        // v2.9.48: RESTORED PendingIntentCache.clear()
         PendingIntentCache.clear()
         recentCaptures.clear()
         serviceScope.cancel()
