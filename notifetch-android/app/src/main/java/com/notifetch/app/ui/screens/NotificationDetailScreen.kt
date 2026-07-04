@@ -192,13 +192,18 @@ fun NotificationDetailScreen(
                 //   5. Play Store (last resort — app not installed)
                 Button(
                     onClick = {
-                        openSourceApp(
-                            context = context,
-                            packageName = notification.packageName,
-                            displayName = displayPlatformName,
-                            deepLinkUri = notification.deepLinkUri,
-                            deepLinkComponent = notification.deepLinkComponent
-                        )
+                        try {
+                            openSourceApp(
+                                context = context,
+                                packageName = notification.packageName,
+                                displayName = displayPlatformName,
+                                deepLinkUri = notification.deepLinkUri,
+                                deepLinkComponent = notification.deepLinkComponent
+                            )
+                        } catch (e: Exception) {
+                            android.util.Log.e("NotiFetchOpen", "Button onClick crashed", e)
+                            Toast.makeText(context, "Error opening app: ${e.message}", Toast.LENGTH_LONG).show()
+                        }
                     },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
