@@ -470,50 +470,66 @@ private fun openSourceApp(
     val logTag = "NotiFetchOpen"
     val newTaskFlags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED
 
-    // v2.9.53: Diagnostic Toast to prove the button is working
-    Toast.makeText(context, "Opening $displayName... (pkg: $packageName)", Toast.LENGTH_SHORT).show()
+    // v2.9.55: Detailed diagnostic Toasts at each tier
+    Toast.makeText(context, "T1: Trying PendingIntent...", Toast.LENGTH_SHORT).show()
 
     if (packageName.isBlank()) {
         Toast.makeText(context, "Error: Package name is missing!", Toast.LENGTH_LONG).show()
         return
     }
 
-    // ── Tier 1: PendingIntent.send() — opens EXACT page (including non-exported activities) ──
+    // ── Tier 1: PendingIntent.send() ──
     if (!PendingIntentCache.has(packageName)) {
-        android.util.Log.d(logTag, "Cache empty for $packageName — repopulating from active notifications...")
+        android.util.Log.d(logTag, "Cache empty for $packageName — repopulating...")
         com.notifetch.app.notification.NotiFetchListenerService.repopulatePendingIntentCache()
     }
     val pendingIntent = PendingIntentCache.get(packageName)
     if (pendingIntent != null) {
         try {
             pendingIntent.send()
-            android.util.Log.d(logTag, "Opened $packageName via PendingIntent.send() → exact page")
+            android.util.Log.d(logTag, "T1 SUCCESS: Opened via PendingIntent.send()")
+            Toast.makeText(context, "T1 SUCCESS: Opened exact page!", Toast.LENGTH_SHORT).show()
             return
+        } catch (e: android.app.PendingIntent.CanceledException) {
+            android.util.Log.w(logTag, "T1 FAIL: PendingIntent canceled: ${e.message}")
+            Toast.makeText(context, "T1 FAIL: Canceled", Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
-            android.util.Log.w(logTag, "PendingIntent.send() failed: ${e.message} — falling through")
+            android.util.Log.w(logTag, "T1 FAIL: ${e.message}")
+            Toast.makeText(context, "T1 FAIL: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     } else {
-        android.util.Log.w(logTag, "No cached PendingIntent for $packageName — trying Intent.parseUri()")
+        android.util.Log.w(logTag, "T1 FAIL: No cached PendingIntent")
+        Toast.makeText(context, "T1 FAIL: Cache empty", Toast.LENGTH_SHORT).show()
     }
 
-    // ── Tier 2: Intent.parseUri() + startActivity() — for exported activities only ──
-    // This won't work for non-exported activities (throws SecurityException),
-    // but works as a fallback if the PendingIntent cache was cleared (process death).
+    // ── Tier 2: Intent.parseUri() ──
+    Toast.makeText(context, "T2: Trying Intent.parseUri...", Toast.LENGTH_SHORT).show()
     if (!deepLinkUri.isNullOrBlank()) {
         try {
             val deepIntent = Intent.parseUri(deepLinkUri, Intent.URI_INTENT_SCHEME)
             deepIntent.addFlags(newTaskFlags)
+            // v2.9.55: Try to set the package explicitly to bypass restrictions
+            deepIntent.setPackage(packageName)
             context.startActivity(deepIntent)
-            android.util.Log.d(logTag, "Opened $packageName via Intent.parseUri() → ${deepIntent.component?.className ?: "unknown"}")
+            android.util.Log.d(logTag, "T2 SUCCESS: Opened via Intent.parseUri()")
+            Toast.makeText(context, "T2 SUCCESS: Opened!", Toast.LENGTH_SHORT).show()
             return
         } catch (e: android.content.ActivityNotFoundException) {
-            android.util.Log.w(logTag, "Deep link activity not found: $deepLinkUri — falling through")
+            android.util.Log.w(logTag, "T2 FAIL: Activity not found")
+            Toast.makeText(context, "T2 FAIL: Not found", Toast.LENGTH_SHORT).show()
+        } catch (e: SecurityException) {
+            android.util.Log.w(logTag, "T2 FAIL: SecurityException (non-exported)")
+            Toast.makeText(context, "T2 FAIL: Blocked (non-exported)", Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
-            android.util.Log.w(logTag, "Deep link parse/launch failed: ${e.message} — falling through")
+            android.util.Log.w(logTag, "T2 FAIL: ${e.message}")
+            Toast.makeText(context, "T2 FAIL: ${e.message}", Toast.LENGTH_SHORT).show()
         }
+    } else {
+        android.util.Log.w(logTag, "T2 SKIP: deepLinkUri is null/blank")
+        Toast.makeText(context, "T2 SKIP: No URI stored", Toast.LENGTH_SHORT).show()
     }
 
-    // ── Tier 2: Component-only intent from deepLinkComponent ───────────────
+    // ── Tier 3: Component-only intent ──
     if (!deepLinkComponent.isNullOrBlank()) {
         try {
             val parts = deepLinkComponent.split("/", limit = 2)
@@ -522,15 +538,12 @@ private fun openSourceApp(
                     component = ComponentName(parts[0], parts[1])
                     addFlags(newTaskFlags)
                 }
-                // v2.9.47: Direct startActivity, no resolveActivity pre-check
                 context.startActivity(componentIntent)
-                android.util.Log.d(logTag, "Opened $packageName via component → ${parts[1]}")
+                android.util.Log.d(logTag, "T3 SUCCESS: Opened via component")
                 return
             }
-        } catch (e: android.content.ActivityNotFoundException) {
-            android.util.Log.w(logTag, "Component activity not found: $deepLinkComponent — falling through")
         } catch (e: Exception) {
-            android.util.Log.w(logTag, "Component launch failed: ${e.message} — falling through")
+            android.util.Log.w(logTag, "T3 FAIL: ${e.message}")
         }
     }
 
