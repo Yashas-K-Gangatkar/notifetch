@@ -81,20 +81,18 @@ class MainActivity : ComponentActivity() {
             }
             NotiFetchTheme(darkTheme = darkMode, dynamicColor = dynamicColor) {
                 // v2.9.49: Animated gradient background (battery-friendly GPU shader)
+                // v2.9.58 FIX: Create view inside factory, not during composition
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
                         .windowInsetsPadding(WindowInsets.systemBars)
                 ) {
-                    // Animated gradient sits behind everything
-                    gradientView = com.notifetch.app.ui.components.AnimatedGradientView(activityContext).apply {
-                        layoutParams = android.view.ViewGroup.LayoutParams(
-                            android.view.ViewGroup.LayoutParams.MATCH_PARENT,
-                            android.view.ViewGroup.LayoutParams.MATCH_PARENT
-                        )
-                    }
                     AndroidView(
-                        factory = { gradientView!! },
+                        factory = { ctx ->
+                            com.notifetch.app.ui.components.AnimatedGradientView(ctx).also { v ->
+                                gradientView = v
+                            }
+                        },
                         modifier = Modifier.fillMaxSize()
                     )
                     // Semi-transparent overlay so text/cards are readable

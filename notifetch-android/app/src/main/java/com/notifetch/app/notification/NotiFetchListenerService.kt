@@ -91,9 +91,11 @@ class NotiFetchListenerService : NotificationListenerService() {
 
     // ─── v2.9.6: In-memory enabled-packages cache (replaces runBlocking) ───────
     // Maintained by a Flow collector — O(1) check on main thread, no DB reads.
-    // Defaults to "enabled" for ALL packages (fail-open) until the first DB read
-    // completes — better to capture too much than too little.
+    // v2.9.58 FIX: Changed from fail-open to fail-closed for consent compliance.
+    // Starts with ALL packages disabled until config loads, then enables based on DB.
     private val disabledPackages = ConcurrentHashMap.newKeySet<String>()
+    @Volatile
+    private var configLoaded = false  // v2.9.58: Track if config has loaded
     private var configFlowJob: Job? = null
 
     // ─── v2.9.6: Content-hash deduplication (replaces FLAG_ONGOING_EVENT filter) ─
@@ -112,14 +114,23 @@ class NotiFetchListenerService : NotificationListenerService() {
 
         /**
          * Check if the notification listener service is enabled.
+         * v2.9.58 FIX: Use NotificationManagerCompat instead of string matching.
+         * Some OEMs store the short form, so string contains() is fragile.
          */
         fun isListenerEnabled(context: Context): Boolean {
-            val componentName = ComponentName(context, NotiFetchListenerService::class.java)
-            val enabledListeners = android.provider.Settings.Secure.getString(
-                context.contentResolver,
-                "enabled_notification_listeners"
-            ) ?: return false
-            return enabledListeners.contains(componentName.flattenToString())
+            return androidx.core.app.NotificationManagerCompat
+                .getEnabledListenerPackages(context)
+                .contains(context.packageName)
+        }
+
+        /**
+         * v2.9.58: Check if the listener instance is actually alive.
+         * isListenerEnabled() checks the system setting, but the process
+         * might have been killed by the OEM. This checks if our singleton
+         * instance is still connected.
+         */
+        fun isInstanceAlive(): Boolean {
+            return currentInstance != null
         }
 
         /**
@@ -197,6 +208,7 @@ class NotiFetchListenerService : NotificationListenerService() {
                 // Rebuild the disabled set from the latest DB state
                 disabledPackages.clear()
                 configs.filter { !it.isEnabled }.forEach { disabledPackages.add(it.packageName) }
+                configLoaded = true  // v2.9.58: Config has loaded, switch to fail-closed mode
                 Log.d(tag, "Enabled-packages cache refreshed: ${configs.size} total, ${disabledPackages.size} disabled")
             }
             .launchIn(serviceScope)
@@ -284,10 +296,13 @@ class NotiFetchListenerService : NotificationListenerService() {
         }
 
         // ─── v2.9.6: Per-platform enable check via in-memory cache (no DB read) ─
-        // O(1) check on main thread. If the cache hasn't loaded yet (just after
-        // device boot), `disabledPackages` is empty → fail-open (capture everything).
-        // Once the Flow collector populates the cache, disabled platforms are
-        // correctly filtered.
+        // v2.9.58 FIX: Fail-CLOSED for consent compliance (DPDPA).
+        // Before config loads, ALL packages are treated as disabled.
+        // Once config loads, only explicitly disabled packages are skipped.
+        if (!configLoaded) {
+            Log.d(tag, "Config not loaded yet — skipping $platformName (fail-closed)")
+            return
+        }
         if (disabledPackages.contains(packageName)) {
             Log.d(tag, "Skipping disabled platform: $platformName ($packageName)")
             return
