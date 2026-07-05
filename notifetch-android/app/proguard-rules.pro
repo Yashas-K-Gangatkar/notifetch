@@ -1,41 +1,6 @@
-# NotiFetch ProGuard Rules — v2.9.60 hardened for maximum obfuscation
-#
-# Goals:
-#   1. Shrink the app as much as possible (smaller attack surface)
-#   2. Obfuscate all internal class/method names (anti-reverse-engineering)
-#   3. Optimize aggressively (R8 full mode + optimizations)
-#   4. Keep ONLY what reflection/manifest/JNI actually need
+# NotiFetch ProGuard Rules
 
-# ── Aggressive optimization ────────────────────────────────────────────────
-# v2.9.60: Enable R8 optimizations beyond the default set.
-# These make the code harder to reverse by:
-#   - Inlining short methods (hides call hierarchy)
-#   - Removing unused parameters (changes method signatures)
-#   - Merging classes with similar structure (confuses decompilers)
--optimizationpasses 5
--allowaccessmodification
--overloadaggressively
--repackageclasses 'com.notifetch.a'
--allowaccessmodification
--flattenpackagehierarchy 'com.notifetch.a'
-
-# Merge interfaces where safe — makes decompiled output harder to follow
--mergeinterfacesaggressively
-
-# ── Strip debugging info ───────────────────────────────────────────────────
-# Source file names + line numbers make stack traces easy to map to source.
-# Strip them in release — Crashlytics uses symbol files we upload separately.
-# This means: even if someone decompiles the APK, they see class "a.b.c"
-# with no source file name and no line numbers.
--renamesourcefileattribute SourceFile
--keepattributes SourceFile,LineNumberTable  # Kept for R8 mapping output only
-
-# ── Kotlin metadata ────────────────────────────────────────────────────────
-# Strip @Metadata annotations — they leak Kotlin structure (data classes,
-# companion objects, suspend function state machines) to decompilers.
--assumenosideeffects class kotlin.Metadata { *; }
-
-# ── Retrofit ───────────────────────────────────────────────────────────────
+# Retrofit
 -keepattributes Signature
 -keepattributes Exceptions
 -keep class com.notifetch.app.data.remote.** { *; }
@@ -43,7 +8,8 @@
     @retrofit2.http.* <methods>;
 }
 
-# ── Moshi ──────────────────────────────────────────────────────────────────
+# Moshi
+-keepattributes Signature
 -keepattributes *Annotation*
 -keep class com.squareup.moshi.** { *; }
 -keep interface com.squareup.moshi.** { *; }
@@ -51,124 +17,63 @@
     <fields>;
 }
 
-# ── Room ───────────────────────────────────────────────────────────────────
-# Room generates code that references entities via reflection.
+# Room
 -keep class * extends androidx.room.RoomDatabase
 -keep @androidx.room.Entity class *
--keepclassmembers @androidx.room.Entity class * {
-    <fields>;
-}
 
-# ── Kotlin Coroutines ──────────────────────────────────────────────────────
+# Kotlin Coroutines
 -keepnames class kotlinx.coroutines.internal.MainDispatcherFactory {}
 -keepnames class kotlinx.coroutines.CoroutineExceptionHandler {}
 -keepclassmembers class kotlinx.coroutines.** {
     volatile <fields>;
 }
 
-# ── Hilt / Dagger ──────────────────────────────────────────────────────────
--keep class dagger.hilt.** { *; }
--keep class * extends dagger.hilt.android.HiltAndroidApp
--keep @dagger.hilt.android.HiltAndroidApp class *
--keep @dagger.hilt.android.lifecycle.HiltViewModel class * { *; }
--keepclassmembers class * {
-    @dagger.hilt.android.lifecycle.HiltViewModel <methods>;
-}
--keep class * extends dagger.hilt.android.internal.lifecycle.HiltViewModelFactory$ViewModelComponentBuilderEntryPoint
--keep,allowobfuscation,allowshrinking class kotlin.coroutines.Continuation
--keep,allowobfuscation,allowshrinking interface kotlin.coroutines.Continuation
+# Hilt
 -dontwarn dagger.hilt.**
 
-# ── Firebase ───────────────────────────────────────────────────────────────
-# Firebase SDK uses reflection internally — keep the SDK classes.
-# But our own code that uses Firebase is fully obfuscated.
+# Firebase
 -keep class com.google.firebase.** { *; }
 -dontwarn com.google.firebase.**
--keep class com.google.android.gms.** { *; }
--dontwarn com.google.android.gms.**
 
-# ── Android Manifest-referenced classes (must not be obfuscated) ───────────
-# These are referenced by name in AndroidManifest.xml — if their names change,
-# the system can't instantiate them.
--keep public class * extends android.app.Service
--keep public class * extends android.content.BroadcastReceiver
--keep public class * extends android.app.Activity
--keep public class * extends android.app.Application
--keep public class com.notifetch.app.notification.NotiFetchListenerService { *; }
--keep public class com.notifetch.app.notification.BootReceiver { *; }
--keep public class com.notifetch.app.widget.NotiFetchWidgetProvider { *; }
--keep public class com.notifetch.app.firebase.NotiFetchMessagingService { *; }
--keep public class com.notifetch.app.NotiFetchApp { *; }
--keep public class com.notifetch.app.MainActivity { *; }
+# ── v2.9.9: Reflection-based PendingIntent access ─────────────────────────
+# NotiFetchListenerService uses reflection to call PendingIntent.getTargetIntent()
+# because the Kotlin compiler sometimes fails to resolve this method in certain
+# SDK configurations (even though it's a public API since API 1).
+# Without this keep rule, R8 minification may rename/remove the method, breaking
+# deep-link extraction and causing "Open App" to fall back to Play Store.
+-keep class android.app.PendingIntent { *; }
+-keep class android.app.PendingIntent$* { *; }
 
-# ── Constants class (uses reflection-like access for package maps) ─────────
-# ALL_PACKAGES map is read via reflection in some places.
+# Also keep Notification.* classes used via reflection (MessagingStyle.Message)
+-keep class android.app.Notification$MessagingStyle$Message { *; }
+-keep class android.app.Notification$* { *; }
+
+# Keep our Constants class (uses reflection-like access for package maps)
 -keep class com.notifetch.app.util.Constants { *; }
 -keep class com.notifetch.app.util.Constants$* { *; }
 
 # Keep UserMode enum (used in reflection-style when expressions)
--keep enum com.notifetch.app.util.UserMode { *; }
+-keep class com.notifetch.app.util.UserMode { *; }
 
-# ── Notification API classes accessed via reflection ───────────────────────
-# v2.9.60: removed the broad `android.app.PendingIntent { *; }` rule from
-# v2.9.9 — that was needed when we used getTargetIntent() reflection, which
-# is no longer the case (v2.9.57 removed that reflection entirely).
-# Now we only keep what we actually need.
--keep class android.app.PendingIntent {
-    public static android.app.PendingIntent getActivity(...);
-    public static android.app.PendingIntent getBroadcast(...);
-    public static android.app.PendingIntent getService(...);
-    public void send();
-    public void send(int);
-    public void send(android.app.PendingIntent$OnFinished, android.os.Handler);
-    public void cancel();
-    public int describeContents();
-}
--keep class android.app.Notification$MessagingStyle$Message { *; }
-# Notification$* subclasses are referenced by name in extras bundles
--keep class android.app.Notification$MessagingStyle { *; }
--keep class android.app.Notification$InboxStyle { *; }
--keep class android.app.Notification$BigTextStyle { *; }
--keep class android.app.Notification$BigPictureStyle { *; }
--keep class android.app.Notification$Builder { *; }
+# BootReceiver must not be obfuscated (referenced from AndroidManifest)
+-keep class com.notifetch.app.notification.BootReceiver { *; }
+-keep class com.notifetch.app.notification.NotiFetchListenerService { *; }
+-keep class com.notifetch.app.notification.PendingIntentCache { *; }
+-keep class com.notifetch.app.notification.NotificationParser { *; }
+-keep class com.notifetch.app.notification.NotificationParser$* { *; }
 
-# ── Compose (R8 already handles this, but explicit rules help) ─────────────
--dontwarn androidx.compose.**
--keep class androidx.compose.** { *; }
--keep class androidx.compose.runtime.** { *; }
--keepclassmembers class androidx.compose.** {
-    public *;
-}
 
-# ── WorkManager workers (referenced by class name in WorkManager) ──────────
--keep class * extends androidx.work.Worker
--keep class * extends androidx.work.CoroutineWorker
--keep class com.notifetch.app.worker.SyncWorker { *; }
 
-# ── EncryptedSharedPreferences (uses reflection internally) ─────────────────
--keep class androidx.security.crypto.** { *; }
--keep class com.google.android.material.** { *; }
+# ── v2.9.60 Safe obfuscation additions ─────────────────────────────────────
+# These are SAFE — they don't break reflection, they just remove info leaks.
+# R8 full mode (enabled in gradle.properties) handles all class/method renaming.
 
-# ── ViewModels (Hilt @HiltViewModel) ───────────────────────────────────────
--keepclassmembers class * extends androidx.lifecycle.ViewModel {
-    <init>();
-}
+# Strip source file names from stack traces (anti-reverse-engineering)
+# Crashlytics uses the uploaded mapping.txt for symbolication instead.
+-renamesourcefileattribute SourceFile
 
-# ── Reflection on enums (Kotlin when statements) ───────────────────────────
--keepclassmembers enum * {
-    public static **[] values();
-    public static ** valueOf(java.lang.String);
-}
-
-# ── Keep all native methods (JNI) ──────────────────────────────────────────
--keepclasseswithmembernames class * {
-    native <methods>;
-}
-
-# ── Remove logging in release builds ───────────────────────────────────────
-# v2.9.60: Strip Log.d/Log.v/Log.i calls in release.
-# Log.w and Log.e are kept — they're useful for Crashlytics context.
-# This reduces both APK size and information leakage.
+# Strip Log.d/Log.v/Log.i calls in release builds (reduces info leakage)
+# Keep Log.w and Log.e — useful for Crashlytics context
 -assumenosideeffects class android.util.Log {
     public static *** d(...);
     public static *** v(...);
@@ -176,25 +81,19 @@
     public static java.lang.String getStackTraceString(...);
 }
 
-# ── Crashlytics ────────────────────────────────────────────────────────────
--keep class com.google.firebase.crashlytics.** { *; }
--keepattributes SourceFile,LineNumberTable  # Crashlytics needs this for symbolication
--dontwarn com.google.firebase.crashlytics.**
+# Strip Kotlin @Metadata annotations — prevents decompilers from
+# reconstructing data classes, companion objects, suspend state machines
+-assumenosideeffects class kotlin.Metadata { *; }
 
-# ── Kotlin metadata ────────────────────────────────────────────────────────
-# Strip @Metadata annotations — they leak Kotlin structure (data classes,
-# companion objects, suspend function state machines) to decompilers.
--keep class kotlin.Metadata { *; }
-
-# ── BuildConfig ────────────────────────────────────────────────────────────
--keep class com.notifetch.app.BuildConfig { *; }
-
-# ── Don't warn about missing optional classes ──────────────────────────────
--dontwarn javax.lang.model.**
--dontwarn com.google.errorprone.**
--dontwarn org.checkerframework.**
-
-# ── Resource shrinking ─────────────────────────────────────────────────────
-# v2.9.60: Tighter resource shrinking — removes unused drawables, layouts, etc.
-# Combined with the existing `isShrinkResources = true` in build.gradle.kts
--allowaccessmodification
+# v2.9.60: Explicitly keep the new stripGrantFlags helper's dependencies
+# (the function itself is private, R8 will inline/rename it, but the
+# Intent.selector and ClipData access must not be stripped)
+-keepclassmembers class android.content.Intent {
+    public android.content.Intent getSelector();
+    public void setSelector(android.content.Intent);
+    public android.content.ClipData getClipData();
+    public void setClipData(android.content.ClipData);
+    public int getFlags();
+    public void setFlags(int);
+    public void addFlags(int);
+}
