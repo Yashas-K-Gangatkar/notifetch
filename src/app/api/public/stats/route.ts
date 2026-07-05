@@ -84,7 +84,8 @@ export async function GET() {
     const stats: PublicStats = {
       totalNotificationsCaptured: totalNotifications,
       platformsSupported,
-      activeUsers: activeUsers.length,
+      // v2.9.59 SECURITY FIX: Round active users to nearest 100 to prevent competitive intel
+      activeUsers: Math.round(activeUsers.length / 100) * 100,
       notificationsToday,
       topCategories: topCategoriesRaw.map((c) => ({
         category: c.category || "Unknown",

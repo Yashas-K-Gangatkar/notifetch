@@ -24,8 +24,8 @@ android {
         applicationId = "com.notifetch.app"
         minSdk = 24
         targetSdk = 35
-        versionCode = 84
-        versionName = "2.9.58"
+        versionCode = 85
+        versionName = "2.9.59"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -185,6 +185,9 @@ dependencies {
 
     // Google Auth
     implementation(libs.play.services.auth)
+
+    // v2.9.59 SECURITY: Encrypted token storage (replaces plain DataStore for auth tokens)
+    implementation(libs.androidx.security.crypto)
 
     // WorkManager
     implementation(libs.work.runtime.ktx)

@@ -501,6 +501,15 @@ private fun openSourceApp(
             val deepIntent = Intent.parseUri(deepLinkUri, Intent.URI_INTENT_SCHEME)
             deepIntent.addFlags(newTaskFlags)
             deepIntent.setPackage(packageName)
+            // v2.9.59 SECURITY FIX: Strip FLAG_GRANT_* flags to prevent permission escalation.
+            // Attacker-controlled URIs could contain FLAG_GRANT_READ_URI_PERMISSION,
+            // granting NotiFetch access to URIs it shouldn't have.
+            deepIntent.flags = deepIntent.flags and (
+                Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                Intent.FLAG_GRANT_WRITE_URI_PERMISSION or
+                Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION or
+                Intent.FLAG_GRANT_PREFIX_URI_PERMISSION
+            ).inv()
             context.startActivity(deepIntent)
             android.util.Log.d(logTag, "T2 SUCCESS: Opened via Intent.parseUri()")
             return

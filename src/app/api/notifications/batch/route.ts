@@ -56,7 +56,13 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    const body = await request.json();
+    // v2.9.59 SECURITY FIX: Read body as text first and check real size
+    // Content-Length header can be spoofed with chunked encoding
+    const rawBody = await request.text();
+    if (rawBody.length > 2_000_000) {
+      return NextResponse.json({ error: "Payload too large" }, { status: 413 });
+    }
+    const body = JSON.parse(rawBody);
     const { notifications, deviceId } = body;
 
     if (!Array.isArray(notifications) || notifications.length === 0) {
