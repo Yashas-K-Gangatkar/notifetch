@@ -295,6 +295,21 @@ class NotiFetchListenerService : NotificationListenerService() {
             return
         }
 
+        // v2.9.59 SECURITY FIX: Verify notification source UID matches the package name.
+        // Prevents fake notification injection — a malicious app could post a
+        // notification with packageName="in.swiggy.deliveryapp" but sbn.uid would
+        // reveal the actual app that posted it.
+        try {
+            val actualPackage = packageManager.getNameForUid(sbn.uid)
+            if (actualPackage != null && actualPackage != packageName) {
+                Log.w(tag, "SECURITY: Notification package mismatch! sbn.pkg=$packageName but uid belongs to=$actualPackage — DROPPING")
+                return
+            }
+        } catch (e: Exception) {
+            Log.w(tag, "Could not verify notification source UID: ${e.message}")
+            // Don't block — some OEMs might not support getNameForUid properly
+        }
+
         // ─── v2.9.6: Per-platform enable check via in-memory cache (no DB read) ─
         // v2.9.58 FIX: Fail-CLOSED for consent compliance (DPDPA).
         // Before config loads, ALL packages are treated as disabled.

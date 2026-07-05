@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { timingSafeEqual } from "crypto";
 
 /**
  * Middleware for route protection.
@@ -33,7 +34,21 @@ export function middleware(request: NextRequest) {
       );
     }
     const provided = request.headers.get("x-admin-secret");
-    if (provided !== adminSecret) {
+    // v2.9.59 SECURITY FIX: Use timing-safe comparison to prevent timing attacks
+    if (!provided || provided.length !== adminSecret.length) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+    try {
+      if (!timingSafeEqual(Buffer.from(provided), Buffer.from(adminSecret))) {
+        return NextResponse.json(
+          { error: "Unauthorized" },
+          { status: 401 }
+        );
+      }
+    } catch {
       return NextResponse.json(
         { error: "Unauthorized" },
         { status: 401 }

@@ -6,6 +6,12 @@ const ipLimiter = new Map<string, { count: number; resetAt: number }>();
 const IP_SEND_MAX = 10;              // max OTP requests per IP
 const IP_SEND_WINDOW = 60 * 60 * 1000; // 1 hour
 
+// v2.9.59 SECURITY FIX: Also rate limit by email to prevent email bombing
+// via IP spoofing (x-forwarded-for is client-controllable)
+const emailLimiter = new Map<string, { count: number; resetAt: number }>();
+const EMAIL_SEND_MAX = 3;             // max OTP requests per email
+const EMAIL_SEND_WINDOW = 60 * 60 * 1000; // 1 hour
+
 function checkIpLimit(ip: string): boolean {
   const now = Date.now();
   const entry = ipLimiter.get(ip);
@@ -14,6 +20,18 @@ function checkIpLimit(ip: string): boolean {
     return true;
   }
   if (entry.count >= IP_SEND_MAX) return false;
+  entry.count++;
+  return true;
+}
+
+function checkEmailLimit(email: string): boolean {
+  const now = Date.now();
+  const entry = emailLimiter.get(email);
+  if (!entry || now > entry.resetAt) {
+    emailLimiter.set(email, { count: 1, resetAt: now + EMAIL_SEND_WINDOW });
+    return true;
+  }
+  if (entry.count >= EMAIL_SEND_MAX) return false;
   entry.count++;
   return true;
 }
@@ -42,7 +60,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid email" }, { status: 400 });
     }
 
-    const result = await sendOTP(email.toLowerCase().trim());
+    // v2.9.59 SECURITY FIX: Rate limit by email (not just IP)
+    // Prevents email bombing via x-forwarded-for spoofing
+    const normalizedEmail = email.toLowerCase().trim();
+    if (!checkEmailLimit(normalizedEmail)) {
+      return NextResponse.json(
+        { error: "Too many OTP requests for this email. Please try again later." },
+        { status: 429 }
+      );
+    }
+
+    const result = await sendOTP(normalizedEmail);
     if (!result.success) {
       // Return 429 for rate limit errors, 500 for others
       if (result.error?.includes("Too many")) {

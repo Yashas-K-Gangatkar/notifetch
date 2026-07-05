@@ -7,6 +7,8 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKey
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -80,15 +82,43 @@ class AuthRepository @Inject constructor(
     fun getUserId(): String? = firebaseAuth.currentUser?.uid
 
     private suspend fun saveToken(token: String) {
-        context.dataStore.edit { prefs ->
-            prefs[TOKEN_KEY] = token
+        // v2.9.59 SECURITY FIX: Store auth token in EncryptedSharedPreferences
+        try {
+            val masterKey = MasterKey.Builder(context)
+                .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+                .build()
+            val sharedPreferences = EncryptedSharedPreferences.create(
+                context,
+                "notifetch_secure_prefs",
+                masterKey,
+                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            )
+            sharedPreferences.edit().putString(TOKEN_KEY, token).apply()
+        } catch (e: Exception) {
+            // Fallback to DataStore if EncryptedSharedPreferences fails
+            context.dataStore.edit { prefs -> prefs[TOKEN_KEY] = token }
         }
     }
 
     private suspend fun getSavedToken(): String? {
-        return context.dataStore.data.map { prefs ->
-            prefs[TOKEN_KEY]
-        }.first()
+        // v2.9.59 SECURITY FIX: Read auth token from EncryptedSharedPreferences
+        return try {
+            val masterKey = MasterKey.Builder(context)
+                .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+                .build()
+            val sharedPreferences = EncryptedSharedPreferences.create(
+                context,
+                "notifetch_secure_prefs",
+                masterKey,
+                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            )
+            sharedPreferences.getString(TOKEN_KEY, null)
+        } catch (e: Exception) {
+            // Fallback to DataStore if EncryptedSharedPreferences fails
+            context.dataStore.data.map { prefs -> prefs[TOKEN_KEY] }.first()
+        }
     }
 
     suspend fun saveUserId(uid: String) {
