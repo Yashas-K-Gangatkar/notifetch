@@ -42,7 +42,24 @@ class SyncWorker @AssistedInject constructor(
                 Log.w(tag, "Listener is NOT connected! Attempting to force rebind...")
                 forceListenerRebind(applicationContext)
             } else {
-                Log.d(tag, "Listener is connected ✅")
+                // v2.9.58 FIX: Listener is enabled in settings, but is the instance alive?
+                // Check if currentInstance is null (means process was killed but setting is still on)
+                val isInstanceAlive = com.notifetch.app.notification.NotiFetchListenerService.isInstanceAlive()
+                if (!isInstanceAlive) {
+                    Log.w(tag, "Listener enabled in settings but instance is dead! Requesting rebind...")
+                    try {
+                        val componentName = android.content.ComponentName(
+                            applicationContext,
+                            com.notifetch.app.notification.NotiFetchListenerService::class.java
+                        )
+                        android.service.notification.NotificationListenerService.requestRebind(componentName)
+                        Log.d(tag, "requestRebind() called successfully")
+                    } catch (e: Exception) {
+                        Log.w(tag, "requestRebind() failed: ${e.message}")
+                    }
+                } else {
+                    Log.d(tag, "Listener is connected ✅")
+                }
             }
         } catch (e: Exception) {
             Log.e(tag, "Failed to check listener status", e)

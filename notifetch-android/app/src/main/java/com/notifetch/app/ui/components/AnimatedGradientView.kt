@@ -61,8 +61,20 @@ class AnimatedGradientView @JvmOverloads constructor(
         startAnimating(w)
     }
 
+    // v2.9.58 FIX: Reuse Matrix to avoid per-frame GC churn
+    private val shaderMatrix = Matrix()
+
     private fun startAnimating(width: Int) {
         animator?.cancel()
+        // v2.9.58 FIX: Honor animator duration scale = 0 (battery saver)
+        val durationScale = android.provider.Settings.Global.getFloat(
+            context.contentResolver,
+            android.provider.Settings.Global.ANIMATOR_DURATION_SCALE,
+            1f
+        )
+        if (durationScale == 0f) {
+            return  // Battery saver mode — don't animate
+        }
         animator = ValueAnimator.ofFloat(0f, width.toFloat()).apply {
             duration = durationMs
             repeatCount = ValueAnimator.INFINITE
@@ -78,7 +90,9 @@ class AnimatedGradientView @JvmOverloads constructor(
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         paint.shader?.let { shader ->
-            shader.setLocalMatrix(Matrix().apply { setTranslate(-offset, 0f) })
+            // v2.9.58 FIX: Reuse Matrix instead of allocating new one every frame
+            shaderMatrix.setTranslate(-offset, 0f)
+            shader.setLocalMatrix(shaderMatrix)
             canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), paint)
         }
     }
