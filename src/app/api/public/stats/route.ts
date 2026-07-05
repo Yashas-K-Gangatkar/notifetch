@@ -16,7 +16,22 @@ import { db } from "@/lib/db";
 interface PublicStats {
   totalNotificationsCaptured: number;
   platformsSupported: number;
-  activeUsers: number; // users active in last 7 days
+  /**
+   * v2.9.60 SECURITY HARDENING: `activeUsers` removed from public stats entirely.
+   *
+   * v2.9.59 rounded it to nearest 100 — but for an early-stage app, even
+   * rounded numbers leak competitive intel. "100 active users" vs "200" vs
+   * "300" tells a competitor exactly where NotiFetch is in the growth curve.
+   *
+   * Replacement strategy: the landing page now shows a coarse qualitative
+   * label ("Join hundreds of active gig workers") instead of a number.
+   * The internal dashboard (auth-gated) still shows the precise count.
+   *
+   * The field is kept in the response (always 0) for backwards compat with
+   * older app clients that parse the JSON. The web landing page no longer
+   * reads it.
+   */
+  activeUsers: number; // DEPRECATED — always 0. Do not consume.
   notificationsToday: number;
   topCategories: Array<{ category: string; count: number }>;
   updatedAt: string;
@@ -43,21 +58,13 @@ export async function GET() {
     const weekAgo = new Date();
     weekAgo.setDate(weekAgo.getDate() - 7);
 
-    const [
-      totalNotifications,
-      notificationsToday,
-      activeUsers,
-      topCategoriesRaw,
-    ] = await Promise.all([
+    // v2.9.60: Dropped the activeUsers query entirely — we no longer expose
+    // this number publicly (see interface comment above). This also saves a
+    // potentially expensive DISTINCT query on every stats refresh.
+    const [totalNotifications, notificationsToday, topCategoriesRaw] = await Promise.all([
       db.notification.count(),
       db.notification.count({
         where: { createdAt: { gte: todayStart } },
-      }),
-      // Active users = users who have a notification in the last 7 days
-      db.notification.findMany({
-        where: { createdAt: { gte: weekAgo } },
-        select: { userId: true },
-        distinct: ["userId"],
       }),
       db.notification.groupBy({
         by: ["category"],
@@ -84,8 +91,8 @@ export async function GET() {
     const stats: PublicStats = {
       totalNotificationsCaptured: totalNotifications,
       platformsSupported,
-      // v2.9.59 SECURITY FIX: Round active users to nearest 100 to prevent competitive intel
-      activeUsers: Math.round(activeUsers.length / 100) * 100,
+      // v2.9.60: Always 0. Kept for backwards compat with old app clients.
+      activeUsers: 0,
       notificationsToday,
       topCategories: topCategoriesRaw.map((c) => ({
         category: c.category || "Unknown",

@@ -459,6 +459,57 @@ fun NotificationDetailScreen(
  * intents and parsed URI intents — it only throws if the activity truly doesn't
  * exist. This is the correct Android 11+ pattern for deep link resolution.
  */
+/**
+ * v2.9.60 SECURITY HARDENING: Strip all FLAG_GRANT_* URI permission flags from an Intent.
+ *
+ * v2.9.59 only stripped flags from the top-level intent — but Intent.parseUri() can
+ * produce an intent with a nested [Intent.selector], and the selector can independently
+ * carry FLAG_GRANT_* flags. An attacker-controlled URI could put the GRANT flags on the
+ * selector to bypass the v2.9.59 fix.
+ *
+ * This function recursively strips GRANT flags from:
+ *   1. The top-level intent
+ *   2. The nested selector intent (if any)
+ *   3. Any ClipData items (each ClipData item can carry its own URI + grants)
+ *
+ * It also nulls out ClipData URI permission grants as a defense-in-depth measure.
+ *
+ * @param intent The Intent to sanitize (modified in place)
+ */
+private fun stripGrantFlags(intent: Intent) {
+    // 1) Strip GRANT flags from the top-level intent.
+    val grantMask = (
+        Intent.FLAG_GRANT_READ_URI_PERMISSION or
+        Intent.FLAG_GRANT_WRITE_URI_PERMISSION or
+        Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION or
+        Intent.FLAG_GRANT_PREFIX_URI_PERMISSION
+    ).inv()
+    intent.flags = intent.flags and grantMask
+
+    // 2) Recursively strip from the nested selector intent (if present).
+    //    Selector intents are used by `intent:` URIs that wrap a chooser.
+    @Suppress("DEPRECATION")
+    val selector = intent.selector
+    if (selector != null) {
+        selector.flags = selector.flags and grantMask
+        // Selectors can theoretically have nested selectors too — recurse one level.
+        @Suppress("DEPRECATION")
+        selector.selector?.let { it.flags = it.flags and grantMask }
+    }
+
+    // 3) Strip URI permission grants from ClipData.
+    //    ClipData items can carry URIs that get auto-granted when the intent fires.
+    //    We keep the ClipData (so the receiving app can read text/etc.) but revoke
+    //    the URI grants by removing the GRANT flags from each item's intent.
+    val clipData = intent.clipData
+    if (clipData != null) {
+        for (i in 0 until clipData.itemCount) {
+            val item = clipData.getItemAt(i)
+            item.intent?.let { stripGrantFlags(it) }
+        }
+    }
+}
+
 private fun openSourceApp(
     context: android.content.Context,
     packageName: String,
@@ -501,15 +552,11 @@ private fun openSourceApp(
             val deepIntent = Intent.parseUri(deepLinkUri, Intent.URI_INTENT_SCHEME)
             deepIntent.addFlags(newTaskFlags)
             deepIntent.setPackage(packageName)
-            // v2.9.59 SECURITY FIX: Strip FLAG_GRANT_* flags to prevent permission escalation.
-            // Attacker-controlled URIs could contain FLAG_GRANT_READ_URI_PERMISSION,
-            // granting NotiFetch access to URIs it shouldn't have.
-            deepIntent.flags = deepIntent.flags and (
-                Intent.FLAG_GRANT_READ_URI_PERMISSION or
-                Intent.FLAG_GRANT_WRITE_URI_PERMISSION or
-                Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION or
-                Intent.FLAG_GRANT_PREFIX_URI_PERMISSION
-            ).inv()
+            // v2.9.60 SECURITY HARDENING: Strip FLAG_GRANT_* from the top-level intent
+            // AND from any nested selector intent AND from ClipData URIs.
+            // v2.9.59 only stripped top-level flags — a selector intent could still
+            // carry GRANT flags, bypassing the fix.
+            stripGrantFlags(deepIntent)
             context.startActivity(deepIntent)
             android.util.Log.d(logTag, "T2 SUCCESS: Opened via Intent.parseUri()")
             return

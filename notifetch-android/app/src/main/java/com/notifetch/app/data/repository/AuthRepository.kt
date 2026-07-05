@@ -31,6 +31,11 @@ class AuthRepository @Inject constructor(
 
     /**
      * Sign in with Google — uses the ID token from Google Sign-In to authenticate with Firebase.
+     *
+     * v2.9.60: If [saveToken] fails (EncryptedSharedPreferences unavailable),
+     * we still return success — the user IS signed in to Firebase, which is
+     * what matters. The token just won't be persisted for offline use, so
+     * the next cold start will require Firebase to re-fetch it (network call).
      */
     suspend fun signInWithGoogle(idToken: String): Result<String> {
         return try {
@@ -40,7 +45,12 @@ class AuthRepository @Inject constructor(
                 ?: return Result.failure(Exception("User ID is null after sign-in"))
             val token = result.user?.getIdToken(true)?.await()?.token
                 ?: return Result.failure(Exception("Auth token is null after sign-in"))
-            saveToken(token)
+            // Best-effort persistence — don't fail sign-in if encryption is unavailable.
+            try {
+                saveToken(token)
+            } catch (e: Exception) {
+                android.util.Log.w("AuthRepository", "EncryptedSharedPreferences unavailable — token not persisted: ${e.message}")
+            }
             saveUserId(uid)
             Result.success(uid)
         } catch (e: Exception) {
@@ -82,27 +92,36 @@ class AuthRepository @Inject constructor(
     fun getUserId(): String? = firebaseAuth.currentUser?.uid
 
     private suspend fun saveToken(token: String) {
-        // v2.9.59 SECURITY FIX: Store auth token in EncryptedSharedPreferences
-        try {
-            val masterKey = MasterKey.Builder(context)
-                .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
-                .build()
-            val sharedPreferences = EncryptedSharedPreferences.create(
-                context,
-                "notifetch_secure_prefs",
-                masterKey,
-                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-            )
-            sharedPreferences.edit().putString("auth_token", token).apply()
-        } catch (e: Exception) {
-            // Fallback to DataStore if EncryptedSharedPreferences fails
-            context.dataStore.edit { prefs -> prefs[TOKEN_KEY] = token }
-        }
+        // v2.9.60 SECURITY HARDENING: EncryptedSharedPreferences is now MANDATORY.
+        // v2.9.59 fell back to plain DataStore if encryption failed — that fallback
+        // was itself a vulnerability: a device with a corrupted Keystore would
+        // silently store the auth token in plaintext, readable by any app with
+        // backup privileges (or via adb on rooted devices).
+        //
+        // New behavior: if EncryptedSharedPreferences fails, we DO NOT persist
+        // the token. The user will simply be prompted to sign in again on the
+        // next app launch. This is the correct fail-closed behavior.
+        //
+        // EncryptedSharedPreferences can fail on:
+        //   - Devices with corrupted Android Keystore (rare, but happens after OTA)
+        //   - Devices with broken Keymaster HAL (some cheap MediaTek ROMs)
+        //   - Rooted devices with Magisk Hide conflicting with Keystore
+        // In all these cases, fail-closed is safer than fail-open.
+        val masterKey = MasterKey.Builder(context)
+            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+            .build()
+        val sharedPreferences = EncryptedSharedPreferences.create(
+            context,
+            "notifetch_secure_prefs",
+            masterKey,
+            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+        )
+        sharedPreferences.edit().putString("auth_token", token).apply()
     }
 
     private suspend fun getSavedToken(): String? {
-        // v2.9.59 SECURITY FIX: Read auth token from EncryptedSharedPreferences
+        // v2.9.60: Same fail-closed behavior — no plaintext fallback.
         return try {
             val masterKey = MasterKey.Builder(context)
                 .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
@@ -116,8 +135,12 @@ class AuthRepository @Inject constructor(
             )
             sharedPreferences.getString("auth_token", null)
         } catch (e: Exception) {
-            // Fallback to DataStore if EncryptedSharedPreferences fails
-            context.dataStore.data.map { prefs -> prefs[TOKEN_KEY] }.first()
+            // EncryptedSharedPreferences unavailable — return null.
+            // Caller (getCurrentToken) will fall back to FirebaseAuth.currentUser.getIdToken()
+            // which makes a network call to Firebase. This is the desired behavior:
+            // we never leak a plaintext token, and the user stays signed in via
+            // Firebase's own session (which is stored securely by Firebase SDK).
+            null
         }
     }
 
@@ -128,12 +151,59 @@ class AuthRepository @Inject constructor(
     }
 
     /**
-     * Delete all user data from local DataStore.
+     * Delete all user data from local storage.
      * Called as part of the "Delete All My Data" flow.
+     *
+     * v2.9.60 FIX: Also clears EncryptedSharedPreferences — v2.9.59 only cleared
+     * DataStore, leaving the encrypted auth token on disk after account deletion.
+     * This was both a privacy bug (token survived deletion) and a correctness
+     * bug (the next sign-in would read the stale token).
      */
     suspend fun clearAllLocalData() {
+        // 1) Clear DataStore (non-sensitive prefs: user_id, onboarding flags, etc.)
         context.dataStore.edit { prefs ->
             prefs.clear()
+        }
+        // 2) Clear EncryptedSharedPreferences (auth token).
+        //    Best-effort — if Keystore is broken, there's nothing to clear anyway.
+        try {
+            val masterKey = MasterKey.Builder(context)
+                .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+                .build()
+            val sharedPreferences = EncryptedSharedPreferences.create(
+                context,
+                "notifetch_secure_prefs",
+                masterKey,
+                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            )
+            sharedPreferences.edit().clear().apply()
+        } catch (_: Exception) {
+            // EncryptedSharedPreferences unavailable — nothing to clear.
+        }
+    }
+
+    /**
+     * v2.9.60: Migration helper — call once on app launch to wipe any plaintext
+     * tokens that were stored by v2.9.59's fallback path. After migration, the
+     * TOKEN_KEY in DataStore should never be set again.
+     *
+     * Safe to call multiple times. Idempotent.
+     */
+    suspend fun migratePlaintextTokenIfNeeded() {
+        try {
+            val plaintextToken = context.dataStore.data
+                .map { prefs -> prefs[TOKEN_KEY] }
+                .first()
+            if (plaintextToken != null) {
+                // Migrate to EncryptedSharedPreferences, then wipe the plaintext copy.
+                saveToken(plaintextToken)
+                context.dataStore.edit { prefs -> prefs.remove(TOKEN_KEY) }
+                android.util.Log.i("AuthRepository", "Migrated plaintext auth token to EncryptedSharedPreferences")
+            }
+        } catch (_: Exception) {
+            // EncryptedSharedPreferences unavailable — leave plaintext token in place
+            // rather than logging the user out. We'll retry migration on next launch.
         }
     }
 
