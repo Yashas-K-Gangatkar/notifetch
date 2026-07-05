@@ -487,9 +487,24 @@ private fun openSourceApp(
     if (pendingIntent != null) {
         try {
             pendingIntent.send()
-            android.util.Log.d(logTag, "T1 SUCCESS: Opened via PendingIntent.send()")
-            Toast.makeText(context, "T1 SUCCESS: Opened exact page!", Toast.LENGTH_SHORT).show()
-            return
+            // v2.9.56: Don't trust send() — check if we're still in foreground after 500ms
+            // Android 12+ can silently block PendingIntent.send() for non-exported activities
+            Thread.sleep(500)
+            val am = context.getSystemService(android.content.Context.ACTIVITY_SERVICE) as android.app.ActivityManager
+            val isStillForeground = am.runningAppProcesses?.any {
+                it.processName == context.packageName && it.importance == android.app.ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND
+            } ?: true
+
+            if (isStillForeground) {
+                // Still in foreground — T1 silently failed, fall through
+                android.util.Log.w(logTag, "T1 SILENT FAIL: Still in foreground after send()")
+                Toast.makeText(context, "T1 silent fail — falling through", Toast.LENGTH_SHORT).show()
+            } else {
+                // Not in foreground — T1 worked, the other app opened
+                android.util.Log.d(logTag, "T1 SUCCESS: Opened via PendingIntent.send()")
+                Toast.makeText(context, "T1 SUCCESS: Opened exact page!", Toast.LENGTH_SHORT).show()
+                return
+            }
         } catch (e: android.app.PendingIntent.CanceledException) {
             android.util.Log.w(logTag, "T1 FAIL: PendingIntent canceled: ${e.message}")
             Toast.makeText(context, "T1 FAIL: Canceled", Toast.LENGTH_SHORT).show()
