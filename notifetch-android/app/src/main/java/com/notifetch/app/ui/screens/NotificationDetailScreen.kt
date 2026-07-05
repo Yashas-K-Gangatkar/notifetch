@@ -470,11 +470,10 @@ private fun openSourceApp(
     val logTag = "NotiFetchOpen"
     val newTaskFlags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED
 
-    // v2.9.55: Detailed diagnostic Toasts at each tier
-    Toast.makeText(context, "T1: Trying PendingIntent...", Toast.LENGTH_SHORT).show()
-
+    // v2.9.57 FIX: Removed all debug Toasts from production builds.
+    // Removed Thread.sleep(500) which blocked the UI thread and caused ANRs.
     if (packageName.isBlank()) {
-        Toast.makeText(context, "Error: Package name is missing!", Toast.LENGTH_LONG).show()
+        android.util.Log.e(logTag, "Package name is missing!")
         return
     }
 
@@ -487,61 +486,31 @@ private fun openSourceApp(
     if (pendingIntent != null) {
         try {
             pendingIntent.send()
-            // v2.9.56: Don't trust send() — check if we're still in foreground after 500ms
-            // Android 12+ can silently block PendingIntent.send() for non-exported activities
-            Thread.sleep(500)
-            val am = context.getSystemService(android.content.Context.ACTIVITY_SERVICE) as android.app.ActivityManager
-            val isStillForeground = am.runningAppProcesses?.any {
-                it.processName == context.packageName && it.importance == android.app.ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND
-            } ?: true
-
-            if (isStillForeground) {
-                // Still in foreground — T1 silently failed, fall through
-                android.util.Log.w(logTag, "T1 SILENT FAIL: Still in foreground after send()")
-                Toast.makeText(context, "T1 silent fail — falling through", Toast.LENGTH_SHORT).show()
-            } else {
-                // Not in foreground — T1 worked, the other app opened
-                android.util.Log.d(logTag, "T1 SUCCESS: Opened via PendingIntent.send()")
-                Toast.makeText(context, "T1 SUCCESS: Opened exact page!", Toast.LENGTH_SHORT).show()
-                return
-            }
+            android.util.Log.d(logTag, "T1: PendingIntent.send() executed")
+            return
         } catch (e: android.app.PendingIntent.CanceledException) {
             android.util.Log.w(logTag, "T1 FAIL: PendingIntent canceled: ${e.message}")
-            Toast.makeText(context, "T1 FAIL: Canceled", Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
             android.util.Log.w(logTag, "T1 FAIL: ${e.message}")
-            Toast.makeText(context, "T1 FAIL: ${e.message}", Toast.LENGTH_SHORT).show()
         }
-    } else {
-        android.util.Log.w(logTag, "T1 FAIL: No cached PendingIntent")
-        Toast.makeText(context, "T1 FAIL: Cache empty", Toast.LENGTH_SHORT).show()
     }
 
     // ── Tier 2: Intent.parseUri() ──
-    Toast.makeText(context, "T2: Trying Intent.parseUri...", Toast.LENGTH_SHORT).show()
     if (!deepLinkUri.isNullOrBlank()) {
         try {
             val deepIntent = Intent.parseUri(deepLinkUri, Intent.URI_INTENT_SCHEME)
             deepIntent.addFlags(newTaskFlags)
-            // v2.9.55: Try to set the package explicitly to bypass restrictions
             deepIntent.setPackage(packageName)
             context.startActivity(deepIntent)
             android.util.Log.d(logTag, "T2 SUCCESS: Opened via Intent.parseUri()")
-            Toast.makeText(context, "T2 SUCCESS: Opened!", Toast.LENGTH_SHORT).show()
             return
         } catch (e: android.content.ActivityNotFoundException) {
             android.util.Log.w(logTag, "T2 FAIL: Activity not found")
-            Toast.makeText(context, "T2 FAIL: Not found", Toast.LENGTH_SHORT).show()
         } catch (e: SecurityException) {
             android.util.Log.w(logTag, "T2 FAIL: SecurityException (non-exported)")
-            Toast.makeText(context, "T2 FAIL: Blocked (non-exported)", Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
             android.util.Log.w(logTag, "T2 FAIL: ${e.message}")
-            Toast.makeText(context, "T2 FAIL: ${e.message}", Toast.LENGTH_SHORT).show()
         }
-    } else {
-        android.util.Log.w(logTag, "T2 SKIP: deepLinkUri is null/blank")
-        Toast.makeText(context, "T2 SKIP: No URI stored", Toast.LENGTH_SHORT).show()
     }
 
     // ── Tier 3: Component-only intent ──
@@ -562,7 +531,7 @@ private fun openSourceApp(
         }
     }
 
-    // ── Tier 3: getLaunchIntentForPackage — opens MAIN SCREEN ──────────────
+    // ── Tier 4: getLaunchIntentForPackage — opens MAIN SCREEN ──────────────
     try {
         val launchIntent = pm.getLaunchIntentForPackage(packageName)
         if (launchIntent != null) {
@@ -575,7 +544,7 @@ private fun openSourceApp(
         android.util.Log.w(logTag, "Launch intent failed: ${e.message} — falling through")
     }
 
-    // ── Tier 4: Play Store (app not installed) ─────────────────────────────
+    // ── Tier 5: Play Store (app not installed) ─────────────────────────────
     android.util.Log.w(logTag, "App $packageName not installed — opening Play Store")
     Toast.makeText(context, "$displayName not installed", Toast.LENGTH_SHORT).show()
     try {

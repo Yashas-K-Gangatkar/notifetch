@@ -269,13 +269,12 @@ class NotiFetchListenerService : NotificationListenerService() {
 
         // v2.9.19: Log to diagnostic file — tracks ALL packages (tracked + untracked)
         // This is how we'll discover which package names are wrong/missing
-        // v2.9.20: System packages already filtered above, so only real apps get logged
+        // v2.9.57 FIX: Only log package name, NEVER the title (PII risk for untracked apps)
         try {
-            val title = sbn.notification.extras?.getString(android.app.Notification.EXTRA_TITLE) ?: ""
             DiagnosticLogger.logNotification(
                 context = this,
                 packageName = packageName,
-                title = title,
+                title = "", // v2.9.57: Always empty to prevent PII logging
                 isTracked = platformName != null
             )
         } catch (_: Exception) {}
@@ -314,38 +313,13 @@ class NotiFetchListenerService : NotificationListenerService() {
                 // Critical for opening non-exported activities via PendingIntent.send()
                 PendingIntentCache.put(packageName, contentIntent)
 
-                // v2.9.30: Get the target Intent and serialize it FULLY
-                val targetIntent: Intent? = try {
-                    val method = android.app.PendingIntent::class.java.getMethod("getTargetIntent")
-                    method.invoke(contentIntent) as? Intent
-                } catch (_: Exception) {
-                    null
-                }
-
-                if (targetIntent != null) {
-                    // Serialize the ENTIRE Intent to a URI string
-                    // This captures: action, data, component, categories, flags, extras
-                    try {
-                        val intentUri = targetIntent.toUri(Intent.URI_INTENT_SCHEME)
-                        if (intentUri.isNotBlank()) {
-                            extractedDeepLinkUri = intentUri
-                            Log.d(tag, "Deep link SERIALIZED for $platformName: ${intentUri.take(100)}...")
-                        }
-                    } catch (e: Exception) {
-                        Log.w(tag, "Intent.toUri() failed for $platformName: ${e.message}")
-                    }
-
-                    // Also store component as fallback
-                    val component = targetIntent.component
-                    if (component != null) {
-                        extractedDeepLinkComponent = "${component.packageName}/${component.className}"
-                    }
-
-                    // Log what we found for debugging
-                    Log.d(tag, "Target Intent for $platformName: action=${targetIntent.action}, data=${targetIntent.data}, component=${targetIntent.component}, extras_keys=${targetIntent.extras?.keySet()}")
-                } else {
-                    Log.w(tag, "getTargetIntent() returned null for $platformName — deep link will fallback to launch intent")
-                }
+                // v2.9.57 FIX: Removed getTargetIntent() reflection.
+                // It's a hidden API blacklisted since Android 9, so it always
+                // threw NoSuchMethodException on real devices, meaning
+                // extractedDeepLinkUri was ALWAYS null.
+                // The app now relies entirely on the PendingIntentCache
+                // (which is repopulated from getActiveNotifications on tap)
+                // and Tier 3 (getLaunchIntentForPackage) as fallback.
             }
         } catch (e: Exception) {
             Log.w(tag, "Deep link extraction failed for $platformName: ${e.message}")
@@ -656,7 +630,10 @@ class NotiFetchListenerService : NotificationListenerService() {
         configFlowJob?.cancel()
         PendingIntentCache.clear()
         recentCaptures.clear()
-        serviceScope.cancel()
+        // v2.9.57 FIX: Do NOT cancel serviceScope here. Android frequently
+        // disconnects/reconnects the listener without destroying the service.
+        // Cancelling the scope here permanently kills all future captures.
+        // Only cancel per-connection jobs. serviceScope.cancel() goes in onDestroy() only.
         Log.w(tag, "Notification listener disconnected")
     }
 
