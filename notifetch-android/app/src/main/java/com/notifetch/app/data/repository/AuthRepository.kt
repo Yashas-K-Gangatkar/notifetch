@@ -94,7 +94,7 @@ class AuthRepository @Inject constructor(
                 EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
                 EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
             )
-            sharedPreferences.edit().putString(TOKEN_KEY, token).apply()
+            sharedPreferences.edit().putString("auth_token", token).apply()
         } catch (e: Exception) {
             // Fallback to DataStore if EncryptedSharedPreferences fails
             context.dataStore.edit { prefs -> prefs[TOKEN_KEY] = token }
@@ -114,7 +114,7 @@ class AuthRepository @Inject constructor(
                 EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
                 EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
             )
-            sharedPreferences.getString(TOKEN_KEY, null)
+            sharedPreferences.getString("auth_token", null)
         } catch (e: Exception) {
             // Fallback to DataStore if EncryptedSharedPreferences fails
             context.dataStore.data.map { prefs -> prefs[TOKEN_KEY] }.first()
