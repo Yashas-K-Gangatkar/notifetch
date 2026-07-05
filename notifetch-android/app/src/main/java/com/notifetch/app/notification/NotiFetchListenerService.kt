@@ -299,15 +299,33 @@ class NotiFetchListenerService : NotificationListenerService() {
         // Prevents fake notification injection — a malicious app could post a
         // notification with packageName="in.swiggy.deliveryapp" but sbn.uid would
         // reveal the actual app that posted it.
+        //
+        // v2.9.60 HARDENING: Handle shared-UID packages correctly.
+        // getNameForUid returns a comma-separated list when multiple packages
+        // share a UID (rare but legal — e.g. Google Apps). The v2.9.59 check
+        // `actualPackage != packageName` would FALSE-POSITIVE in that case,
+        // dropping legitimate notifications from apps that share a UID.
+        // Fix: split the result and check if `packageName` is in the list.
         try {
-            val actualPackage = packageManager.getNameForUid(sbn.uid)
-            if (actualPackage != null && actualPackage != packageName) {
-                Log.w(tag, "SECURITY: Notification package mismatch! sbn.pkg=$packageName but uid belongs to=$actualPackage — DROPPING")
+            val actualPackages = packageManager.getNameForUid(sbn.uid)
+            if (actualPackages != null) {
+                val allowedPackages = actualPackages.split(",")
+                if (packageName !in allowedPackages) {
+                    Log.w(tag, "SECURITY: Notification package mismatch! sbn.pkg=$packageName but uid belongs to=$actualPackages — DROPPING")
+                    return
+                }
+            }
+            // If actualPackages is null, the UID is unknown (possibly a removed app).
+            // v2.9.60: Fail-closed for unknown UIDs — previously we let these through.
+            if (actualPackages == null && sbn.uid != android.os.Process.SYSTEM_UID) {
+                Log.w(tag, "SECURITY: Could not resolve UID ${sbn.uid} to any package — DROPPING (fail-closed)")
                 return
             }
         } catch (e: Exception) {
             Log.w(tag, "Could not verify notification source UID: ${e.message}")
-            // Don't block — some OEMs might not support getNameForUid properly
+            // v2.9.60: Fail-closed on exceptions too — better to drop a notification
+            // than to accept a spoofed one. The user will see the next legit one.
+            return
         }
 
         // ─── v2.9.6: Per-platform enable check via in-memory cache (no DB read) ─

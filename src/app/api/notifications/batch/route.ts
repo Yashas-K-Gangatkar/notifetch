@@ -56,10 +56,21 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // v2.9.59 SECURITY FIX: Read body as text first and check real size
-    // Content-Length header can be spoofed with chunked encoding
+    // v2.9.60 SECURITY HARDENING: Read body as text and check real BYTE size.
+    // v2.9.59 used rawBody.length which counts CHARACTERS, not bytes. A payload
+    // of multi-byte UTF-8 characters (e.g. emoji) could pass the 2M-char check
+    // while being up to ~4x larger in bytes (~8MB), bypassing the size guard
+    // and risking memory exhaustion on the Vercel serverless function.
+    // Fix: use Buffer.byteLength() to count actual UTF-8 bytes.
     const rawBody = await request.text();
-    if (rawBody.length > 2_000_000) {
+    const byteLength = Buffer.byteLength(rawBody, "utf8");
+    if (byteLength > 2_000_000) {
+      await audit({
+        userId,
+        action: "notification.rejected.oversized",
+        entity: "notification",
+        details: `Batch body too large: ${byteLength} bytes`
+      });
       return NextResponse.json({ error: "Payload too large" }, { status: 413 });
     }
     const body = JSON.parse(rawBody);

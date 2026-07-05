@@ -14,6 +14,7 @@ import androidx.work.Configuration
 import androidx.work.WorkManager
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.analytics.FirebaseAnalytics
+import com.notifetch.app.data.repository.AuthRepository
 import com.notifetch.app.data.repository.dataStore
 import com.notifetch.app.notification.ScreenOnReceiver
 import com.notifetch.app.util.Constants
@@ -32,6 +33,7 @@ import kotlinx.coroutines.launch
 class NotiFetchApp : Application(), Configuration.Provider {
 
     @Inject lateinit var workerFactory: HiltWorkerFactory
+    @Inject lateinit var authRepository: AuthRepository
 
     private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -50,7 +52,13 @@ class NotiFetchApp : Application(), Configuration.Provider {
         schedulePeriodicSyncIfEnabled()
         setupForegroundListenerWatchdog()
         registerScreenOnReceiver()
-        android.util.Log.w("NotiFetchApp", "v2.9.46: Watchdogs restored, Crashlytics only")
+        // v2.9.60: One-time migration of any plaintext auth tokens left over
+        // from v2.9.59's DataStore fallback path. Idempotent — does nothing
+        // if no plaintext token exists. Runs on IO dispatcher, never blocks UI.
+        appScope.launch {
+            try { authRepository.migratePlaintextTokenIfNeeded() } catch (_: Exception) {}
+        }
+        android.util.Log.w("NotiFetchApp", "v2.9.60: Security hardening applied")
     }
 
     private fun initCrashlytics() {
