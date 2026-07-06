@@ -89,11 +89,16 @@ import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PrivacyTip
 import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Slider
 import com.notifetch.app.ui.viewmodel.ProfileViewModel
+import com.notifetch.app.data.repository.dataStore
+import androidx.datastore.preferences.core.edit
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -375,6 +380,51 @@ fun SettingsScreen(
                             Switch(
                                 checked = uiState.isDarkMode,
                                 onCheckedChange = { viewModel.setDarkMode(it) }
+                            )
+                        }
+
+                        // v2.9.68: Glass transparency slider
+                        val cardTransparency = remember { mutableStateOf(0.92f) }
+                        val scope = androidx.compose.runtime.rememberCoroutineScope()
+                        androidx.compose.runtime.LaunchedEffect(Unit) {
+                            context.dataStore.data.collect { prefs ->
+                                cardTransparency.value = prefs[SettingsViewModel.CARD_TRANSPARENCY_KEY] ?: 0.92f
+                            }
+                        }
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    imageVector = Icons.Default.Tune,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text("Glass Effect", style = MaterialTheme.typography.bodyLarge)
+                                    Text(
+                                        "Adjust background transparency",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Slider(
+                                value = cardTransparency.value,
+                                onValueChange = { cardTransparency.value = it },
+                                onValueChangeFinished = {
+                                    scope.launch {
+                                        context.dataStore.edit { prefs ->
+                                            prefs[SettingsViewModel.CARD_TRANSPARENCY_KEY] = cardTransparency.value
+                                        }
+                                    }
+                                },
+                                valueRange = 0.6f..0.95f,
+                                steps = 6
                             )
                         }
 

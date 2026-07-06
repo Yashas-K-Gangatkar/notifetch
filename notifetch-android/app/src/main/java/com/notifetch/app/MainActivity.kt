@@ -81,15 +81,19 @@ class MainActivity : ComponentActivity() {
             val activityContext = this@MainActivity
             var darkMode by remember { mutableStateOf(false) }
             var dynamicColor by remember { mutableStateOf(false) }
+            // v2.9.68: Glass transparency — user-adjustable overlay alpha
+            var cardTransparency by remember { mutableStateOf(0.08f) }
             LaunchedEffect(Unit) {
                 activityContext.dataStore.data.map { prefs ->
-                    Pair(
+                    Triple(
                         prefs[SettingsViewModel.DARK_MODE_KEY] ?: false,
-                        prefs[SettingsViewModel.DYNAMIC_COLOR_KEY] ?: false
+                        prefs[SettingsViewModel.DYNAMIC_COLOR_KEY] ?: false,
+                        prefs[SettingsViewModel.CARD_TRANSPARENCY_KEY] ?: 0.08f
                     )
-                }.collect { (dm, dc) ->
+                }.collect { (dm, dc, ct) ->
                     darkMode = dm
                     dynamicColor = dc
+                    cardTransparency = ct
                 }
             }
             NotiFetchTheme(darkTheme = darkMode, dynamicColor = dynamicColor) {
@@ -108,10 +112,11 @@ class MainActivity : ComponentActivity() {
                         },
                         modifier = Modifier.fillMaxSize()
                     )
-                    // Semi-transparent overlay so text/cards are readable
+                    // v2.9.68: Glass overlay — transparency is user-adjustable from Settings
+                    // Default: 0.92 (mostly opaque, subtle gradient). Slider: 0.60–0.95.
                     Surface(
                         modifier = Modifier.fillMaxSize(),
-                        color = MaterialTheme.colorScheme.background.copy(alpha = 0.92f)
+                        color = MaterialTheme.colorScheme.background.copy(alpha = cardTransparency.coerceIn(0.6f, 0.95f))
                     ) {
                         NotiFetchNavHost()
                     }

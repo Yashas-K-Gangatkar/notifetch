@@ -2,6 +2,7 @@ package com.notifetch.app.ui.viewmodel
 
 import android.content.Context
 import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.lifecycle.ViewModel
@@ -230,6 +231,8 @@ class SettingsViewModel @Inject constructor(
         val SYNC_ENABLED_KEY = booleanPreferencesKey("sync_enabled")
         val SYNC_INTERVAL_KEY = longPreferencesKey("sync_interval_minutes")
         val ONBOARDING_COMPLETED_KEY = booleanPreferencesKey("onboarding_completed")
+        // v2.9.68: Glass transparency — controls overlay alpha over gradient background
+        val CARD_TRANSPARENCY_KEY = floatPreferencesKey("card_transparency")
 
         /**
          * Schedule periodic sync work with WorkManager.
