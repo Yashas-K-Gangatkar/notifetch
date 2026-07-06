@@ -1,12 +1,15 @@
 package com.notifetch.app
 
 import android.Manifest
+import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.lifecycle.lifecycleScope
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.layout.fillMaxSize
@@ -133,6 +136,52 @@ fun NotiFetchNavHost() {
     val currentRoute = navBackStackEntry?.destination?.route ?: "home"
     val context = LocalContext.current
     var startDestination by remember { mutableStateOf<String?>(null) }
+    val scope = androidx.compose.runtime.rememberCoroutineScope()
+    var pendingDeepLinkNotificationId by remember { mutableStateOf<Long?>(null) }
+
+    // v2.9.66: Handle deep link from smart alerts / widget taps
+    LaunchedEffect(Unit) {
+        val activity = context as? android.app.Activity
+        activity?.intent?.let { intent ->
+            if (intent.action == "OPEN_NOTIFICATION_DETAIL") {
+                val id = if (intent.extras?.get("notificationId") is Long) {
+                    intent.getLongExtra("notificationId", -1L)
+                } else {
+                    intent.getIntExtra("notificationId", -1).toLong()
+                }
+                if (id > 0) {
+                    val consented = hasConsented(context)
+                    val listenerEnabled = NotiFetchListenerService.isListenerEnabled(context)
+                    if (consented && listenerEnabled) {
+                        pendingDeepLinkNotificationId = id
+                    }
+                }
+            }
+        }
+    }
+
+    // Handle new intents (warm start from widget/smart alert tap)
+    LaunchedEffect(Unit) {
+        val activity = context as? androidx.activity.ComponentActivity
+        activity?.addOnNewIntentListener { newIntent ->
+            scope.launch {
+                if (newIntent.action == "OPEN_NOTIFICATION_DETAIL") {
+                    val id = if (newIntent.extras?.get("notificationId") is Long) {
+                        newIntent.getLongExtra("notificationId", -1L)
+                    } else {
+                        newIntent.getIntExtra("notificationId", -1).toLong()
+                    }
+                    if (id > 0) {
+                        val consented = hasConsented(context)
+                        val listenerEnabled = NotiFetchListenerService.isListenerEnabled(context)
+                        if (consented && listenerEnabled) {
+                            pendingDeepLinkNotificationId = id
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     // v2.9.18: Request POST_NOTIFICATIONS on Android 13+ (API 33+)
     // CRITICAL: Without this permission, the KeepAliveService foreground notification
@@ -169,6 +218,17 @@ fun NotiFetchNavHost() {
             !onboardingCompleted -> "onboarding"
             !listenerEnabled -> "permission"
             else -> "home"
+        }
+    }
+
+    // v2.9.66: Navigate to detail if we have a pending deep link
+    LaunchedEffect(startDestination, pendingDeepLinkNotificationId) {
+        val id = pendingDeepLinkNotificationId
+        if (startDestination != null && id != null && id > 0) {
+            if (startDestination in listOf("home", "earnings", "settings")) {
+                navController.navigate("notification_detail/$id")
+                pendingDeepLinkNotificationId = null
+            }
         }
     }
 
@@ -219,19 +279,21 @@ fun NotiFetchNavHost() {
             composable("onboarding") {
                 OnboardingScreen(
                     onComplete = {
-                        kotlinx.coroutines.MainScope().launch {
+                        val activity = context as? androidx.activity.ComponentActivity
+                        val ls = activity?.lifecycleScope ?: kotlinx.coroutines.MainScope()
+                        ls.launch {
                             context.dataStore.edit { prefs ->
                                 prefs[SettingsViewModel.ONBOARDING_COMPLETED_KEY] = true
                             }
-                        }
-                        val isEnabled = NotiFetchListenerService.isListenerEnabled(context)
-                        if (isEnabled) {
-                            navController.navigate("home") {
-                                popUpTo("onboarding") { inclusive = true }
-                            }
-                        } else {
-                            navController.navigate("permission") {
-                                popUpTo("onboarding") { inclusive = true }
+                            val isEnabled = NotiFetchListenerService.isListenerEnabled(context)
+                            if (isEnabled) {
+                                navController.navigate("home") {
+                                    popUpTo("onboarding") { inclusive = true }
+                                }
+                            } else {
+                                navController.navigate("permission") {
+                                    popUpTo("onboarding") { inclusive = true }
+                                }
                             }
                         }
                     }

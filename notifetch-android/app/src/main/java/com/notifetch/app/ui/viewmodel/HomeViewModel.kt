@@ -110,7 +110,14 @@ class HomeViewModel @Inject constructor(
     //   3. If customer_apps > rider_apps → default to CUSTOMER mode
     //   4. If rider_apps > 0 → default to RIDER mode
     //   5. Otherwise → default to CUSTOMER (most users are customers, not drivers)
-    private val _userMode = MutableStateFlow(detectInitialUserMode())
+    // v2.9.66: detect in background — was blocking main thread (ANR)
+    private val _userMode = MutableStateFlow(com.notifetch.app.util.UserMode.CUSTOMER)
+
+    init {
+        viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+            _userMode.value = detectInitialUserMode()
+        }
+    }
 
     // ── Room flows ──────────────────────────────────────────────────────────
     // Each flow is stateIn'd with a 5-second timeout so it stays alive briefly

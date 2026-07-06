@@ -60,10 +60,7 @@ class EarningsViewModel @Inject constructor(
         while (true) {
             val startOfWeek = Helpers.startOfWeekTimestamp()
             emit(startOfWeek)
-            val now = System.currentTimeMillis()
-            val nextWeek = startOfWeek + 7 * 86_400_000L
-            val delayMs = (nextWeek - now).coerceAtLeast(60_000L)
-            kotlinx.coroutines.delay(delayMs)
+            kotlinx.coroutines.delay(60 * 60 * 1000L) // v2.9.66: re-emit every hour (was 7 days)
         }
     }
 

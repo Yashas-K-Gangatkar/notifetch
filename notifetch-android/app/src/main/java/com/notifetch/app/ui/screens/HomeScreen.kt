@@ -98,7 +98,7 @@ fun HomeScreen(
 
     // Check notification listener status and navigate to permission if needed.
     // Uses a flag to prevent navigation loops (BUG #18 cleanup).
-    var hasNavigatedToPermission by remember { mutableStateOf(false) }
+    var hasNavigatedToPermission by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         val isEnabled = NotiFetchListenerService.isListenerEnabled(context)
