@@ -89,7 +89,7 @@ android {
         release {
             // v2.9.48: R8 re-enabled (GitHub Actions CI handles it fine).
             isMinifyEnabled = false
-            isShrinkResources = false  # v2.9.66 sandbox: R8 disabled (OOM), CI will re-enable
+            isShrinkResources = false  // v2.9.66 sandbox: R8 disabled (OOM), CI will re-enable
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
