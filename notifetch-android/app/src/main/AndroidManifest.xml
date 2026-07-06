@@ -14,9 +14,9 @@
     <!-- v2.9.11: Request battery optimization exemption so NotificationListenerService
          isn't killed on Xiaomi/OPPO/Vivo/Samsung devices. User must grant via system dialog. -->
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
-    <!-- v2.9.23: Removed FOREGROUND_SERVICE permissions.
-         NotificationListenerService is a system-managed service, not a foreground service.
-         The foreground service was causing crashes and interfering with other apps' notifications. -->
+    <!-- v2.9.66: RESTORED foreground service permissions (started from MainActivity now, no crash) -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
 
     <!-- ═══════════════════════════════════════════════════════════════════════
          v2.9.7 — Package Visibility (Android 11+ / API 30+)
@@ -143,9 +143,17 @@
             -->
         </service>
 
-        <!-- v2.9.23: Removed KeepAliveService (foreground service).
-             Was causing crashes + interfering with other apps' notifications.
-             NotificationListenerService is system-managed and doesn't need a foreground service. -->
+        <!-- v2.9.66: KeepAliveService — started from MainActivity (foreground context).
+             v2.9.23 removed this due to crash; v2.9.66 fixes the crash root cause. -->
+        <service
+            android:name=".notification.KeepAliveService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Continuous notification monitoring for delivery aggregations" />
+        </service>
 
         <!-- Firebase Messaging Service -->
         <service

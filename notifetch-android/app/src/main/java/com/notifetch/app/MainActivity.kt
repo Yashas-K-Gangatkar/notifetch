@@ -32,6 +32,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.notifetch.app.notification.KeepAliveService
 import com.notifetch.app.notification.NotiFetchListenerService
 import com.notifetch.app.ui.components.NotiFetchScaffold
 import com.notifetch.app.ui.screens.ConsentScreen
@@ -64,6 +65,13 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        // v2.9.66: Start foreground service from MainActivity (foreground context).
+        // v2.9.17 crashed because it started from onListenerConnected (background thread).
+        if (NotiFetchListenerService.isListenerEnabled(this)) {
+            KeepAliveService.start(this)
+        }
+
         setContent {
             val activityContext = this@MainActivity
             var darkMode by remember { mutableStateOf(false) }
@@ -233,6 +241,7 @@ fun NotiFetchNavHost() {
             composable("permission") {
                 PermissionScreen(
                     onPermissionGranted = {
+                        KeepAliveService.start(context)
                         navController.navigate("home") {
                             popUpTo("permission") { inclusive = true }
                         }
