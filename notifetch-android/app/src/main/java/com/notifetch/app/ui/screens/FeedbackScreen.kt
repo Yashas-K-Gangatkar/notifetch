@@ -217,7 +217,10 @@ fun FeedbackScreen(
                 Text("Send Feedback", fontWeight = FontWeight.SemiBold)
             }
 
-            // Alternative: WhatsApp
+            // v2.9.68: Send via WhatsApp — FIXED (was using placeholder phone number)
+            // Uses ACTION_SEND with setPackage("com.whatsapp") for direct WhatsApp sharing.
+            // User picks the NotiFetch group from their chat list, message is pre-filled.
+            // If WhatsApp not installed, opens group invite link in browser as fallback.
             OutlinedButton(
                 onClick = {
                     val subject = when (feedbackType) {
@@ -226,10 +229,25 @@ fun FeedbackScreen(
                         FeedbackType.GENERAL -> "📝 FEEDBACK"
                     }
                     val fullMessage = "$subject: $message\n\n$diagnosticInfo"
-                    val intent = Intent(Intent.ACTION_VIEW).apply {
-                        data = android.net.Uri.parse("https://wa.me/919000000000?text=${java.net.URLEncoder.encode(fullMessage, "UTF-8")}")
+                    val intent = Intent(Intent.ACTION_SEND).apply {
+                        type = "text/plain"
+                        setPackage("com.whatsapp")
+                        putExtra(Intent.EXTRA_TEXT, fullMessage)
                     }
-                    context.startActivity(intent)
+                    try {
+                        context.startActivity(intent)
+                    } catch (e: Exception) {
+                        // WhatsApp not installed — open group invite link in browser
+                        val browserIntent = Intent(Intent.ACTION_VIEW).apply {
+                            data = android.net.Uri.parse("https://chat.whatsapp.com/IHYTQwoyu8hDiXg3MRgWko")
+                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        }
+                        try {
+                            context.startActivity(browserIntent)
+                        } catch (_: Exception) {
+                            android.widget.Toast.makeText(context, "WhatsApp not installed", android.widget.Toast.LENGTH_SHORT).show()
+                        }
+                    }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -237,7 +255,7 @@ fun FeedbackScreen(
                 shape = RoundedCornerShape(12.dp),
                 enabled = message.isNotBlank()
             ) {
-                Text("Send via WhatsApp Instead")
+                Text("Send via WhatsApp")
             }
 
             Spacer(modifier = Modifier.height(32.dp))
