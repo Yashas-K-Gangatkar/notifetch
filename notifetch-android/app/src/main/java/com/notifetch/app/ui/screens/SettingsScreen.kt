@@ -810,7 +810,7 @@ fun SettingsScreen(
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(
-                            text = "Under India DPDP Act 2023 and EU GDPR, you have the right to access, export, and delete all your data at any time.",
+                            text = "Your notifications stay on your phone. Download a copy for your records, or clear them anytime.",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -820,7 +820,7 @@ fun SettingsScreen(
                                 try {
                                     context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("${Constants.BASE_URL}dashboard/settings")))
                                 } catch (e: Exception) {
-                                    Toast.makeText(context, "Please visit ${Constants.BASE_URL} to export your data", Toast.LENGTH_LONG).show()
+                                    Toast.makeText(context, "Please visit ${Constants.BASE_URL} to download your notifications", Toast.LENGTH_LONG).show()
                                 }
                             },
                             modifier = Modifier.fillMaxWidth().height(44.dp),
@@ -828,7 +828,7 @@ fun SettingsScreen(
                         ) {
                             Icon(Icons.Default.Download, contentDescription = null, modifier = Modifier.size(16.dp))
                             Spacer(modifier = Modifier.width(6.dp))
-                            Text("Export My Data")
+                            Text("Download a Copy")
                         }
                         Spacer(modifier = Modifier.height(8.dp))
                         Button(
@@ -839,7 +839,7 @@ fun SettingsScreen(
                         ) {
                             Icon(Icons.Default.DeleteForever, contentDescription = null, modifier = Modifier.size(16.dp))
                             Spacer(modifier = Modifier.width(6.dp))
-                            Text("Delete All My Data")
+                            Text("Clear All Notifications")
                         }
                     }
                 }
@@ -912,9 +912,9 @@ fun SettingsScreen(
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
-            title = { Text("Delete All Data?") },
+            title = { Text("Clear All Notifications?") },
             text = {
-                Text("This will permanently delete all your captured notifications from this device and request deletion from our servers. This action cannot be undone. We recommend exporting your data first.")
+                Text("This will remove all captured notifications from this phone. This action cannot be undone. We recommend downloading a copy first.")
             },
             confirmButton = {
                 TextButton(
@@ -923,7 +923,7 @@ fun SettingsScreen(
                         showDeleteDialog = false
                     },
                     colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
-                ) { Text("Delete Everything") }
+                ) { Text("Clear All") }
             },
             dismissButton = {
                 TextButton(onClick = { showDeleteDialog = false }) { Text("Cancel") }
