@@ -82,13 +82,13 @@ class MainActivity : ComponentActivity() {
             var darkMode by remember { mutableStateOf(false) }
             var dynamicColor by remember { mutableStateOf(false) }
             // v2.9.68: Glass transparency — user-adjustable overlay alpha
-            var cardTransparency by remember { mutableStateOf(0.08f) }
+            var cardTransparency by remember { mutableStateOf(0.92f) }
             LaunchedEffect(Unit) {
                 activityContext.dataStore.data.map { prefs ->
                     Triple(
                         prefs[SettingsViewModel.DARK_MODE_KEY] ?: false,
                         prefs[SettingsViewModel.DYNAMIC_COLOR_KEY] ?: false,
-                        prefs[SettingsViewModel.CARD_TRANSPARENCY_KEY] ?: 0.08f
+                        prefs[SettingsViewModel.CARD_TRANSPARENCY_KEY] ?: 0.92f
                     )
                 }.collect { (dm, dc, ct) ->
                     darkMode = dm
@@ -116,7 +116,7 @@ class MainActivity : ComponentActivity() {
                     // Default: 0.92 (mostly opaque, subtle gradient). Slider: 0.60–0.95.
                     Surface(
                         modifier = Modifier.fillMaxSize(),
-                        color = MaterialTheme.colorScheme.background.copy(alpha = cardTransparency.coerceIn(0.6f, 0.95f))
+                        color = MaterialTheme.colorScheme.background.copy(alpha = cardTransparency.coerceIn(0.3f, 0.95f))
                     ) {
                         NotiFetchNavHost()
                     }
@@ -327,7 +327,17 @@ fun NotiFetchNavHost() {
                         navController.navigate("permission") {
                             launchSingleTop = true
                         }
+                    },
+                    onNavigateToProfile = {
+                        navController.navigate("profile")
                     }
+                )
+            }
+
+            // v2.9.69: Profile screen (accessible from Home header tap)
+            composable("profile") {
+                com.notifetch.app.ui.screens.ProfileScreen(
+                    onNavigateBack = { navController.popBackStack() }
                 )
             }
 

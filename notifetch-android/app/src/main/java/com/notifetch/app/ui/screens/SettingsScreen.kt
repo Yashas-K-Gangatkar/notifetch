@@ -423,8 +423,8 @@ fun SettingsScreen(
                                         }
                                     }
                                 },
-                                valueRange = 0.6f..0.95f,
-                                steps = 6
+                                valueRange = 0.3f..0.95f,
+                                steps = 12
                             )
                         }
 
@@ -836,10 +836,19 @@ fun SettingsScreen(
                         Spacer(modifier = Modifier.height(12.dp))
                         OutlinedButton(
                             onClick = {
+                                // v2.9.69: Local CSV export — no web redirect
+                                // Shares notifications as CSV via Android share sheet
+                                // User can save to file, send via email, etc.
                                 try {
-                                    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("${Constants.BASE_URL}dashboard/settings")))
+                                    val csv = viewModel.exportNotificationsAsCsv()
+                                    val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                                        type = "text/csv"
+                                        putExtra(Intent.EXTRA_TEXT, csv)
+                                        putExtra(Intent.EXTRA_SUBJECT, "NotiFetch Notifications Export")
+                                    }
+                                    context.startActivity(Intent.createChooser(shareIntent, "Download Notifications"))
                                 } catch (e: Exception) {
-                                    Toast.makeText(context, "Please visit ${Constants.BASE_URL} to download your notifications", Toast.LENGTH_LONG).show()
+                                    Toast.makeText(context, "Export failed: ${e.message}", Toast.LENGTH_LONG).show()
                                 }
                             },
                             modifier = Modifier.fillMaxWidth().height(44.dp),

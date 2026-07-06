@@ -28,6 +28,10 @@ class NotificationRepository @Inject constructor(
     fun getAllNotifications(): Flow<List<CapturedNotification>> =
         notificationDao.getAllNotifications()
 
+    // v2.9.69: Sync version for CSV export
+    suspend fun getAllNotificationsSync(): List<CapturedNotification> =
+        notificationDao.getAllNotificationsSync()
+
     fun getNotificationById(id: Long): Flow<CapturedNotification?> =
         notificationDao.getNotificationByIdFlow(id)
 

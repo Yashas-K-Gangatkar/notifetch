@@ -225,6 +225,27 @@ class SettingsViewModel @Inject constructor(
         _isListenerEnabled.value = NotiFetchListenerService.isListenerEnabled(context)
     }
 
+    /**
+     * v2.9.69: Export all notifications as CSV string.
+     * Used by Settings → Download a Copy (local export, no web redirect).
+     */
+    fun exportNotificationsAsCsv(): String {
+        return kotlinx.coroutines.runBlocking {
+            val notifications = repository.getAllNotificationsSync()
+            val sdf = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.getDefault())
+            val sb = StringBuilder()
+            sb.appendLine("Date,Platform,Title,Body,Category,Mode")
+            for (n in notifications) {
+                val date = sdf.format(java.util.Date(n.receivedAt))
+                val title = n.title.replace("\"", "\"\"")
+                val body = n.body.replace("\"", "\"\"")
+                val category = n.category ?: ""
+                sb.appendLine("\"$date\",\"${n.platform}\",\"$title\",\"$body\",\"$category\",\"${n.userMode}\"")
+            }
+            sb.toString()
+        }
+    }
+
     companion object {
         val DARK_MODE_KEY = booleanPreferencesKey("dark_mode")
         val DYNAMIC_COLOR_KEY = booleanPreferencesKey("dynamic_color")

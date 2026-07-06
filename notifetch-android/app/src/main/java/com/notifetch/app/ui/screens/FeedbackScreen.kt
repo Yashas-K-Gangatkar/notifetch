@@ -217,10 +217,11 @@ fun FeedbackScreen(
                 Text("Send Feedback", fontWeight = FontWeight.SemiBold)
             }
 
-            // v2.9.68: Send via WhatsApp — FIXED (was using placeholder phone number)
-            // Uses ACTION_SEND with setPackage("com.whatsapp") for direct WhatsApp sharing.
-            // User picks the NotiFetch group from their chat list, message is pre-filled.
-            // If WhatsApp not installed, opens group invite link in browser as fallback.
+            // v2.9.69: Send via WhatsApp — opens NotiFetch group DIRECTLY
+            // Copies message to clipboard, then opens the group invite link.
+            // WhatsApp opens the group (if user is a member), user pastes message.
+            // This is the ONLY way to open a specific WhatsApp group from an app —
+            // WhatsApp doesn't support deep-linking to groups with pre-filled text.
             OutlinedButton(
                 onClick = {
                     val subject = when (feedbackType) {
@@ -229,24 +230,27 @@ fun FeedbackScreen(
                         FeedbackType.GENERAL -> "📝 FEEDBACK"
                     }
                     val fullMessage = "$subject: $message\n\n$diagnosticInfo"
-                    val intent = Intent(Intent.ACTION_SEND).apply {
-                        type = "text/plain"
-                        setPackage("com.whatsapp")
-                        putExtra(Intent.EXTRA_TEXT, fullMessage)
+
+                    // Copy message to clipboard
+                    val clipboard = context.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+                    clipboard.setPrimaryClip(android.content.ClipData.newPlainText("NotiFetch Feedback", fullMessage))
+
+                    // Show toast telling user to paste
+                    android.widget.Toast.makeText(
+                        context,
+                        "Message copied! Paste it in the NotiFetch group.",
+                        android.widget.Toast.LENGTH_LONG
+                    ).show()
+
+                    // Open the NotiFetch WhatsApp group directly
+                    val groupIntent = Intent(Intent.ACTION_VIEW).apply {
+                        data = android.net.Uri.parse("https://chat.whatsapp.com/IHYTQwoyu8hDiXg3MRgWko")
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     }
                     try {
-                        context.startActivity(intent)
-                    } catch (e: Exception) {
-                        // WhatsApp not installed — open group invite link in browser
-                        val browserIntent = Intent(Intent.ACTION_VIEW).apply {
-                            data = android.net.Uri.parse("https://chat.whatsapp.com/IHYTQwoyu8hDiXg3MRgWko")
-                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        }
-                        try {
-                            context.startActivity(browserIntent)
-                        } catch (_: Exception) {
-                            android.widget.Toast.makeText(context, "WhatsApp not installed", android.widget.Toast.LENGTH_SHORT).show()
-                        }
+                        context.startActivity(groupIntent)
+                    } catch (_: Exception) {
+                        android.widget.Toast.makeText(context, "Cannot open WhatsApp", android.widget.Toast.LENGTH_SHORT).show()
                     }
                 },
                 modifier = Modifier
