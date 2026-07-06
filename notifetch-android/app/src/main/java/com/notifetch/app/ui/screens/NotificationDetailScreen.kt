@@ -521,98 +521,41 @@ private fun openSourceApp(
 ) {
     val pm = context.packageManager
     val logTag = "NotiFetchOpen"
-    val newTaskFlags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED
 
-    // v2.9.57 FIX: Removed all debug Toasts from production builds.
-    // Removed Thread.sleep(500) which blocked the UI thread and caused ANRs.
     if (packageName.isBlank()) {
         android.util.Log.e(logTag, "Package name is missing!")
         return
     }
 
-    // ── Tier 0 (v2.9.66): Look up ORIGINAL PendingIntent via system notification ID ──
-    if (systemNotificationId != null) {
-        if (com.notifetch.app.notification.NotiFetchListenerService.openBySystemId(systemNotificationId, packageName)) {
-            return
-        }
-        android.util.Log.w(logTag, "T0 did not succeed — falling through to other tiers")
-    } else {
-        android.util.Log.d(logTag, "T0 SKIP: systemNotificationId is null (old notification)")
-    }
+    // v2.9.67: SIMPLIFIED — just open the app. No deep link tiers.
+    //
+    // After 6 months of trying to deep-link to specific order pages, we
+    // learned that Android's notification listener API makes this unreliable:
+    //   - PendingIntent tokens get invalidated
+    //   - getActiveNotifications() only works if listener is alive
+    //   - OEM battery kills make listener die randomly
+    //   - Each delivery app handles deep links differently
+    //
+    // For delivery riders, opening the app IS the right action — the app
+    // automatically shows them what they need to do (new order, delivery
+    // update, etc.). They don't need to land on a specific page.
+    //
+    // getLaunchIntentForPackage() is 100% reliable. Every tap opens the app.
 
-    // ── Tier 1: PendingIntent.send() ──
-    if (!PendingIntentCache.has(packageName)) {
-        android.util.Log.d(logTag, "Cache empty for $packageName — repopulating...")
-        com.notifetch.app.notification.NotiFetchListenerService.repopulatePendingIntentCache()
-    }
-    val pendingIntent = PendingIntentCache.get(packageName)
-    if (pendingIntent != null) {
-        try {
-            pendingIntent.send()
-            android.util.Log.d(logTag, "T1: PendingIntent.send() executed")
-            return
-        } catch (e: android.app.PendingIntent.CanceledException) {
-            android.util.Log.w(logTag, "T1 FAIL: PendingIntent canceled: ${e.message}")
-        } catch (e: Exception) {
-            android.util.Log.w(logTag, "T1 FAIL: ${e.message}")
-        }
-    }
-
-    // ── Tier 2: Intent.parseUri() ──
-    if (!deepLinkUri.isNullOrBlank()) {
-        try {
-            val deepIntent = Intent.parseUri(deepLinkUri, Intent.URI_INTENT_SCHEME)
-            deepIntent.addFlags(newTaskFlags)
-            deepIntent.setPackage(packageName)
-            // v2.9.60 SECURITY HARDENING: Strip FLAG_GRANT_* from the top-level intent
-            // AND from any nested selector intent AND from ClipData URIs.
-            // v2.9.59 only stripped top-level flags — a selector intent could still
-            // carry GRANT flags, bypassing the fix.
-            stripGrantFlags(deepIntent)
-            context.startActivity(deepIntent)
-            android.util.Log.d(logTag, "T2 SUCCESS: Opened via Intent.parseUri()")
-            return
-        } catch (e: android.content.ActivityNotFoundException) {
-            android.util.Log.w(logTag, "T2 FAIL: Activity not found")
-        } catch (e: SecurityException) {
-            android.util.Log.w(logTag, "T2 FAIL: SecurityException (non-exported)")
-        } catch (e: Exception) {
-            android.util.Log.w(logTag, "T2 FAIL: ${e.message}")
-        }
-    }
-
-    // ── Tier 3: Component-only intent ──
-    if (!deepLinkComponent.isNullOrBlank()) {
-        try {
-            val parts = deepLinkComponent.split("/", limit = 2)
-            if (parts.size == 2) {
-                val componentIntent = Intent().apply {
-                    component = ComponentName(parts[0], parts[1])
-                    addFlags(newTaskFlags)
-                }
-                context.startActivity(componentIntent)
-                android.util.Log.d(logTag, "T3 SUCCESS: Opened via component")
-                return
-            }
-        } catch (e: Exception) {
-            android.util.Log.w(logTag, "T3 FAIL: ${e.message}")
-        }
-    }
-
-    // ── Tier 4: getLaunchIntentForPackage — opens MAIN SCREEN ──────────────
+    // ── Open the app (main screen) ──
     try {
         val launchIntent = pm.getLaunchIntentForPackage(packageName)
         if (launchIntent != null) {
-            launchIntent.addFlags(newTaskFlags)
+            launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             context.startActivity(launchIntent)
-            android.util.Log.d(logTag, "Opened $packageName via launch intent → main screen")
+            android.util.Log.d(logTag, "Opened $packageName → main screen")
             return
         }
     } catch (e: Exception) {
-        android.util.Log.w(logTag, "Launch intent failed: ${e.message} — falling through")
+        android.util.Log.w(logTag, "Launch intent failed: ${e.message}")
     }
 
-    // ── Tier 5: Play Store (app not installed) ─────────────────────────────
+    // ── App not installed → Play Store ──
     android.util.Log.w(logTag, "App $packageName not installed — opening Play Store")
     Toast.makeText(context, "$displayName not installed", Toast.LENGTH_SHORT).show()
     try {
