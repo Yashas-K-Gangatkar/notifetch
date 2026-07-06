@@ -6,7 +6,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountBalanceWallet
+import androidx.compose.material.icons.filled.Analytics
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material3.*
@@ -51,12 +51,12 @@ fun EarningsScreen(
                 title = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
-                            imageVector = Icons.Default.AccountBalanceWallet,
+                            imageVector = Icons.Default.Analytics,
                             contentDescription = null,
                             tint = Color.White
                         )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Earnings", fontWeight = FontWeight.Bold, color = Color.White)
+                        Text("Activity", fontWeight = FontWeight.Bold, color = Color.White)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -90,7 +90,7 @@ fun EarningsScreen(
                         )
                         Spacer(modifier = Modifier.width(12.dp))
                         Text(
-                            "All earnings data stays on your device. No tracking, no ads.",
+                            "NotiFetch helps you never miss an order. Your notifications stay on your phone.",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -112,11 +112,11 @@ fun EarningsScreen(
                         Column(modifier = Modifier.padding(16.dp)) {
                             Text("Today", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             Text(
-                                Helpers.formatCurrency(uiState.todayEarnings),
+                                "${uiState.todayOrders}",
                                 style = MaterialTheme.typography.headlineSmall,
                                 fontWeight = FontWeight.Bold
                             )
-                            Text("${uiState.todayOrders} orders", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text("orders captured", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
                     // This Week
@@ -127,11 +127,11 @@ fun EarningsScreen(
                         Column(modifier = Modifier.padding(16.dp)) {
                             Text("This Week", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             Text(
-                                Helpers.formatCurrency(uiState.weekEarnings),
+                                "${uiState.weekOrders}",
                                 style = MaterialTheme.typography.headlineSmall,
                                 fontWeight = FontWeight.Bold
                             )
-                            Text("${uiState.weekOrders} orders", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text("orders captured", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
                 }
@@ -157,12 +157,12 @@ fun EarningsScreen(
                         Column(modifier = Modifier.weight(1f)) {
                             Text("This Month", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             Text(
-                                Helpers.formatCurrency(uiState.monthEarnings),
+                                "${uiState.monthOrders}",
                                 style = MaterialTheme.typography.headlineMedium,
                                 fontWeight = FontWeight.Bold
                             )
                         }
-                        Text("${uiState.monthOrders} orders", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text("orders captured", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
             }
@@ -171,7 +171,7 @@ fun EarningsScreen(
             if (uiState.platformBreakdown.isNotEmpty()) {
                 item {
                     Text(
-                        "Platform Breakdown",
+                        "Orders by Platform",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(top = 8.dp)
@@ -188,10 +188,9 @@ fun EarningsScreen(
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(earning.platform, fontWeight = FontWeight.Medium)
-                                Text("${earning.count} orders", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                             Text(
-                                Helpers.formatCurrency(earning.earnings),
+                                "${earning.count} orders",
                                 fontWeight = FontWeight.Bold,
                                 style = MaterialTheme.typography.titleMedium
                             )
