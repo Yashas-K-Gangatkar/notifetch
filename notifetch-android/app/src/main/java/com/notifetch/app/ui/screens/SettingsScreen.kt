@@ -101,6 +101,7 @@ fun SettingsScreen(
     onNavigateToPrivacy: () -> Unit = {},
     onNavigateToHealthCheck: () -> Unit = {},
     onNavigateToFeedback: () -> Unit = {},
+    onNavigateToPlatforms: () -> Unit = {},
     viewModel: SettingsViewModel = hiltViewModel(),
     profileViewModel: ProfileViewModel = hiltViewModel()
 ) {
@@ -447,81 +448,49 @@ fun SettingsScreen(
                 }
             }
 
-            // v2.9.15: Platform list grouped by category (expand/collapse)
-            // Like choosing sports in college: pick a category, then see platforms
-            val groupedPlatforms = uiState.platformConfigs.groupBy {
-                com.notifetch.app.util.Constants.getCategoryForPackage(it.packageName)
-            }.toSortedMap()
-
-            groupedPlatforms.forEach { (category, platforms) ->
-                // Category header (clickable to expand/collapse)
-                item(key = "category_$category") {
-                    val isExpanded = expandedCategories.value.contains(category)
-                    val categoryName = com.notifetch.app.util.Constants.getCategoryDisplayName(category)
-                    val categoryIcon = com.notifetch.app.util.Constants.getCategoryIcon(category)
-                    val enabledCount = platforms.count { it.isEnabled }
-
-                    Card(
+            // v2.9.68: Platforms button — opens separate screen with categories
+            // Replaces the old long scrollable list of 169+ platforms
+            item {
+                val totalEnabled = uiState.platformConfigs.count { it.isEnabled }
+                val totalPlatforms = uiState.platformConfigs.size
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f)
+                    )
+                ) {
+                    Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 4.dp),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = if (isExpanded)
-                                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f)
-                            else
-                                MaterialTheme.colorScheme.surface
-                        )
+                            .clickable { onNavigateToPlatforms() }
+                            .padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable { toggleCategory(category) }
-                                .padding(16.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
+                        Text(
+                            text = "📦",
+                            style = MaterialTheme.typography.titleMedium,
+                            modifier = Modifier.size(24.dp)
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = categoryIcon,
-                                style = MaterialTheme.typography.titleMedium,
-                                modifier = Modifier.size(24.dp)
+                                text = "Platforms",
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.SemiBold
                             )
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = categoryName,
-                                    style = MaterialTheme.typography.titleSmall,
-                                    fontWeight = FontWeight.SemiBold
-                                )
-                                Text(
-                                    text = "$enabledCount enabled · ${platforms.size} platforms",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                            Icon(
-                                imageVector = if (isExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                                contentDescription = if (isExpanded) "Collapse" else "Expand",
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            Text(
+                                text = "$totalEnabled of $totalPlatforms enabled",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
-                    }
-                }
-
-                // Platform cards (only shown when category is expanded)
-                if (expandedCategories.value.contains(category)) {
-                    items(
-                        items = platforms,
-                        key = { it.packageName }
-                    ) { config ->
-                        PlatformNameCard(
-                            config = config,
-                            onToggle = { enabled ->
-                                viewModel.togglePlatform(config.packageName, enabled)
-                            },
-                            onRename = {
-                                renamingPlatform = config
-                                showRenameDialog = true
-                            }
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                            contentDescription = "Open",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }

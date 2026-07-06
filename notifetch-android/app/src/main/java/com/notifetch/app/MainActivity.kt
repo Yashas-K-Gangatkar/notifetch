@@ -49,6 +49,8 @@ import com.notifetch.app.ui.screens.hasConsented
 import com.notifetch.app.ui.screens.HomeScreen
 import com.notifetch.app.ui.screens.NotificationDetailScreen
 import com.notifetch.app.ui.screens.PermissionScreen
+import com.notifetch.app.ui.screens.PlatformsScreen
+import com.notifetch.app.ui.screens.PlatformCategoryScreen
 import com.notifetch.app.ui.screens.SettingsScreen
 import com.notifetch.app.ui.theme.NotiFetchTheme
 import com.notifetch.app.ui.viewmodel.SettingsViewModel
@@ -351,7 +353,28 @@ fun NotiFetchNavHost() {
                     },
                     onNavigateToFeedback = {
                         navController.navigate("feedback")
+                    },
+                    onNavigateToPlatforms = {
+                        navController.navigate("platforms")
                     }
+                )
+            }
+
+            // v2.9.68: Platforms 3-level hierarchy
+            composable("platforms") {
+                PlatformsScreen(
+                    onNavigateBack = { navController.popBackStack() },
+                    onCategoryClick = { category ->
+                        navController.navigate("platform_category/$category")
+                    }
+                )
+            }
+
+            composable("platform_category/{category}") { backStackEntry ->
+                val category = backStackEntry.arguments?.getString("category") ?: "other"
+                PlatformCategoryScreen(
+                    category = category,
+                    onNavigateBack = { navController.popBackStack() }
                 )
             }
 
