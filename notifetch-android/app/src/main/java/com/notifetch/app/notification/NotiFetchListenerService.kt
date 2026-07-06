@@ -180,6 +180,37 @@ class NotiFetchListenerService : NotificationListenerService() {
                 false
             }
         }
+
+        /**
+         * v2.9.66: Open the source app's specific page by looking up the ORIGINAL
+         * PendingIntent from active system notifications via sbn.id + packageName.
+         */
+        fun openBySystemId(systemNotificationId: Int, packageName: String): Boolean {
+            val instance = currentInstance ?: run {
+                android.util.Log.w("NotiFetchOpen", "T0 SKIP: listener instance is null")
+                return false
+            }
+            return try {
+                val activeNotifications = instance.getActiveNotifications()
+                android.util.Log.d("NotiFetchOpen", "T0: Searching ${activeNotifications.size} active notifications for id=$systemNotificationId pkg=$packageName")
+                for (sbn in activeNotifications) {
+                    if (sbn.id == systemNotificationId && sbn.packageName == packageName) {
+                        val contentIntent = sbn.notification.contentIntent
+                        if (contentIntent != null) {
+                            contentIntent.send()
+                            android.util.Log.d("NotiFetchOpen", "T0 SUCCESS: Opened via original PendingIntent (sbn.id=$systemNotificationId)")
+                            PendingIntentCache.put(sbn.packageName, contentIntent)
+                            return true
+                        }
+                    }
+                }
+                android.util.Log.w("NotiFetchOpen", "T0 FAIL: No active notification with id=$systemNotificationId pkg=$packageName")
+                false
+            } catch (e: Exception) {
+                android.util.Log.w("NotiFetchOpen", "T0 FAIL: ${e.message}")
+                false
+            }
+        }
     }
 
     override fun onCreate() {
@@ -354,6 +385,7 @@ class NotiFetchListenerService : NotificationListenerService() {
         // This survives process death (stored in database as deepLinkUri).
         var extractedDeepLinkUri: String? = null
         var extractedDeepLinkComponent: String? = null
+        val systemNotificationId: Int = sbn.id  // v2.9.66: for reliable deep linking
         try {
             val contentIntent = sbn.notification.contentIntent
             if (contentIntent != null) {
@@ -480,7 +512,8 @@ class NotiFetchListenerService : NotificationListenerService() {
                 currency = currency,
                 userMode = userMode,
                 deepLinkUri = extractedDeepLinkUri,
-                deepLinkComponent = extractedDeepLinkComponent
+                deepLinkComponent = extractedDeepLinkComponent,
+                systemNotificationId = systemNotificationId
             )
 
             // Save to local database (async — never block onNotificationPosted)

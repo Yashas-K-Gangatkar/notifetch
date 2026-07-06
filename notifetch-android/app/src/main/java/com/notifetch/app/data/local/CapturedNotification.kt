@@ -54,4 +54,5 @@ data class CapturedNotification(
     // extras bundle (which could contain PII/auth tokens).
     val deepLinkUri: String? = null,
     val deepLinkComponent: String? = null, // "packageName/className" if resolvable
+    val systemNotificationId: Int? = null,  // v2.9.66: sbn.id for reliable deep linking
 )

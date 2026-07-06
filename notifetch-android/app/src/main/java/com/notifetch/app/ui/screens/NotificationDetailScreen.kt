@@ -198,7 +198,8 @@ fun NotificationDetailScreen(
                                 packageName = notification.packageName,
                                 displayName = displayPlatformName,
                                 deepLinkUri = notification.deepLinkUri,
-                                deepLinkComponent = notification.deepLinkComponent
+                                deepLinkComponent = notification.deepLinkComponent,
+                                systemNotificationId = notification.systemNotificationId
                             )
                         } catch (e: Exception) {
                             android.util.Log.e("NotiFetchOpen", "Button onClick crashed", e)
@@ -515,7 +516,8 @@ private fun openSourceApp(
     packageName: String,
     displayName: String,
     deepLinkUri: String? = null,
-    deepLinkComponent: String? = null
+    deepLinkComponent: String? = null,
+    systemNotificationId: Int? = null
 ) {
     val pm = context.packageManager
     val logTag = "NotiFetchOpen"
@@ -526,6 +528,16 @@ private fun openSourceApp(
     if (packageName.isBlank()) {
         android.util.Log.e(logTag, "Package name is missing!")
         return
+    }
+
+    // ── Tier 0 (v2.9.66): Look up ORIGINAL PendingIntent via system notification ID ──
+    if (systemNotificationId != null) {
+        if (com.notifetch.app.notification.NotiFetchListenerService.openBySystemId(systemNotificationId, packageName)) {
+            return
+        }
+        android.util.Log.w(logTag, "T0 did not succeed — falling through to other tiers")
+    } else {
+        android.util.Log.d(logTag, "T0 SKIP: systemNotificationId is null (old notification)")
     }
 
     // ── Tier 1: PendingIntent.send() ──

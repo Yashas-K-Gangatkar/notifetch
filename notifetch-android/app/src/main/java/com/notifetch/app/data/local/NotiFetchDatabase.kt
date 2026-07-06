@@ -10,7 +10,7 @@ import com.notifetch.app.util.Constants
 
 @Database(
     entities = [CapturedNotification::class, PlatformConfig::class],
-    version = 7,
+    version = 8,
     exportSchema = false
 )
 abstract class NotiFetchDatabase : RoomDatabase() {
@@ -80,10 +80,18 @@ abstract class NotiFetchDatabase : RoomDatabase() {
          * Returns all migrations in order.
          * Room will automatically run the necessary chain of migrations.
          */
+        val MIGRATION_7_8 = object : Migration(7, 8) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE captured_notifications ADD COLUMN systemNotificationId INTEGER")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_captured_notifications_userMode ON captured_notifications(userMode)")
+            }
+        }
+
         fun allMigrations(): Array<Migration> = arrayOf(
             MIGRATION_4_5,
             MIGRATION_5_6,
-            MIGRATION_6_7
+            MIGRATION_6_7,
+            MIGRATION_7_8
         )
 
         /**
