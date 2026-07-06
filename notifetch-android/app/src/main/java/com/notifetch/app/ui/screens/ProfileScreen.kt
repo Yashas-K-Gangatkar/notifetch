@@ -365,6 +365,13 @@ fun ProfileScreen(
                     color = MaterialTheme.colorScheme.primary
                 )
             } else if (!uiState.isSignedIn) {
+                // v2.9.68: Made sign-in clearly OPTIONAL
+                Text(
+                    text = "Sign in is optional. NotiFetch works without an account — your notifications stay on your phone. Sign in only if you want to sync to the web dashboard.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
                 // Google Sign-In button
                 Button(
                     onClick = {
@@ -386,7 +393,7 @@ fun ProfileScreen(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Continue with Google",
+                        text = "Continue with Google (Optional)",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold
                     )
