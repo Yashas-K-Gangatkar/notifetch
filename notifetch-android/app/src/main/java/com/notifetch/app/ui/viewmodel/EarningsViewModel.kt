@@ -12,6 +12,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
@@ -93,22 +94,22 @@ class EarningsViewModel @Inject constructor(
         repository.getTotalOrderValueSince(startOfMonth)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
 
-    private val todayOrdersFlow = combine(dayRangeFlow, userModeFlow) { (start, end), mode ->
-        start to mode
-    }.flatMapLatest { (start, mode) ->
-        repository.getCountInTimeRangeByMode(start, System.currentTimeMillis(), mode)
+    private val todayOrdersFlow = dayRangeFlow.flatMapLatest { (start, end) ->
+        userModeFlow.flatMapLatest { mode ->
+            repository.getCountInTimeRangeByMode(start, end, mode)
+        }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
-    private val weekOrdersFlow = combine(weekStartFlow, userModeFlow) { start, mode ->
-        start to mode
-    }.flatMapLatest { (start, mode) ->
-        repository.getCountInTimeRangeByMode(start, System.currentTimeMillis(), mode)
+    private val weekOrdersFlow = weekStartFlow.flatMapLatest { start ->
+        userModeFlow.flatMapLatest { mode ->
+            repository.getCountInTimeRangeByMode(start, System.currentTimeMillis(), mode)
+        }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
-    private val monthOrdersFlow = combine(monthStartFlow, userModeFlow) { start, mode ->
-        start to mode
-    }.flatMapLatest { (start, mode) ->
-        repository.getCountInTimeRangeByMode(start, System.currentTimeMillis(), mode)
+    private val monthOrdersFlow = monthStartFlow.flatMapLatest { start ->
+        userModeFlow.flatMapLatest { mode ->
+            repository.getCountInTimeRangeByMode(start, System.currentTimeMillis(), mode)
+        }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
     private val platformCountFlow = userModeFlow.flatMapLatest { mode ->
