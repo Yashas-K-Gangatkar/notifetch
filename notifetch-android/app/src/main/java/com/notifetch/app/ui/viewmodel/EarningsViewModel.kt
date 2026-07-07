@@ -40,6 +40,10 @@ class EarningsViewModel @Inject constructor(
     private val repository: NotificationRepository
 ) : AndroidViewModel(application) {
 
+    // v2.9.71: Read current userMode from DataStore
+    private val userModeFlow = com.notifetch.app.data.repository.dataStore.data
+        .map { it[com.notifetch.app.ui.viewmodel.SettingsViewModel.USER_MODE_KEY] ?: "customer" }
+
     // ── Reactive time-range flows (fix: timestamps were frozen at construction) ──
     // Previously, Helpers.startOfDayTimestamp() etc. were called once in the constructor.
     // If the user left the app open overnight, "today" stats would still show yesterday's
@@ -88,19 +92,26 @@ class EarningsViewModel @Inject constructor(
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
 
     private val todayOrdersFlow = dayRangeFlow.flatMapLatest { (start, end) ->
-        repository.getCountInTimeRange(start, end)
+        userModeFlow.flatMapLatest { mode ->
+            repository.getCountInTimeRangeByMode(start, end, mode)
+        }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
     private val weekOrdersFlow = weekStartFlow.flatMapLatest { startOfWeek ->
-        repository.getCountInTimeRange(startOfWeek, System.currentTimeMillis())
+        userModeFlow.flatMapLatest { mode ->
+            repository.getCountInTimeRangeByMode(startOfWeek, System.currentTimeMillis(), mode)
+        }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
     private val monthOrdersFlow = monthStartFlow.flatMapLatest { startOfMonth ->
-        repository.getCountInTimeRange(startOfMonth, System.currentTimeMillis())
+        userModeFlow.flatMapLatest { mode ->
+            repository.getCountInTimeRangeByMode(startOfMonth, System.currentTimeMillis(), mode)
+        }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
-    private val platformCountFlow = repository.getNotificationCountByPlatform()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    private val platformCountFlow = userModeFlow.flatMapLatest { mode ->
+        repository.getNotificationCountByPlatformByMode(mode)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     private val platformEarningsFlow = monthStartFlow.flatMapLatest { startOfMonth ->
         repository.getOrderValueByPlatformSince(startOfMonth)

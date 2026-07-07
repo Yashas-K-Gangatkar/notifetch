@@ -313,6 +313,12 @@ class HomeViewModel @Inject constructor(
     fun onUserModeChange(mode: UserMode) {
         _userMode.value = mode
         _selectedPlatform.value = null // Reset platform filter on mode switch
+        // v2.9.71: Save to DataStore so EarningsViewModel can read it
+        viewModelScope.launch {
+            application.dataStore.edit { prefs ->
+                prefs[SettingsViewModel.USER_MODE_KEY] = mode.name.lowercase()
+            }
+        }
     }
 
     fun markAsRead(id: Long) {

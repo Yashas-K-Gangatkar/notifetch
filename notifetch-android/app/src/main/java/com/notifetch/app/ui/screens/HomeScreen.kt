@@ -552,18 +552,18 @@ private fun AnimatedEmptyState(
  * v2.9.69: Free Premium Countdown
  *
  * Shows a live countdown timer for the 6-month free premium period.
- * End date: January 1, 2027 00:00:00 UTC
- * (6 months from July 1, 2026 — the approximate launch date)
+ * End date: December 20, 2026 00:00:00 UTC
+ * (6 months from June 20, 2026 — the approximate launch date)
  *
  * Displays: months, days, hours, minutes, seconds — updating every second.
  * When the countdown reaches zero, shows "Premium expired".
  */
 @Composable
 private fun FreePremiumCountdown() {
-    // End date: January 1, 2027 00:00:00 UTC
+    // End date: December 20, 2026 00:00:00 UTC
     val endDate = remember {
         java.util.Calendar.getInstance().apply {
-            set(2027, 0, 1, 0, 0, 0)  // January = month 0
+            set(2026, 11, 20, 0, 0, 0)  // January = month 0
             set(java.util.Calendar.MILLISECOND, 0)
         }.timeInMillis
     }

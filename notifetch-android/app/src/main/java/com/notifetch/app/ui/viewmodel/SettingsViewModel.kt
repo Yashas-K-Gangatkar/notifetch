@@ -3,6 +3,7 @@ package com.notifetch.app.ui.viewmodel
 import android.content.Context
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.floatPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.lifecycle.ViewModel
@@ -254,6 +255,7 @@ class SettingsViewModel @Inject constructor(
         val ONBOARDING_COMPLETED_KEY = booleanPreferencesKey("onboarding_completed")
         // v2.9.68: Glass transparency — controls overlay alpha over gradient background
         val CARD_TRANSPARENCY_KEY = floatPreferencesKey("card_transparency")
+        val USER_MODE_KEY = stringPreferencesKey("user_mode")
 
         /**
          * Schedule periodic sync work with WorkManager.

@@ -217,6 +217,14 @@ fun FeedbackScreen(
                 Text("Send Feedback", fontWeight = FontWeight.SemiBold)
             }
 
+            // v2.9.71: Visible explanation so user knows what will happen
+            Text(
+                text = "When you tap Send via WhatsApp, your description will be copied to your clipboard. Open the NotiFetch group and paste it there.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(vertical = 4.dp)
+            )
+
             // v2.9.69: Send via WhatsApp — opens NotiFetch group DIRECTLY
             // Copies message to clipboard, then opens the group invite link.
             // WhatsApp opens the group (if user is a member), user pastes message.

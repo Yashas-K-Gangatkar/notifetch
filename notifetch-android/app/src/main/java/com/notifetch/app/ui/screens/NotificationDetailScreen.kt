@@ -113,6 +113,12 @@ fun NotificationDetailScreen(
                 Text("Loading...", style = MaterialTheme.typography.bodyLarge)
             }
         } else if (notification == null) {
+            // v2.9.71: Show brief message + auto-navigate back
+            // instead of stranding user on 'not found' screen
+            LaunchedEffect(Unit) {
+                kotlinx.coroutines.delay(1500)
+                onNavigateBack()
+            }
             Column(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.Center,
@@ -126,8 +132,14 @@ fun NotificationDetailScreen(
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    text = "Notification not found",
+                    text = "Notification no longer available",
                     style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Returning to home...",
+                    style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
