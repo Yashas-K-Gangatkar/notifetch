@@ -156,7 +156,7 @@ object SmartAlertManager {
             ).apply {
                 description = "Sound + vibration alerts for high-value orders (₹200+) and 50%+ off offers"
                 enableLights(true)
-                lightColor = 0xFFFF5A1F
+                lightColor = 0xFFFF5A1F.toInt()
                 enableVibration(true)
                 vibrationPattern = VIBRATION_PATTERN
                 setShowBadge(true)

@@ -1,3 +1,4 @@
+import com.notifetch.app.data.repository.dataStore
 package com.notifetch.app.ui.viewmodel
 
 import android.app.Application
@@ -41,8 +42,8 @@ class EarningsViewModel @Inject constructor(
 ) : AndroidViewModel(application) {
 
     // v2.9.71: Read current userMode from DataStore
-    private val userModeFlow = com.notifetch.app.data.repository.dataStore.data
-        .map { it[com.notifetch.app.ui.viewmodel.SettingsViewModel.USER_MODE_KEY] ?: "customer" }
+    private val userModeFlow = getApplication<Application>().dataStore.data
+        .map { it[SettingsViewModel.USER_MODE_KEY] ?: "customer" }
 
     // ── Reactive time-range flows (fix: timestamps were frozen at construction) ──
     // Previously, Helpers.startOfDayTimestamp() etc. were called once in the constructor.
@@ -91,22 +92,22 @@ class EarningsViewModel @Inject constructor(
         repository.getTotalOrderValueSince(startOfMonth)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
 
-    private val todayOrdersFlow = dayRangeFlow.flatMapLatest { (start, end) ->
-        userModeFlow.flatMapLatest { mode ->
-            repository.getCountInTimeRangeByMode(start, end, mode)
-        }
+    private val todayOrdersFlow = combine(dayRangeFlow, userModeFlow) { (start, end), mode ->
+        start to mode
+    }.flatMapLatest { (start, mode) ->
+        repository.getCountInTimeRangeByMode(start, System.currentTimeMillis(), mode)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
-    private val weekOrdersFlow = weekStartFlow.flatMapLatest { startOfWeek ->
-        userModeFlow.flatMapLatest { mode ->
-            repository.getCountInTimeRangeByMode(startOfWeek, System.currentTimeMillis(), mode)
-        }
+    private val weekOrdersFlow = combine(weekStartFlow, userModeFlow) { start, mode ->
+        start to mode
+    }.flatMapLatest { (start, mode) ->
+        repository.getCountInTimeRangeByMode(start, System.currentTimeMillis(), mode)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
-    private val monthOrdersFlow = monthStartFlow.flatMapLatest { startOfMonth ->
-        userModeFlow.flatMapLatest { mode ->
-            repository.getCountInTimeRangeByMode(startOfMonth, System.currentTimeMillis(), mode)
-        }
+    private val monthOrdersFlow = combine(monthStartFlow, userModeFlow) { start, mode ->
+        start to mode
+    }.flatMapLatest { (start, mode) ->
+        repository.getCountInTimeRangeByMode(start, System.currentTimeMillis(), mode)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
     private val platformCountFlow = userModeFlow.flatMapLatest { mode ->
