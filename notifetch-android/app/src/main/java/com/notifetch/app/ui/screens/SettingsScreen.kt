@@ -85,6 +85,7 @@ import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Gavel
 import androidx.compose.material.icons.filled.Login
+import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PrivacyTip
@@ -381,6 +382,68 @@ fun SettingsScreen(
                                 checked = uiState.isDarkMode,
                                 onCheckedChange = { viewModel.setDarkMode(it) }
                             )
+                        }
+
+                        // v2.9.72 Phase 4: Language selector
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Language,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text("Language", style = MaterialTheme.typography.bodyLarge)
+                                Text(
+                                    "Choose app language",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            var languageExpanded by remember { mutableStateOf(false) }
+                            androidx.compose.material3.TextButton(onClick = { languageExpanded = true }) {
+                                Text(
+                                    when (java.util.Locale.getDefault().language) {
+                                        "hi" -> "हिंदी"
+                                        "ta" -> "தமிழ்"
+                                        "te" -> "తెలుగు"
+                                        "kn" -> "ಕನ್ನಡ"
+                                        else -> "English"
+                                    }
+                                )
+                            }
+                            androidx.compose.material3.DropdownMenu(
+                                expanded = languageExpanded,
+                                onDismissRequest = { languageExpanded = false }
+                            ) {
+                                val languages = listOf(
+                                    "en" to "English",
+                                    "hi" to "हिंदी",
+                                    "ta" to "தமிழ்",
+                                    "te" to "తెలుగు",
+                                    "kn" to "ಕನ್ನಡ"
+                                )
+                                for ((code, name) in languages) {
+                                    androidx.compose.material3.DropdownMenuItem(
+                                        text = { Text(name) },
+                                        onClick = {
+                                            languageExpanded = false
+                                            val locale = java.util.Locale(code)
+                                            java.util.Locale.setDefault(locale)
+                                            val config = context.resources.configuration
+                                            config.setLocale(locale)
+                                            context.resources.updateConfiguration(config, context.resources.displayMetrics)
+                                            // Recreate activity to apply language
+                                            (context as? android.app.Activity)?.recreate()
+                                        }
+                                    )
+                                }
+                            }
                         }
 
                         // v2.9.68: Glass transparency slider
