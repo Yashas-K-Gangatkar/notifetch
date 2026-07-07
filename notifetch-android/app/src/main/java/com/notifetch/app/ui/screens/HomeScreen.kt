@@ -290,6 +290,48 @@ fun HomeScreen(
             }
         }
 
+        // v2.9.72 Phase 3: Quick filter chips
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 4.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            // 🔥 High Value chip
+            androidx.compose.material3.FilterChip(
+                selected = uiState.highValueOnly,
+                onClick = { viewModel.setHighValueOnly(!uiState.highValueOnly) },
+                label = { Text("🔥 High Value", style = MaterialTheme.typography.labelSmall) },
+                modifier = Modifier
+            )
+            // Today chip
+            androidx.compose.material3.FilterChip(
+                selected = uiState.timeFilter == com.notifetch.app.ui.viewmodel.TimeFilter.TODAY,
+                onClick = {
+                    viewModel.setTimeFilter(
+                        if (uiState.timeFilter == com.notifetch.app.ui.viewmodel.TimeFilter.TODAY)
+                            com.notifetch.app.ui.viewmodel.TimeFilter.ALL
+                        else com.notifetch.app.ui.viewmodel.TimeFilter.TODAY
+                    )
+                },
+                label = { Text("Today", style = MaterialTheme.typography.labelSmall) },
+                modifier = Modifier
+            )
+            // This Week chip
+            androidx.compose.material3.FilterChip(
+                selected = uiState.timeFilter == com.notifetch.app.ui.viewmodel.TimeFilter.THIS_WEEK,
+                onClick = {
+                    viewModel.setTimeFilter(
+                        if (uiState.timeFilter == com.notifetch.app.ui.viewmodel.TimeFilter.THIS_WEEK)
+                            com.notifetch.app.ui.viewmodel.TimeFilter.ALL
+                        else com.notifetch.app.ui.viewmodel.TimeFilter.THIS_WEEK
+                    )
+                },
+                label = { Text("This Week", style = MaterialTheme.typography.labelSmall) },
+                modifier = Modifier
+            )
+        }
+
         PullToRefreshBox(
             isRefreshing = uiState.isRefreshing,
             onRefresh = { viewModel.refresh() },
