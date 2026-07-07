@@ -142,21 +142,12 @@ fun HomeScreen(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.clickable { onNavigateToProfile() }
                     ) {
-                        // v2.9.69: Orange squircle with white NF — matches app icon
-                        Box(
-                            modifier = Modifier
-                                .size(32.dp)
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(Color(0xFFFF5A1F)),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = "NF",
-                                fontWeight = FontWeight.Black,
-                                color = Color.White,
-                                style = MaterialTheme.typography.labelMedium
-                            )
-                        }
+                        // v2.9.70: Use actual app launcher icon image
+                        androidx.compose.foundation.Image(
+                            painter = androidx.compose.ui.res.painterResource(id = com.notifetch.app.R.drawable.ic_launcher_foreground),
+                            contentDescription = "NotiFetch",
+                            modifier = Modifier.size(36.dp)
+                        )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
                             text = "NotiFetch",
@@ -618,17 +609,11 @@ private fun FreePremiumCountdown() {
     val minutes = (daysAfterMonths % 3600) / 60
     val seconds = daysAfterMonths % 60
 
-    Card(
+    com.notifetch.app.ui.components.GlassCard(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 4.dp),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color(0xFFFF5A1F).copy(alpha = 0.1f)
-        )
+            .padding(horizontal = 16.dp, vertical = 4.dp)
     ) {
         Column(
-            modifier = Modifier.padding(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(

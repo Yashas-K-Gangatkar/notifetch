@@ -353,9 +353,7 @@ fun NotiFetchNavHost() {
             }
 
             composable("earnings") {
-                EarningsDashboardScreen(
-                    onNavigateBack = { navController.popBackStack() }
-                )
+                EarningsScreen()
             }
 
             composable("settings") {

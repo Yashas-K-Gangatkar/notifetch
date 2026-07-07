@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "895827826409-au5kdoro8jol99fo13f7a4bseq8ck6e7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.notifetch.app",
+            "certificate_hash": "3fb850b8127ead7994d188f86d42d19932b011bb"
+          }
+        },
+        {
           "client_id": "895827826409-eti037q1b2iv8bg3govs7d53b71113ea.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
