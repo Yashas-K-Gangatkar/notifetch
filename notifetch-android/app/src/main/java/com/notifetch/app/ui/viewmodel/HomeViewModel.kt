@@ -8,6 +8,7 @@ import com.notifetch.app.data.local.CapturedNotification
 import com.notifetch.app.data.local.NotificationDao
 import com.notifetch.app.data.local.PlatformConfig
 import com.notifetch.app.data.repository.AuthRepository
+import com.notifetch.app.data.repository.dataStore
 import com.notifetch.app.data.repository.NotificationRepository
 import com.notifetch.app.util.Constants
 import com.notifetch.app.util.Helpers
