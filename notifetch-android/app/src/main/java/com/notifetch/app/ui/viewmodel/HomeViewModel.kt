@@ -542,7 +542,10 @@ private data class UIControlState(
     val isListenerEnabled: Boolean,
     val searchQuery: String,
     val selectedPlatform: String?,
-    val userMode: UserMode
+    val userMode: UserMode,
+    val timeFilter: TimeFilter = TimeFilter.ALL,
+    val minOrderValue: Double? = null,
+    val highValueOnly: Boolean = false
 )
 
 
