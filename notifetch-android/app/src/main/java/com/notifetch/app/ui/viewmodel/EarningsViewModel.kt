@@ -1,4 +1,3 @@
-import com.notifetch.app.data.repository.dataStore
 package com.notifetch.app.ui.viewmodel
 
 import android.app.Application
@@ -7,6 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.notifetch.app.data.repository.NotificationRepository
 import com.notifetch.app.util.Constants
 import com.notifetch.app.util.Helpers
+import com.notifetch.app.data.repository.dataStore
+import com.notifetch.app.ui.viewmodel.SettingsViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
