@@ -528,12 +528,14 @@ class NotiFetchListenerService : NotificationListenerService() {
                         val isMuted = repository.isPlatformMuted(packageName)
                         val alertCandidate = capturedNotification.copy(id = id)
                         if (SmartAlertManager.shouldAlert(alertCandidate, isMuted)) {
-                            SmartAlertManager.postOfferAlert(
+                            val posted = SmartAlertManager.postOfferAlert(
                                 context = this@NotiFetchListenerService,
                                 notification = alertCandidate,
                                 notificationId = id
                             )
-                            Log.d(tag, "Posted smart offer alert for $platformName (50%+ off offer detected)")
+                            if (posted) {
+                                Log.d(tag, "Posted smart alert for $platformName (high-value order/offer)")
+                            }
                         }
                     } catch (e: Exception) {
                         Log.w(tag, "Smart alert check failed: ${e.message}")
