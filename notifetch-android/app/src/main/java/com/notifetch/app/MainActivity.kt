@@ -81,18 +81,15 @@ class MainActivity : ComponentActivity() {
             var darkMode by remember { mutableStateOf(false) }
             var dynamicColor by remember { mutableStateOf(false) }
             // v2.9.68: Glass transparency — user-adjustable overlay alpha
-            var cardTransparency by remember { mutableStateOf(0.92f) }
             LaunchedEffect(Unit) {
                 activityContext.dataStore.data.map { prefs ->
-                    Triple(
+                    Pair(
                         prefs[SettingsViewModel.DARK_MODE_KEY] ?: false,
-                        prefs[SettingsViewModel.DYNAMIC_COLOR_KEY] ?: false,
-                        prefs[SettingsViewModel.CARD_TRANSPARENCY_KEY] ?: 0.92f
+                        prefs[SettingsViewModel.DYNAMIC_COLOR_KEY] ?: false
                     )
-                }.collect { (dm, dc, ct) ->
+                }.collect { (dm, dc) ->
                     darkMode = dm
                     dynamicColor = dc
-                    cardTransparency = ct
                 }
             }
             NotiFetchTheme(darkTheme = darkMode, dynamicColor = dynamicColor) {
