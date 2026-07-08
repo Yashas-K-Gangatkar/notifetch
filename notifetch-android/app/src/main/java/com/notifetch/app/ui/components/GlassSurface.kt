@@ -29,7 +29,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.notifetch.app.ui.theme.GlassMode
@@ -185,8 +184,8 @@ fun GlassButton(
         border = BorderStroke(1.dp, Color.White.copy(alpha = theme.borderOpacity)),
         shadowElevation = if (pressed) 2.dp else 6.dp,
         tonalElevation = 0.dp,
-        onClick = if (enabled) onClick else null,
-        role = Role.Button
+        onClick = onClick,
+        enabled = enabled
     ) {
         Row(
             modifier = Modifier
@@ -236,8 +235,8 @@ fun GlassOutlinedButton(
         border = BorderStroke(1.dp, Color.White.copy(alpha = theme.borderOpacity)),
         shadowElevation = 2.dp,
         tonalElevation = 0.dp,
-        onClick = if (enabled) onClick else null,
-        role = Role.Button
+        onClick = onClick,
+        enabled = enabled
     ) {
         Row(
             modifier = Modifier
