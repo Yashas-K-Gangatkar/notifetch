@@ -65,7 +65,6 @@ import kotlinx.coroutines.launch
 class MainActivity : ComponentActivity() {
 
     // v2.9.49: Animated gradient background reference for lifecycle management
-    private var gradientView: com.notifetch.app.ui.components.AnimatedGradientView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -97,28 +96,24 @@ class MainActivity : ComponentActivity() {
                 }
             }
             NotiFetchTheme(darkTheme = darkMode, dynamicColor = dynamicColor) {
-                // v2.9.49: Animated gradient background (battery-friendly GPU shader)
-                // v2.9.58 FIX: Create view inside factory, not during composition
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .windowInsetsPadding(WindowInsets.systemBars)
-                ) {
-                    AndroidView(
-                        factory = { ctx ->
-                            com.notifetch.app.ui.components.AnimatedGradientView(ctx).also { v ->
-                                gradientView = v
-                            }
-                        },
-                        modifier = Modifier.fillMaxSize()
-                    )
-                    // v2.9.73: Liquid Glass — deep dark background with gradient
-                    // No overlay needed — the background IS the dark surface
-                    Surface(
-                        modifier = Modifier.fillMaxSize(),
-                        color = androidx.compose.ui.graphics.Color(0xFF0B0F14)
+                // v2.9.74: Liquid Glass architecture
+                // GlassTheme provides centralized config to all glass components
+                com.notifetch.app.ui.theme.GlassTheme {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .windowInsetsPadding(WindowInsets.systemBars)
                     ) {
-                        NotiFetchNavHost()
+                        // Layer 1+2: Shared blurred background (gradient + blurred copy)
+                        com.notifetch.app.ui.components.SharedBlurBackground()
+
+                        // Layer 3: Screen content (transparent — gradient shows through)
+                        Surface(
+                            modifier = Modifier.fillMaxSize(),
+                            color = androidx.compose.ui.graphics.Color.Transparent
+                        ) {
+                            NotiFetchNavHost()
+                        }
                     }
                 }
             }
@@ -127,12 +122,12 @@ class MainActivity : ComponentActivity() {
 
     override fun onPause() {
         super.onPause()
-        gradientView?.pause()
+        // v2.9.74: Old gradient view removed — Compose handles animation
     }
 
     override fun onResume() {
         super.onResume()
-        gradientView?.resume()
+        // v2.9.74: Old gradient view removed
     }
 }
 
