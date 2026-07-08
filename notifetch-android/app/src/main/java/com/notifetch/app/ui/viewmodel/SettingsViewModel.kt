@@ -2,6 +2,8 @@ package com.notifetch.app.ui.viewmodel
 
 import android.content.Context
 import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.floatPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.lifecycle.ViewModel
@@ -224,12 +226,36 @@ class SettingsViewModel @Inject constructor(
         _isListenerEnabled.value = NotiFetchListenerService.isListenerEnabled(context)
     }
 
+    /**
+     * v2.9.69: Export all notifications as CSV string.
+     * Used by Settings → Download a Copy (local export, no web redirect).
+     */
+    fun exportNotificationsAsCsv(): String {
+        return kotlinx.coroutines.runBlocking {
+            val notifications = repository.getAllNotificationsSync()
+            val sdf = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.getDefault())
+            val sb = StringBuilder()
+            sb.appendLine("Date,Platform,Title,Body,Category,Mode")
+            for (n in notifications) {
+                val date = sdf.format(java.util.Date(n.receivedAt))
+                val title = n.title.replace("\"", "\"\"")
+                val body = n.body.replace("\"", "\"\"")
+                val category = n.category ?: ""
+                sb.appendLine("\"$date\",\"${n.platform}\",\"$title\",\"$body\",\"$category\",\"${n.userMode}\"")
+            }
+            sb.toString()
+        }
+    }
+
     companion object {
         val DARK_MODE_KEY = booleanPreferencesKey("dark_mode")
         val DYNAMIC_COLOR_KEY = booleanPreferencesKey("dynamic_color")
         val SYNC_ENABLED_KEY = booleanPreferencesKey("sync_enabled")
         val SYNC_INTERVAL_KEY = longPreferencesKey("sync_interval_minutes")
         val ONBOARDING_COMPLETED_KEY = booleanPreferencesKey("onboarding_completed")
+        // v2.9.68: Glass transparency — controls overlay alpha over gradient background
+        val CARD_TRANSPARENCY_KEY = floatPreferencesKey("card_transparency")
+        val USER_MODE_KEY = stringPreferencesKey("user_mode")
 
         /**
          * Schedule periodic sync work with WorkManager.

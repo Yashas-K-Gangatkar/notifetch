@@ -5,10 +5,10 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountBalanceWallet
+import androidx.compose.material.icons.filled.Analytics
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.outlined.AccountBalanceWallet
+import androidx.compose.material.icons.outlined.Analytics
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Icon
@@ -41,9 +41,10 @@ val bottomNavItems = listOf(
     ),
     BottomNavItem(
         route = "earnings",
-        label = "Earnings",
-        selectedIcon = Icons.Filled.AccountBalanceWallet,
-        unselectedIcon = Icons.Outlined.AccountBalanceWallet
+        label = "Activity",
+        selectedIcon = Icons.Filled.Analytics,
+        unselectedIcon = Icons.Outlined.Analytics
+        // v2.9.73: Cyan accent for active state
     ),
     BottomNavItem(
         route = "settings",
@@ -67,8 +68,10 @@ fun NotiFetchScaffold(
                 enter = slideInVertically(initialOffsetY = { it }),
                 exit = slideOutVertically(targetOffsetY = { it })
             ) {
+                // v2.9.73: Glass bottom navigation
                 NavigationBar(
-                    tonalElevation = 8.dp
+                    tonalElevation = 0.dp,
+                    containerColor = androidx.compose.ui.graphics.Color(0xFF0B0F14).copy(alpha = 0.8f)
                 ) {
                     bottomNavItems.forEach { item ->
                         val selected = currentRoute == item.route ||
@@ -86,9 +89,11 @@ fun NotiFetchScaffold(
                                 onNavigate(item.route)
                             },
                             colors = NavigationBarItemDefaults.colors(
-                                selectedIconColor = androidx.compose.material3.MaterialTheme.colorScheme.primary,
-                                selectedTextColor = androidx.compose.material3.MaterialTheme.colorScheme.primary,
-                                indicatorColor = androidx.compose.material3.MaterialTheme.colorScheme.primaryContainer
+                                selectedIconColor = androidx.compose.ui.graphics.Color(0xFF00D9FF),
+                                selectedTextColor = androidx.compose.ui.graphics.Color(0xFF00D9FF),
+                                indicatorColor = androidx.compose.ui.graphics.Color(0xFF00D9FF).copy(alpha = 0.15f),
+                                unselectedIconColor = androidx.compose.ui.graphics.Color(0xFF78909C),
+                                unselectedTextColor = androidx.compose.ui.graphics.Color(0xFF78909C)
                             )
                         )
                     }

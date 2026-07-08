@@ -390,21 +390,32 @@ fun ListenerHealthCheckScreen(
 
                         Spacer(modifier = Modifier.height(8.dp))
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            // v2.9.68: Send Log via WhatsApp directly (was generic share sheet)
                             OutlinedButton(
                                 onClick = {
-                                    val shareIntent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
+                                    val intent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
                                         type = "text/plain"
-                                        putExtra(android.content.Intent.EXTRA_SUBJECT, "NotiFetch Diagnostic Log")
+                                        setPackage("com.whatsapp")
                                         putExtra(android.content.Intent.EXTRA_TEXT, diagnosticText)
                                     }
-                                    context.startActivity(android.content.Intent.createChooser(shareIntent, "Send Diagnostic Log"))
+                                    try {
+                                        context.startActivity(intent)
+                                    } catch (e: Exception) {
+                                        // WhatsApp not installed — fall back to generic share sheet
+                                        val shareIntent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
+                                            type = "text/plain"
+                                            putExtra(android.content.Intent.EXTRA_SUBJECT, "NotiFetch Diagnostic Log")
+                                            putExtra(android.content.Intent.EXTRA_TEXT, diagnosticText)
+                                        }
+                                        context.startActivity(android.content.Intent.createChooser(shareIntent, "Send Diagnostic Log"))
+                                    }
                                 },
                                 shape = RoundedCornerShape(8.dp),
                                 modifier = Modifier.weight(1f)
                             ) {
                                 Icon(Icons.Default.Send, contentDescription = null, modifier = Modifier.size(16.dp))
                                 Spacer(modifier = Modifier.width(4.dp))
-                                Text("Send Log", style = MaterialTheme.typography.labelSmall)
+                                Text("Send via WhatsApp", style = MaterialTheme.typography.labelSmall)
                             }
                             OutlinedButton(
                                 onClick = {

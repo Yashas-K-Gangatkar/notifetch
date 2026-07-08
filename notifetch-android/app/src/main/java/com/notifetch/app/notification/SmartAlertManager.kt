@@ -7,57 +7,96 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.os.PowerManager
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.notifetch.app.MainActivity
 import com.notifetch.app.R
 import com.notifetch.app.data.local.CapturedNotification
 import com.notifetch.app.util.EarningsCalculator
+import java.util.concurrent.ConcurrentHashMap
 
 /**
- * v2.9.12: Smart Offer Alerts
+ * v2.9.72: Enhanced Smart Alert Manager with sound + vibration + cooldown.
  *
- * When the listener captures a high-value offer (50%+ off, "free delivery",
- * "flash sale", etc.), this helper posts a HIGH-priority notification to
- * the user's status bar.
+ * Triggers for:
+ *   - High-value offers (50%+ off, flash sale, BOGO, etc.)
+ *   - Orders above ₹200 value
  *
- * The user can tap the alert to open NotiFetch directly to the notification
- * detail, where they can then tap "Open App" to claim the offer in the
- * source delivery app.
- *
- * Muted platforms (set in Settings) don't trigger alerts.
+ * Features:
+ *   - Custom vibration pattern (500ms on, 200ms off, 500ms on)
+ *   - HIGH importance channel (plays sound automatically)
+ *   - Cooldown: max 1 alert per app per 5 minutes
+ *   - Condition: only if screen is off OR NotiFetch is not in foreground
  */
 object SmartAlertManager {
 
+    private const val TAG = "SmartAlertManager"
     const val CHANNEL_ID = "notifetch_smart_alerts"
     const val CHANNEL_NAME = "Smart Offer Alerts"
+    @Volatile
     private var channelCreated = false
 
+    // v2.9.72: Cooldown tracking — packageName → last alert timestamp
+    private val lastAlertTime = ConcurrentHashMap<String, Long>()
+    private val COOLDOWN_MS = 5 * 60 * 1000L // 5 minutes
+
+    // v2.9.72: Vibration pattern (500ms on, 200ms off, 500ms on)
+    private val VIBRATION_PATTERN = longArrayOf(0, 500, 200, 500)
+
     /**
-     * Check if a captured notification warrants a smart alert.
-     * Returns true if it's a high-value offer from a non-muted platform.
+     * v2.9.72: Enhanced — checks high-value offer OR order value > ₹200
      */
     fun shouldAlert(
         notification: CapturedNotification,
         isPlatformMuted: Boolean
     ): Boolean {
         if (isPlatformMuted) return false
-        return EarningsCalculator.isHighValueOffer(
-            notification.title,
-            notification.body,
-            notification.bigText
-        )
+
+        // Check high-value offer (50%+ off, flash sale, etc.)
+        if (EarningsCalculator.isHighValueOffer(
+                notification.title,
+                notification.body,
+                notification.bigText
+            )
+        ) return true
+
+        // v2.9.72: Also alert on high-value orders (₹200+)
+        if (notification.orderValue != null && notification.orderValue >= 200.0) return true
+
+        return false
     }
 
     /**
-     * Post a high-priority notification to the status bar.
-     * Should be called from a background coroutine.
+     * v2.9.72: Post alert with cooldown + screen-state check.
+     * Returns true if alert was posted, false if skipped (cooldown/foreground).
      */
     fun postOfferAlert(
         context: Context,
         notification: CapturedNotification,
         notificationId: Long
-    ) {
+    ): Boolean {
+        // v2.9.72: Check cooldown — max 1 alert per app per 5 minutes
+        val now = System.currentTimeMillis()
+        val lastAlert = lastAlertTime[notification.packageName] ?: 0
+        if (now - lastAlert < COOLDOWN_MS) {
+            Log.d(TAG, "Skipping alert for ${notification.platform} — cooldown active (${(now - lastAlert) / 1000}s since last)")
+            return false
+        }
+
+        // v2.9.72: Check if screen is on AND NotiFetch is in foreground
+        // If both true, skip alert (user already sees the notification)
+        val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
+        val isScreenOn = powerManager.isInteractive
+        val isNotiFetchForeground = NotiFetchListenerService.isInstanceAlive()
+        if (isScreenOn && isNotiFetchForeground) {
+            Log.d(TAG, "Skipping alert for ${notification.platform} — NotiFetch is in foreground")
+            return false
+        }
+
+        // Post the alert
         ensureChannelCreated(context)
+        lastAlertTime[notification.packageName] = now
 
         val pendingIntent = PendingIntent.getActivity(
             context,
@@ -70,16 +109,20 @@ object SmartAlertManager {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val alertTitle = "🔥 ${notification.platform} Offer!"
+        val alertTitle = "🔥 ${notification.platform} — High Value!"
         val alertBody = buildString {
             notification.title.take(80).let { if (it.isNotBlank()) append(it) }
             if (notification.body.isNotBlank()) {
                 if (isNotEmpty()) append(" — ")
                 append(notification.body.take(60))
             }
-        }.ifBlank { "High-value offer detected. Tap to view." }
+            if (notification.orderValue != null && notification.orderValue > 0) {
+                if (isNotEmpty()) append(" | ")
+                append("Order value: ₹${notification.orderValue.toInt()}")
+            }
+        }.ifBlank { "High-value order detected. Tap to view." }
 
-        val notification = NotificationCompat.Builder(context, CHANNEL_ID)
+        val alert = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentTitle(alertTitle)
             .setContentText(alertBody)
@@ -88,13 +131,19 @@ object SmartAlertManager {
             .setCategory(NotificationCompat.CATEGORY_PROMO)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
-            .setColor(0xFFFFC107.toInt()) // amber
+            .setColor(0xFFFF5A1F.toInt()) // v2.9.72: brand orange-red
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            // v2.9.72: Custom vibration pattern
+            .setVibrate(VIBRATION_PATTERN)
+            // v2.9.72: Default notification sound (HIGH importance channel plays it)
+            .setDefaults(NotificationCompat.DEFAULT_SOUND or NotificationCompat.DEFAULT_LIGHTS)
             .build()
 
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        // Use a unique ID for each alert (offset to avoid clashes with notificationId)
-        notificationManager.notify((notificationId + 100000L).toInt(), notification)
+        notificationManager.notify((notificationId + 100000L).toInt(), alert)
+
+        Log.d(TAG, "Alert posted for ${notification.platform} (cooldown set for 5 min)")
+        return true
     }
 
     private fun ensureChannelCreated(context: Context) {
@@ -105,13 +154,15 @@ object SmartAlertManager {
                 CHANNEL_NAME,
                 NotificationManager.IMPORTANCE_HIGH
             ).apply {
-                description = "High-priority alerts for 50%+ off offers and flash sales"
+                description = "Sound + vibration alerts for high-value orders (₹200+) and 50%+ off offers"
                 enableLights(true)
+                lightColor = 0xFFFF5A1F.toInt()
                 enableVibration(true)
+                vibrationPattern = VIBRATION_PATTERN
                 setShowBadge(true)
                 lockscreenVisibility = NotificationCompat.VISIBILITY_PUBLIC
             }
-            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            val notificationManager = context.getSystemService(NotificationManager::class.java)
             notificationManager.createNotificationChannel(channel)
         }
         channelCreated = true

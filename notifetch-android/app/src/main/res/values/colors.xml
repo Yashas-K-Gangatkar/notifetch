@@ -47,4 +47,7 @@
 
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
+
+    <!-- v2.9.68: New logo color — orange-red squircle background -->
+    <color name="notifetch_logo_bg">#FF5A1F</color>
 </resources>

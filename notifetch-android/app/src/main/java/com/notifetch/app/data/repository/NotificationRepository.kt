@@ -28,6 +28,10 @@ class NotificationRepository @Inject constructor(
     fun getAllNotifications(): Flow<List<CapturedNotification>> =
         notificationDao.getAllNotifications()
 
+    // v2.9.69: Sync version for CSV export
+    suspend fun getAllNotificationsSync(): List<CapturedNotification> =
+        notificationDao.getAllNotificationsSync()
+
     fun getNotificationById(id: Long): Flow<CapturedNotification?> =
         notificationDao.getNotificationByIdFlow(id)
 
@@ -41,11 +45,19 @@ class NotificationRepository @Inject constructor(
     fun getNotificationCountByPlatform(): Flow<List<NotificationDao.PlatformStat>> =
         notificationDao.getNotificationCountByPlatform()
 
+    // v2.9.71: Filtered by userMode
+    fun getNotificationCountByPlatformByMode(mode: String): Flow<List<NotificationDao.PlatformStat>> =
+        notificationDao.getNotificationCountByPlatformByMode(mode)
+
     fun getOrderValueByPlatformSince(startTime: Long): Flow<List<NotificationDao.PlatformEarningStat>> =
         notificationDao.getOrderValueByPlatformSince(startTime)
 
     fun getCountInTimeRange(startTime: Long, endTime: Long): Flow<Int> =
         notificationDao.getCountInTimeRange(startTime, endTime)
+
+    // v2.9.71: Filtered by userMode
+    fun getCountInTimeRangeByMode(startTime: Long, endTime: Long, mode: String): Flow<Int> =
+        notificationDao.getCountInTimeRangeByMode(startTime, endTime, mode)
 
     fun getTotalOrderValueSince(startTime: Long): Flow<Double> =
         notificationDao.getTotalOrderValueSince(startTime)

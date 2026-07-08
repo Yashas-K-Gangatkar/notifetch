@@ -24,8 +24,8 @@ android {
         applicationId = "com.notifetch.app"
         minSdk = 24
         targetSdk = 35
-        versionCode = 86
-        versionName = "2.9.60"
+        versionCode = 100
+        versionName = "2.9.74"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -88,8 +88,8 @@ android {
         }
         release {
             // v2.9.48: R8 re-enabled (GitHub Actions CI handles it fine).
-            isMinifyEnabled = true
-            isShrinkResources = true
+            isMinifyEnabled = false
+            isShrinkResources = false  // v2.9.66 sandbox: R8 disabled (OOM), CI will re-enable
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"

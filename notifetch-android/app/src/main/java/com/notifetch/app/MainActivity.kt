@@ -1,12 +1,15 @@
 package com.notifetch.app
 
 import android.Manifest
+import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.lifecycle.lifecycleScope
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.layout.fillMaxSize
@@ -32,6 +35,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.notifetch.app.notification.KeepAliveService
 import com.notifetch.app.notification.NotiFetchListenerService
 import com.notifetch.app.ui.components.NotiFetchScaffold
 import com.notifetch.app.ui.screens.ConsentScreen
@@ -45,6 +49,8 @@ import com.notifetch.app.ui.screens.hasConsented
 import com.notifetch.app.ui.screens.HomeScreen
 import com.notifetch.app.ui.screens.NotificationDetailScreen
 import com.notifetch.app.ui.screens.PermissionScreen
+import com.notifetch.app.ui.screens.PlatformsScreen
+import com.notifetch.app.ui.screens.PlatformCategoryScreen
 import com.notifetch.app.ui.screens.SettingsScreen
 import com.notifetch.app.ui.theme.NotiFetchTheme
 import com.notifetch.app.ui.viewmodel.SettingsViewModel
@@ -59,15 +65,22 @@ import kotlinx.coroutines.launch
 class MainActivity : ComponentActivity() {
 
     // v2.9.49: Animated gradient background reference for lifecycle management
-    private var gradientView: com.notifetch.app.ui.components.AnimatedGradientView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        // v2.9.66: Start foreground service from MainActivity (foreground context).
+        // v2.9.17 crashed because it started from onListenerConnected (background thread).
+        if (NotiFetchListenerService.isListenerEnabled(this)) {
+            KeepAliveService.start(this)
+        }
+
         setContent {
             val activityContext = this@MainActivity
             var darkMode by remember { mutableStateOf(false) }
             var dynamicColor by remember { mutableStateOf(false) }
+            // v2.9.68: Glass transparency — user-adjustable overlay alpha
             LaunchedEffect(Unit) {
                 activityContext.dataStore.data.map { prefs ->
                     Pair(
@@ -80,27 +93,24 @@ class MainActivity : ComponentActivity() {
                 }
             }
             NotiFetchTheme(darkTheme = darkMode, dynamicColor = dynamicColor) {
-                // v2.9.49: Animated gradient background (battery-friendly GPU shader)
-                // v2.9.58 FIX: Create view inside factory, not during composition
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .windowInsetsPadding(WindowInsets.systemBars)
-                ) {
-                    AndroidView(
-                        factory = { ctx ->
-                            com.notifetch.app.ui.components.AnimatedGradientView(ctx).also { v ->
-                                gradientView = v
-                            }
-                        },
-                        modifier = Modifier.fillMaxSize()
-                    )
-                    // Semi-transparent overlay so text/cards are readable
-                    Surface(
-                        modifier = Modifier.fillMaxSize(),
-                        color = MaterialTheme.colorScheme.background.copy(alpha = 0.92f)
+                // v2.9.74: Liquid Glass architecture
+                // GlassTheme provides centralized config to all glass components
+                com.notifetch.app.ui.theme.GlassTheme {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .windowInsetsPadding(WindowInsets.systemBars)
                     ) {
-                        NotiFetchNavHost()
+                        // Layer 1+2: Shared blurred background (gradient + blurred copy)
+                        com.notifetch.app.ui.components.SharedBlurBackground()
+
+                        // Layer 3: Screen content (transparent — gradient shows through)
+                        Surface(
+                            modifier = Modifier.fillMaxSize(),
+                            color = androidx.compose.ui.graphics.Color.Transparent
+                        ) {
+                            NotiFetchNavHost()
+                        }
                     }
                 }
             }
@@ -109,12 +119,12 @@ class MainActivity : ComponentActivity() {
 
     override fun onPause() {
         super.onPause()
-        gradientView?.pause()
+        // v2.9.74: Old gradient view removed — Compose handles animation
     }
 
     override fun onResume() {
         super.onResume()
-        gradientView?.resume()
+        // v2.9.74: Old gradient view removed
     }
 }
 
@@ -125,6 +135,52 @@ fun NotiFetchNavHost() {
     val currentRoute = navBackStackEntry?.destination?.route ?: "home"
     val context = LocalContext.current
     var startDestination by remember { mutableStateOf<String?>(null) }
+    val scope = androidx.compose.runtime.rememberCoroutineScope()
+    var pendingDeepLinkNotificationId by remember { mutableStateOf<Long?>(null) }
+
+    // v2.9.66: Handle deep link from smart alerts / widget taps
+    LaunchedEffect(Unit) {
+        val activity = context as? android.app.Activity
+        activity?.intent?.let { intent ->
+            if (intent.action == "OPEN_NOTIFICATION_DETAIL") {
+                val id = if (intent.extras?.get("notificationId") is Long) {
+                    intent.getLongExtra("notificationId", -1L)
+                } else {
+                    intent.getIntExtra("notificationId", -1).toLong()
+                }
+                if (id > 0) {
+                    val consented = hasConsented(context)
+                    val listenerEnabled = NotiFetchListenerService.isListenerEnabled(context)
+                    if (consented && listenerEnabled) {
+                        pendingDeepLinkNotificationId = id
+                    }
+                }
+            }
+        }
+    }
+
+    // Handle new intents (warm start from widget/smart alert tap)
+    LaunchedEffect(Unit) {
+        val activity = context as? androidx.activity.ComponentActivity
+        activity?.addOnNewIntentListener { newIntent ->
+            scope.launch {
+                if (newIntent.action == "OPEN_NOTIFICATION_DETAIL") {
+                    val id = if (newIntent.extras?.get("notificationId") is Long) {
+                        newIntent.getLongExtra("notificationId", -1L)
+                    } else {
+                        newIntent.getIntExtra("notificationId", -1).toLong()
+                    }
+                    if (id > 0) {
+                        val consented = hasConsented(context)
+                        val listenerEnabled = NotiFetchListenerService.isListenerEnabled(context)
+                        if (consented && listenerEnabled) {
+                            pendingDeepLinkNotificationId = id
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     // v2.9.18: Request POST_NOTIFICATIONS on Android 13+ (API 33+)
     // CRITICAL: Without this permission, the KeepAliveService foreground notification
@@ -161,6 +217,17 @@ fun NotiFetchNavHost() {
             !onboardingCompleted -> "onboarding"
             !listenerEnabled -> "permission"
             else -> "home"
+        }
+    }
+
+    // v2.9.66: Navigate to detail if we have a pending deep link
+    LaunchedEffect(startDestination, pendingDeepLinkNotificationId) {
+        val id = pendingDeepLinkNotificationId
+        if (startDestination != null && id != null && id > 0) {
+            if (startDestination in listOf("home", "earnings", "settings")) {
+                navController.navigate("notification_detail/$id")
+                pendingDeepLinkNotificationId = null
+            }
         }
     }
 
@@ -211,19 +278,21 @@ fun NotiFetchNavHost() {
             composable("onboarding") {
                 OnboardingScreen(
                     onComplete = {
-                        kotlinx.coroutines.MainScope().launch {
+                        val activity = context as? androidx.activity.ComponentActivity
+                        val ls = activity?.lifecycleScope ?: kotlinx.coroutines.MainScope()
+                        ls.launch {
                             context.dataStore.edit { prefs ->
                                 prefs[SettingsViewModel.ONBOARDING_COMPLETED_KEY] = true
                             }
-                        }
-                        val isEnabled = NotiFetchListenerService.isListenerEnabled(context)
-                        if (isEnabled) {
-                            navController.navigate("home") {
-                                popUpTo("onboarding") { inclusive = true }
-                            }
-                        } else {
-                            navController.navigate("permission") {
-                                popUpTo("onboarding") { inclusive = true }
+                            val isEnabled = NotiFetchListenerService.isListenerEnabled(context)
+                            if (isEnabled) {
+                                navController.navigate("home") {
+                                    popUpTo("onboarding") { inclusive = true }
+                                }
+                            } else {
+                                navController.navigate("permission") {
+                                    popUpTo("onboarding") { inclusive = true }
+                                }
                             }
                         }
                     }
@@ -233,6 +302,7 @@ fun NotiFetchNavHost() {
             composable("permission") {
                 PermissionScreen(
                     onPermissionGranted = {
+                        KeepAliveService.start(context)
                         navController.navigate("home") {
                             popUpTo("permission") { inclusive = true }
                         }
@@ -249,7 +319,17 @@ fun NotiFetchNavHost() {
                         navController.navigate("permission") {
                             launchSingleTop = true
                         }
+                    },
+                    onNavigateToProfile = {
+                        navController.navigate("profile")
                     }
+                )
+            }
+
+            // v2.9.69: Profile screen (accessible from Home header tap)
+            composable("profile") {
+                com.notifetch.app.ui.screens.ProfileScreen(
+                    onNavigateBack = { navController.popBackStack() }
                 )
             }
 
@@ -265,9 +345,7 @@ fun NotiFetchNavHost() {
             }
 
             composable("earnings") {
-                EarningsDashboardScreen(
-                    onNavigateBack = { navController.popBackStack() }
-                )
+                EarningsScreen()
             }
 
             composable("settings") {
@@ -280,7 +358,28 @@ fun NotiFetchNavHost() {
                     },
                     onNavigateToFeedback = {
                         navController.navigate("feedback")
+                    },
+                    onNavigateToPlatforms = {
+                        navController.navigate("platforms")
                     }
+                )
+            }
+
+            // v2.9.68: Platforms 3-level hierarchy
+            composable("platforms") {
+                PlatformsScreen(
+                    onNavigateBack = { navController.popBackStack() },
+                    onCategoryClick = { category ->
+                        navController.navigate("platform_category/$category")
+                    }
+                )
+            }
+
+            composable("platform_category/{category}") { backStackEntry ->
+                val category = backStackEntry.arguments?.getString("category") ?: "other"
+                PlatformCategoryScreen(
+                    category = category,
+                    onNavigateBack = { navController.popBackStack() }
                 )
             }
 

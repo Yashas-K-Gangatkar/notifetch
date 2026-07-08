@@ -124,38 +124,10 @@ class SyncWorker @AssistedInject constructor(
          */
         private suspend fun forceListenerRebind(context: Context) {
             try {
-                // Strategy 1: requestRebind() — official API
+                // v2.9.66: use requestRebind() directly — no destructive component toggle
                 val componentName = ComponentName(context, NotiFetchListenerService::class.java)
-
-                // Toggle the component off then on to force system to re-evaluate
-                val pm = context.packageManager
-                pm.setComponentEnabledSetting(
-                    componentName,
-                    android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
-                    android.content.pm.PackageManager.DONT_KILL_APP
-                )
-
-                // Small delay to let the system process the disable
-                // v2.9.38: Use coroutine delay() instead of Thread.sleep() —
-                // doesn't block the worker thread, allows other coroutines to run
-                delay(500)
-
-                pm.setComponentEnabledSetting(
-                    componentName,
-                    android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
-                    android.content.pm.PackageManager.DONT_KILL_APP
-                )
-
-                Log.d(TAG, "Listener component toggled — system should rebind within seconds")
-
-                // Strategy 2: requestRebind via reflection (some OEMs block the public API)
-                try {
-                    val method = NotiFetchListenerService::class.java.getMethod("requestRebind", ComponentName::class.java)
-                    method.invoke(null, componentName)
-                    Log.d(TAG, "requestRebind() called successfully")
-                } catch (e: Exception) {
-                    Log.w(TAG, "requestRebind() failed: ${e.message} — component toggle should still work")
-                }
+                android.service.notification.NotificationListenerService.requestRebind(componentName)
+                Log.d(TAG, "requestRebind() called — system should rebind within seconds")
             } catch (e: Exception) {
                 Log.e(TAG, "forceListenerRebind failed", e)
             }
@@ -222,9 +194,10 @@ class SyncWorker @AssistedInject constructor(
                 .setConstraints(constraints)
                 .build()
 
+            // v2.9.66: use single canonical name, REPLACE so interval changes take effect
             WorkManager.getInstance(context).enqueueUniquePeriodicWork(
-                PERIODIC_SYNC_WORK_NAME,
-                ExistingPeriodicWorkPolicy.KEEP,
+                com.notifetch.app.util.Constants.SYNC_WORK_NAME,
+                ExistingPeriodicWorkPolicy.REPLACE,
                 syncRequest
             )
 

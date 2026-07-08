@@ -183,13 +183,13 @@ fun ConsentScreen(
         // Continue button
         Button(
             onClick = {
-                // Persist consent to DataStore so it's not shown again
+                // v2.9.66: persist FIRST, then navigate (was racing before)
                 scope.launch {
                     context.dataStore.edit { prefs ->
                         prefs[CONSENT_GRANTED_KEY] = true
                     }
+                    onConsentGranted()
                 }
-                onConsentGranted()
             },
             enabled = allConsentsGiven,
             modifier = Modifier

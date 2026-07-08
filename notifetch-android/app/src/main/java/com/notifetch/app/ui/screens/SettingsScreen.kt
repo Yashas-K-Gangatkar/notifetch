@@ -85,15 +85,21 @@ import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Gavel
 import androidx.compose.material.icons.filled.Login
+import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PrivacyTip
 import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Slider
 import com.notifetch.app.ui.viewmodel.ProfileViewModel
+import com.notifetch.app.data.repository.dataStore
+import androidx.datastore.preferences.core.edit
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -101,6 +107,7 @@ fun SettingsScreen(
     onNavigateToPrivacy: () -> Unit = {},
     onNavigateToHealthCheck: () -> Unit = {},
     onNavigateToFeedback: () -> Unit = {},
+    onNavigateToPlatforms: () -> Unit = {},
     viewModel: SettingsViewModel = hiltViewModel(),
     profileViewModel: ProfileViewModel = hiltViewModel()
 ) {
@@ -377,6 +384,113 @@ fun SettingsScreen(
                             )
                         }
 
+                        // v2.9.72 Phase 4: Language selector
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Language,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text("Language", style = MaterialTheme.typography.bodyLarge)
+                                Text(
+                                    "Choose app language",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            var languageExpanded by remember { mutableStateOf(false) }
+                            androidx.compose.material3.TextButton(onClick = { languageExpanded = true }) {
+                                Text(
+                                    when (java.util.Locale.getDefault().language) {
+                                        "hi" -> "हिंदी"
+                                        "ta" -> "தமிழ்"
+                                        "te" -> "తెలుగు"
+                                        "kn" -> "ಕನ್ನಡ"
+                                        else -> "English"
+                                    }
+                                )
+                            }
+                            androidx.compose.material3.DropdownMenu(
+                                expanded = languageExpanded,
+                                onDismissRequest = { languageExpanded = false }
+                            ) {
+                                val languages = listOf(
+                                    "en" to "English",
+                                    "hi" to "हिंदी",
+                                    "ta" to "தமிழ்",
+                                    "te" to "తెలుగు",
+                                    "kn" to "ಕನ್ನಡ"
+                                )
+                                for ((code, name) in languages) {
+                                    androidx.compose.material3.DropdownMenuItem(
+                                        text = { Text(name) },
+                                        onClick = {
+                                            languageExpanded = false
+                                            val locale = java.util.Locale(code)
+                                            java.util.Locale.setDefault(locale)
+                                            val config = context.resources.configuration
+                                            config.setLocale(locale)
+                                            context.resources.updateConfiguration(config, context.resources.displayMetrics)
+                                            // Recreate activity to apply language
+                                            (context as? android.app.Activity)?.recreate()
+                                        }
+                                    )
+                                }
+                            }
+                        }
+
+                        // v2.9.68: Glass transparency slider
+                        val cardTransparency = remember { mutableStateOf(0.92f) }
+                        val scope = androidx.compose.runtime.rememberCoroutineScope()
+                        androidx.compose.runtime.LaunchedEffect(Unit) {
+                            context.dataStore.data.collect { prefs ->
+                                cardTransparency.value = prefs[SettingsViewModel.CARD_TRANSPARENCY_KEY] ?: 0.92f
+                            }
+                        }
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    imageVector = Icons.Default.Tune,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text("Glass Effect", style = MaterialTheme.typography.bodyLarge)
+                                    Text(
+                                        "Adjust background transparency",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Slider(
+                                value = cardTransparency.value,
+                                onValueChange = { cardTransparency.value = it },
+                                onValueChangeFinished = {
+                                    scope.launch {
+                                        context.dataStore.edit { prefs ->
+                                            prefs[SettingsViewModel.CARD_TRANSPARENCY_KEY] = cardTransparency.value
+                                        }
+                                    }
+                                },
+                                valueRange = 0.3f..0.95f,
+                                steps = 12
+                            )
+                        }
+
                         // Sync
                         Row(
                             modifier = Modifier
@@ -447,81 +561,49 @@ fun SettingsScreen(
                 }
             }
 
-            // v2.9.15: Platform list grouped by category (expand/collapse)
-            // Like choosing sports in college: pick a category, then see platforms
-            val groupedPlatforms = uiState.platformConfigs.groupBy {
-                com.notifetch.app.util.Constants.getCategoryForPackage(it.packageName)
-            }.toSortedMap()
-
-            groupedPlatforms.forEach { (category, platforms) ->
-                // Category header (clickable to expand/collapse)
-                item(key = "category_$category") {
-                    val isExpanded = expandedCategories.value.contains(category)
-                    val categoryName = com.notifetch.app.util.Constants.getCategoryDisplayName(category)
-                    val categoryIcon = com.notifetch.app.util.Constants.getCategoryIcon(category)
-                    val enabledCount = platforms.count { it.isEnabled }
-
-                    Card(
+            // v2.9.68: Platforms button — opens separate screen with categories
+            // Replaces the old long scrollable list of 169+ platforms
+            item {
+                val totalEnabled = uiState.platformConfigs.count { it.isEnabled }
+                val totalPlatforms = uiState.platformConfigs.size
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f)
+                    )
+                ) {
+                    Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 4.dp),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = if (isExpanded)
-                                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f)
-                            else
-                                MaterialTheme.colorScheme.surface
-                        )
+                            .clickable { onNavigateToPlatforms() }
+                            .padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable { toggleCategory(category) }
-                                .padding(16.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
+                        Text(
+                            text = "📦",
+                            style = MaterialTheme.typography.titleMedium,
+                            modifier = Modifier.size(24.dp)
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = categoryIcon,
-                                style = MaterialTheme.typography.titleMedium,
-                                modifier = Modifier.size(24.dp)
+                                text = "Platforms",
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.SemiBold
                             )
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = categoryName,
-                                    style = MaterialTheme.typography.titleSmall,
-                                    fontWeight = FontWeight.SemiBold
-                                )
-                                Text(
-                                    text = "$enabledCount enabled · ${platforms.size} platforms",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                            Icon(
-                                imageVector = if (isExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                                contentDescription = if (isExpanded) "Collapse" else "Expand",
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            Text(
+                                text = "$totalEnabled of $totalPlatforms enabled",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
-                    }
-                }
-
-                // Platform cards (only shown when category is expanded)
-                if (expandedCategories.value.contains(category)) {
-                    items(
-                        items = platforms,
-                        key = { it.packageName }
-                    ) { config ->
-                        PlatformNameCard(
-                            config = config,
-                            onToggle = { enabled ->
-                                viewModel.togglePlatform(config.packageName, enabled)
-                            },
-                            onRename = {
-                                renamingPlatform = config
-                                showRenameDialog = true
-                            }
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                            contentDescription = "Open",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
@@ -810,17 +892,26 @@ fun SettingsScreen(
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(
-                            text = "Under India DPDP Act 2023 and EU GDPR, you have the right to access, export, and delete all your data at any time.",
+                            text = "Your notifications stay on your phone. Download a copy for your records, or clear them anytime.",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Spacer(modifier = Modifier.height(12.dp))
                         OutlinedButton(
                             onClick = {
+                                // v2.9.69: Local CSV export — no web redirect
+                                // Shares notifications as CSV via Android share sheet
+                                // User can save to file, send via email, etc.
                                 try {
-                                    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("${Constants.BASE_URL}dashboard/settings")))
+                                    val csv = viewModel.exportNotificationsAsCsv()
+                                    val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                                        type = "text/csv"
+                                        putExtra(Intent.EXTRA_TEXT, csv)
+                                        putExtra(Intent.EXTRA_SUBJECT, "NotiFetch Notifications Export")
+                                    }
+                                    context.startActivity(Intent.createChooser(shareIntent, "Download Notifications"))
                                 } catch (e: Exception) {
-                                    Toast.makeText(context, "Please visit ${Constants.BASE_URL} to export your data", Toast.LENGTH_LONG).show()
+                                    Toast.makeText(context, "Export failed: ${e.message}", Toast.LENGTH_LONG).show()
                                 }
                             },
                             modifier = Modifier.fillMaxWidth().height(44.dp),
@@ -828,7 +919,7 @@ fun SettingsScreen(
                         ) {
                             Icon(Icons.Default.Download, contentDescription = null, modifier = Modifier.size(16.dp))
                             Spacer(modifier = Modifier.width(6.dp))
-                            Text("Export My Data")
+                            Text("Download a Copy")
                         }
                         Spacer(modifier = Modifier.height(8.dp))
                         Button(
@@ -839,7 +930,7 @@ fun SettingsScreen(
                         ) {
                             Icon(Icons.Default.DeleteForever, contentDescription = null, modifier = Modifier.size(16.dp))
                             Spacer(modifier = Modifier.width(6.dp))
-                            Text("Delete All My Data")
+                            Text("Clear All Notifications")
                         }
                     }
                 }
@@ -912,9 +1003,9 @@ fun SettingsScreen(
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
-            title = { Text("Delete All Data?") },
+            title = { Text("Clear All Notifications?") },
             text = {
-                Text("This will permanently delete all your captured notifications from this device and request deletion from our servers. This action cannot be undone. We recommend exporting your data first.")
+                Text("This will remove all captured notifications from this phone. This action cannot be undone. We recommend downloading a copy first.")
             },
             confirmButton = {
                 TextButton(
@@ -923,7 +1014,7 @@ fun SettingsScreen(
                         showDeleteDialog = false
                     },
                     colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
-                ) { Text("Delete Everything") }
+                ) { Text("Clear All") }
             },
             dismissButton = {
                 TextButton(onClick = { showDeleteDialog = false }) { Text("Cancel") }

@@ -344,9 +344,11 @@ object Constants {
         "com.dutchie.android"                                    to "Dutchie",      // (US)
 
         // ── QSR (Quick Service Restaurants) — Customer Apps ────────────────
-        "com.Dominos"                                            to "Domino's India — v2.9.24 fix: capital D",
-        "com.dominos"                                            to "Domino's India — old lowercase",      // (fallback)
+        "com.dominos"                                            to "Domino's India",
         "com.dominos.android"                                    to "Domino's US",      // (US)
+
+        // v2.9.66: NotiFetch Tester (test app for deep link verification)
+        "com.notifetch.tester"                                   to "NotiFetch Tester",
         "com.pizzahut.android"                                   to "Pizza Hut",             // Pizza Hut India (India)
         "com.pizzahut.android.global"                            to "Pizza Hut Global",                   // Pizza Hut (Global)
         "com.papajohns.android"                                  to "Papa John's",      // (US/Global)
@@ -413,7 +415,6 @@ object Constants {
         "app.blinkit" to "#FF6B35",                    // Blinkit — Yellow
         "com.bigbasket.mobileapp" to "#F59E0B",        // BigBasket — Green
         "com.zepto.app" to "#FB923C",                  // Zepto — Purple
-        "com.zeptoconsumerapp" to "#FFC107",          // Zepto — Purple (v2.9.24)
         "com.zeptoconsumerapp" to "#FF9800",          // Zepto — Purple (v2.9.24)
         "com.shipt.android" to "#FF6B35",              // Shipt — Teal
         "au.com.woolworths.android" to "#F59E0B",      // Woolworths — Green

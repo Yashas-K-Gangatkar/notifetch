@@ -6,10 +6,13 @@ import androidx.lifecycle.viewModelScope
 import com.notifetch.app.data.repository.NotificationRepository
 import com.notifetch.app.util.Constants
 import com.notifetch.app.util.Helpers
+import com.notifetch.app.data.repository.dataStore
+import com.notifetch.app.ui.viewmodel.SettingsViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
@@ -40,6 +43,10 @@ class EarningsViewModel @Inject constructor(
     private val repository: NotificationRepository
 ) : AndroidViewModel(application) {
 
+    // v2.9.71: Read current userMode from DataStore
+    private val userModeFlow = getApplication<Application>().dataStore.data
+        .map { it[SettingsViewModel.USER_MODE_KEY] ?: "customer" }
+
     // ── Reactive time-range flows (fix: timestamps were frozen at construction) ──
     // Previously, Helpers.startOfDayTimestamp() etc. were called once in the constructor.
     // If the user left the app open overnight, "today" stats would still show yesterday's
@@ -60,10 +67,7 @@ class EarningsViewModel @Inject constructor(
         while (true) {
             val startOfWeek = Helpers.startOfWeekTimestamp()
             emit(startOfWeek)
-            val now = System.currentTimeMillis()
-            val nextWeek = startOfWeek + 7 * 86_400_000L
-            val delayMs = (nextWeek - now).coerceAtLeast(60_000L)
-            kotlinx.coroutines.delay(delayMs)
+            kotlinx.coroutines.delay(60 * 60 * 1000L) // v2.9.66: re-emit every hour (was 7 days)
         }
     }
 
@@ -91,19 +95,26 @@ class EarningsViewModel @Inject constructor(
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
 
     private val todayOrdersFlow = dayRangeFlow.flatMapLatest { (start, end) ->
-        repository.getCountInTimeRange(start, end)
+        userModeFlow.flatMapLatest { mode ->
+            repository.getCountInTimeRangeByMode(start, end, mode)
+        }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
-    private val weekOrdersFlow = weekStartFlow.flatMapLatest { startOfWeek ->
-        repository.getCountInTimeRange(startOfWeek, System.currentTimeMillis())
+    private val weekOrdersFlow = weekStartFlow.flatMapLatest { start ->
+        userModeFlow.flatMapLatest { mode ->
+            repository.getCountInTimeRangeByMode(start, System.currentTimeMillis(), mode)
+        }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
-    private val monthOrdersFlow = monthStartFlow.flatMapLatest { startOfMonth ->
-        repository.getCountInTimeRange(startOfMonth, System.currentTimeMillis())
+    private val monthOrdersFlow = monthStartFlow.flatMapLatest { start ->
+        userModeFlow.flatMapLatest { mode ->
+            repository.getCountInTimeRangeByMode(start, System.currentTimeMillis(), mode)
+        }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
-    private val platformCountFlow = repository.getNotificationCountByPlatform()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    private val platformCountFlow = userModeFlow.flatMapLatest { mode ->
+        repository.getNotificationCountByPlatformByMode(mode)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     private val platformEarningsFlow = monthStartFlow.flatMapLatest { startOfMonth ->
         repository.getOrderValueByPlatformSince(startOfMonth)

@@ -8,6 +8,8 @@ import com.notifetch.app.data.local.CapturedNotification
 import com.notifetch.app.data.local.NotificationDao
 import com.notifetch.app.data.local.PlatformConfig
 import com.notifetch.app.data.repository.AuthRepository
+import com.notifetch.app.data.repository.dataStore
+import androidx.datastore.preferences.core.edit
 import com.notifetch.app.data.repository.NotificationRepository
 import com.notifetch.app.util.Constants
 import com.notifetch.app.util.Helpers
@@ -15,6 +17,7 @@ import com.notifetch.app.util.UserMode
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
@@ -42,7 +45,11 @@ data class HomeUiState(
     val selectedPlatform: String? = null,
     val isRefreshing: Boolean = false,
     val platformNameMap: Map<String, String> = emptyMap(),
-    val userMode: UserMode = UserMode.RIDER
+    val userMode: UserMode = UserMode.RIDER,
+    // v2.9.72 Phase 3: Smart filter state
+    val timeFilter: TimeFilter = TimeFilter.ALL,
+    val minOrderValue: Double? = null,
+    val highValueOnly: Boolean = false
 ) {
     // Explicit equality check to make distinctUntilChanged() work properly.
     // Without this, data class copy() with same values still creates a new object
@@ -63,7 +70,10 @@ data class HomeUiState(
                 selectedPlatform == other.selectedPlatform &&
                 isRefreshing == other.isRefreshing &&
                 platformNameMap == other.platformNameMap &&
-                userMode == other.userMode
+                userMode == other.userMode &&
+                timeFilter == other.timeFilter &&
+                minOrderValue == other.minOrderValue &&
+                highValueOnly == other.highValueOnly
     }
 
     override fun hashCode(): Int {
@@ -81,6 +91,9 @@ data class HomeUiState(
         result = 31 * result + isRefreshing.hashCode()
         result = 31 * result + platformNameMap.hashCode()
         result = 31 * result + userMode.hashCode()
+        result = 31 * result + timeFilter.hashCode()
+        result = 31 * result + (minOrderValue?.hashCode() ?: 0)
+        result = 31 * result + highValueOnly.hashCode()
         return result
     }
 }
@@ -110,7 +123,22 @@ class HomeViewModel @Inject constructor(
     //   3. If customer_apps > rider_apps → default to CUSTOMER mode
     //   4. If rider_apps > 0 → default to RIDER mode
     //   5. Otherwise → default to CUSTOMER (most users are customers, not drivers)
-    private val _userMode = MutableStateFlow(detectInitialUserMode())
+    // v2.9.66: detect in background — was blocking main thread (ANR)
+    private val _userMode = MutableStateFlow(com.notifetch.app.util.UserMode.CUSTOMER)
+
+    // v2.9.72 Phase 3: Smart filtering
+    private val _timeFilter = MutableStateFlow(TimeFilter.ALL)
+    val timeFilter: StateFlow<TimeFilter> = _timeFilter.asStateFlow()
+    private val _minOrderValue = MutableStateFlow<Double?>(null)
+    val minOrderValue: StateFlow<Double?> = _minOrderValue.asStateFlow()
+    private val _highValueOnly = MutableStateFlow(false)
+    val highValueOnly: StateFlow<Boolean> = _highValueOnly.asStateFlow()
+
+    init {
+        viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+            _userMode.value = detectInitialUserMode()
+        }
+    }
 
     // ── Room flows ──────────────────────────────────────────────────────────
     // Each flow is stateIn'd with a 5-second timeout so it stays alive briefly
@@ -145,14 +173,28 @@ class HomeViewModel @Inject constructor(
         allNotifications,
         _searchQuery,
         _selectedPlatform,
-        _userMode
-    ) { notifications, query, platform, mode ->
+        _userMode,
+        _timeFilter,
+        _minOrderValue,
+        _highValueOnly
+    ) { values ->
+        @Suppress("UNCHECKED_CAST")
+        val notifications = values[0] as List<com.notifetch.app.data.local.CapturedNotification>
+        val query = values[1] as String
+        val platform = values[2] as String?
+        val mode = values[3] as com.notifetch.app.util.UserMode
+        val timeFilter = values[4] as TimeFilter
+        val minOrderValue = values[5] as Double?
+        val highValueOnly = values[6] as Boolean
+
         var result = notifications.filter { it.userMode == mode.name.lowercase() }
-        // Filter by packageName (stable identifier, not display name)
-        // This ensures filtering works correctly even when users rename platforms
+
+        // Platform filter
         if (platform != null) {
             result = result.filter { it.packageName == platform }
         }
+
+        // Text search filter
         if (query.isNotBlank()) {
             result = result.filter {
                 it.title.contains(query, ignoreCase = true) ||
@@ -160,6 +202,32 @@ class HomeViewModel @Inject constructor(
                 it.platform.contains(query, ignoreCase = true)
             }
         }
+
+        // v2.9.72 Phase 3: Time range filter
+        if (timeFilter != TimeFilter.ALL) {
+            val now = System.currentTimeMillis()
+            val cutoff = when (timeFilter) {
+                TimeFilter.LAST_HOUR -> now - 3_600_000L
+                TimeFilter.LAST_6_HOURS -> now - 21_600_000L
+                TimeFilter.TODAY -> Helpers.startOfDayTimestamp()
+                TimeFilter.THIS_WEEK -> Helpers.startOfWeekTimestamp()
+                TimeFilter.ALL -> 0L
+            }
+            result = result.filter { it.receivedAt >= cutoff }
+        }
+
+        // v2.9.72 Phase 3: Order value filter
+        if (minOrderValue != null && minOrderValue > 0) {
+            result = result.filter { it.orderValue != null && it.orderValue >= minOrderValue }
+        }
+
+        // v2.9.72 Phase 3: High-value only filter
+        if (highValueOnly) {
+            result = result.filter {
+                com.notifetch.app.util.EarningsCalculator.isHighValueOffer(it.title, it.body, it.bigText)
+            }
+        }
+
         result
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
@@ -248,15 +316,21 @@ class HomeViewModel @Inject constructor(
         },
         combine(_searchQuery, _selectedPlatform, _userMode) { searchQuery, selectedPlatform, userMode ->
             Triple(searchQuery, selectedPlatform, userMode)
+        },
+        combine(_timeFilter, _minOrderValue, _highValueOnly) { timeFilter, minOrderValue, highValueOnly ->
+            Triple(timeFilter, minOrderValue, highValueOnly)
         }
-    ) { (isSyncing, isRefreshing, isListenerEnabled), (searchQuery, selectedPlatform, userMode) ->
+    ) { (isSyncing, isRefreshing, isListenerEnabled), (searchQuery, selectedPlatform, userMode), (timeFilter, minOrderValue, highValueOnly) ->
         UIControlState(
             isSyncing = isSyncing,
             isRefreshing = isRefreshing,
             isListenerEnabled = isListenerEnabled,
             searchQuery = searchQuery,
             selectedPlatform = selectedPlatform,
-            userMode = userMode
+            userMode = userMode,
+            timeFilter = timeFilter,
+            minOrderValue = minOrderValue,
+            highValueOnly = highValueOnly
         )
     }
 
@@ -282,7 +356,10 @@ class HomeViewModel @Inject constructor(
             isListenerEnabled = uiControl.isListenerEnabled,
             searchQuery = uiControl.searchQuery,
             selectedPlatform = uiControl.selectedPlatform,
-            userMode = uiControl.userMode
+            userMode = uiControl.userMode,
+            timeFilter = uiControl.timeFilter,
+            minOrderValue = uiControl.minOrderValue,
+            highValueOnly = uiControl.highValueOnly
         )
     }
         .debounce(200)
@@ -303,9 +380,27 @@ class HomeViewModel @Inject constructor(
         _selectedPlatform.value = platform
     }
 
+    // v2.9.72 Phase 3: Smart filter setters
+    fun setTimeFilter(filter: TimeFilter) { _timeFilter.value = filter }
+    fun setMinOrderValue(value: Double?) { _minOrderValue.value = value }
+    fun setHighValueOnly(enabled: Boolean) { _highValueOnly.value = enabled }
+    fun clearAllFilters() {
+        _timeFilter.value = TimeFilter.ALL
+        _minOrderValue.value = null
+        _highValueOnly.value = false
+        _selectedPlatform.value = null
+        _searchQuery.value = ""
+    }
+
     fun onUserModeChange(mode: UserMode) {
         _userMode.value = mode
         _selectedPlatform.value = null // Reset platform filter on mode switch
+        // v2.9.71: Save to DataStore so EarningsViewModel can read it
+        viewModelScope.launch {
+            application.dataStore.edit { prefs ->
+                prefs[SettingsViewModel.USER_MODE_KEY] = mode.name.lowercase()
+            }
+        }
     }
 
     fun markAsRead(id: Long) {
@@ -449,5 +544,18 @@ private data class UIControlState(
     val isListenerEnabled: Boolean,
     val searchQuery: String,
     val selectedPlatform: String?,
-    val userMode: UserMode
+    val userMode: UserMode,
+    val timeFilter: TimeFilter = TimeFilter.ALL,
+    val minOrderValue: Double? = null,
+    val highValueOnly: Boolean = false
 )
+
+
+// v2.9.72 Phase 3: Time filter options for smart filtering
+enum class TimeFilter(val label: String) {
+    ALL("All Time"),
+    LAST_HOUR("Last Hour"),
+    LAST_6_HOURS("Last 6 Hours"),
+    TODAY("Today"),
+    THIS_WEEK("This Week")
+}

@@ -99,4 +99,7 @@
     <string name="earnings_points">Points</string>
     <string name="earnings_estimated">Estimated Earnings</string>
     <string name="earnings_disclaimer">Earnings are estimates based on captured notifications. Real cash payouts begin once NotiFetch monetization launches (targeting Q1 2027). Join the waitlist to be notified first.</string>
+    <!-- v2.9.72: Language -->
+    <string name="settings_language">Language</string>
+    <string name="settings_language_desc">Choose app language</string>
 </resources>

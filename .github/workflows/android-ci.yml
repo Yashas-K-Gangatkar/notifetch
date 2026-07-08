@@ -1,4 +1,4 @@
-name: Android CI
+name: Android CI — Build, Sign, Release
 
 on:
   pull_request:
@@ -12,10 +12,13 @@ on:
       - "notifetch-android/**"
 
 jobs:
+  # ═══════════════════════════════════════════════════════════════
+  # Job 1: Compile + Lint (fast — runs on every PR)
+  # ═══════════════════════════════════════════════════════════════
   compile-and-lint:
     name: Kotlin Compile + Lint
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 20
     defaults:
       run:
         working-directory: notifetch-android
@@ -51,22 +54,23 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
-      # v2.9.44: Skip debug variant — google-services.json only has the release
-      # package (com.notifetch.app) registered, not com.notifetch.app.debug.
-      # Debug build needs its own Firebase project registration to compile.
-      # CI only validates the release variant (which is what we ship).
       - name: Compile Kotlin (release)
         run: ./gradlew :app:compileReleaseKotlin --no-daemon --stacktrace
 
       - name: Run lint
         run: ./gradlew :app:lintRelease --no-daemon
-        continue-on-error: true # Lint warnings shouldn't block PRs
+        continue-on-error: true
 
-  build-signed-aab:
-    name: Build Signed AAB (for Play Store)
+  # ═══════════════════════════════════════════════════════════════
+  # Job 2: Build signed AAB + APK + GitHub Release
+  # Only runs on push to main (not PRs)
+  # ═══════════════════════════════════════════════════════════════
+  build-sign-release:
+    name: Build + Sign + Release (AAB + APK)
     runs-on: ubuntu-latest
     timeout-minutes: 30
     needs: compile-and-lint
+    if: github.event_name == 'push'
     defaults:
       run:
         working-directory: notifetch-android
@@ -102,13 +106,39 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
-      # v2.9.48: Decode keystore from base64 secret
+      # ── Extract version info ────────────────────────────────────
+      - name: Extract version info
+        id: version
+        run: |
+          VERSION_CODE=$(grep "versionCode" app/build.gradle.kts | head -1 | grep -oE '[0-9]+')
+          VERSION_NAME=$(grep "versionName" app/build.gradle.kts | head -1 | grep -oE '"[^"]+"' | tr -d '"')
+          COMMIT_HASH=$(echo ${{ github.sha }} | cut -c1-7)
+          BUILD_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          echo "version_code=$VERSION_CODE" >> $GITHUB_OUTPUT
+          echo "version_name=$VERSION_NAME" >> $GITHUB_OUTPUT
+          echo "commit_hash=$COMMIT_HASH" >> $GITHUB_OUTPUT
+          echo "build_time=$BUILD_TIME" >> $GITHUB_OUTPUT
+          echo "============================================"
+          echo "Version: $VERSION_NAME ($VERSION_CODE)"
+          echo "Commit:  $COMMIT_HASH"
+          echo "Built:   $BUILD_TIME"
+          echo "============================================"
+
+      # ── Decode keystore ────────────────────────────────────────
       - name: Decode keystore
         run: |
           echo "${{ secrets.NOTIFETCH_KEYSTORE_BASE64 }}" | base64 -d > /tmp/keystore.jks
           echo "Keystore decoded: $(wc -c < /tmp/keystore.jks) bytes"
 
-      # Build signed AAB with R8 minification
+      # ── Re-enable R8 for CI (sandbox disables it due to OOM) ──
+      - name: Re-enable R8 minification
+        run: |
+          sed -i 's/isMinifyEnabled = false/isMinifyEnabled = true/g' app/build.gradle.kts
+          sed -i 's/isShrinkResources = false.*$/isShrinkResources = true/g' app/build.gradle.kts
+          echo "R8 re-enabled for CI build"
+          grep "isMinifyEnabled\|isShrinkResources" app/build.gradle.kts
+
+      # ── Build signed AAB ───────────────────────────────────────
       - name: Build signed AAB
         run: ./gradlew :app:bundleRelease --no-daemon
         env:
@@ -117,10 +147,124 @@ jobs:
           NOTIFETCH_KEY_ALIAS: ${{ secrets.NOTIFETCH_KEY_ALIAS }}
           NOTIFETCH_KEY_PASSWORD: ${{ secrets.NOTIFETCH_KEY_PASSWORD }}
 
-      - name: Upload signed AAB artifact
+      # ── Build signed universal APK ─────────────────────────────
+      - name: Build signed universal APK
+        run: ./gradlew :app:assembleRelease --no-daemon
+        env:
+          NOTIFETCH_KEYSTORE_PATH: /tmp/keystore.jks
+          NOTIFETCH_STORE_PASSWORD: ${{ secrets.NOTIFETCH_STORE_PASSWORD }}
+          NOTIFETCH_KEY_ALIAS: ${{ secrets.NOTIFETCH_KEY_ALIAS }}
+          NOTIFETCH_KEY_PASSWORD: ${{ secrets.NOTIFETCH_KEY_PASSWORD }}
+
+      # ── Rename artifacts ───────────────────────────────────────
+      - name: Rename artifacts
+        run: |
+          mkdir -p /tmp/artifacts
+          cp app/build/outputs/bundle/release/app-release.aab \
+            /tmp/artifacts/NotiFetch-v${{ steps.version.outputs.version_name }}-vc${{ steps.version.outputs.version_code }}-release.aab
+          cp app/build/outputs/apk/release/app-release.apk \
+            /tmp/artifacts/NotiFetch-v${{ steps.version.outputs.version_name }}-vc${{ steps.version.outputs.version_code }}-internal-testing.apk
+          # Copy mapping file for deobfuscation
+          if [ -f app/build/outputs/mapping/release/mapping.txt ]; then
+            cp app/build/outputs/mapping/release/mapping.txt \
+              /tmp/artifacts/mapping-v${{ steps.version.outputs.version_name }}-vc${{ steps.version.outputs.version_code }}.txt
+          fi
+          echo "Artifacts:"
+          ls -lh /tmp/artifacts/
+
+      # ── Generate SHA-256 checksums ─────────────────────────────
+      - name: Generate SHA-256 checksums
+        run: |
+          cd /tmp/artifacts
+          echo "# SHA-256 Checksums" > SHA256SUMS.txt
+          echo "" >> SHA256SUMS.txt
+          echo "| File | SHA-256 |" >> SHA256SUMS.txt
+          echo "|------|---------|" >> SHA256SUMS.txt
+          for f in *.aab *.apk *.txt; do
+            [ -f "$f" ] || continue
+            HASH=$(sha256sum "$f" | awk '{print $1}')
+            echo "| \`$f\` | \`$HASH\` |" >> SHA256SUMS.txt
+          done
+          echo "" >> SHA256SUMS.txt
+          echo "Generated: ${{ steps.version.outputs.build_time }}" >> SHA256SUMS.txt
+          echo "Commit: ${{ steps.version.outputs.commit_hash }}" >> SHA256SUMS.txt
+          cat SHA256SUMS.txt
+
+      # ── Upload artifacts (GitHub Actions artifacts) ────────────
+      - name: Upload AAB artifact
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: notifetch-signed-aab
-          path: notifetch-android/app/build/outputs/bundle/release/*.aab
+          name: notifetch-aab
+          path: /tmp/artifacts/*.aab
           retention-days: 30
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: notifetch-apk-internal-testing
+          path: /tmp/artifacts/*.apk
+          retention-days: 30
+
+      - name: Upload mapping file
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: notifetch-mapping
+          path: /tmp/artifacts/mapping*.txt
+          retention-days: 90
+
+      # ── Create GitHub Release ──────────────────────────────────
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.version_name }}-vc${{ steps.version.outputs.version_code }}-ci
+          name: NotiFetch v${{ steps.version.outputs.version_name }} (vc${{ steps.version.outputs.version_code }})
+          body: |
+            ## Build Information
+
+            | Property | Value |
+            |----------|-------|
+            | **Version** | ${{ steps.version.outputs.version_name }} |
+            | **Version Code** | ${{ steps.version.outputs.version_code }} |
+            | **Commit** | ${{ steps.version.outputs.commit_hash }} |
+            | **Built** | ${{ steps.version.outputs.build_time }} |
+            | **R8** | ✅ Enabled (minified + obfuscated) |
+
+            ## Artifacts
+
+            | File | Type | Purpose |
+            |------|------|---------|
+            | `.aab` | Android App Bundle | **Play Store upload** — this is the production artifact |
+            | `.apk` | Universal APK | **Internal testing only** — install directly on device for testing |
+            | `mapping.txt` | R8 mapping | Crashlytics symbolication — keep for deobfuscating crash reports |
+
+            ## SHA-256 Checksums
+
+            See `SHA256SUMS.txt` for verified checksums of all artifacts.
+
+            ## How to use
+
+            ### For Play Store (Production)
+            1. Download the `.aab` file
+            2. Go to Play Console → Production → Create release
+            3. Upload the `.aab`
+            4. Release name: `v${{ steps.version.outputs.version_name }}-vc${{ steps.version.outputs.version_code }}`
+
+            ### For Device Testing (Internal)
+            1. Download the `.apk` file
+            2. Install on device: `adb install NotiFetch-*.apk`
+            3. Test all features
+            4. If good → upload the `.aab` to Play Store
+
+            ---
+            🤖 Built by GitHub Actions CI
+          files: |
+            /tmp/artifacts/*.aab
+            /tmp/artifacts/*.apk
+            /tmp/artifacts/*.txt
+          prerelease: false
+          draft: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

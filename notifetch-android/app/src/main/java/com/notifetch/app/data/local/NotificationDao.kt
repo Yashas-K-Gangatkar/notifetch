@@ -41,6 +41,10 @@ interface NotificationDao {
     @Query("SELECT * FROM captured_notifications ORDER BY receivedAt DESC")
     fun getAllNotifications(): Flow<List<CapturedNotification>>
 
+    // v2.9.69: Sync version for CSV export
+    @Query("SELECT * FROM captured_notifications ORDER BY receivedAt DESC")
+    suspend fun getAllNotificationsSync(): List<CapturedNotification>
+
     // v2.9.12: For home screen widget — fetch latest N notifications (suspend, no Flow)
     @Query("SELECT * FROM captured_notifications ORDER BY receivedAt DESC LIMIT :limit")
     suspend fun getLatestNotifications(limit: Int): List<CapturedNotification>
@@ -81,11 +85,19 @@ interface NotificationDao {
     @Query("SELECT COUNT(*) FROM captured_notifications WHERE receivedAt >= :startTime AND receivedAt <= :endTime")
     fun getCountInTimeRange(startTime: Long, endTime: Long): Flow<Int>
 
+    // v2.9.71: Filtered by userMode (rider vs customer)
+    @Query("SELECT COUNT(*) FROM captured_notifications WHERE receivedAt >= :startTime AND receivedAt <= :endTime AND userMode = :mode")
+    fun getCountInTimeRangeByMode(startTime: Long, endTime: Long, mode: String): Flow<Int>
+
     @Query("SELECT COALESCE(SUM(orderValue), 0.0) FROM captured_notifications WHERE orderValue IS NOT NULL AND receivedAt >= :startTime")
     fun getTotalOrderValueSince(startTime: Long): Flow<Double>
 
     @Query("SELECT packageName, platform, COUNT(*) as count FROM captured_notifications GROUP BY packageName ORDER BY count DESC")
     fun getNotificationCountByPlatform(): Flow<List<PlatformStat>>
+
+    // v2.9.71: Filtered by userMode
+    @Query("SELECT packageName, platform, COUNT(*) as count FROM captured_notifications WHERE userMode = :mode GROUP BY packageName ORDER BY count DESC")
+    fun getNotificationCountByPlatformByMode(mode: String): Flow<List<PlatformStat>>
 
     @Query("SELECT packageName, platform, COALESCE(SUM(orderValue), 0.0) as totalValue FROM captured_notifications WHERE orderValue IS NOT NULL AND receivedAt >= :startTime GROUP BY packageName ORDER BY totalValue DESC")
     fun getOrderValueByPlatformSince(startTime: Long): Flow<List<PlatformEarningStat>>

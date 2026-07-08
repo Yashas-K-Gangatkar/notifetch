@@ -90,6 +90,7 @@ import com.notifetch.app.util.UserMode
 fun HomeScreen(
     onNavigateToDetail: (Long) -> Unit,
     onNavigateToPermission: () -> Unit,
+    onNavigateToProfile: () -> Unit = {},
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     // SINGLE uiState — no separate collectAsState calls
@@ -98,7 +99,7 @@ fun HomeScreen(
 
     // Check notification listener status and navigate to permission if needed.
     // Uses a flag to prevent navigation loops (BUG #18 cleanup).
-    var hasNavigatedToPermission by remember { mutableStateOf(false) }
+    var hasNavigatedToPermission by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         val isEnabled = NotiFetchListenerService.isListenerEnabled(context)
@@ -136,11 +137,16 @@ fun HomeScreen(
         ) {
             TopAppBar(
                 title = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Default.NotificationsActive,
-                            contentDescription = null,
-                            tint = Color.White
+                    // v2.9.69: App logo (NF squircle) + NotiFetch text, clickable → profile
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.clickable { onNavigateToProfile() }
+                    ) {
+                        // v2.9.70: Use actual app launcher icon image
+                        androidx.compose.foundation.Image(
+                            painter = androidx.compose.ui.res.painterResource(id = com.notifetch.app.R.drawable.ic_launcher_foreground),
+                            contentDescription = "NotiFetch",
+                            modifier = Modifier.size(36.dp)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
@@ -213,6 +219,9 @@ fun HomeScreen(
             }
         }
 
+        // ── v2.9.69: Free Premium Countdown ──────────────────────────────
+        FreePremiumCountdown()
+
         // ── Mode Toggle: Rider / Customer ──────────────────────────────────
         Row(
             modifier = Modifier
@@ -279,6 +288,48 @@ fun HomeScreen(
                     color = if (uiState.userMode == UserMode.CUSTOMER) Color.White else Color.Gray
                 )
             }
+        }
+
+        // v2.9.72 Phase 3: Quick filter chips
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 4.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            // 🔥 High Value chip
+            androidx.compose.material3.FilterChip(
+                selected = uiState.highValueOnly,
+                onClick = { viewModel.setHighValueOnly(!uiState.highValueOnly) },
+                label = { Text("🔥 High Value", style = MaterialTheme.typography.labelSmall) },
+                modifier = Modifier
+            )
+            // Today chip
+            androidx.compose.material3.FilterChip(
+                selected = uiState.timeFilter == com.notifetch.app.ui.viewmodel.TimeFilter.TODAY,
+                onClick = {
+                    viewModel.setTimeFilter(
+                        if (uiState.timeFilter == com.notifetch.app.ui.viewmodel.TimeFilter.TODAY)
+                            com.notifetch.app.ui.viewmodel.TimeFilter.ALL
+                        else com.notifetch.app.ui.viewmodel.TimeFilter.TODAY
+                    )
+                },
+                label = { Text("Today", style = MaterialTheme.typography.labelSmall) },
+                modifier = Modifier
+            )
+            // This Week chip
+            androidx.compose.material3.FilterChip(
+                selected = uiState.timeFilter == com.notifetch.app.ui.viewmodel.TimeFilter.THIS_WEEK,
+                onClick = {
+                    viewModel.setTimeFilter(
+                        if (uiState.timeFilter == com.notifetch.app.ui.viewmodel.TimeFilter.THIS_WEEK)
+                            com.notifetch.app.ui.viewmodel.TimeFilter.ALL
+                        else com.notifetch.app.ui.viewmodel.TimeFilter.THIS_WEEK
+                    )
+                },
+                label = { Text("This Week", style = MaterialTheme.typography.labelSmall) },
+                modifier = Modifier
+            )
         }
 
         PullToRefreshBox(
@@ -535,6 +586,131 @@ private fun AnimatedEmptyState(
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
             textAlign = TextAlign.Center
+        )
+    }
+}
+
+/**
+ * v2.9.69: Free Premium Countdown
+ *
+ * Shows a live countdown timer for the 6-month free premium period.
+ * End date: December 20, 2026 00:00:00 UTC
+ * (6 months from June 20, 2026 — the approximate launch date)
+ *
+ * Displays: months, days, hours, minutes, seconds — updating every second.
+ * When the countdown reaches zero, shows "Premium expired".
+ */
+@Composable
+private fun FreePremiumCountdown() {
+    // End date: December 20, 2026 00:00:00 UTC
+    val endDate = remember {
+        java.util.Calendar.getInstance().apply {
+            set(2026, 11, 20, 0, 0, 0)  // January = month 0
+            set(java.util.Calendar.MILLISECOND, 0)
+        }.timeInMillis
+    }
+
+    var remainingMs by remember { mutableStateOf(endDate - System.currentTimeMillis()) }
+
+    // Update every second
+    androidx.compose.runtime.LaunchedEffect(Unit) {
+        while (true) {
+            remainingMs = endDate - System.currentTimeMillis()
+            if (remainingMs <= 0) break
+            kotlinx.coroutines.delay(1000)
+        }
+    }
+
+    if (remainingMs <= 0) {
+        // Premium expired
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 4.dp),
+            shape = RoundedCornerShape(12.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.5f)
+            )
+        ) {
+            Row(
+                modifier = Modifier.padding(12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text("⏰ Free Premium has ended. Upgrade to continue.", style = MaterialTheme.typography.bodySmall)
+            }
+        }
+        return
+    }
+
+    // Calculate months, days, hours, minutes, seconds
+    val totalSeconds = remainingMs / 1000
+    val months = (totalSeconds / (30 * 24 * 3600)).toInt()
+    val daysAfterMonths = (totalSeconds % (30 * 24 * 3600)).toInt()
+    val days = daysAfterMonths / (24 * 3600)
+    val hours = (daysAfterMonths % (24 * 3600)) / 3600
+    val minutes = (daysAfterMonths % 3600) / 60
+    val seconds = daysAfterMonths % 60
+
+    com.notifetch.app.ui.components.GlassCard(
+        modifier = Modifier
+            .padding(horizontal = 16.dp, vertical = 4.dp)
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "🎉 Free Premium Active",
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFFFF5A1F)
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = "Premium expires in:",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(modifier = Modifier.height(6.dp))
+
+            // Countdown boxes
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                CountdownUnit(value = months, label = "Months")
+                CountdownUnit(value = days, label = "Days")
+                CountdownUnit(value = hours, label = "Hours")
+                CountdownUnit(value = minutes, label = "Min")
+                CountdownUnit(value = seconds, label = "Sec")
+            }
+        }
+    }
+}
+
+@Composable
+private fun CountdownUnit(value: Int, label: String) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box(
+            modifier = Modifier
+                .size(40.dp)
+                .clip(RoundedCornerShape(8.dp))
+                .background(Color(0xFFFF5A1F)),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = String.format("%02d", value),
+                fontWeight = FontWeight.Bold,
+                color = Color.White,
+                style = MaterialTheme.typography.titleMedium
+            )
+        }
+        Spacer(modifier = Modifier.height(2.dp))
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }
