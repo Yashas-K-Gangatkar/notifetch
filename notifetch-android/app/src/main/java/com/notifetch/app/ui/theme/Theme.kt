@@ -3,6 +3,7 @@ package com.notifetch.app.ui.theme
 import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.background
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
@@ -10,92 +11,81 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
-private val LightColorScheme = lightColorScheme(
-    primary = md_theme_light_primary,
-    onPrimary = md_theme_light_onPrimary,
-    primaryContainer = md_theme_light_primaryContainer,
-    onPrimaryContainer = md_theme_light_onPrimaryContainer,
-    secondary = md_theme_light_secondary,
-    onSecondary = md_theme_light_onSecondary,
-    secondaryContainer = md_theme_light_secondaryContainer,
-    onSecondaryContainer = md_theme_light_onSecondaryContainer,
-    tertiary = md_theme_light_tertiary,
-    onTertiary = md_theme_light_onTertiary,
-    tertiaryContainer = md_theme_light_tertiaryContainer,
-    onTertiaryContainer = md_theme_light_onTertiaryContainer,
-    error = md_theme_light_error,
-    onError = md_theme_light_onError,
-    errorContainer = md_theme_light_errorContainer,
-    onErrorContainer = md_theme_light_onErrorContainer,
-    background = md_theme_light_background,
-    onBackground = md_theme_light_onBackground,
-    surface = md_theme_light_surface,
-    onSurface = md_theme_light_onSurface,
-    surfaceVariant = md_theme_light_surfaceVariant,
-    onSurfaceVariant = md_theme_light_onSurfaceVariant,
-    outline = md_theme_light_outline,
-    outlineVariant = md_theme_light_outlineVariant
+// v2.9.73: Liquid Glass Color Schemes
+private val LiquidGlassDarkScheme = darkColorScheme(
+    primary = LiquidAccent,
+    onPrimary = Color.Black,
+    primaryContainer = LiquidAccent.copy(alpha = 0.15f),
+    onPrimaryContainer = LiquidAccent,
+    secondary = LiquidSuccess,
+    onSecondary = Color.Black,
+    tertiary = LiquidWarning,
+    onTertiary = Color.Black,
+    error = LiquidError,
+    onError = Color.White,
+    background = LiquidBackground,
+    onBackground = LiquidTextPrimary,
+    surface = LiquidSurface,
+    onSurface = LiquidTextPrimary,
+    surfaceVariant = LiquidSurfaceVariant,
+    onSurfaceVariant = LiquidTextSecondary,
+    outline = LiquidTextTertiary,
+    outlineVariant = LiquidTextTertiary.copy(alpha = 0.3f)
 )
 
-private val DarkColorScheme = darkColorScheme(
-    primary = md_theme_dark_primary,
-    onPrimary = md_theme_dark_onPrimary,
-    primaryContainer = md_theme_dark_primaryContainer,
-    onPrimaryContainer = md_theme_dark_onPrimaryContainer,
-    secondary = md_theme_dark_secondary,
-    onSecondary = md_theme_dark_onSecondary,
-    secondaryContainer = md_theme_dark_secondaryContainer,
-    onSecondaryContainer = md_theme_dark_onSecondaryContainer,
-    tertiary = md_theme_dark_tertiary,
-    onTertiary = md_theme_dark_onTertiary,
-    tertiaryContainer = md_theme_dark_tertiaryContainer,
-    onTertiaryContainer = md_theme_dark_onTertiaryContainer,
-    error = md_theme_dark_error,
-    onError = md_theme_dark_onError,
-    errorContainer = md_theme_dark_errorContainer,
-    onErrorContainer = md_theme_dark_onErrorContainer,
-    background = md_theme_dark_background,
-    onBackground = md_theme_dark_onBackground,
-    surface = md_theme_dark_surface,
-    onSurface = md_theme_dark_onSurface,
-    surfaceVariant = md_theme_dark_surfaceVariant,
-    onSurfaceVariant = md_theme_dark_onSurfaceVariant,
-    outline = md_theme_dark_outline,
-    outlineVariant = md_theme_dark_outlineVariant
+private val LiquidGlassLightScheme = lightColorScheme(
+    primary = LiquidAccent,
+    onPrimary = Color.White,
+    primaryContainer = LiquidAccent.copy(alpha = 0.1f),
+    onPrimaryContainer = LiquidAccent,
+    secondary = LiquidSuccess,
+    onSecondary = Color.White,
+    tertiary = LiquidWarning,
+    onTertiary = Color.White,
+    error = LiquidError,
+    onError = Color.White,
+    background = Color(0xFFF5F7FA),
+    onBackground = Color(0xFF0B0F14),
+    surface = Color(0xFFFFFFFF),
+    onSurface = Color(0xFF0B0F14),
+    surfaceVariant = Color(0xFFE8ECEF),
+    onSurfaceVariant = Color(0xFF5A6B7A),
+    outline = Color(0xFFB0BEC5),
+    outlineVariant = Color(0xFFD0D7DD)
 )
 
 @Composable
 fun NotiFetchTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // v2.9.11: dynamicColor is now user-toggleable from Settings.
-    // Default is false because it replaces brand colors with wallpaper palette,
-    // which breaks platform identification (Swiggy orange, Zomato red, etc.).
-    // Power users who prefer Material You can enable it in Settings → Appearance.
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
+    // v2.9.73: Always use Liquid Glass scheme
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
+        darkTheme -> LiquidGlassDarkScheme
+        else -> LiquidGlassLightScheme
     }
 
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            // v2.9.11: Use transparent status bar with proper icon appearance
-            // (replaces the old hardcoded primary color that looked dated)
-            window.statusBarColor = android.graphics.Color.TRANSPARENT
+            // v2.9.73: Deep dark background
+            window.statusBarColor = LiquidBackground.toArgb()
+            window.navigationBarColor = LiquidBackground.toArgb()
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
+            WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars = !darkTheme
         }
     }
 

@@ -112,11 +112,11 @@ class MainActivity : ComponentActivity() {
                         },
                         modifier = Modifier.fillMaxSize()
                     )
-                    // v2.9.68: Glass overlay — transparency is user-adjustable from Settings
-                    // Default: 0.92 (mostly opaque, subtle gradient). Slider: 0.60–0.95.
+                    // v2.9.73: Liquid Glass — deep dark background with gradient
+                    // No overlay needed — the background IS the dark surface
                     Surface(
                         modifier = Modifier.fillMaxSize(),
-                        color = MaterialTheme.colorScheme.background.copy(alpha = cardTransparency.coerceIn(0.3f, 0.95f))
+                        color = androidx.compose.ui.graphics.Color(0xFF0B0F14)
                     ) {
                         NotiFetchNavHost()
                     }
