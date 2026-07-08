@@ -4,7 +4,6 @@ import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
-import android.app.ForegroundServiceStartNotAllowedException
 import android.content.Context
 import android.content.Intent
 import android.os.Build
@@ -76,10 +75,13 @@ class KeepAliveService : Service() {
                 startForeground(NOTIFICATION_ID, createPersistentNotification())
             }
             Log.d(TAG, "KeepAliveService started as foreground service")
-        } catch (e: ForegroundServiceStartNotAllowedException) {
-            Log.e(TAG, "ForegroundServiceStartNotAllowedException — started from background?", e)
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to start foreground service: ${e.message}", e)
+            // v2.9.74: ForegroundServiceStartNotAllowedException requires API 31+.
+            if (Build.VERSION.SDK_INT >= 31 && e is android.app.ForegroundServiceStartNotAllowedException) {
+                Log.e(TAG, "ForegroundServiceStartNotAllowedException — started from background?", e)
+            } else {
+                Log.e(TAG, "Failed to start foreground service: ${e.message}", e)
+            }
         }
         return START_STICKY
     }
