@@ -93,3 +93,19 @@ val md_theme_dark_outlineVariant = Color(0xFF52443B)
 // Brand gradient (kept for backward compat)
 val BrandGradientStart = Color(0xFFFF5A1F)
 val BrandGradientEnd = Color(0xFFFF8F00)
+
+
+// v2.9.73: Platform color helper (kept from original)
+fun getPlatformColor(platform: String, packageName: String): Color {
+    return when {
+        platform.contains("Swiggy", ignoreCase = true) -> Color(0xFFFC8019)
+        platform.contains("Zomato", ignoreCase = true) -> Color(0xFFE23744)
+        platform.contains("Domino", ignoreCase = true) -> Color(0xFF006491)
+        platform.contains("Blinkit", ignoreCase = true) -> Color(0xFF0C831F)
+        platform.contains("Zepto", ignoreCase = true) -> Color(0xFF8B5CF6)
+        platform.contains("Uber", ignoreCase = true) -> Color(0xFF000000)
+        platform.contains("Rapido", ignoreCase = true) -> Color(0xFFFFE000)
+        platform.contains("Porter", ignoreCase = true) -> Color(0xFF1A237E)
+        else -> Color(0xFFFF5A1F)
+    }
+}

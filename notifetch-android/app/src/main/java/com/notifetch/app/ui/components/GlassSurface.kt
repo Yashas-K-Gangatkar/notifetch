@@ -16,6 +16,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.asComposeRenderEffect
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.Dp
@@ -35,7 +36,7 @@ fun GlassSurface(
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 renderEffect = android.graphics.RenderEffect.createBlurEffect(
                     24f, 24f, android.graphics.Shader.TileMode.DECAL
-                )
+                ).asComposeRenderEffect()
             }
             this.shadowElevation = shadowElevation.toPx()
         },
