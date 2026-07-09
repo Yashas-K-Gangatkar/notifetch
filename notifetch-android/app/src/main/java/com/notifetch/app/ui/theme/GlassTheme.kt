@@ -10,40 +10,46 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 /**
- * v2.9.74: GlassTheme — Centralized Liquid Glass configuration.
+ * v2.9.75: NotiFetch Design System v2 — "Clarity in Motion"
  *
- * Requirement #4: No component should hardcode glass values.
- * Every GlassSurface, GlassCard, GlassButton reads from this config.
- *
- * Three rendering modes auto-detect based on API level:
- * - FLAGSHIP (API 31+): Real GPU blur, specular highlights, noise
- * - BALANCED (API 26-30): Visual tricks (noise + specular, no blur)
- * - COMPATIBILITY (API 24-25): Premium translucent, minimal effects
+ * Expanded design token system incorporating feedback:
+ * - Multiple background layers (depth)
+ * - Glow colors (AccentGlow, AccentSoft)
+ * - Glass-specific tokens (tint, border, highlight, shadow, noise)
+ * - Motion duration tokens (Fast/Normal/Slow/Hero)
+ * - Shadow tokens (Soft/Glass/Floating/Hero)
+ * - Icon sizing tokens (XS/S/M/L)
+ * - Animation curve tokens
  */
+
 @Immutable
 data class GlassThemeConfig(
     // ── Rendering Mode ──────────────────────────────────────────
     val mode: GlassMode,
 
     // ── Blur ────────────────────────────────────────────────────
-    val blurRadius: Dp,              // Gaussian blur radius (0.dp if unavailable)
+    val blurRadius: Dp,
 
-    // ── Transparency ────────────────────────────────────────────
-    val glassOpacity: Float,         // Background tint (0.08 - 0.25)
-    val borderOpacity: Float,        // White border (0.10 - 0.15)
+    // ── Glass Material (specific tokens) ────────────────────────
+    val glassTint: Color,
+    val glassOpacity: Float,
+    val glassBorderColor: Color,
+    val borderOpacity: Float,
+    val glassHighlightColor: Color,
+    val highlightIntensity: Float,
+    val glassShadowColor: Color,
+    val glassNoiseStrength: Float,
 
-    // ── Visual Effects ──────────────────────────────────────────
-    val noiseStrength: Float,        // Noise texture alpha (0.0 - 0.06)
-    val highlightIntensity: Float,   // Specular highlight (0.0 - 0.45)
-    val shadowElevation: Dp,         // Ambient shadow depth (0 - 12.dp)
+    // ── Shadow ──────────────────────────────────────────────────
+    val shadowElevation: Dp,
 
     // ── Shape ───────────────────────────────────────────────────
-    val cornerRadius: Dp,            // Rounded corner radius (16 - 28.dp)
+    val cornerRadius: Dp,
 
     // ── Motion ──────────────────────────────────────────────────
-    val pressScale: Float,           // Button press compression (0.94 - 1.0)
-    val springDamping: Float,        // Spring damping ratio (0.5 - 0.8)
-    val springStiffness: Float,      // Spring stiffness (300 - 500)
+    val pressScale: Float,
+    val springDamping: Float,
+    val springStiffness: Float,
 )
 
 enum class GlassMode {
@@ -52,9 +58,6 @@ enum class GlassMode {
     COMPATIBILITY    // API 24-25 — premium translucent
 }
 
-/**
- * Auto-detect the best glass mode for the current device.
- */
 fun detectGlassMode(): GlassMode {
     return when {
         android.os.Build.VERSION.SDK_INT >= 31 -> GlassMode.FLAGSHIP
@@ -63,80 +66,66 @@ fun detectGlassMode(): GlassMode {
     }
 }
 
-/**
- * Create a GlassThemeConfig for the given mode.
- * These are the benchmarked defaults — optimized for the performance targets:
- * - <3x overdraw
- * - 60 FPS mid-range, 90-120 FPS flagship
- * - <1% battery per hour
- */
 fun glassThemeConfigFor(mode: GlassMode): GlassThemeConfig = when (mode) {
     GlassMode.FLAGSHIP -> GlassThemeConfig(
         mode = GlassMode.FLAGSHIP,
-        blurRadius = 24.dp,
-        glassOpacity = 0.12f,
-        borderOpacity = 0.12f,
-        noiseStrength = 0.04f,
+        blurRadius = BlurStandard,
+        glassTint = GlassTint,
+        glassOpacity = GlassOpacityMedium,
+        glassBorderColor = GlassBorder,
+        borderOpacity = BorderOpacityHigh,
+        glassHighlightColor = GlassHighlight,
         highlightIntensity = 0.45f,
-        shadowElevation = 8.dp,
-        cornerRadius = 24.dp,
-        pressScale = 0.96f,
-        springDamping = 0.6f,
-        springStiffness = 400f
+        glassShadowColor = GlassShadow,
+        glassNoiseStrength = GlassNoiseStrength,
+        shadowElevation = ShadowGlass,
+        cornerRadius = CornerCard,
+        pressScale = PressScale,
+        springDamping = SpringDamping,
+        springStiffness = SpringStiffness
     )
 
     GlassMode.BALANCED -> GlassThemeConfig(
         mode = GlassMode.BALANCED,
-        blurRadius = 0.dp,           // No GPU blur on API <31
-        glassOpacity = 0.18f,        // Heavier tint to compensate
-        borderOpacity = 0.12f,
-        noiseStrength = 0.05f,       // Slightly stronger noise
-        highlightIntensity = 0.35f,  // Slightly dimmer highlight
-        shadowElevation = 4.dp,
-        cornerRadius = 24.dp,
-        pressScale = 0.97f,
-        springDamping = 0.6f,
-        springStiffness = 400f
+        blurRadius = 0.dp,
+        glassTint = GlassTint,
+        glassOpacity = 0.18f,
+        glassBorderColor = GlassBorder,
+        borderOpacity = BorderOpacity,
+        glassHighlightColor = GlassHighlight,
+        highlightIntensity = 0.35f,
+        glassShadowColor = GlassShadow,
+        glassNoiseStrength = 0.05f,
+        shadowElevation = ShadowSoft,
+        cornerRadius = CornerCard,
+        pressScale = PressScale,
+        springDamping = SpringDamping,
+        springStiffness = SpringStiffness
     )
 
     GlassMode.COMPATIBILITY -> GlassThemeConfig(
         mode = GlassMode.COMPATIBILITY,
         blurRadius = 0.dp,
-        glassOpacity = 0.22f,        // Heaviest tint
-        borderOpacity = 0.15f,
-        noiseStrength = 0.0f,        // No noise on old GPUs
-        highlightIntensity = 0.0f,   // No highlight on old GPUs
-        shadowElevation = 2.dp,
-        cornerRadius = 20.dp,        // Slightly less rounded
-        pressScale = 1.0f,           // No press animation on old devices
-        springDamping = 0.6f,
-        springStiffness = 400f
+        glassTint = GlassTint,
+        glassOpacity = 0.22f,
+        glassBorderColor = GlassBorder,
+        borderOpacity = BorderOpacityHigh,
+        glassHighlightColor = GlassHighlight,
+        highlightIntensity = 0.0f,
+        glassShadowColor = GlassShadow,
+        glassNoiseStrength = 0.0f,
+        shadowElevation = ElevationLow,
+        cornerRadius = CornerSmall,
+        pressScale = 1.0f,
+        springDamping = SpringDamping,
+        springStiffness = SpringStiffness
     )
 }
-
-// ── CompositionLocal ────────────────────────────────────────────
-// Requirement #6: Glass rendering must be replaceable without rewriting screens.
-// Screens read glass config from CompositionLocal, never hardcode values.
 
 val LocalGlassTheme = compositionLocalOf<GlassThemeConfig> {
     error("GlassTheme not provided. Wrap your content in GlassTheme { }")
 }
 
-/**
- * GlassTheme provider — wraps the app and provides glass configuration.
- *
- * Usage:
- * ```
- * GlassTheme {
- *     NotiFetchTheme {
- *         // screens
- *     }
- * }
- * ```
- *
- * To replace glass rendering: provide a different GlassThemeConfig.
- * No screen code needs to change.
- */
 @Composable
 fun GlassTheme(
     config: GlassThemeConfig = glassThemeConfigFor(detectGlassMode()),
@@ -147,9 +136,6 @@ fun GlassTheme(
     }
 }
 
-/**
- * Access the current glass theme config.
- */
 val currentGlassTheme: GlassThemeConfig
     @Composable
     @ReadOnlyComposable

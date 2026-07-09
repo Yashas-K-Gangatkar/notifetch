@@ -34,13 +34,9 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.notifetch.app.ui.theme.GlassMode
-import com.notifetch.app.ui.theme.LiquidAccent
-import com.notifetch.app.ui.theme.LiquidBackground
-import com.notifetch.app.ui.theme.currentGlassTheme
+import com.notifetch.app.ui.theme.*
 
 // ── Pre-baked noise texture (cached for app lifetime) ───────────
-// Fix #7: Use IntArray + setPixels batch instead of 4096 setPixel calls
 private var cachedNoiseShader: BitmapShader? = null
 private var cachedNoiseAlpha: Float = -1f
 
@@ -50,7 +46,7 @@ private fun getNoiseShader(alpha: Float): BitmapShader {
     }
     val size = 64
     val pixels = IntArray(size * size)
-    val random = java.util.Random(42) // Fixed seed for consistency
+    val random = java.util.Random(42)
     val alphaInt = (alpha * 255).toInt()
     for (i in pixels.indices) {
         val noise = random.nextInt(256)
@@ -67,18 +63,10 @@ private fun getNoiseShader(alpha: Float): BitmapShader {
 }
 
 /**
- * v2.9.74: GlassSurface — the core Liquid Glass component.
+ * v2.9.75: GlassSurface — expanded with all new tokens.
  *
- * Requirement #1: Uses the shared blurred background layer, NOT per-card blur.
- * Requirement #4: All values read from GlassThemeConfig — nothing hardcoded.
- * Requirement #6: Fully modular — replaceable without screen changes.
- *
- * Rendering layers (per surface):
- * 1. Semi-transparent white tint (glassOpacity from theme)
- * 2. Noise texture (noiseStrength from theme — pre-baked, cached)
- * 3. Specular highlight (top-left edge — highlightIntensity from theme)
- * 4. Ultra-thin white border (borderOpacity from theme)
- * 5. Content
+ * Uses specific glass tokens: glassTint, glassBorderColor, glassHighlightColor,
+ * glassShadowColor, glassNoiseStrength — not just opacity.
  */
 @Composable
 fun GlassSurface(
@@ -95,21 +83,21 @@ fun GlassSurface(
     Surface(
         modifier = modifier,
         shape = shape,
-        color = Color.White.copy(alpha = theme.glassOpacity),
-        border = BorderStroke(1.dp, Color.White.copy(alpha = theme.borderOpacity)),
+        color = theme.glassTint.copy(alpha = theme.glassOpacity),
+        border = BorderStroke(1.dp, theme.glassBorderColor.copy(alpha = theme.borderOpacity)),
         shadowElevation = effectiveShadow,
         tonalElevation = 0.dp
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             // Layer 1: Noise texture
-            if (theme.noiseStrength > 0f) {
-                val noiseBrush = remember(theme.noiseStrength) {
-                    ShaderBrush(getNoiseShader(theme.noiseStrength))
+            if (theme.glassNoiseStrength > 0f) {
+                val noiseBrush = remember(theme.glassNoiseStrength) {
+                    ShaderBrush(getNoiseShader(theme.glassNoiseStrength))
                 }
                 Box(modifier = Modifier.fillMaxSize().background(noiseBrush))
             }
 
-            // Layer 2: Specular highlight (top-left edge)
+            // Layer 2: Specular highlight (top-left edge — light catching glass)
             if (theme.highlightIntensity > 0f) {
                 Box(
                     modifier = Modifier
@@ -118,7 +106,7 @@ fun GlassSurface(
                         .background(
                             Brush.linearGradient(
                                 colors = listOf(
-                                    Color.White.copy(alpha = theme.highlightIntensity),
+                                    theme.glassHighlightColor.copy(alpha = theme.highlightIntensity),
                                     Color.Transparent
                                 ),
                                 start = Offset.Zero,
@@ -154,12 +142,7 @@ fun GlassCard(
 
 /**
  * GlassButton — spring-animated press compression.
- *
- * Fix #6: Uses interactionSource to track pressed state (was broken —
-   pressed was never set to true after switching to Surface(onClick)).
- * Fix #5: Added Role.Button semantics for accessibility.
- * Fix #4: Uses heightIn(min = 48.dp) instead of fixed height.
- * Fix #10: Uses theme.cornerRadius instead of hardcoded 16.dp.
+ * Uses interactionSource for proper press detection + accessibility.
  */
 @Composable
 fun GlassButton(
@@ -170,7 +153,7 @@ fun GlassButton(
     content: @Composable RowScope.() -> Unit
 ) {
     val theme = currentGlassTheme
-    val effectiveRadius = cornerRadius ?: (theme.cornerRadius - 4.dp) // Slightly tighter for buttons
+    val effectiveRadius = cornerRadius ?: CornerButton
     val interactionSource = remember { MutableInteractionSource() }
     val pressed by interactionSource.collectIsPressedAsState()
 
@@ -192,11 +175,11 @@ fun GlassButton(
             }
             .semantics { role = Role.Button },
         shape = RoundedCornerShape(effectiveRadius),
-        color = Color.White.copy(
+        color = theme.glassTint.copy(
             alpha = if (pressed) (theme.glassOpacity * 1.5f) else (theme.glassOpacity * 0.7f)
         ),
-        border = BorderStroke(1.dp, Color.White.copy(alpha = theme.borderOpacity)),
-        shadowElevation = if (pressed) 2.dp else 6.dp,
+        border = BorderStroke(1.dp, theme.glassBorderColor.copy(alpha = theme.borderOpacity)),
+        shadowElevation = if (pressed) ElevationLow else ShadowGlass,
         tonalElevation = 0.dp,
         onClick = onClick,
         enabled = enabled,
@@ -225,7 +208,7 @@ fun GlassOutlinedButton(
     content: @Composable RowScope.() -> Unit
 ) {
     val theme = currentGlassTheme
-    val effectiveRadius = cornerRadius ?: (theme.cornerRadius - 4.dp)
+    val effectiveRadius = cornerRadius ?: CornerButton
     val interactionSource = remember { MutableInteractionSource() }
     val pressed by interactionSource.collectIsPressedAsState()
 
@@ -247,11 +230,11 @@ fun GlassOutlinedButton(
             }
             .semantics { role = Role.Button },
         shape = RoundedCornerShape(effectiveRadius),
-        color = Color.White.copy(
+        color = theme.glassTint.copy(
             alpha = if (pressed) theme.glassOpacity else (theme.glassOpacity * 0.6f)
         ),
-        border = BorderStroke(1.dp, Color.White.copy(alpha = theme.borderOpacity)),
-        shadowElevation = 2.dp,
+        border = BorderStroke(1.dp, theme.glassBorderColor.copy(alpha = theme.borderOpacity)),
+        shadowElevation = ElevationLow,
         tonalElevation = 0.dp,
         onClick = onClick,
         enabled = enabled,
@@ -269,14 +252,10 @@ fun GlassOutlinedButton(
 }
 
 /**
- * v2.9.74: SharedBlurBackground — ONE shared blurred layer for the entire screen.
+ * SharedBlurBackground — ONE shared blurred layer for the entire screen.
  *
- * Requirement #1: One shared layer — not per-card.
- * Requirement #3: No per-frame screenshot capture.
- *
- * Fix #1: Blurred layer is now STATIC (was animated — caused GPU re-blur every frame).
- * Fix #2: Brush is cached via drawWithCache (was allocating new object every frame).
- * Fix #3: Colors read from theme tokens (was hardcoded).
+ * Uses multiple background layers (BackgroundPrimary → BackgroundSecondary → AccentGlow)
+ * for depth. Animated cyan glow drifts slowly.
  */
 @Composable
 fun SharedBlurBackground(
@@ -285,30 +264,29 @@ fun SharedBlurBackground(
     val theme = currentGlassTheme
 
     Box(modifier = modifier.fillMaxSize()) {
-        // Layer 1: Animated gradient (replaces old AndroidView)
+        // Layer 1: Animated gradient with multiple background layers
         AnimatedGradientBackground(
             modifier = Modifier.fillMaxSize()
         )
 
         // Layer 2: STATIC blurred gradient (FLAGSHIP mode only — API 31+)
-        // Fix #1: This is NOT animated — a static blurred gradient.
-        // The GPU blurs it ONCE and caches the result.
-        // The animated Layer 1 provides subtle movement on top.
         if (theme.mode == GlassMode.FLAGSHIP && theme.blurRadius > 0.dp) {
-            StaticBlurredGradient(
+            Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .blur(theme.blurRadius)
-            )
+            ) {
+                StaticBlurredGradient(
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
         }
     }
 }
 
 /**
  * Animated gradient background — pure Compose implementation.
- *
- * Fix #2: Uses drawWithCache to cache the Brush (was allocating every frame).
- * Fix #3: Colors from theme tokens (was hardcoded 0xFF0B0F14 / 0xFF00D9FF).
+ * Uses BackgroundPrimary → BackgroundSecondary → AccentGlow for depth.
  */
 @Composable
 private fun AnimatedGradientBackground(
@@ -325,21 +303,17 @@ private fun AnimatedGradientBackground(
         label = "gradientOffset"
     )
 
-    val baseColor = LiquidBackground
-    val accentColor = LiquidAccent.copy(alpha = 0.08f)
-
-    // Fix #2: drawWithCache caches the Brush — no per-frame allocation
     Box(
         modifier = modifier.drawWithCache {
             val startX = offset * 500f
             val startY = offset * 300f
             val brush = Brush.linearGradient(
                 colors = listOf(
-                    baseColor,
-                    baseColor.copy(alpha = 0.98f),
-                    accentColor,
-                    baseColor.copy(alpha = 0.98f),
-                    baseColor
+                    BackgroundPrimary,
+                    BackgroundSecondary,
+                    AccentGlow.copy(alpha = 0.08f),
+                    BackgroundSecondary,
+                    BackgroundPrimary
                 ),
                 start = Offset(x = startX, y = startY),
                 end = Offset(x = startX + 800f, y = startY + 800f)
@@ -353,25 +327,18 @@ private fun AnimatedGradientBackground(
 
 /**
  * Static blurred gradient — drawn ONCE, blurred ONCE, cached by GPU.
- *
- * Fix #1: This replaces the animated blurred layer.
- * The animated gradient (Layer 1) provides movement on top.
- * This static layer provides the frosted glass base.
  */
 @Composable
 private fun StaticBlurredGradient(
     modifier: Modifier = Modifier
 ) {
-    val baseColor = LiquidBackground
-    val accentColor = LiquidAccent.copy(alpha = 0.05f)
-
     Box(
         modifier = modifier.drawWithCache {
             val brush = Brush.radialGradient(
                 colors = listOf(
-                    accentColor,
-                    baseColor.copy(alpha = 0.95f),
-                    baseColor
+                    AccentGlow.copy(alpha = 0.05f),
+                    BackgroundSecondary.copy(alpha = 0.95f),
+                    BackgroundPrimary
                 ),
                 center = Offset(size.width / 2f, size.height * 0.3f),
                 radius = maxOf(size.width, size.height)

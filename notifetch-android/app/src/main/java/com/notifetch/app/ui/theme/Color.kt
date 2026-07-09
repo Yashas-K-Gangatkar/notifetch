@@ -1,101 +1,245 @@
 package com.notifetch.app.ui.theme
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+
+/**
+ * NotiFetch Design System v2.0 — "Clarity in Motion"
+ *
+ * Expanded with feedback: multiple background layers, glow colors,
+ * glass-specific tokens, motion durations, shadow tokens, icon sizes,
+ * animation curves.
+ *
+ * Brand Personality:
+ *   Fast + Reliable + Intelligent + Minimal + Modern = PremiumTool
+ */
 
 // ═══════════════════════════════════════════════════════════════
-// v2.9.73: Liquid Glass Color System
+// 1. BACKGROUND LAYERS (creates depth)
 // ═══════════════════════════════════════════════════════════════
 
-// Primary backgrounds — deep dark with slight blue tint
-val LiquidBackground = Color(0xFF0B0F14)
-val LiquidSurface = Color(0xFF111820)
-val LiquidSurfaceVariant = Color(0xFF1A2330)
+val BackgroundPrimary = Color(0xFF090B10)
+val BackgroundSecondary = Color(0xFF10141B)
+val BackgroundElevated = Color(0xFF161C25)
 
-// Glass colors — semi-transparent whites for frosted effect
-val GlassWhite = Color(0xFFFFFFFF)
+// Legacy compat
+val LiquidBackground = BackgroundPrimary
+val LiquidSurface = BackgroundSecondary
+val LiquidSurfaceVariant = BackgroundElevated
+
+// ═══════════════════════════════════════════════════════════════
+// 2. ACCENT + GLOW COLORS
+// ═══════════════════════════════════════════════════════════════
+
+val Accent = Color(0xFF00D9FF)
+val AccentDim = Color(0xFF0099B8)
+val AccentGlow = Color(0xFF4DE7FF)
+val AccentSoft = Color(0xFF8EF2FF)
+
+val Success = Color(0xFF34D399)
+val Warning = Color(0xFFFBBF24)
+val Error = Color(0xFFF87171)
+
+// Legacy compat
+val LiquidAccent = Accent
+val LiquidAccentDim = AccentDim
+val LiquidSuccess = Success
+val LiquidWarning = Warning
+val LiquidError = Error
+
+// ═══════════════════════════════════════════════════════════════
+// 3. TEXT HIERARCHY (WCAG AAA primary/secondary)
+// ═══════════════════════════════════════════════════════════════
+
+val TextPrimary = Color(0xFFFFFFFF)     // 19.3:1 contrast
+val TextSecondary = Color(0xFFB0BEC5)   // 9.8:1 contrast
+val TextTertiary = Color(0xFF78909C)    // 5.2:1 contrast
+val TextDisabled = Color(0xFF455A64)    // 2.4:1 (disabled only)
+
+// Legacy compat
+val LiquidTextPrimary = TextPrimary
+val LiquidTextSecondary = TextSecondary
+val LiquidTextTertiary = TextTertiary
+
+// ═══════════════════════════════════════════════════════════════
+// 4. GLASS MATERIALS (specific tokens for each glass property)
+// ═══════════════════════════════════════════════════════════════
+
+val GlassTint = Color(0xFFFFFFFF)
+val GlassBorder = Color(0xFFFFFFFF)
 val GlassHighlight = Color(0xFFFFFFFF)
-
-// Accent colors — vibrant, high-contrast
-val LiquidAccent = Color(0xFF00D9FF)      // Cyan — primary accent
-val LiquidAccentDim = Color(0xFF0099B8)   // Dimmed cyan
-val LiquidSuccess = Color(0xFF22C55E)      // Green
-val LiquidWarning = Color(0xFFF59E0B)      // Amber
-val LiquidError = Color(0xFFEF4444)        // Red
-
-// Text colors — high contrast for readability
-val LiquidTextPrimary = Color(0xFFFFFFFF)
-val LiquidTextSecondary = Color(0xFFB0BEC5)
-val LiquidTextTertiary = Color(0xFF78909C)
+val GlassShadow = Color(0xFF000000)
 
 // Glass opacity levels
-const val GLASS_ALPHA_LOW = 0.08f      // Very subtle
-const val GLASS_ALPHA_MEDIUM = 0.12f   // Default cards
-const val GLASS_ALPHA_HIGH = 0.18f     // Prominent surfaces
-const val GLASS_ALPHA_SOLID = 0.25f    // Dialogs/sheets
+const val GlassOpacityLow = 0.08f       // Background panels, chips
+const val GlassOpacityMedium = 0.14f    // Cards, list items
+const val GlassOpacityHigh = 0.20f      // Active, pressed, nav bar
+const val GlassOpacitySolid = 0.28f     // Dialogs, sheets
 
 // Border opacity
-const val GLASS_BORDER_ALPHA = 0.12f   // 10-15% white border
+const val BorderOpacity = 0.20f         // Standard border
+const val BorderOpacityHigh = 0.32f     // Premium border (your suggestion)
 
-// Corner radius
-const val GLASS_CORNER_RADIUS = 24     // dp
+// Noise strength
+const val GlassNoiseStrength = 0.04f    // FLAGSHIP only
 
-// Legacy colors kept for backward compat
-val md_theme_light_primary = Color(0xFFFF5A1F)
-val md_theme_light_onPrimary = Color(0xFFFFFFFF)
-val md_theme_light_primaryContainer = Color(0xFFFFDBCF)
-val md_theme_light_onPrimaryContainer = Color(0xFF3A0B00)
-val md_theme_light_secondary = Color(0xFF77574B)
-val md_theme_light_onSecondary = Color(0xFFFFFFFF)
-val md_theme_light_secondaryContainer = Color(0xFFFFDBCF)
-val md_theme_light_onSecondaryContainer = Color(0xFF2C150D)
-val md_theme_light_tertiary = Color(0xFF6C5D2F)
-val md_theme_light_onTertiary = Color(0xFFFFFFFF)
-val md_theme_light_tertiaryContainer = Color(0xFFF6E0A6)
-val md_theme_light_onTertiaryContainer = Color(0xFF221B00)
-val md_theme_light_error = Color(0xFFBA1A1A)
+// Legacy compat
+val GlassWhite = GlassTint
+val GLASS_ALPHA_LOW = GlassOpacityLow
+val GLASS_ALPHA_MEDIUM = GlassOpacityMedium
+val GLASS_ALPHA_HIGH = GlassOpacityHigh
+val GLASS_ALPHA_SOLID = GlassOpacitySolid
+val GLASS_BORDER_ALPHA = BorderOpacity
+
+// ═══════════════════════════════════════════════════════════════
+// 5. CORNER RADIUS
+// ═══════════════════════════════════════════════════════════════
+
+val CornerXL = 28.dp    // Dialogs, sheets
+val CornerCard = 22.dp  // Cards
+val CornerButton = 16.dp // Buttons, chips
+val CornerSmall = 12.dp // Small elements
+
+val GLASS_CORNER_RADIUS = 22
+
+// ═══════════════════════════════════════════════════════════════
+// 6. BLUR RADII
+// ═══════════════════════════════════════════════════════════════
+
+val BlurStandard = 24.dp    // Cards, top bar
+val BlurHigh = 32.dp        // Bottom nav
+val BlurDialog = 40.dp      // Dialogs, sheets
+
+// ═══════════════════════════════════════════════════════════════
+// 7. SPACING SCALE
+// ═══════════════════════════════════════════════════════════════
+
+val SpaceXS = 4.dp
+val SpaceS = 8.dp
+val SpaceM = 16.dp
+val SpaceL = 20.dp
+val SpaceXL = 24.dp
+
+// ═══════════════════════════════════════════════════════════════
+// 8. ELEVATION + SHADOW TOKENS (separated per your feedback)
+// ═══════════════════════════════════════════════════════════════
+
+val ElevationLow = 2.dp
+val ElevationMedium = 8.dp
+val ElevationHigh = 12.dp
+
+// Shadow presets (ambient + spot colors)
+val ShadowSoft = 4.dp       // Cards at rest — soft ambient
+val ShadowGlass = 8.dp      // Glass cards — soft with colored ambient
+val ShadowFloating = 12.dp  // Nav bar, FAB — prominent float
+val ShadowHero = 16.dp      // Dialogs — maximum elevation
+
+// ═══════════════════════════════════════════════════════════════
+// 9. ICON SIZING
+// ═══════════════════════════════════════════════════════════════
+
+val IconXS = 16.dp
+val IconS = 20.dp
+val IconM = 24.dp
+val IconL = 32.dp
+
+// ═══════════════════════════════════════════════════════════════
+// 10. MOTION DURATIONS (not everything uses springs)
+// ═══════════════════════════════════════════════════════════════
+
+const val DurationFast = 120       // ms — button press, toggle
+const val DurationNormal = 250     // ms — card appear, chip toggle
+const val DurationSlow = 450       // ms — screen transition
+const val DurationHero = 700       // ms — dialog, hero animation
+
+// Spring config
+const val PressScale = 0.96f
+const val SpringDamping = 0.68f
+const val SpringStiffness = 380f
+
+// ═══════════════════════════════════════════════════════════════
+// 11. ANIMATION CURVE TOKENS
+// ═══════════════════════════════════════════════════════════════
+
+// These map to Compose easing functions
+// MotionStandard   → FastOutSlowInEasing (default, natural)
+// MotionEmphasized → CubicBezier(0.2, 0.0, 0.0, 1.0) (energetic)
+// MotionDecelerate  → LinearOutSlowInEasing (enters fast, slows down)
+// MotionBounce      → Spring with low damping (playful)
+
+// ═══════════════════════════════════════════════════════════════
+// 12. TYPOGRAPHY SCALE
+// ═══════════════════════════════════════════════════════════════
+
+val FontDisplay = 48.sp    // Countdown numbers
+val FontHeadline = 28.sp   // Today's count
+val FontTitle = 20.sp      // Screen titles
+val FontBodyLarge = 16.sp  // Notification titles
+val FontBody = 14.sp       // Notification body
+val FontCaption = 12.sp    // Timestamps, labels
+val FontMicro = 10.sp      // Badges, chip labels
+
+// ═══════════════════════════════════════════════════════════════
+// 13. LEGACY COLORS (kept for backward compat during migration)
+// ═══════════════════════════════════════════════════════════════
+
+val md_theme_light_primary = Accent
+val md_theme_light_onPrimary = Color(0xFF000000)
+val md_theme_light_primaryContainer = Accent.copy(alpha = 0.15f)
+val md_theme_light_onPrimaryContainer = Accent
+val md_theme_light_secondary = Success
+val md_theme_light_onSecondary = Color(0xFF000000)
+val md_theme_light_secondaryContainer = Success.copy(alpha = 0.15f)
+val md_theme_light_onSecondaryContainer = Success
+val md_theme_light_tertiary = Warning
+val md_theme_light_onTertiary = Color(0xFF000000)
+val md_theme_light_tertiaryContainer = Warning.copy(alpha = 0.15f)
+val md_theme_light_onTertiaryContainer = Warning
+val md_theme_light_error = Error
 val md_theme_light_onError = Color(0xFFFFFFFF)
-val md_theme_light_errorContainer = Color(0xFFFFDAD6)
-val md_theme_light_onErrorContainer = Color(0xFF410002)
-val md_theme_light_background = Color(0xFFFFF8F5)
-val md_theme_light_onBackground = Color(0xFF221A14)
-val md_theme_light_surface = Color(0xFFFFF8F5)
-val md_theme_light_onSurface = Color(0xFF221A14)
-val md_theme_light_surfaceVariant = Color(0xFFF4DED3)
-val md_theme_light_onSurfaceVariant = Color(0xFF52443B)
-val md_theme_light_outline = Color(0xFF85746A)
-val md_theme_light_outlineVariant = Color(0xFFD7C2B7)
+val md_theme_light_errorContainer = Error.copy(alpha = 0.15f)
+val md_theme_light_onErrorContainer = Error
+val md_theme_light_background = BackgroundPrimary
+val md_theme_light_onBackground = TextPrimary
+val md_theme_light_surface = BackgroundSecondary
+val md_theme_light_onSurface = TextPrimary
+val md_theme_light_surfaceVariant = BackgroundElevated
+val md_theme_light_onSurfaceVariant = TextSecondary
+val md_theme_light_outline = TextTertiary
+val md_theme_light_outlineVariant = TextTertiary.copy(alpha = 0.3f)
 
-val md_theme_dark_primary = Color(0xFFFFB59B)
-val md_theme_dark_onPrimary = Color(0xFF5B1A02)
-val md_theme_dark_primaryContainer = Color(0xFF832A0E)
-val md_theme_dark_onPrimaryContainer = Color(0xFFFFDBCF)
-val md_theme_dark_secondary = Color(0xFFE7B59C)
-val md_theme_dark_onSecondary = Color(0xFF442A1E)
-val md_theme_dark_secondaryContainer = Color(0xFF5D4032)
-val md_theme_dark_onSecondaryContainer = Color(0xFFFFDBCF)
-val md_theme_dark_tertiary = Color(0xFFD9C47D)
-val md_theme_dark_onTertiary = Color(0xFF3A2F00)
-val md_theme_dark_tertiaryContainer = Color(0xFF534613)
-val md_theme_dark_onTertiaryContainer = Color(0xFFF6E0A6)
-val md_theme_dark_error = Color(0xFFFFB4AB)
-val md_theme_dark_onError = Color(0xFF690005)
-val md_theme_dark_errorContainer = Color(0xFF93000A)
-val md_theme_dark_onErrorContainer = Color(0xFFFFDAD6)
-val md_theme_dark_background = Color(0xFF000000)
-val md_theme_dark_onBackground = Color(0xFFFFFFFF)
-val md_theme_dark_surface = Color(0xFF000000)
-val md_theme_dark_onSurface = Color(0xFFFFFFFF)
-val md_theme_dark_surfaceVariant = Color(0xFF1A1A1A)
-val md_theme_dark_onSurfaceVariant = Color(0xFFCCCCCC)
-val md_theme_dark_outline = Color(0xFF9F8B80)
-val md_theme_dark_outlineVariant = Color(0xFF52443B)
+val md_theme_dark_primary = Accent
+val md_theme_dark_onPrimary = Color(0xFF000000)
+val md_theme_dark_primaryContainer = Accent.copy(alpha = 0.15f)
+val md_theme_dark_onPrimaryContainer = Accent
+val md_theme_dark_secondary = Success
+val md_theme_dark_onSecondary = Color(0xFF000000)
+val md_theme_dark_secondaryContainer = Success.copy(alpha = 0.15f)
+val md_theme_dark_onSecondaryContainer = Success
+val md_theme_dark_tertiary = Warning
+val md_theme_dark_onTertiary = Color(0xFF000000)
+val md_theme_dark_tertiaryContainer = Warning.copy(alpha = 0.15f)
+val md_theme_dark_onTertiaryContainer = Warning
+val md_theme_dark_error = Error
+val md_theme_dark_onError = Color(0xFFFFFFFF)
+val md_theme_dark_errorContainer = Error.copy(alpha = 0.15f)
+val md_theme_dark_onErrorContainer = Error
+val md_theme_dark_background = BackgroundPrimary
+val md_theme_dark_onBackground = TextPrimary
+val md_theme_dark_surface = BackgroundSecondary
+val md_theme_dark_onSurface = TextPrimary
+val md_theme_dark_surfaceVariant = BackgroundElevated
+val md_theme_dark_onSurfaceVariant = TextSecondary
+val md_theme_dark_outline = TextTertiary
+val md_theme_dark_outlineVariant = TextTertiary.copy(alpha = 0.3f)
 
-// Brand gradient (kept for backward compat)
-val BrandGradientStart = Color(0xFFFF5A1F)
-val BrandGradientEnd = Color(0xFFFF8F00)
+val BrandGradientStart = Accent
+val BrandGradientEnd = AccentGlow
 
-
-// v2.9.73: Platform color helper (kept from original)
+/**
+ * Platform brand colors for identification (used in icon circles + card stripes only)
+ */
 fun getPlatformColor(platform: String, packageName: String): Color {
     return when {
         platform.contains("Swiggy", ignoreCase = true) -> Color(0xFFFC8019)
@@ -106,6 +250,6 @@ fun getPlatformColor(platform: String, packageName: String): Color {
         platform.contains("Uber", ignoreCase = true) -> Color(0xFF000000)
         platform.contains("Rapido", ignoreCase = true) -> Color(0xFFFFE000)
         platform.contains("Porter", ignoreCase = true) -> Color(0xFF1A237E)
-        else -> Color(0xFFFF5A1F)
+        else -> Accent
     }
 }

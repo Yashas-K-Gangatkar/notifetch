@@ -18,74 +18,45 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
-// v2.9.73: Liquid Glass Color Schemes
-private val LiquidGlassDarkScheme = darkColorScheme(
-    primary = LiquidAccent,
+// v2.9.75: NotiFetch Design System v2 — dark-first, multi-layer
+private val NotiFetchColorScheme = darkColorScheme(
+    primary = Accent,
     onPrimary = Color.Black,
-    primaryContainer = LiquidAccent.copy(alpha = 0.15f),
-    onPrimaryContainer = LiquidAccent,
-    secondary = LiquidSuccess,
+    primaryContainer = Accent.copy(alpha = 0.15f),
+    onPrimaryContainer = Accent,
+    secondary = Success,
     onSecondary = Color.Black,
-    tertiary = LiquidWarning,
+    tertiary = Warning,
     onTertiary = Color.Black,
-    error = LiquidError,
+    error = Error,
     onError = Color.White,
-    background = LiquidBackground,
-    onBackground = LiquidTextPrimary,
-    surface = LiquidSurface,
-    onSurface = LiquidTextPrimary,
-    surfaceVariant = LiquidSurfaceVariant,
-    onSurfaceVariant = LiquidTextSecondary,
-    outline = LiquidTextTertiary,
-    outlineVariant = LiquidTextTertiary.copy(alpha = 0.3f)
-)
-
-private val LiquidGlassLightScheme = lightColorScheme(
-    primary = LiquidAccent,
-    onPrimary = Color.White,
-    primaryContainer = LiquidAccent.copy(alpha = 0.1f),
-    onPrimaryContainer = LiquidAccent,
-    secondary = LiquidSuccess,
-    onSecondary = Color.White,
-    tertiary = LiquidWarning,
-    onTertiary = Color.White,
-    error = LiquidError,
-    onError = Color.White,
-    background = Color(0xFFF5F7FA),
-    onBackground = Color(0xFF0B0F14),
-    surface = Color(0xFFFFFFFF),
-    onSurface = Color(0xFF0B0F14),
-    surfaceVariant = Color(0xFFE8ECEF),
-    onSurfaceVariant = Color(0xFF5A6B7A),
-    outline = Color(0xFFB0BEC5),
-    outlineVariant = Color(0xFFD0D7DD)
+    background = BackgroundPrimary,
+    onBackground = TextPrimary,
+    surface = BackgroundSecondary,
+    onSurface = TextPrimary,
+    surfaceVariant = BackgroundElevated,
+    onSurfaceVariant = TextSecondary,
+    outline = TextTertiary,
+    outlineVariant = TextTertiary.copy(alpha = 0.3f)
 )
 
 @Composable
 fun NotiFetchTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    darkTheme: Boolean = true,  // Dark-first — always dark
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
-    // v2.9.73: Always use Liquid Glass scheme
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
-        darkTheme -> LiquidGlassDarkScheme
-        else -> LiquidGlassLightScheme
-    }
+    val colorScheme = NotiFetchColorScheme
 
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            // v2.9.73: Deep dark background
-            window.statusBarColor = LiquidBackground.toArgb()
-            window.navigationBarColor = LiquidBackground.toArgb()
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
-            WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars = !darkTheme
+            // v2.9.75: Multi-layer background — deep graphite
+            window.statusBarColor = BackgroundPrimary.toArgb()
+            window.navigationBarColor = BackgroundPrimary.toArgb()
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = false
+            WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars = false
         }
     }
 
