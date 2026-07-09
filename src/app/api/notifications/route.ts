@@ -1,30 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import { verifyFirebaseToken, getOrCreateUserFromFirebase } from "@/lib/firebase-admin";
+import { authenticateRequest } from "@/lib/auth-helpers";
 import { db } from "@/lib/db";
 import { rateLimit } from "@/lib/rate-limit";
 import { audit } from "@/lib/audit";
-
-/**
- * Authenticate a request via NextAuth session or Firebase Bearer token.
- * Returns userId or null.
- */
-async function authenticateRequest(request: Request): Promise<string | null> {
-  const authHeader = request.headers.get("authorization");
-  if (authHeader?.startsWith("Bearer ")) {
-    const idToken = authHeader.substring(7);
-    const firebaseUid = await verifyFirebaseToken(idToken);
-    if (firebaseUid) {
-      try {
-        const userInfo = await getOrCreateUserFromFirebase(firebaseUid, undefined);
-        if (userInfo) return userInfo.id;
-      } catch { /* fall through */ }
-    }
-  }
-  const session = await getServerSession(authOptions);
-  return session?.user?.id || null;
-}
 
 /**
  * GET /api/notifications
@@ -62,7 +40,12 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    const [notifications, total] = await Promise.all([
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+
+    // ⚡ Bolt: Parallelize independent DB queries to minimize total request latency.
+    // Reduces DB roundtrips from 5 sequential calls to 1 parallelized batch.
+    const [notifications, total, unreadCount, platformStats, todayStats] = await Promise.all([
       db.notification.findMany({
         where,
         orderBy: { createdAt: "desc" },
@@ -70,23 +53,19 @@ export async function GET(request: NextRequest) {
         take: limit,
       }),
       db.notification.count({ where }),
+      db.notification.count({ where: { userId, isRead: false } }),
+      db.notification.groupBy({
+        by: ["platform"],
+        where: { userId, platform: { not: null } },
+        _count: { id: true },
+        orderBy: { _count: { id: "desc" } },
+      }),
+      db.notification.aggregate({
+        where: { userId, createdAt: { gte: todayStart } },
+        _count: { id: true },
+        _sum: { orderValue: true },
+      }),
     ]);
-
-    const unreadCount = await db.notification.count({ where: { userId, isRead: false } });
-    const platformStats = await db.notification.groupBy({
-      by: ["platform"],
-      where: { userId, platform: { not: null } },
-      _count: { id: true },
-      orderBy: { _count: { id: "desc" } },
-    });
-
-    const todayStart = new Date();
-    todayStart.setHours(0, 0, 0, 0);
-    const todayCount = await db.notification.count({ where: { userId, createdAt: { gte: todayStart } } });
-    const todayEarnings = await db.notification.aggregate({
-      where: { userId, createdAt: { gte: todayStart }, orderValue: { not: null } },
-      _sum: { orderValue: true },
-    });
 
     return NextResponse.json({
       notifications,
@@ -94,8 +73,8 @@ export async function GET(request: NextRequest) {
       page,
       limit,
       unreadCount,
-      todayCount,
-      todayEarnings: todayEarnings._sum.orderValue || 0,
+      todayCount: todayStats._count.id,
+      todayEarnings: todayStats._sum.orderValue || 0,
       platformStats: platformStats.map((s) => ({ platform: s.platform, count: s._count.id })),
     });
   } catch (error) {
