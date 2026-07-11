@@ -1,101 +1,255 @@
 package com.notifetch.app.ui.theme
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+
+/**
+ * NotiFetch Design System v2.1 — Coral + Amber, Light + Dark mode
+ *
+ * No blue. No cyan. Coral (#FF5A1F) as primary, Amber (#F59E0B) as glow.
+ * Full light mode support.
+ */
 
 // ═══════════════════════════════════════════════════════════════
-// v2.9.73: Liquid Glass Color System
+// 1. ACCENT COLORS (Coral + Amber — no blue)
 // ═══════════════════════════════════════════════════════════════
 
-// Primary backgrounds — deep dark with slight blue tint
-val LiquidBackground = Color(0xFF0B0F14)
-val LiquidSurface = Color(0xFF111820)
-val LiquidSurfaceVariant = Color(0xFF1A2330)
+val Accent = Color(0xFFFF5A1F)           // Coral/Orange — primary
+val AccentDim = Color(0xFFCC4A1A)        // Dimmed coral
+val AccentGlow = Color(0xFFFF8A4D)       // Lighter coral for glow
+val AccentSoft = Color(0xFFFFB088)       // Soft coral for subtle effects
+val AmberGold = Color(0xFFF59E0B)        // Amber/Gold — secondary highlight
 
-// Glass colors — semi-transparent whites for frosted effect
-val GlassWhite = Color(0xFFFFFFFF)
+val Success = Color(0xFF34D399)
+val Warning = Color(0xFFFBBF24)
+val Error = Color(0xFFF87171)
+
+// Legacy compat
+val LiquidAccent = Accent
+val LiquidAccentDim = AccentDim
+val LiquidSuccess = Success
+val LiquidWarning = Warning
+val LiquidError = Error
+
+// ═══════════════════════════════════════════════════════════════
+// 2. DARK MODE COLORS
+// ═══════════════════════════════════════════════════════════════
+
+val DarkBackgroundPrimary = Color(0xFF0B0F14)
+val DarkBackgroundSecondary = Color(0xFF10141B)
+val DarkBackgroundElevated = Color(0xFF161C25)
+
+val DarkTextPrimary = Color(0xFFFFFFFF)
+val DarkTextSecondary = Color(0xFFB0BEC5)
+val DarkTextTertiary = Color(0xFF78909C)
+val DarkTextDisabled = Color(0xFF455A64)
+
+// Legacy compat
+val LiquidBackground = DarkBackgroundPrimary
+val LiquidSurface = DarkBackgroundSecondary
+val LiquidSurfaceVariant = DarkBackgroundElevated
+val LiquidTextPrimary = DarkTextPrimary
+val LiquidTextSecondary = DarkTextSecondary
+val LiquidTextTertiary = DarkTextTertiary
+val BackgroundPrimary = DarkBackgroundPrimary
+val BackgroundSecondary = DarkBackgroundSecondary
+val BackgroundElevated = DarkBackgroundElevated
+val TextPrimary = DarkTextPrimary
+val TextSecondary = DarkTextSecondary
+val TextTertiary = DarkTextTertiary
+val TextDisabled = DarkTextDisabled
+
+// ═══════════════════════════════════════════════════════════════
+// 3. LIGHT MODE COLORS (warm cream — not harsh white)
+// ═══════════════════════════════════════════════════════════════
+
+val LightBackgroundPrimary = Color(0xFFFAF8F5)      // Warm cream
+val LightBackgroundSecondary = Color(0xFFFFFFFF)     // Pure white surface
+val LightBackgroundElevated = Color(0xFFF5F2EE)     // Slightly darker cream
+
+val LightTextPrimary = Color(0xFF1A1A1A)            // Near black
+val LightTextSecondary = Color(0xFF5A5A5A)           // Medium gray
+val LightTextTertiary = Color(0xFF8A8A8A)            // Light gray
+val LightTextDisabled = Color(0xFFB0B0B0)            // Disabled gray
+
+// ═══════════════════════════════════════════════════════════════
+// 4. GLASS MATERIALS
+// ═══════════════════════════════════════════════════════════════
+
+val GlassTint = Color(0xFFFFFFFF)
+val GlassBorder = Color(0xFFFFFFFF)
 val GlassHighlight = Color(0xFFFFFFFF)
+val GlassShadow = Color(0xFF000000)
 
-// Accent colors — vibrant, high-contrast
-val LiquidAccent = Color(0xFF00D9FF)      // Cyan — primary accent
-val LiquidAccentDim = Color(0xFF0099B8)   // Dimmed cyan
-val LiquidSuccess = Color(0xFF22C55E)      // Green
-val LiquidWarning = Color(0xFFF59E0B)      // Amber
-val LiquidError = Color(0xFFEF4444)        // Red
+// Dark mode glass
+val DarkGlassTint = Color(0xFFFFFFFF)
+val DarkGlassBorder = Color(0xFFFFFFFF)
 
-// Text colors — high contrast for readability
-val LiquidTextPrimary = Color(0xFFFFFFFF)
-val LiquidTextSecondary = Color(0xFFB0BEC5)
-val LiquidTextTertiary = Color(0xFF78909C)
+// Light mode glass (dark tint — frosted dark glass on light bg)
+val LightGlassTint = Color(0xFF1A1A1A)
+val LightGlassBorder = Color(0xFF1A1A1A)
 
 // Glass opacity levels
-const val GLASS_ALPHA_LOW = 0.08f      // Very subtle
-const val GLASS_ALPHA_MEDIUM = 0.12f   // Default cards
-const val GLASS_ALPHA_HIGH = 0.18f     // Prominent surfaces
-const val GLASS_ALPHA_SOLID = 0.25f    // Dialogs/sheets
+const val GlassOpacityLow = 0.06f
+const val GlassOpacityMedium = 0.10f
+const val GlassOpacityHigh = 0.16f
+const val GlassOpacitySolid = 0.24f
 
 // Border opacity
-const val GLASS_BORDER_ALPHA = 0.12f   // 10-15% white border
+const val BorderOpacity = 0.15f
+const val BorderOpacityHigh = 0.25f
 
-// Corner radius
-const val GLASS_CORNER_RADIUS = 24     // dp
+// Noise strength
+const val GlassNoiseStrength = 0.03f
 
-// Legacy colors kept for backward compat
-val md_theme_light_primary = Color(0xFFFF5A1F)
+// Legacy compat
+val GlassWhite = GlassTint
+val GLASS_ALPHA_LOW = GlassOpacityLow
+val GLASS_ALPHA_MEDIUM = GlassOpacityMedium
+val GLASS_ALPHA_HIGH = GlassOpacityHigh
+val GLASS_ALPHA_SOLID = GlassOpacitySolid
+val GLASS_BORDER_ALPHA = BorderOpacity
+
+// ═══════════════════════════════════════════════════════════════
+// 5. CORNER RADIUS
+// ═══════════════════════════════════════════════════════════════
+
+val CornerXL = 28.dp
+val CornerCard = 22.dp
+val CornerButton = 16.dp
+val CornerSmall = 12.dp
+
+val GLASS_CORNER_RADIUS = 22
+
+// ═══════════════════════════════════════════════════════════════
+// 6. BLUR RADII
+// ═══════════════════════════════════════════════════════════════
+
+val BlurStandard = 24.dp
+val BlurHigh = 32.dp
+val BlurDialog = 40.dp
+
+// ═══════════════════════════════════════════════════════════════
+// 7. SPACING SCALE
+// ═══════════════════════════════════════════════════════════════
+
+val SpaceXS = 4.dp
+val SpaceS = 8.dp
+val SpaceM = 16.dp
+val SpaceL = 20.dp
+val SpaceXL = 24.dp
+
+// ═══════════════════════════════════════════════════════════════
+// 8. ELEVATION + SHADOW TOKENS
+// ═══════════════════════════════════════════════════════════════
+
+val ElevationLow = 2.dp
+val ElevationMedium = 8.dp
+val ElevationHigh = 12.dp
+
+val ShadowSoft = 4.dp
+val ShadowGlass = 8.dp
+val ShadowFloating = 12.dp
+val ShadowHero = 16.dp
+
+// ═══════════════════════════════════════════════════════════════
+// 9. ICON SIZING
+// ═══════════════════════════════════════════════════════════════
+
+val IconXS = 16.dp
+val IconS = 20.dp
+val IconM = 24.dp
+val IconL = 32.dp
+
+// ═══════════════════════════════════════════════════════════════
+// 10. MOTION
+// ═══════════════════════════════════════════════════════════════
+
+const val DurationFast = 120
+const val DurationNormal = 250
+const val DurationSlow = 450
+const val DurationHero = 700
+
+const val PressScale = 0.96f
+const val SpringDamping = 0.68f
+const val SpringStiffness = 380f
+
+// ═══════════════════════════════════════════════════════════════
+// 11. TYPOGRAPHY SCALE
+// ═══════════════════════════════════════════════════════════════
+
+val FontDisplay = 48.sp
+val FontHeadline = 28.sp
+val FontTitle = 20.sp
+val FontBodyLarge = 16.sp
+val FontBody = 14.sp
+val FontCaption = 12.sp
+val FontMicro = 10.sp
+
+// ═══════════════════════════════════════════════════════════════
+// 12. MATERIAL 3 COLOR SCHEMES
+// ═══════════════════════════════════════════════════════════════
+
+// Dark scheme
+val md_theme_dark_primary = Accent
+val md_theme_dark_onPrimary = Color(0xFFFFFFFF)
+val md_theme_dark_primaryContainer = Accent.copy(alpha = 0.15f)
+val md_theme_dark_onPrimaryContainer = AccentGlow
+val md_theme_dark_secondary = AmberGold
+val md_theme_dark_onSecondary = Color(0xFF000000)
+val md_theme_dark_secondaryContainer = AmberGold.copy(alpha = 0.15f)
+val md_theme_dark_onSecondaryContainer = AmberGold
+val md_theme_dark_tertiary = Warning
+val md_theme_dark_onTertiary = Color(0xFF000000)
+val md_theme_dark_tertiaryContainer = Warning.copy(alpha = 0.15f)
+val md_theme_dark_onTertiaryContainer = Warning
+val md_theme_dark_error = Error
+val md_theme_dark_onError = Color(0xFFFFFFFF)
+val md_theme_dark_errorContainer = Error.copy(alpha = 0.15f)
+val md_theme_dark_onErrorContainer = Error
+val md_theme_dark_background = DarkBackgroundPrimary
+val md_theme_dark_onBackground = DarkTextPrimary
+val md_theme_dark_surface = DarkBackgroundSecondary
+val md_theme_dark_onSurface = DarkTextPrimary
+val md_theme_dark_surfaceVariant = DarkBackgroundElevated
+val md_theme_dark_onSurfaceVariant = DarkTextSecondary
+val md_theme_dark_outline = DarkTextTertiary
+val md_theme_dark_outlineVariant = DarkTextTertiary.copy(alpha = 0.3f)
+
+// Light scheme
+val md_theme_light_primary = Accent
 val md_theme_light_onPrimary = Color(0xFFFFFFFF)
-val md_theme_light_primaryContainer = Color(0xFFFFDBCF)
-val md_theme_light_onPrimaryContainer = Color(0xFF3A0B00)
-val md_theme_light_secondary = Color(0xFF77574B)
+val md_theme_light_primaryContainer = Accent.copy(alpha = 0.12f)
+val md_theme_light_onPrimaryContainer = AccentDim
+val md_theme_light_secondary = AmberGold
 val md_theme_light_onSecondary = Color(0xFFFFFFFF)
-val md_theme_light_secondaryContainer = Color(0xFFFFDBCF)
-val md_theme_light_onSecondaryContainer = Color(0xFF2C150D)
-val md_theme_light_tertiary = Color(0xFF6C5D2F)
+val md_theme_light_secondaryContainer = AmberGold.copy(alpha = 0.12f)
+val md_theme_light_onSecondaryContainer = Color(0xFF92700A)
+val md_theme_light_tertiary = Warning
 val md_theme_light_onTertiary = Color(0xFFFFFFFF)
-val md_theme_light_tertiaryContainer = Color(0xFFF6E0A6)
-val md_theme_light_onTertiaryContainer = Color(0xFF221B00)
-val md_theme_light_error = Color(0xFFBA1A1A)
+val md_theme_light_tertiaryContainer = Warning.copy(alpha = 0.12f)
+val md_theme_light_onTertiaryContainer = Color(0xFF6B5800)
+val md_theme_light_error = Error
 val md_theme_light_onError = Color(0xFFFFFFFF)
-val md_theme_light_errorContainer = Color(0xFFFFDAD6)
-val md_theme_light_onErrorContainer = Color(0xFF410002)
-val md_theme_light_background = Color(0xFFFFF8F5)
-val md_theme_light_onBackground = Color(0xFF221A14)
-val md_theme_light_surface = Color(0xFFFFF8F5)
-val md_theme_light_onSurface = Color(0xFF221A14)
-val md_theme_light_surfaceVariant = Color(0xFFF4DED3)
-val md_theme_light_onSurfaceVariant = Color(0xFF52443B)
-val md_theme_light_outline = Color(0xFF85746A)
-val md_theme_light_outlineVariant = Color(0xFFD7C2B7)
+val md_theme_light_errorContainer = Error.copy(alpha = 0.12f)
+val md_theme_light_onErrorContainer = Error
+val md_theme_light_background = LightBackgroundPrimary
+val md_theme_light_onBackground = LightTextPrimary
+val md_theme_light_surface = LightBackgroundSecondary
+val md_theme_light_onSurface = LightTextPrimary
+val md_theme_light_surfaceVariant = LightBackgroundElevated
+val md_theme_light_onSurfaceVariant = LightTextSecondary
+val md_theme_light_outline = LightTextTertiary
+val md_theme_light_outlineVariant = LightTextTertiary.copy(alpha = 0.3f)
 
-val md_theme_dark_primary = Color(0xFFFFB59B)
-val md_theme_dark_onPrimary = Color(0xFF5B1A02)
-val md_theme_dark_primaryContainer = Color(0xFF832A0E)
-val md_theme_dark_onPrimaryContainer = Color(0xFFFFDBCF)
-val md_theme_dark_secondary = Color(0xFFE7B59C)
-val md_theme_dark_onSecondary = Color(0xFF442A1E)
-val md_theme_dark_secondaryContainer = Color(0xFF5D4032)
-val md_theme_dark_onSecondaryContainer = Color(0xFFFFDBCF)
-val md_theme_dark_tertiary = Color(0xFFD9C47D)
-val md_theme_dark_onTertiary = Color(0xFF3A2F00)
-val md_theme_dark_tertiaryContainer = Color(0xFF534613)
-val md_theme_dark_onTertiaryContainer = Color(0xFFF6E0A6)
-val md_theme_dark_error = Color(0xFFFFB4AB)
-val md_theme_dark_onError = Color(0xFF690005)
-val md_theme_dark_errorContainer = Color(0xFF93000A)
-val md_theme_dark_onErrorContainer = Color(0xFFFFDAD6)
-val md_theme_dark_background = Color(0xFF000000)
-val md_theme_dark_onBackground = Color(0xFFFFFFFF)
-val md_theme_dark_surface = Color(0xFF000000)
-val md_theme_dark_onSurface = Color(0xFFFFFFFF)
-val md_theme_dark_surfaceVariant = Color(0xFF1A1A1A)
-val md_theme_dark_onSurfaceVariant = Color(0xFFCCCCCC)
-val md_theme_dark_outline = Color(0xFF9F8B80)
-val md_theme_dark_outlineVariant = Color(0xFF52443B)
+// Legacy gradient compat
+val BrandGradientStart = Accent
+val BrandGradientEnd = AmberGold
 
-// Brand gradient (kept for backward compat)
-val BrandGradientStart = Color(0xFFFF5A1F)
-val BrandGradientEnd = Color(0xFFFF8F00)
-
-
-// v2.9.73: Platform color helper (kept from original)
+/**
+ * Platform brand colors for identification
+ */
 fun getPlatformColor(platform: String, packageName: String): Color {
     return when {
         platform.contains("Swiggy", ignoreCase = true) -> Color(0xFFFC8019)
@@ -106,6 +260,6 @@ fun getPlatformColor(platform: String, packageName: String): Color {
         platform.contains("Uber", ignoreCase = true) -> Color(0xFF000000)
         platform.contains("Rapido", ignoreCase = true) -> Color(0xFFFFE000)
         platform.contains("Porter", ignoreCase = true) -> Color(0xFF1A237E)
-        else -> Color(0xFFFF5A1F)
+        else -> Accent
     }
 }

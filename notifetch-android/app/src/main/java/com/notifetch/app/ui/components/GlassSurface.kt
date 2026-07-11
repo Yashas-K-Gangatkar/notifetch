@@ -14,8 +14,10 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -34,13 +36,9 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.notifetch.app.ui.theme.GlassMode
-import com.notifetch.app.ui.theme.LiquidAccent
-import com.notifetch.app.ui.theme.LiquidBackground
-import com.notifetch.app.ui.theme.currentGlassTheme
+import com.notifetch.app.ui.theme.*
 
 // ── Pre-baked noise texture (cached for app lifetime) ───────────
-// Fix #7: Use IntArray + setPixels batch instead of 4096 setPixel calls
 private var cachedNoiseShader: BitmapShader? = null
 private var cachedNoiseAlpha: Float = -1f
 
@@ -50,7 +48,7 @@ private fun getNoiseShader(alpha: Float): BitmapShader {
     }
     val size = 64
     val pixels = IntArray(size * size)
-    val random = java.util.Random(42) // Fixed seed for consistency
+    val random = java.util.Random(42)
     val alphaInt = (alpha * 255).toInt()
     for (i in pixels.indices) {
         val noise = random.nextInt(256)
@@ -67,18 +65,10 @@ private fun getNoiseShader(alpha: Float): BitmapShader {
 }
 
 /**
- * v2.9.74: GlassSurface — the core Liquid Glass component.
+ * v2.9.76: GlassSurface — Coral + Amber, light + dark mode.
  *
- * Requirement #1: Uses the shared blurred background layer, NOT per-card blur.
- * Requirement #4: All values read from GlassThemeConfig — nothing hardcoded.
- * Requirement #6: Fully modular — replaceable without screen changes.
- *
- * Rendering layers (per surface):
- * 1. Semi-transparent white tint (glassOpacity from theme)
- * 2. Noise texture (noiseStrength from theme — pre-baked, cached)
- * 3. Specular highlight (top-left edge — highlightIntensity from theme)
- * 4. Ultra-thin white border (borderOpacity from theme)
- * 5. Content
+ * In dark mode: white glass tint (frosted white on dark bg)
+ * In light mode: dark glass tint (frosted dark on light bg)
  */
 @Composable
 fun GlassSurface(
@@ -91,26 +81,32 @@ fun GlassSurface(
     val effectiveRadius = cornerRadius ?: theme.cornerRadius
     val effectiveShadow = shadowElevation ?: theme.shadowElevation
     val shape = RoundedCornerShape(effectiveRadius)
+    val isDark = isSystemInDarkTheme()
+
+    // v2.9.76: Light mode uses dark tint, dark mode uses white tint
+    val tint = if (isDark) Color.White else Color.Black
+    val borderColor = if (isDark) Color.White else Color.Black
 
     Surface(
         modifier = modifier,
         shape = shape,
-        color = Color.White.copy(alpha = theme.glassOpacity),
-        border = BorderStroke(1.dp, Color.White.copy(alpha = theme.borderOpacity)),
+        color = tint.copy(alpha = if (isDark) theme.glassOpacity else theme.glassOpacity * 0.6f),
+        border = BorderStroke(1.dp, borderColor.copy(alpha = theme.borderOpacity)),
         shadowElevation = effectiveShadow,
         tonalElevation = 0.dp
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             // Layer 1: Noise texture
-            if (theme.noiseStrength > 0f) {
-                val noiseBrush = remember(theme.noiseStrength) {
-                    ShaderBrush(getNoiseShader(theme.noiseStrength))
+            if (theme.glassNoiseStrength > 0f) {
+                val noiseBrush = remember(theme.glassNoiseStrength) {
+                    ShaderBrush(getNoiseShader(theme.glassNoiseStrength))
                 }
                 Box(modifier = Modifier.fillMaxSize().background(noiseBrush))
             }
 
             // Layer 2: Specular highlight (top-left edge)
             if (theme.highlightIntensity > 0f) {
+                val highlightColor = if (isDark) Color.White else Color.White
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -118,7 +114,7 @@ fun GlassSurface(
                         .background(
                             Brush.linearGradient(
                                 colors = listOf(
-                                    Color.White.copy(alpha = theme.highlightIntensity),
+                                    highlightColor.copy(alpha = theme.highlightIntensity),
                                     Color.Transparent
                                 ),
                                 start = Offset.Zero,
@@ -154,12 +150,6 @@ fun GlassCard(
 
 /**
  * GlassButton — spring-animated press compression.
- *
- * Fix #6: Uses interactionSource to track pressed state (was broken —
-   pressed was never set to true after switching to Surface(onClick)).
- * Fix #5: Added Role.Button semantics for accessibility.
- * Fix #4: Uses heightIn(min = 48.dp) instead of fixed height.
- * Fix #10: Uses theme.cornerRadius instead of hardcoded 16.dp.
  */
 @Composable
 fun GlassButton(
@@ -170,7 +160,9 @@ fun GlassButton(
     content: @Composable RowScope.() -> Unit
 ) {
     val theme = currentGlassTheme
-    val effectiveRadius = cornerRadius ?: (theme.cornerRadius - 4.dp) // Slightly tighter for buttons
+    val effectiveRadius = cornerRadius ?: CornerButton
+    val isDark = isSystemInDarkTheme()
+    val tint = if (isDark) Color.White else Color.Black
     val interactionSource = remember { MutableInteractionSource() }
     val pressed by interactionSource.collectIsPressedAsState()
 
@@ -192,11 +184,11 @@ fun GlassButton(
             }
             .semantics { role = Role.Button },
         shape = RoundedCornerShape(effectiveRadius),
-        color = Color.White.copy(
+        color = tint.copy(
             alpha = if (pressed) (theme.glassOpacity * 1.5f) else (theme.glassOpacity * 0.7f)
         ),
-        border = BorderStroke(1.dp, Color.White.copy(alpha = theme.borderOpacity)),
-        shadowElevation = if (pressed) 2.dp else 6.dp,
+        border = BorderStroke(1.dp, tint.copy(alpha = theme.borderOpacity)),
+        shadowElevation = if (pressed) ElevationLow else ShadowGlass,
         tonalElevation = 0.dp,
         onClick = onClick,
         enabled = enabled,
@@ -225,7 +217,9 @@ fun GlassOutlinedButton(
     content: @Composable RowScope.() -> Unit
 ) {
     val theme = currentGlassTheme
-    val effectiveRadius = cornerRadius ?: (theme.cornerRadius - 4.dp)
+    val effectiveRadius = cornerRadius ?: CornerButton
+    val isDark = isSystemInDarkTheme()
+    val tint = if (isDark) Color.White else Color.Black
     val interactionSource = remember { MutableInteractionSource() }
     val pressed by interactionSource.collectIsPressedAsState()
 
@@ -247,11 +241,11 @@ fun GlassOutlinedButton(
             }
             .semantics { role = Role.Button },
         shape = RoundedCornerShape(effectiveRadius),
-        color = Color.White.copy(
+        color = tint.copy(
             alpha = if (pressed) theme.glassOpacity else (theme.glassOpacity * 0.6f)
         ),
-        border = BorderStroke(1.dp, Color.White.copy(alpha = theme.borderOpacity)),
-        shadowElevation = 2.dp,
+        border = BorderStroke(1.dp, tint.copy(alpha = theme.borderOpacity)),
+        shadowElevation = ElevationLow,
         tonalElevation = 0.dp,
         onClick = onClick,
         enabled = enabled,
@@ -269,50 +263,50 @@ fun GlassOutlinedButton(
 }
 
 /**
- * v2.9.74: SharedBlurBackground — ONE shared blurred layer for the entire screen.
+ * v2.9.76: SharedBlurBackground — Coral + Amber glow.
  *
- * Requirement #1: One shared layer — not per-card.
- * Requirement #3: No per-frame screenshot capture.
- *
- * Fix #1: Blurred layer is now STATIC (was animated — caused GPU re-blur every frame).
- * Fix #2: Brush is cached via drawWithCache (was allocating new object every frame).
- * Fix #3: Colors read from theme tokens (was hardcoded).
+ * Dark mode: deep graphite with coral glow
+ * Light mode: warm cream with coral glow
  */
 @Composable
 fun SharedBlurBackground(
     modifier: Modifier = Modifier
 ) {
     val theme = currentGlassTheme
+    val isDark = isSystemInDarkTheme()
 
     Box(modifier = modifier.fillMaxSize()) {
-        // Layer 1: Animated gradient (replaces old AndroidView)
+        // Layer 1: Animated gradient
         AnimatedGradientBackground(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
+            isDark = isDark
         )
 
-        // Layer 2: STATIC blurred gradient (FLAGSHIP mode only — API 31+)
-        // Fix #1: This is NOT animated — a static blurred gradient.
-        // The GPU blurs it ONCE and caches the result.
-        // The animated Layer 1 provides subtle movement on top.
+        // Layer 2: STATIC blurred gradient (FLAGSHIP mode only)
         if (theme.mode == GlassMode.FLAGSHIP && theme.blurRadius > 0.dp) {
-            StaticBlurredGradient(
+            Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .blur(theme.blurRadius)
-            )
+            ) {
+                StaticBlurredGradient(
+                    modifier = Modifier.fillMaxSize(),
+                    isDark = isDark
+                )
+            }
         }
     }
 }
 
 /**
- * Animated gradient background — pure Compose implementation.
- *
- * Fix #2: Uses drawWithCache to cache the Brush (was allocating every frame).
- * Fix #3: Colors from theme tokens (was hardcoded 0xFF0B0F14 / 0xFF00D9FF).
+ * Animated gradient background — Coral + Amber glow.
+ * Dark mode: deep graphite + coral glow
+ * Light mode: warm cream + coral glow
  */
 @Composable
 private fun AnimatedGradientBackground(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isDark: Boolean = true
 ) {
     val transition = rememberInfiniteTransition(label = "gradient")
     val offset by transition.animateFloat(
@@ -325,10 +319,11 @@ private fun AnimatedGradientBackground(
         label = "gradientOffset"
     )
 
-    val baseColor = LiquidBackground
-    val accentColor = LiquidAccent.copy(alpha = 0.08f)
+    val baseColor = if (isDark) DarkBackgroundPrimary else LightBackgroundPrimary
+    val midColor = if (isDark) DarkBackgroundSecondary else LightBackgroundSecondary
+    val glowColor = AccentGlow.copy(alpha = if (isDark) 0.08f else 0.06f)
+    val amberGlow = AmberGold.copy(alpha = if (isDark) 0.04f else 0.03f)
 
-    // Fix #2: drawWithCache caches the Brush — no per-frame allocation
     Box(
         modifier = modifier.drawWithCache {
             val startX = offset * 500f
@@ -336,9 +331,10 @@ private fun AnimatedGradientBackground(
             val brush = Brush.linearGradient(
                 colors = listOf(
                     baseColor,
-                    baseColor.copy(alpha = 0.98f),
-                    accentColor,
-                    baseColor.copy(alpha = 0.98f),
+                    midColor,
+                    glowColor,
+                    amberGlow,
+                    midColor,
                     baseColor
                 ),
                 start = Offset(x = startX, y = startY),
@@ -353,24 +349,22 @@ private fun AnimatedGradientBackground(
 
 /**
  * Static blurred gradient — drawn ONCE, blurred ONCE, cached by GPU.
- *
- * Fix #1: This replaces the animated blurred layer.
- * The animated gradient (Layer 1) provides movement on top.
- * This static layer provides the frosted glass base.
  */
 @Composable
 private fun StaticBlurredGradient(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isDark: Boolean = true
 ) {
-    val baseColor = LiquidBackground
-    val accentColor = LiquidAccent.copy(alpha = 0.05f)
+    val baseColor = if (isDark) DarkBackgroundPrimary else LightBackgroundPrimary
+    val midColor = if (isDark) DarkBackgroundSecondary else LightBackgroundSecondary
+    val glowColor = AccentGlow.copy(alpha = if (isDark) 0.05f else 0.04f)
 
     Box(
         modifier = modifier.drawWithCache {
             val brush = Brush.radialGradient(
                 colors = listOf(
-                    accentColor,
-                    baseColor.copy(alpha = 0.95f),
+                    glowColor,
+                    midColor.copy(alpha = 0.95f),
                     baseColor
                 ),
                 center = Offset(size.width / 2f, size.height * 0.3f),
