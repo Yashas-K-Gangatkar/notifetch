@@ -215,3 +215,26 @@ Stage Summary:
 - Live on https://www.notifetch.in/ within ~1-2 minutes of push
 - Both light and dark themes updated; light mode primary is vivid coral, dark mode primary is slightly brighter coral for contrast
 - All gradients now flow coral -> amber (warmer, more saturated than previous amber -> orange)
+
+---
+Task ID: web-google-oauth-fix
+Agent: Super Z (main)
+Task: Fix Google Sign-In "redirect_uri_mismatch" error on notifetch.in
+
+Work Log:
+- Diagnosed: User reported "Error 400: redirect_uri_mismatch" when clicking Continue with Google on /auth/signin.
+- Captured actual OAuth URL NextAuth was sending to Google via curl + csrfToken POST to /api/auth/signin/google.
+- Discovered NextAuth was using client_id=423445933001-cu88jfg8216atcnoc7ebd5lfqrsuhict.apps.googleusercontent.com — a separate web OAuth client from the Firebase Android client (895827826409-4k5eqvhsve0n3504tk6lb62ijbkhsi7o...).
+- User confirmed the 423445933001-... client had been deleted from Google Cloud Console.
+- Initial misdirection: I first pointed user to the Firebase Android client ID (895827826409-4k5eqvhsve0n3504tk6lb62ijbkhsi7o) by mistake — that was the wrong client. Corrected after capturing the live OAuth URL.
+- Walked user through creating a NEW Web Application OAuth client in Google Cloud Console under project notifetch-8f9b1:
+  * Authorized JavaScript origins: https://www.notifetch.in and https://notifetch.in (bare origins only — no path, no trailing slash; user hit "Invalid Origin" error first time before this clarification)
+  * Authorized redirect URIs: https://www.notifetch.in/api/auth/callback/google and https://notifetch.in/api/auth/callback/google (full paths)
+- User updated Vercel env vars GOOGLE_CLIENT_ID + GOOGLE_CLIENT_SECRET with new credentials and redeployed.
+- Also fixed stale NEXTAUTH_URL in .env.example (was d2-liart-nine.vercel.app, now https://www.notifetch.in), committed as d31bc5c on main.
+
+Stage Summary:
+- New Google OAuth web client in use: 895827826409-6qrgll71cm5otkdjtpvsi5ek5j67gk2i.apps.googleusercontent.com
+- redirect_uri sent to Google: https://www.notifetch.in/api/auth/callback/google (correct, matches Authorized redirect URIs)
+- User confirmed: "yes login successful"
+- Both Google Sign-In and Email OTP sign-in now work on https://www.notifetch.in/auth/signin
