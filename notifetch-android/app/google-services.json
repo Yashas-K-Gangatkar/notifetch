@@ -22,6 +22,14 @@
           }
         },
         {
+          "client_id": "895827826409-d41rfk3lrfqn8vceu26eg4s6riltscbh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.notifetch.app",
+            "certificate_hash": "2e58ae72aeb3a145cffca8082de51bd2d28aa484"
+          }
+        },
+        {
           "client_id": "895827826409-eti037q1b2iv8bg3govs7d53b71113ea.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
