@@ -180,3 +180,38 @@ Stage Summary:
 - API payment routes (/api/payments/*) are intentionally LEFT IN PLACE — they already return "payments disabled" responses and will be re-activated when premium tier launches in ~6 months. Removing them would break the middleware matcher and existing Android app contracts.
 - Legal pages (/privacy, /terms, /legal) still mention Free Preview period — this is factually accurate (we ARE in free preview) and should stay until premium launches.
 - Live site: https://www.notifetch.in/ — should auto-deploy within ~1-2 minutes of push.
+
+---
+Task ID: web-visual-refresh-v2.9.80
+Agent: Super Z (main)
+Task: Apply Android v2.9.78+ visual refresh (coral/amber + Material 3 solid surfaces) to the web app at notifetch.in
+
+Work Log:
+- Diagnosed gap: Android v2.9.78-79 introduced coral #FF5A1F primary + amber #F59E0B accent + removed all glass/blur effects, but the web app was still using amber-oklch primary (~#DD8833) and heavy backdrop-blur in navbars.
+- Wrote /home/z/my-project/scripts/update-web-visuals.py to batch-apply 6 pattern replacements across 23 .tsx files (65 total replacements).
+- Updated src/app/globals.css:
+  * Light mode --primary: oklch(0.75 0.18 55) -> oklch(0.66 0.21 42)  (coral #FF5A1F)
+  * Dark mode  --primary: oklch(0.78 0.18 60) -> oklch(0.70 0.21 45)  (brighter coral for dark bg)
+  * --primary-foreground now pure white oklch(0.99 0 0) for high contrast on coral
+  * --accent shifted to amber oklch(0.95 0.05 75) light / oklch(0.27 0.06 70) dark (amber #F59E0B)
+  * --chart-1 -> coral, --chart-2 -> amber so charts match brand
+  * --ring, --sidebar-primary, --sidebar-ring all updated to coral
+  * .gradient-text now linear-gradient(coral -> amber)
+  * @keyframes glow-pulse + .animate-shimmer updated to coral oklch
+  * Removed unused .glass class (was backdrop-filter: blur(16px) saturate(180%))
+- Replaced 21 instances of `from-amber-500 to-orange-600` -> `from-orange-500 to-amber-500` (coral -> amber gradient, matches Android direction)
+- Replaced 7 instances of `hover:from-amber-600 hover:to-orange-700` -> `hover:from-orange-600 hover:to-amber-600`
+- Replaced 6 instances of `bg-background/80 backdrop-blur-xl border-b border-border` -> `bg-background border-b border-border` (solid Material 3 navbars in: navbar.tsx, dashboard/page.tsx, dashboard/settings/page.tsx, dashboard/profile/page.tsx, terms/page.tsx, privacy/page.tsx, legal/page.tsx)
+- Removed `glass` class usage from dashboard main nav
+- Removed `backdrop-blur-sm` from hero floating notification chips and signin Card
+- TypeScript: `npx tsc --noEmit` -> 0 errors
+- Production build: `npx next build` -> 37 routes generated successfully
+- Committed as 988d6c5 on fix/v2.9.77-no-glass-clean-ui, merged to main, pushed to origin/main
+- Vercel auto-deploy triggered for https://www.notifetch.in/
+
+Stage Summary:
+- Web app now matches Android v2.9.78+ visual language: coral primary, amber accent, solid surfaces, no glass effects
+- 24 files changed, 85 insertions, 87 deletions
+- Live on https://www.notifetch.in/ within ~1-2 minutes of push
+- Both light and dark themes updated; light mode primary is vivid coral, dark mode primary is slightly brighter coral for contrast
+- All gradients now flow coral -> amber (warmer, more saturated than previous amber -> orange)
