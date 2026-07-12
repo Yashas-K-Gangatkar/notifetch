@@ -9,7 +9,7 @@ export default function NotFound() {
         <p className="text-muted-foreground mb-6">
           The page you&apos;re looking for doesn&apos;t exist or has been moved.
         </p>
-        <Button asChild className="bg-gradient-to-r from-amber-500 to-orange-600 text-white">
+        <Button asChild className="bg-gradient-to-r from-orange-500 to-amber-500 text-white">
           <Link href="/">Go Home</Link>
         </Button>
       </div>

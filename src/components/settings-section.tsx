@@ -138,7 +138,7 @@ export function SettingsSection() {
         <div className="text-center mb-8">
           <h2 className="text-3xl sm:text-4xl font-bold mb-3">
             App{" "}
-            <span className="bg-gradient-to-r from-amber-500 to-orange-600 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">
               Settings
             </span>
           </h2>
@@ -452,7 +452,7 @@ export function SettingsSection() {
           {/* Save button */}
           <Button
             onClick={handleSave}
-            className="w-full h-12 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold shadow-lg shadow-amber-500/25"
+            className="w-full h-12 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold shadow-lg shadow-amber-500/25"
           >
             <Save className="w-4 h-4 mr-2" />
             {saved ? "Settings Saved!" : "Save Settings"}

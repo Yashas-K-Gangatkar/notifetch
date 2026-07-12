@@ -110,7 +110,7 @@ export function HowItWorksSection({ onNavigate }: HowItWorksSectionProps) {
           </Badge>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight mb-4">
             <span className="block">How NotiFetch</span>
-            <span className="block bg-gradient-to-r from-amber-500 to-orange-600 bg-clip-text text-transparent">
+            <span className="block bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">
               Actually Works.
             </span>
           </h2>
@@ -179,7 +179,7 @@ export function HowItWorksSection({ onNavigate }: HowItWorksSectionProps) {
                     <Button
                       size="lg"
                       onClick={() => (window.location.href = "/dashboard")}
-                      className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold shadow-xl shadow-amber-500/25"
+                      className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold shadow-xl shadow-amber-500/25"
                     >
                       Open My Dashboard
                       <ArrowRight className="w-4 h-4 ml-2" />
@@ -188,7 +188,7 @@ export function HowItWorksSection({ onNavigate }: HowItWorksSectionProps) {
                     <Button
                       size="lg"
                       onClick={() => (window.location.href = "/auth/signin")}
-                      className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold shadow-xl shadow-amber-500/25"
+                      className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold shadow-xl shadow-amber-500/25"
                     >
                       <Mail className="w-4 h-4 mr-2" />
                       Login with Email — It&apos;s Free

@@ -21,7 +21,7 @@ export default function Error({
         <p className="text-muted-foreground mb-6">
           An unexpected error occurred. Please try again.
         </p>
-        <Button onClick={reset} className="bg-gradient-to-r from-amber-500 to-orange-600 text-white">
+        <Button onClick={reset} className="bg-gradient-to-r from-orange-500 to-amber-500 text-white">
           Try again
         </Button>
       </div>

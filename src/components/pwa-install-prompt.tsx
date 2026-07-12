@@ -109,7 +109,7 @@ export function PWAInstallPrompt() {
       <div className="fixed bottom-6 right-6 z-50">
         <Button
           onClick={() => setShowModal(true)}
-          className="h-14 w-14 rounded-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white shadow-xl shadow-amber-500/25"
+          className="h-14 w-14 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-xl shadow-amber-500/25"
           size="icon"
           aria-label="Install NotiFetch app"
         >
@@ -152,7 +152,7 @@ export function PWAInstallPrompt() {
             {deferredPrompt ? (
               <Button
                 onClick={handleInstall}
-                className="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-semibold"
+                className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-semibold"
               >
                 <Download className="w-4 h-4 mr-2" />
                 Install App

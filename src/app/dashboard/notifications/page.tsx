@@ -258,7 +258,7 @@ export default function NotificationsPage() {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center animate-glow-pulse">
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center animate-glow-pulse">
             <Zap className="w-8 h-8 text-white" />
           </div>
           <span className="text-sm text-muted-foreground">Loading notifications...</span>
@@ -270,7 +270,7 @@ export default function NotificationsPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Top bar */}
-      <nav className="fixed top-0 left-0 right-0 z-50 glass bg-background/80 border-b border-border">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-background border-b border-border">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
           <div className="flex items-center gap-3">
             <BackButton fallback="/dashboard" />

@@ -75,7 +75,7 @@ export function HeroSection({ onNavigate }: HeroProps) {
             }}
           >
             <div
-              className={`bg-muted/50 backdrop-blur-sm rounded-lg px-3 py-2 text-xs font-medium relative ${
+              className={`bg-muted/70 rounded-lg px-3 py-2 text-xs font-medium relative ${
                 n.side === "left" ? "animate-slide-in-left" : "animate-slide-in-right"
               }`}
               style={{ animationDelay: `${n.delay}s` }}
@@ -128,7 +128,7 @@ export function HeroSection({ onNavigate }: HeroProps) {
         <h1 className="animate-float-up text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight mb-3" style={{ animationDelay: "0.1s" }}>
           <span className="block">One Feed.</span>
           <span className="block">All Platforms.</span>
-          <span className="block bg-gradient-to-r from-amber-500 to-orange-600 bg-clip-text text-transparent">
+          <span className="block bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">
             Every Delivery. Worldwide.
           </span>
         </h1>
@@ -183,7 +183,7 @@ export function HeroSection({ onNavigate }: HeroProps) {
             <Button
               size="lg"
               onClick={() => window.location.href = "/dashboard"}
-              className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold px-8 h-12 text-base shadow-xl shadow-amber-500/25"
+              className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold px-8 h-12 text-base shadow-xl shadow-amber-500/25"
             >
               <LayoutDashboard className="w-4 h-4 mr-2" />
               Open My Dashboard
@@ -193,7 +193,7 @@ export function HeroSection({ onNavigate }: HeroProps) {
             <Button
               size="lg"
               onClick={() => window.location.href = "/auth/signin"}
-              className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold px-8 h-12 text-base shadow-xl shadow-amber-500/25"
+              className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold px-8 h-12 text-base shadow-xl shadow-amber-500/25"
             >
               <Mail className="w-4 h-4 mr-2" />
               Login with Email — It&apos;s Free

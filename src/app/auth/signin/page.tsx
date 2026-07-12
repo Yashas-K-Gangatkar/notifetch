@@ -124,10 +124,10 @@ function SignInForm() {
         </div>
 
         <div className="flex flex-col items-center mb-8">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-xl shadow-amber-500/25 mb-4 transition-transform hover:rotate-6 hover:scale-110">
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center shadow-xl shadow-amber-500/25 mb-4 transition-transform hover:rotate-6 hover:scale-110">
             <Zap className="w-8 h-8 text-white" fill="currentColor" />
           </div>
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-amber-500 to-orange-600 bg-clip-text text-transparent">
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">
             NotiFetch
           </h1>
           <p className="text-sm text-muted-foreground mt-1">One Feed. All Notifications. Zero Credentials.</p>
@@ -139,7 +139,7 @@ function SignInForm() {
           </div>
         </div>
 
-        <Card className="border-border/50 shadow-2xl shadow-black/20 backdrop-blur-sm transition-all duration-300 hover:shadow-amber-500/10">
+        <Card className="border-border/50 shadow-2xl shadow-black/20 transition-all duration-300 hover:shadow-amber-500/10">
           <CardHeader className="text-center pb-2">
             <CardTitle className="text-xl">{step === "email" ? "Welcome" : "Verify your email"}</CardTitle>
             <CardDescription>{step === "email" ? "Sign in to your NotiFetch account" : "We sent a code to " + email}</CardDescription>
@@ -162,7 +162,7 @@ function SignInForm() {
                   <div className="relative"><Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" /><Input id="email" type="email" placeholder="you@example.com" value={email} onChange={e => { setEmail(e.target.value); if (emailError) setEmailError(null); }} onKeyDown={e => { if (e.key === "Enter") handleSendOTP(); }} className="pl-9 h-10 transition-all focus:ring-2 focus:ring-amber-500/20" disabled={isLoading || isGoogleLoading} autoComplete="email" /></div>
                   {emailError && <p className="text-xs text-destructive mt-1">{emailError}</p>}
                 </div>
-                <Button onClick={handleSendOTP} className="w-full h-11 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-semibold shadow-lg shadow-amber-500/20 transition-all hover:shadow-xl hover:shadow-amber-500/30 hover:-translate-y-0.5" disabled={isLoading || isGoogleLoading}>
+                <Button onClick={handleSendOTP} className="w-full h-11 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-semibold shadow-lg shadow-amber-500/20 transition-all hover:shadow-xl hover:shadow-amber-500/30 hover:-translate-y-0.5" disabled={isLoading || isGoogleLoading}>
                   {isLoading ? <><Loader2 className="w-4 h-4 animate-spin mr-2" />Sending code...</> : <><KeyRound className="w-4 h-4 mr-2" />Send login code</>}
                 </Button>
               </div>
@@ -175,7 +175,7 @@ function SignInForm() {
                     {otp.map((digit, i) => <Input key={i} ref={el => { otpRefs.current[i] = el; }} type="text" inputMode="numeric" maxLength={6} value={digit} onChange={e => handleOTPChange(i, e.target.value)} onKeyDown={e => handleOTPKeyDown(i, e)} className="w-11 h-13 text-center text-lg font-bold p-0 border-border/70 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all" disabled={isLoading} aria-label={"Digit " + (i + 1)} />)}
                   </div>
                 </div>
-                <Button onClick={handleVerifyOTP} className="w-full h-11 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-semibold shadow-lg shadow-amber-500/20 transition-all hover:shadow-xl hover:shadow-amber-500/30 hover:-translate-y-0.5" disabled={isLoading || otp.join("").length !== 6}>
+                <Button onClick={handleVerifyOTP} className="w-full h-11 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-semibold shadow-lg shadow-amber-500/20 transition-all hover:shadow-xl hover:shadow-amber-500/30 hover:-translate-y-0.5" disabled={isLoading || otp.join("").length !== 6}>
                   {isLoading ? <><Loader2 className="w-4 h-4 animate-spin mr-2" />Verifying...</> : "Verify & Sign in"}
                 </Button>
                 <div className="flex items-center justify-center gap-2 text-sm">
@@ -222,5 +222,5 @@ function SignInForm() {
 }
 
 export default function SignInPage() {
-  return <Suspense fallback={<div className="min-h-screen flex flex-col items-center justify-center bg-background"><div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-xl shadow-amber-500/25 animate-pulse"><Zap className="w-8 h-8 text-white" /></div></div>}><SignInForm /></Suspense>;
+  return <Suspense fallback={<div className="min-h-screen flex flex-col items-center justify-center bg-background"><div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center shadow-xl shadow-amber-500/25 animate-pulse"><Zap className="w-8 h-8 text-white" /></div></div>}><SignInForm /></Suspense>;
 }

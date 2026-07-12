@@ -631,11 +631,11 @@ export default function PrivacyPolicyPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Fixed Top Nav */}
-      <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border">
+      <header className="sticky top-0 z-50 bg-background border-b border-border">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center gap-3">
           <BackButton fallback="/" />
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center">
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center">
               <Shield className="w-4 h-4 text-white" />
             </div>
             <h1 className="font-bold text-base">Privacy Policy</h1>

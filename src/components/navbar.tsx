@@ -56,7 +56,7 @@ export function Navbar({ activeSection, onNavigate }: NavbarProps) {
       <nav
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           scrolled
-            ? "bg-background/80 backdrop-blur-xl border-b border-border shadow-lg"
+            ? "bg-background border-b border-border shadow-lg"
             : "bg-transparent"
         }`}
       >
@@ -157,7 +157,7 @@ export function Navbar({ activeSection, onNavigate }: NavbarProps) {
                         className="w-6 h-6 rounded-full"
                       />
                     ) : (
-                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center">
+                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center">
                         <span className="text-[10px] text-white font-bold">
                           {(session.user.name || session.user.email || "U")[0].toUpperCase()}
                         </span>
@@ -190,7 +190,7 @@ export function Navbar({ activeSection, onNavigate }: NavbarProps) {
                   </Button>
                   <Button
                     onClick={() => window.location.href = "/auth/signin"}
-                    className="hidden sm:flex bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-semibold shadow-lg shadow-amber-500/20"
+                    className="hidden sm:flex bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-semibold shadow-lg shadow-amber-500/20"
                   >
                     Get Started
                   </Button>
@@ -252,7 +252,7 @@ export function Navbar({ activeSection, onNavigate }: NavbarProps) {
                                 className="w-8 h-8 rounded-full"
                               />
                             ) : (
-                              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center">
+                              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center">
                                 <span className="text-xs text-white font-bold">
                                   {(session.user.name || session.user.email || "U")[0].toUpperCase()}
                                 </span>
@@ -296,7 +296,7 @@ export function Navbar({ activeSection, onNavigate }: NavbarProps) {
                           </Button>
                           <Button
                             onClick={() => { window.location.href = "/auth/signin"; setMobileOpen(false); }}
-                            className="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-semibold"
+                            className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-semibold"
                           >
                             Get Started
                           </Button>

@@ -241,7 +241,7 @@ export default function DashboardPage() {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center animate-glow-pulse">
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center animate-glow-pulse">
             <Zap className="w-8 h-8 text-white" />
           </div>
           <div className="flex items-center gap-2">
@@ -273,12 +273,12 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Top bar */}
-      <nav className="fixed top-0 left-0 right-0 z-50 glass bg-background/80 border-b border-border">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-background border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
           <div className="flex items-center gap-3">
             <BackButton fallback="/" />
             <a href="/dashboard" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-lg shadow-amber-500/20">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center shadow-lg shadow-amber-500/20">
                 <Zap className="w-5 h-5 text-white" />
               </div>
               <span className="text-xl font-bold gradient-text hidden sm:inline">
@@ -295,7 +295,7 @@ export default function DashboardPage() {
               {session.user.image ? (
                 <img src={session.user.image} alt="" className="w-8 h-8 rounded-full ring-2 ring-amber-500/30" />
               ) : (
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center ring-2 ring-amber-500/30">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center ring-2 ring-amber-500/30">
                   <span className="text-xs text-white font-bold">{initials}</span>
                 </div>
               )}
@@ -606,7 +606,7 @@ export default function DashboardPage() {
                 {session.user.image ? (
                   <AvatarImage src={session.user.image} alt={session.user.name || "User"} />
                 ) : null}
-                <AvatarFallback className="bg-gradient-to-br from-amber-500 to-orange-600 text-white text-xl font-bold">
+                <AvatarFallback className="bg-gradient-to-br from-orange-500 to-amber-500 text-white text-xl font-bold">
                   {initials}
                 </AvatarFallback>
               </Avatar>

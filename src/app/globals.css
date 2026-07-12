@@ -45,73 +45,77 @@
 
 :root {
   --radius: 0.75rem;
-  /* Light mode - warm amber/orange NotiFetch brand */
+  /* Light mode - NotiFetch coral primary + amber accent (matches Android v2.9.78+) */
   --background: oklch(0.99 0.003 80);
   --foreground: oklch(0.14 0.01 60);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.14 0.01 60);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.14 0.01 60);
-  --primary: oklch(0.75 0.18 55);
-  --primary-foreground: oklch(0.15 0.03 55);
+  /* Coral #FF5A1F - vivid red-orange, the NotiFetch brand primary */
+  --primary: oklch(0.66 0.21 42);
+  --primary-foreground: oklch(0.99 0 0);
   --secondary: oklch(0.96 0.015 80);
   --secondary-foreground: oklch(0.22 0.02 60);
   --muted: oklch(0.96 0.01 80);
   --muted-foreground: oklch(0.50 0.02 60);
-  --accent: oklch(0.95 0.04 70);
+  /* Amber #F59E0B accent */
+  --accent: oklch(0.95 0.05 75);
   --accent-foreground: oklch(0.22 0.03 60);
   --destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.92 0.008 80);
   --input: oklch(0.92 0.008 80);
-  --ring: oklch(0.75 0.18 55);
-  --chart-1: oklch(0.75 0.18 55);
-  --chart-2: oklch(0.65 0.16 145);
+  --ring: oklch(0.66 0.21 42);
+  --chart-1: oklch(0.66 0.21 42);
+  --chart-2: oklch(0.76 0.18 75);
   --chart-3: oklch(0.60 0.22 25);
   --chart-4: oklch(0.70 0.15 90);
   --chart-5: oklch(0.55 0.18 195);
   --sidebar: oklch(0.98 0.005 80);
   --sidebar-foreground: oklch(0.14 0.01 60);
-  --sidebar-primary: oklch(0.75 0.18 55);
-  --sidebar-primary-foreground: oklch(0.15 0.03 55);
+  --sidebar-primary: oklch(0.66 0.21 42);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
   --sidebar-accent: oklch(0.95 0.03 80);
   --sidebar-accent-foreground: oklch(0.22 0.02 60);
   --sidebar-border: oklch(0.92 0.008 80);
-  --sidebar-ring: oklch(0.75 0.18 55);
+  --sidebar-ring: oklch(0.66 0.21 42);
 }
 
 .dark {
-  /* Dark mode - warm deep tones with amber accents */
+  /* Dark mode - deep warm tones with coral primary + amber accent */
   --background: oklch(0.13 0.015 50);
   --foreground: oklch(0.96 0.01 80);
   --card: oklch(0.18 0.018 50);
   --card-foreground: oklch(0.96 0.01 80);
   --popover: oklch(0.18 0.018 50);
   --popover-foreground: oklch(0.96 0.01 80);
-  --primary: oklch(0.78 0.18 60);
-  --primary-foreground: oklch(0.14 0.03 55);
+  /* Coral #FF5A1F - slightly brighter for dark backgrounds */
+  --primary: oklch(0.70 0.21 45);
+  --primary-foreground: oklch(0.99 0 0);
   --secondary: oklch(0.23 0.015 50);
   --secondary-foreground: oklch(0.96 0.01 80);
   --muted: oklch(0.23 0.015 50);
   --muted-foreground: oklch(0.62 0.015 60);
-  --accent: oklch(0.24 0.03 55);
-  --accent-foreground: oklch(0.96 0.01 80);
+  /* Amber #F59E0B accent */
+  --accent: oklch(0.27 0.06 70);
+  --accent-foreground: oklch(0.92 0.05 75);
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(0.28 0.015 50);
   --input: oklch(0.25 0.015 50);
-  --ring: oklch(0.78 0.18 60);
-  --chart-1: oklch(0.78 0.18 60);
-  --chart-2: oklch(0.65 0.18 145);
+  --ring: oklch(0.70 0.21 45);
+  --chart-1: oklch(0.70 0.21 45);
+  --chart-2: oklch(0.78 0.18 75);
   --chart-3: oklch(0.65 0.22 25);
   --chart-4: oklch(0.72 0.16 90);
   --chart-5: oklch(0.55 0.18 195);
   --sidebar: oklch(0.16 0.015 50);
   --sidebar-foreground: oklch(0.96 0.01 80);
-  --sidebar-primary: oklch(0.78 0.18 60);
-  --sidebar-primary-foreground: oklch(0.14 0.03 55);
-  --sidebar-accent: oklch(0.24 0.03 55);
-  --sidebar-accent-foreground: oklch(0.96 0.01 80);
+  --sidebar-primary: oklch(0.70 0.21 45);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.27 0.06 70);
+  --sidebar-accent-foreground: oklch(0.92 0.05 75);
   --sidebar-border: oklch(0.28 0.015 50);
-  --sidebar-ring: oklch(0.78 0.18 60);
+  --sidebar-ring: oklch(0.70 0.21 45);
 }
 
 @layer base {
@@ -170,8 +174,8 @@
 }
 
 @keyframes glow-pulse {
-  0%, 100% { box-shadow: 0 0 8px oklch(0.75 0.18 55 / 0.3); }
-  50% { box-shadow: 0 0 20px oklch(0.75 0.18 55 / 0.6); }
+  0%, 100% { box-shadow: 0 0 8px oklch(0.66 0.21 42 / 0.3); }
+  50% { box-shadow: 0 0 20px oklch(0.66 0.21 42 / 0.6); }
 }
 
 .animate-slide-in-right {
@@ -195,7 +199,7 @@
 }
 
 .animate-shimmer {
-  background: linear-gradient(90deg, transparent, oklch(0.75 0.18 55 / 0.1), transparent);
+  background: linear-gradient(90deg, transparent, oklch(0.66 0.21 42 / 0.1), transparent);
   background-size: 200% 100%;
   animation: shimmer 2s ease-in-out infinite;
 }
@@ -204,15 +208,9 @@
   animation: glow-pulse 2s ease-in-out infinite;
 }
 
-/* Glass effect */
-.glass {
-  backdrop-filter: blur(16px) saturate(180%);
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
-}
-
-/* Gradient text */
+/* Gradient text - coral to amber (matches Android v2.9.78+ brand) */
 .gradient-text {
-  background: linear-gradient(135deg, oklch(0.78 0.18 60), oklch(0.65 0.22 25));
+  background: linear-gradient(135deg, oklch(0.70 0.21 45), oklch(0.78 0.18 75));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;

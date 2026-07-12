@@ -180,7 +180,7 @@ export default function SettingsPage() {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center animate-pulse">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center animate-pulse">
             <Zap className="w-5 h-5 text-white" />
           </div>
           <span className="text-lg font-semibold">Loading settings...</span>
@@ -194,7 +194,7 @@ export default function SettingsPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Top bar */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-background border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
           <div className="flex items-center gap-3">
             <BackButton fallback="/dashboard" />

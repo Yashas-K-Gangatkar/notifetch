@@ -104,7 +104,7 @@ export function EarningsSection({ acceptedOrders }: EarningsProps) {
         <div className="text-center mb-8">
           <h2 className="text-3xl sm:text-4xl font-bold mb-3">
             Earnings{" "}
-            <span className="bg-gradient-to-r from-amber-500 to-orange-600 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">
               Tracker
             </span>
           </h2>
