@@ -447,9 +447,12 @@ class NotiFetchListenerService : NotificationListenerService() {
             }
 
             // ─── v2.9.6: Content-hash deduplication ─────────────────────────────
-            // Replaces the FLAG_ONGOING_EVENT and FLAG_GROUP_SUMMARY filters.
-            // Same content within DEDUP_WINDOW_MS is treated as a duplicate update.
-            val dedupeKey = "$packageName|${title.lowercase()}|${text.lowercase()}|${bigText.lowercase()}"
+            // v2.9.78 FIX: Include sbn.id in dedup key.
+            // Magicpin sends multiple notifications with same content ("Tap to open👆")
+            // but different sbn.id — these are DIFFERENT orders, not duplicates.
+            // Old key was: packageName|title|text|bigText (skipped legitimate notifications)
+            // New key is: sbn.id|packageName|title|text|bigText (only dedupes EXACT same notification)
+            val dedupeKey = "${sbn.id}|$packageName|${title.lowercase()}|${text.lowercase()}|${bigText.lowercase()}"
             val now = System.currentTimeMillis()
             val lastSeen = recentCaptures[dedupeKey]
             if (lastSeen != null && (now - lastSeen) < DEDUP_WINDOW_MS) {
