@@ -93,25 +93,14 @@ class MainActivity : ComponentActivity() {
                 }
             }
             NotiFetchTheme(darkTheme = darkMode, dynamicColor = dynamicColor) {
-                // v2.9.74: Liquid Glass architecture
-                // GlassTheme provides centralized config to all glass components
-                com.notifetch.app.ui.theme.GlassTheme {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .windowInsetsPadding(WindowInsets.systemBars)
-                    ) {
-                        // Layer 1+2: Shared blurred background (gradient + blurred copy)
-                        com.notifetch.app.ui.components.SharedBlurBackground()
-
-                        // Layer 3: Screen content (transparent — gradient shows through)
-                        Surface(
-                            modifier = Modifier.fillMaxSize(),
-                            color = androidx.compose.ui.graphics.Color.Transparent
-                        ) {
-                            NotiFetchNavHost()
-                        }
-                    }
+                // v2.9.77: Clean solid UI — no glass, no blur, no gradient
+                Surface(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .windowInsetsPadding(WindowInsets.systemBars),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    NotiFetchNavHost()
                 }
             }
         }

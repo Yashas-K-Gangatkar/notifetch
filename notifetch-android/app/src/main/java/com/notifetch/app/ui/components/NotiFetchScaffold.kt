@@ -71,7 +71,7 @@ fun NotiFetchScaffold(
                 // v2.9.73: Glass bottom navigation
                 NavigationBar(
                     tonalElevation = 0.dp,
-                    containerColor = MaterialTheme.colorScheme.background.copy(alpha = 0.8f)
+                    containerColor = MaterialTheme.colorScheme.surface
                 ) {
                     bottomNavItems.forEach { item ->
                         val selected = currentRoute == item.route ||
@@ -89,11 +89,11 @@ fun NotiFetchScaffold(
                                 onNavigate(item.route)
                             },
                             colors = NavigationBarItemDefaults.colors(
-                                selectedIconColor = androidx.compose.ui.graphics.Color(0xFFFF5A1F),
-                                selectedTextColor = androidx.compose.ui.graphics.Color(0xFFFF5A1F),
-                                indicatorColor = androidx.compose.ui.graphics.Color(0xFFFF5A1F).copy(alpha = 0.15f),
-                                unselectedIconColor = androidx.compose.ui.graphics.Color(0xFF78909C),
-                                unselectedTextColor = androidx.compose.ui.graphics.Color(0xFF78909C)
+                                selectedIconColor = MaterialTheme.colorScheme.primary,
+                                selectedTextColor = MaterialTheme.colorScheme.primary,
+                                indicatorColor = MaterialTheme.colorScheme.primaryContainer,
+                                unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         )
                     }
