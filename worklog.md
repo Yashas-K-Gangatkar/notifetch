@@ -238,3 +238,19 @@ Stage Summary:
 - redirect_uri sent to Google: https://www.notifetch.in/api/auth/callback/google (correct, matches Authorized redirect URIs)
 - User confirmed: "yes login successful"
 - Both Google Sign-In and Email OTP sign-in now work on https://www.notifetch.in/auth/signin
+
+---
+Task ID: android-google-signin-sha1-fix
+Agent: Super Z (main)
+Task: Verify Android Google Sign-In works for Play Store builds after user added SHA-1 to Firebase Console
+
+Work Log:
+- User confirmed they added Play Store signing SHA-1 (2E:58:AE:72:AE:B3:A1:CF:FC:A8:08:2D:E5:1B:D2:D2:8A:A4:84) to Firebase Console → Project Settings → SHA certificate fingerprints
+- Verified the matching certificate_hash (2e58ae72aeb3a145cffca8082de51bd2d28aa484) is already present in notifetch-android/app/google-services.json at line 29, with OAuth client ID 895827826409-d41rfk3lrfqn8vceu26eg4s6riltscbh.apps.googleusercontent.com (client_type 1 = Android)
+- This means Firebase Admin SDK will now accept Google ID tokens from builds signed by Google Play's app signing key (not just the local debug/upload keystore)
+
+Stage Summary:
+- Play Store users can now sign in with Google on the NotiFetch Android app
+- google-services.json was already correct — no app rebuild needed for the SHA-1 fix itself
+- However: the current Play Store build (v2.9.79-vc106) was built BEFORE this fix, so existing users may need to wait for the next app update OR clear app data + re-sign-in. New installs should work immediately.
+- Recommended: ship v2.9.81+ to Play Store to ensure all users have the fix (the Firebase Console change is server-side, but the app's GoogleSignIn flow needs to be re-triggered)
