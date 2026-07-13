@@ -90,16 +90,58 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // v2.9.81 SECURITY FIX: Validate numeric fields to prevent Infinity / NaN / huge values.
+    // parseFloat("1e308") = Infinity, parseFloat("abc") = NaN — both would store
+    // as garbage in the DB and corrupt earnings aggregates.
+    const numericValue = typeof value === "number" ? value : parseFloat(String(value));
+    const numericDistance = typeof distance === "number" ? distance : parseFloat(String(distance));
+    if (!Number.isFinite(numericValue) || numericValue < 0 || numericValue > 1_000_000) {
+      return NextResponse.json(
+        { error: "value must be a finite number between 0 and 1,000,000" },
+        { status: 400 }
+      );
+    }
+    if (!Number.isFinite(numericDistance) || numericDistance < 0 || numericDistance > 100_000) {
+      return NextResponse.json(
+        { error: "distance must be a finite number between 0 and 100,000" },
+        { status: 400 }
+      );
+    }
+
+    // v2.9.81 SECURITY FIX: Validate currency is a 3-letter ISO 4217 code.
+    // Previously accepted any string — user could store currency="FOO" and break display.
+    const normalizedCurrency = (currency ?? "USD").toUpperCase();
+    if (!/^[A-Z]{3}$/.test(normalizedCurrency)) {
+      return NextResponse.json(
+        { error: "currency must be a 3-letter ISO 4217 code (e.g. USD, INR)" },
+        { status: 400 }
+      );
+    }
+
+    // v2.9.81 SECURITY FIX: Cap string field lengths to prevent DB bloat / abuse.
+    if (typeof platformId !== "string" || platformId.length > 100) {
+      return NextResponse.json({ error: "platformId too long (max 100)" }, { status: 400 });
+    }
+    if (typeof category !== "string" || category.length > 100) {
+      return NextResponse.json({ error: "category too long (max 100)" }, { status: 400 });
+    }
+    if (typeof pickup !== "string" || pickup.length > 500) {
+      return NextResponse.json({ error: "pickup too long (max 500)" }, { status: 400 });
+    }
+    if (typeof dropoff !== "string" || dropoff.length > 500) {
+      return NextResponse.json({ error: "dropoff too long (max 500)" }, { status: 400 });
+    }
+
     const order = await db.acceptedOrder.create({
       data: {
         userId,
         platformId,
         category,
-        value: parseFloat(String(value)),
-        currency: currency ?? "USD",
+        value: numericValue,
+        currency: normalizedCurrency,
         pickup,
         dropoff,
-        distance: parseFloat(String(distance)),
+        distance: numericDistance,
         distanceUnit: distanceUnit ?? "mi",
         status: "accepted",
       },

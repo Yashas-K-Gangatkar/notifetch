@@ -37,9 +37,14 @@ export async function GET() {
       latencyMs: Date.now() - dbStart,
     };
   } catch (error) {
+    // v2.9.81 SECURITY FIX: Don't leak DB error details to the client.
+    // Previously the error message (which may include connection string, table
+    // names, schema info) was returned in the response body. Now we log it
+    // server-side and return a generic message to the client.
+    console.error("[health] DB check failed:", error);
     checks.database = {
       status: "down",
-      error: error instanceof Error ? error.message.slice(0, 200) : "Unknown DB error",
+      error: "Database connection failed",
     };
     allHealthy = false;
   }

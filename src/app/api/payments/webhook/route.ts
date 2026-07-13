@@ -91,7 +91,15 @@ async function handleRazorpayWebhook(
       const payment = event.payload.payment as Record<string, unknown>;
       const paymentId = payment.id as string;
       const orderId = payment.order_id as string;
-      const amount = (payment.amount as number) / 100; // Convert paise to rupees
+      // v2.9.81 SECURITY FIX: Validate amount is a finite number before dividing.
+      // Previously: if payment.amount was missing/string/NaN, amount became NaN
+      // and was stored in DB, corrupting payment history.
+      const rawAmount = payment.amount as unknown;
+      if (typeof rawAmount !== "number" || !Number.isFinite(rawAmount) || rawAmount < 0) {
+        console.error("[Webhook] Razorpay payment.captured has invalid amount:", rawAmount);
+        return NextResponse.json({ error: "Invalid payment amount" }, { status: 400 });
+      }
+      const amount = rawAmount / 100; // Convert paise to rupees
       const currency = (payment.currency as string) ?? "INR";
       const notes = payment.notes as Record<string, string> | undefined;
 

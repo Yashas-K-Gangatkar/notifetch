@@ -24,6 +24,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "deviceId is required" }, { status: 400 });
     }
 
+    // v2.9.81 SECURITY FIX: Cap deviceId length to prevent DoS via huge strings.
+    // Device IDs are UUID-like (~36 chars) or our generated format (~50 chars).
+    // 200 chars is generous; anything longer is abuse.
+    if (deviceId.length > 200) {
+      return NextResponse.json(
+        { error: "deviceId too long (max 200 chars)" },
+        { status: 400 }
+      );
+    }
+
     // Find the device
     const device = await db.deviceAuth.findFirst({
       where: { deviceId },

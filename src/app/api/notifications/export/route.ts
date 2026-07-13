@@ -30,16 +30,50 @@ export async function GET(request: NextRequest) {
     const category = searchParams.get("category");
     const startDate = searchParams.get("startDate");
     const endDate = searchParams.get("endDate");
-    const limit = Math.min(parseInt(searchParams.get("limit") || "1000", 10), 10000);
+
+    // v2.9.81 SECURITY FIX: Validate limit bounds + date strings.
+    // Previously: limit=0 returned empty (silent DoS), limit=-1 returned ALL rows
+    // (memory exhaustion — could OOM the serverless function with 1M notifications).
+    const rawLimit = parseInt(searchParams.get("limit") || "1000", 10);
+    if (!Number.isFinite(rawLimit) || rawLimit < 1 || rawLimit > 10000) {
+      return NextResponse.json(
+        { error: "limit must be between 1 and 10000" },
+        { status: 400 }
+      );
+    }
+    const limit = rawLimit;
+
+    // v2.9.81 SECURITY FIX: Cap filter string lengths to prevent URL-length abuse
+    const MAX_FILTER_LEN = 100;
+    for (const [name, val] of [
+      ["source", source], ["category", category],
+    ] as const) {
+      if (val && val.length > MAX_FILTER_LEN) {
+        return NextResponse.json(
+          { error: `${name} filter too long (max ${MAX_FILTER_LEN} chars)` },
+          { status: 400 }
+        );
+      }
+    }
 
     const where: Record<string, unknown> = { userId };
     if (source && source !== "all") where.source = source;
     if (category) where.category = category;
     if (startDate || endDate) {
       where.createdAt = {};
-      if (startDate) (where.createdAt as { gte?: Date }).gte = new Date(startDate);
+      if (startDate) {
+        const parsedStart = Date.parse(startDate);
+        if (isNaN(parsedStart)) {
+          return NextResponse.json({ error: "startDate must be a valid ISO date" }, { status: 400 });
+        }
+        (where.createdAt as { gte?: Date }).gte = new Date(parsedStart);
+      }
       if (endDate) {
-        const end = new Date(endDate);
+        const parsedEnd = Date.parse(endDate);
+        if (isNaN(parsedEnd)) {
+          return NextResponse.json({ error: "endDate must be a valid ISO date" }, { status: 400 });
+        }
+        const end = new Date(parsedEnd);
         end.setHours(23, 59, 59, 999);
         (where.createdAt as { lte?: Date }).lte = end;
       }

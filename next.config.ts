@@ -17,11 +17,15 @@ const securityHeaders = [
     value: "camera=(), microphone=(), geolocation=(), payment=(self)",
   },
   // Content Security Policy
+  // v2.9.81 SECURITY FIX: 'unsafe-eval' is now restricted to development only.
+  // In production, only 'unsafe-inline' (needed for Next.js inline scripts) is allowed.
+  // 'unsafe-eval' was previously global — it's required for Next.js HMR in dev but
+  // is a known XSS vector in production. Next.js 16 works without it in prod.
   {
     key: "Content-Security-Policy",
     value: [
       "default-src 'self' blob: data:",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://checkout.razorpay.com https://*.razorpay.com https://js.stripe.com",
+      `script-src 'self' 'unsafe-inline'${process.env.NODE_ENV === "development" ? " 'unsafe-eval'" : ""} blob: https://checkout.razorpay.com https://*.razorpay.com https://js.stripe.com`,
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.razorpay.com",
       "font-src 'self' https://fonts.gstatic.com https://*.razorpay.com",
       "img-src 'self' data: blob: https:",

@@ -53,12 +53,11 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    console.log(
-      "[API] FCM token registered for user:",
-      userId,
-      "token:",
-      fcmToken.substring(0, 20) + "..."
-    );
+    // v2.9.81 SECURITY FIX: Removed console.log that wrote first 20 chars of
+    // FCM token to logs. Even partial tokens are sensitive — Vercel logs are
+    // accessible to anyone with dashboard access. Audit log already records
+    // the registration event without the token value.
+    console.log("[API] FCM token registered for user:", userId);
 
     return NextResponse.json({
       success: true,

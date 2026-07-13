@@ -36,8 +36,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid provider. Must be 'firebase' or 'anonymous'." }, { status: 400 });
     }
 
-    // For anonymous/device-based auth, use the deviceId as the identifier
-    const effectiveDeviceId = deviceId || `device_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    // v2.9.81 SECURITY FIX: Use crypto.randomBytes for fallback deviceId generation.
+    // Previously Math.random() was used — not crypto-secure, collision possible
+    // if two devices register in the same millisecond. crypto.randomBytes is
+    // collision-resistant and unpredictable (prevents deviceId guessing).
+    const effectiveDeviceId = deviceId || `device_${Date.now()}_${crypto.randomBytes(8).toString("hex")}`;
 
     let verifiedFirebaseUid: string | null = null;
     let verifiedEmail: string | undefined;
