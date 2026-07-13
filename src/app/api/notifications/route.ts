@@ -43,8 +43,36 @@ export async function GET(request: NextRequest) {
     const platform = searchParams.get("platform");
     const startDate = searchParams.get("startDate");
     const endDate = searchParams.get("endDate");
-    const page = parseInt(searchParams.get("page") || "1", 10);
-    const limit = Math.min(parseInt(searchParams.get("limit") || "50", 10), 100);
+
+    // v2.9.81 SECURITY FIX: Validate all filter params to prevent:
+    //   - Huge offset DoS (page=999999999 → 50M row offset)
+    //   - Memory exhaustion (limit=0 → empty, limit=-1 → all rows)
+    //   - URL-length abuse (1MB string in source filter)
+    //   - Invalid Date objects crashing Prisma queries
+    // Each filter is capped to 100 chars (platform names are < 50 chars; 100 is generous)
+    const MAX_FILTER_LEN = 100;
+    for (const [name, val] of [
+      ["source", source], ["category", category],
+      ["platform", platform],
+    ] as const) {
+      if (val && val.length > MAX_FILTER_LEN) {
+        return NextResponse.json(
+          { error: `${name} filter too long (max ${MAX_FILTER_LEN} chars)` },
+          { status: 400 }
+        );
+      }
+    }
+
+    const rawPage = parseInt(searchParams.get("page") || "1", 10);
+    const rawLimit = parseInt(searchParams.get("limit") || "50", 10);
+    if (!Number.isFinite(rawPage) || rawPage < 1) {
+      return NextResponse.json({ error: "page must be a positive integer" }, { status: 400 });
+    }
+    if (!Number.isFinite(rawLimit) || rawLimit < 1 || rawLimit > 100) {
+      return NextResponse.json({ error: "limit must be between 1 and 100" }, { status: 400 });
+    }
+    const page = rawPage;
+    const limit = rawLimit;
     const skip = (page - 1) * limit;
 
     const where: Record<string, unknown> = { userId };
@@ -54,9 +82,20 @@ export async function GET(request: NextRequest) {
     if (platform) where.platform = platform;
     if (startDate || endDate) {
       where.createdAt = {} as { gte?: Date; lte?: Date };
-      if (startDate) (where.createdAt as { gte?: Date }).gte = new Date(startDate);
+      if (startDate) {
+        // Reject invalid date strings — Prisma treats Invalid Date unpredictably
+        const parsedStart = Date.parse(startDate);
+        if (isNaN(parsedStart)) {
+          return NextResponse.json({ error: "startDate must be a valid ISO date" }, { status: 400 });
+        }
+        (where.createdAt as { gte?: Date }).gte = new Date(parsedStart);
+      }
       if (endDate) {
-        const end = new Date(endDate);
+        const parsedEnd = Date.parse(endDate);
+        if (isNaN(parsedEnd)) {
+          return NextResponse.json({ error: "endDate must be a valid ISO date" }, { status: 400 });
+        }
+        const end = new Date(parsedEnd);
         end.setHours(23, 59, 59, 999);
         (where.createdAt as { lte?: Date }).lte = end;
       }
