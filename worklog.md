@@ -254,3 +254,34 @@ Stage Summary:
 - google-services.json was already correct — no app rebuild needed for the SHA-1 fix itself
 - However: the current Play Store build (v2.9.79-vc106) was built BEFORE this fix, so existing users may need to wait for the next app update OR clear app data + re-sign-in. New installs should work immediately.
 - Recommended: ship v2.9.81+ to Play Store to ensure all users have the fix (the Firebase Console change is server-side, but the app's GoogleSignIn flow needs to be re-triggered)
+
+---
+Task ID: android-v2.9.81-features
+Agent: Android Developer
+Task: Improve onboarding messaging (remove "we sell your data" copy), add a Share Earnings card to the Earnings screen, and bump the version to v2.9.81 (versionCode 108).
+
+Work Log:
+- Read worklog.md to understand prior context (the v2.9.79 SHA-1 fix already recommended shipping v2.9.81+; the i18n/stringResource refactor is explicitly out of scope for this session).
+- Inspected OnboardingScreen.kt, EarningsScreen.kt, EarningsDashboardScreen.kt, MainActivity.kt, EarningsViewModel.kt, Color.kt to confirm the live Earnings screen is `EarningsScreen()` (not EarningsDashboardScreen), and that `EarningsUiState` already exposes `todayEarnings: Double`, `todayOrders: Int`, and `platformBreakdown: List<PlatformEarning>` (with `.count` per platform).
+- Task 1 — OnboardingScreen.kt: replaced Screen 1 title "Turn Notifications into Cash" → "Never Miss a Delivery Order"; replaced the "We anonymize and sell the data to market research firms..." description with "NotiFetch captures delivery notifications from Swiggy, Zomato, Zepto, Blinkit, and 115+ more apps — all in one place. No more switching between apps to find your next order." The button text was already "Get Started" — no change. Screens 2 and 3 untouched, as instructed.
+- Task 2 — Created new file `app/src/main/java/com/notifetch/app/ui/components/ShareEarningsCard.kt`:
+  * `ShareEarningsCard(todayEarnings, todayOrders, platformCount, modifier)` composable.
+  * Card with `Color.Transparent` container, inner `Box` with horizontal `Accent (#FF5A1F) → AmberGold (#F59E0B)` gradient — matches app's brand system.
+  * Header row ("Share Today's Activity" + Share icon), 3 mini-stats (Today's Value ₹X, Orders N, Platforms M), and a full-width white-on-coral Share button.
+  * Button onClick builds `Intent(Intent.ACTION_SEND).apply { type = "text/plain"; putExtra(Intent.EXTRA_TEXT, shareText); putExtra(Intent.EXTRA_TITLE, "Share NotiFetch Earnings") }` and launches `Intent.createChooser(shareIntent, "Share Earnings")`.
+  * Share text matches v2.9.81 spec exactly: "🚀 My NotiFetch earnings today: ₹{X} from {N} orders across {M} platforms! Track your deliveries with NotiFetch: https://play.google.com/store/apps/details?id=com.notifetch.app". Added minor pluralization ("1 order" vs "2 orders", "1 platform" vs "2 platforms") so the shared message is grammatically correct in edge cases; the example numbers (₹847 / 12 / 3) are replaced with live data from `EarningsViewModel.uiState`.
+  * `formatRupees()` helper prints whole rupees without decimals (847.0 → "847") and fractional amounts with 2 decimals (847.5 → "847.50").
+- Task 2 (integration) — EarningsScreen.kt: added `import com.notifetch.app.ui.components.ShareEarningsCard` and inserted a new `item { ... }` block in the LazyColumn between the Month card and the per-platform breakdown. Computes `activePlatformCount = uiState.platformBreakdown.count { it.count > 0 }` so the shared "across N platforms" line only counts platforms that actually captured notifications this month (not 0-count placeholder rows).
+- Task 3 — app/build.gradle.kts: bumped `versionCode = 107` → `108` and `versionName = "2.9.80"` → `"2.9.81"`.
+- Verified the diff for all 4 files (1 new + 3 modified). Did NOT touch the web app, did NOT do the i18n/stringResource refactor, did NOT build the AAB, did NOT push to GitHub (per task constraints — main agent handles build + push).
+- Committed locally as `fa6f6ce` with message "feat(android): improve onboarding messaging + share earnings feature". Only the 4 intended files were staged; an unrelated untracked `play-store/listing-hi.md` from a prior session was deliberately left out.
+- Note: could not run `compileDebugKotlin` for sanity check because no Android SDK is currently symlinked/installed in this sandbox (only JDK 21 is present). Code review confirms imports, types, and Material3 APIs match what's used elsewhere in the codebase (EarningsDashboardScreen already uses an analogous share-intent pattern via ReferralManager).
+
+Stage Summary:
+- Onboarding Screen 1 no longer says NotiFetch "sells data" — replaced with a delivery-aggregation value proposition ("Never Miss a Delivery Order"). Removes the creepy/inaccurate messaging that was likely flagged during Play Store review prep.
+- New `ShareEarningsCard` component gives users a one-tap way to share today's earnings summary to WhatsApp/Instagram/etc. via Android's standard share sheet, with NotiFetch branding (coral → amber gradient) and a Play Store link in the shared message (organic install growth loop).
+- Earnings screen layout now reads top-to-bottom: trust banner → today/week cards → month card → **Share Today's Activity (new)** → Orders by Platform → spacer.
+- Version bumped to v2.9.81 (versionCode 108) — matches the version that the prior SHA-1 worklog entry recommended shipping.
+- Local commit `fa6f6ce` on `main` branch; NOT pushed (main agent will handle push + AAB build).
+- Files changed: 4 (1 new, 3 modified), 227 insertions, 5 deletions.
+
