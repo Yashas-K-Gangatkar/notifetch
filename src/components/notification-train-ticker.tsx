@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useRef, useState, useEffect } from "react";
 import { Bell, TrendingUp, MapPin, Clock } from "lucide-react";
 import { PLATFORMS } from "@/lib/data";
 
@@ -96,14 +96,38 @@ function TrainCar({ n }: { n: TickerNotification }) {
 
 /**
  * The full "railway train" ticker — 2 rows scrolling opposite directions.
+ * v2.9.81 FIX: Pauses CSS animation when section is offscreen (IntersectionObserver).
+ * Previously ran continuously, consuming CPU/GPU even when scrolled out of view.
  */
 export function NotificationTrainTicker() {
   // Triple the data so the loop is seamless (CSS animation repeats)
   const topRow = useMemo(() => [...SAMPLE_NOTIFICATIONS, ...SAMPLE_NOTIFICATIONS, ...SAMPLE_NOTIFICATIONS], []);
   const bottomRow = useMemo(() => [...SAMPLE_NOTIFICATIONS.slice().reverse(), ...SAMPLE_NOTIFICATIONS.slice().reverse(), ...SAMPLE_NOTIFICATIONS.slice().reverse()], []);
 
+  const sectionRef = useRef<HTMLElement>(null);
+  const [isVisible, setIsVisible] = useState(true);
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsVisible(entry.isIntersecting);
+      },
+      { threshold: 0 } // trigger as soon as any part is visible
+    );
+
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, []);
+
+  // v2.9.81: Use animation-play-state to pause when offscreen.
+  // This saves CPU/GPU cycles on mobile devices when the ticker is scrolled away.
+  const animationPlayState = isVisible ? "running" : "paused";
+
   return (
-    <section className="relative py-10 bg-gradient-to-b from-background via-amber-500/5 to-background overflow-hidden">
+    <section ref={sectionRef} className="relative py-10 bg-gradient-to-b from-background via-amber-500/5 to-background overflow-hidden">
       {/* Section label */}
       <div className="max-w-7xl mx-auto px-4 mb-6 text-center">
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20">
@@ -125,6 +149,7 @@ export function NotificationTrainTicker() {
         className="flex gap-0 hover:[animation-play-state:paused] mb-3"
         style={{
           animation: "trainRight 60s linear infinite",
+          animationPlayState,
           width: "max-content",
         }}
       >
@@ -138,6 +163,7 @@ export function NotificationTrainTicker() {
         className="flex gap-0 hover:[animation-play-state:paused]"
         style={{
           animation: "trainLeft 70s linear infinite",
+          animationPlayState,
           width: "max-content",
         }}
       >

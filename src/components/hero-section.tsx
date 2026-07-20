@@ -32,7 +32,11 @@ interface FloatingNotification {
 export function HeroSection({ onNavigate }: HeroProps) {
   const [showQR, setShowQR] = useState(false);
   const { data: session, status } = useSession();
+  // v2.9.81 FIX: Only treat as logged-in when status is definitively "authenticated".
+  // During "loading" state, show neither badge — prevents the flicker where logged-in
+  // users briefly see "Login with Email" before NextAuth resolves the session.
   const isLoggedIn = status === "authenticated" && !!session?.user;
+  const isLoading = status === "loading";
 
   const [notifications] = useState<FloatingNotification[]>(() => {
     const positions = [
@@ -96,7 +100,17 @@ export function HeroSection({ onNavigate }: HeroProps) {
       <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         {/* Welcome / status badge — auth-aware */}
         <div className="animate-float-up" style={{ animationDelay: "0s" }}>
-          {isLoggedIn ? (
+          {isLoading ? (
+            // v2.9.81 FIX: During session loading, show a neutral badge instead of
+            // the logged-out badge. Prevents the flicker from "Login" → "Welcome back".
+            <Badge
+              variant="secondary"
+              className="mb-3 px-4 py-1.5 text-sm bg-muted/40 text-muted-foreground border-border"
+            >
+              <span className="inline-block w-3 h-3 rounded-full bg-muted-foreground/40 animate-pulse" />
+              Loading…
+            </Badge>
+          ) : isLoggedIn ? (
             <Badge
               variant="secondary"
               className="mb-3 px-4 py-1.5 text-sm bg-green-500/10 text-green-500 border-green-500/20"
@@ -179,7 +193,17 @@ export function HeroSection({ onNavigate }: HeroProps) {
 
         {/* CTA Buttons — auth-aware */}
         <div className="animate-float-up flex flex-col sm:flex-row items-center justify-center gap-4 mb-8" style={{ animationDelay: "0.4s" }}>
-          {isLoggedIn ? (
+          {isLoading ? (
+            // v2.9.81 FIX: Show disabled button during loading to prevent flicker
+            <Button
+              size="lg"
+              disabled
+              className="bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold px-8 h-12 text-base shadow-xl shadow-amber-500/25 opacity-60"
+            >
+              <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
+              Loading…
+            </Button>
+          ) : isLoggedIn ? (
             <Button
               size="lg"
               onClick={() => window.location.href = "/dashboard"}

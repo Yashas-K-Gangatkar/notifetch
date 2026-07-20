@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { track } from "@/lib/analytics";
 import { Separator } from "@/components/ui/separator";
 import { Zap, Mail, Loader2, ShieldCheck, KeyRound, ArrowLeft } from "lucide-react";
 import { BackButton } from "@/components/back-button";
@@ -74,6 +75,7 @@ function SignInForm() {
     const code = otp.join("");
     if (code.length !== 6) { setFormError("Please enter the complete 6-digit code"); return; }
     setIsLoading(true); setFormError(null);
+    track("sign_in", { method: "otp" }); // v2.9.81: analytics
     try {
       const result = await signIn("otp", { email: email.toLowerCase().trim(), code, callbackUrl, redirect: false });
       if (result?.error) { setFormError(getErrorMessage(result.error)); setOtp(["", "", "", "", "", ""]); otpRefs.current[0]?.focus(); }
@@ -81,7 +83,17 @@ function SignInForm() {
     } catch { setFormError("Something went wrong."); } finally { setIsLoading(false); }
   }, [email, otp, callbackUrl]);
 
-  const handleGoogleSignIn = async () => { setFormError(null); setIsGoogleLoading(true); try { await signIn("google", { callbackUrl }); } catch { setFormError("Failed to sign in with Google."); setIsGoogleLoading(false); } };
+  const handleGoogleSignIn = async () => {
+    setFormError(null);
+    setIsGoogleLoading(true);
+    track("sign_in", { method: "google" }); // v2.9.81: analytics
+    try {
+      await signIn("google", { callbackUrl });
+    } catch {
+      setFormError("Failed to sign in with Google.");
+      setIsGoogleLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-4 py-12 relative overflow-hidden bg-background">

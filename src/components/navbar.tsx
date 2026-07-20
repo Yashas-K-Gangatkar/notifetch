@@ -42,6 +42,8 @@ export function Navbar({ activeSection, onNavigate }: NavbarProps) {
   };
 
   const isLoggedIn = status === "authenticated" && session?.user;
+  // v2.9.81 FIX: Track loading state to prevent auth flicker in navbar
+  const isAuthLoading = status === "loading";
 
   const handleLogoClick = () => {
     if (isLoggedIn) {
@@ -142,7 +144,12 @@ export function Navbar({ activeSection, onNavigate }: NavbarProps) {
                 <Moon className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
               </Button>
 
-              {isLoggedIn ? (
+              {isAuthLoading ? (
+                // v2.9.81 FIX: Show nothing during auth loading to prevent flicker
+                <div className="hidden sm:flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-muted animate-pulse" />
+                </div>
+              ) : isLoggedIn ? (
                 <>
                   <Button
                     variant="ghost"

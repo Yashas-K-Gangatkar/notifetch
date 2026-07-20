@@ -17,6 +17,7 @@ import {
 import { signOut } from "next-auth/react";
 import { PushPermission } from "@/components/push-permission";
 import { BackButton } from "@/components/back-button";
+import { track, identifyUser } from "@/lib/analytics";
 
 interface UserData {
   id: string;
@@ -145,6 +146,18 @@ const CATEGORY_COLORS: Record<string, string> = {
   GENERAL: "bg-gray-500/10 text-gray-500 border-gray-500/20",
 };
 
+// v2.9.81: Format a Date as "just now", "30s ago", "5m ago", etc.
+function formatTimeAgo(date: Date): string {
+  const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
+  if (seconds < 5) return "just now";
+  if (seconds < 60) return `${seconds}s ago`;
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  return date.toLocaleString();
+}
+
 export default function DashboardPage() {
   const { data: session, status } = useSession();
   const [userData, setUserData] = useState<UserData | null>(null);
@@ -155,6 +168,9 @@ export default function DashboardPage() {
   const [platformStats, setPlatformStats] = useState<{ platform: string; count: number }[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedPlatform, setSelectedPlatform] = useState<string | null>(null);
+  // v2.9.81: Track last sync time for "Last synced X ago" indicator
+  const [lastSyncAt, setLastSyncAt] = useState<Date | null>(null);
+  const [, forceRender] = useState(0);
   const router = useRouter();
 
   useEffect(() => {
@@ -181,6 +197,8 @@ export default function DashboardPage() {
           setTodayCount(data.todayCount || 0);
           setTodayEarnings(data.todayEarnings || 0);
           setPlatformStats(data.platformStats || []);
+          // v2.9.81: Record sync time for "Last synced" indicator
+          setLastSyncAt(new Date());
         }
       } catch {
         // Silently handle errors
@@ -194,10 +212,35 @@ export default function DashboardPage() {
     fetchDashboardData();
   }, [fetchDashboardData]);
 
+  // v2.9.81: Track dashboard view + identify user for analytics
+  useEffect(() => {
+    if (status === "authenticated" && session?.user?.id) {
+      identifyUser(session.user.id, {
+        email: session.user.email || "",
+        name: session.user.name || "",
+      });
+      track("dashboard_view", {
+        notification_count: notifications.length,
+        unread_count: unreadCount,
+      });
+    }
+  }, [status, session, notifications.length, unreadCount]);
+
+  // v2.9.81: Re-render every 15s so "Last synced Xs ago" stays fresh
+  useEffect(() => {
+    const tick = setInterval(() => forceRender((n) => n + 1), 15_000);
+    return () => clearInterval(tick);
+  }, []);
+
   // v2.9.35: Auto-poll for new notifications every 30s when the tab is visible.
   // Uses the Page Visibility API so we don't waste requests when the user
   // is on another tab. Also re-fetches immediately when the tab regains focus.
+  // v2.9.81 FIX: Only poll when status === "authenticated". Previously, if the
+  // session expired or user signed out, polling would continue firing 401s.
   useEffect(() => {
+    // Don't start polling if not authenticated
+    if (status !== "authenticated") return;
+
     let interval: ReturnType<typeof setInterval> | null = null;
 
     const startPolling = () => {
@@ -235,7 +278,7 @@ export default function DashboardPage() {
       stopPolling();
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, [fetchDashboardData]);
+  }, [fetchDashboardData, status]);
 
   if (status === "loading" || isLoading) {
     return (
@@ -320,12 +363,26 @@ export default function DashboardPage() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12">
         {/* Welcome */}
         <div className="mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold">
-            Welcome back, {session.user.name || session.user.email?.split("@")[0]}! 👋
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            Your delivery notifications are being aggregated in real-time from all platforms.
-          </p>
+          <div className="flex items-start justify-between gap-4 flex-wrap">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold">
+                Welcome back, {session.user.name || session.user.email?.split("@")[0]}! 👋
+              </h1>
+              <p className="text-muted-foreground mt-1">
+                Your delivery notifications are being aggregated in real-time from all platforms.
+              </p>
+            </div>
+            {/* v2.9.81: Last synced indicator */}
+            {lastSyncAt && (
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground bg-muted/50 px-3 py-1.5 rounded-full">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                </span>
+                Last synced {formatTimeAgo(lastSyncAt)}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Quick action cards */}

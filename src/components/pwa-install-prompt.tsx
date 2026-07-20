@@ -10,6 +10,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Smartphone, Download } from "lucide-react";
+import { track } from "@/lib/analytics";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>;
@@ -83,6 +84,7 @@ export function PWAInstallPrompt() {
     if (deferredPrompt) {
       await deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
+      track("pwa_install", { outcome }); // v2.9.81: analytics
       if (outcome === "accepted") {
         setIsInstalled(true);
         setShowFab(false);
@@ -93,6 +95,7 @@ export function PWAInstallPrompt() {
   };
 
   const handleDontShowAgain = () => {
+    track("pwa_install", { outcome: "dismissed" }); // v2.9.81: analytics
     try {
       localStorage.setItem("notifetch_pwa_dismissed", Date.now().toString());
     } catch {}
