@@ -68,9 +68,9 @@ fun OnboardingScreen(
     val pages = listOf(
         OnboardingPage(
             icon = Icons.Default.RocketLaunch,
-            title = "Turn Notifications into Cash",
-            description = "NotiFetch captures delivery notifications from Swiggy, Zomato, Zepto, Blinkit, and 115+ more apps. " +
-                    "We anonymize and sell the data to market research firms, then share the revenue with you.",
+            title = "Never Miss a Delivery Order",
+            description = "NotiFetch captures delivery notifications from Swiggy, Zomato, Zepto, Blinkit, and 115+ more apps — " +
+                    "all in one place. No more switching between apps to find your next order.",
             gradient = listOf(Color(0xFFFFC107), Color(0xFFFF9800)),
             buttonText = "Get Started",
             action = null

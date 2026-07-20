@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.notifetch.app.ui.components.ShareEarningsCard
 import com.notifetch.app.ui.theme.BrandGradientEnd
 import com.notifetch.app.ui.theme.BrandGradientStart
 import com.notifetch.app.ui.viewmodel.EarningsViewModel
@@ -165,6 +166,19 @@ fun EarningsScreen(
                         Text("orders captured", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
+            }
+
+            // v2.9.81: Share earnings CTA — placed below the today/week/month
+            // summary cards and above the per-platform breakdown.
+            // Counts only platforms with at least one captured notification,
+            // so the "across N platforms" line in the shared message stays honest.
+            item {
+                val activePlatformCount = uiState.platformBreakdown.count { it.count > 0 }
+                ShareEarningsCard(
+                    todayEarnings = uiState.todayEarnings,
+                    todayOrders = uiState.todayOrders,
+                    platformCount = activePlatformCount
+                )
             }
 
             // Platform breakdown — always visible
