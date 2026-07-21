@@ -308,18 +308,13 @@ fun NotiFetchNavHost() {
                         navController.navigate("permission") {
                             launchSingleTop = true
                         }
-                    },
-                    onNavigateToProfile = {
-                        navController.navigate("profile")
                     }
                 )
             }
 
             // v2.9.69: Profile screen (accessible from Home header tap)
             composable("profile") {
-                com.notifetch.app.ui.screens.ProfileScreen(
-                    onNavigateBack = { navController.popBackStack() }
-                )
+                com.notifetch.app.ui.screens.ProfileScreen()
             }
 
             composable(
@@ -347,9 +342,6 @@ fun NotiFetchNavHost() {
                     },
                     onNavigateToFeedback = {
                         navController.navigate("feedback")
-                    },
-                    onNavigateToPlatforms = {
-                        navController.navigate("platforms")
                     }
                 )
             }
