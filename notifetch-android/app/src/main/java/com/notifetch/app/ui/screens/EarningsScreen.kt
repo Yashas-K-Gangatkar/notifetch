@@ -169,6 +169,15 @@ fun EarningsScreen(
                 }
             }
 
+            // v2.9.82: Share earnings card — viral feature
+            item {
+                com.notifetch.app.ui.components.ShareEarningsCard(
+                    todayEarnings = uiState.todayEarnings,
+                    todayOrders = uiState.todayOrders,
+                    platformCount = uiState.platformBreakdown.count { it.count > 0 }
+                )
+            }
+
             // Platform breakdown — always visible
             if (uiState.platformBreakdown.isNotEmpty()) {
                 item {

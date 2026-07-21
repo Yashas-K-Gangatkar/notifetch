@@ -19,37 +19,40 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.rememberNavController
+import com.notifetch.app.R
 
 data class BottomNavItem(
     val route: String,
-    val label: String,
+    val labelResId: Int,
     val selectedIcon: ImageVector,
     val unselectedIcon: ImageVector
 )
 
+// v2.9.82: Use string resource IDs instead of hardcoded strings for i18n
 val bottomNavItems = listOf(
     BottomNavItem(
         route = "home",
-        label = "Home",
+        labelResId = R.string.nav_home,
         selectedIcon = Icons.Filled.Home,
         unselectedIcon = Icons.Outlined.Home
     ),
     BottomNavItem(
         route = "earnings",
-        label = "Activity",
+        labelResId = R.string.nav_earnings,
         selectedIcon = Icons.Filled.Analytics,
         unselectedIcon = Icons.Outlined.Analytics
-        // v2.9.73: Cyan accent for active state
     ),
     BottomNavItem(
         route = "settings",
-        label = "Settings",
+        labelResId = R.string.nav_settings,
         selectedIcon = Icons.Filled.Settings,
         unselectedIcon = Icons.Outlined.Settings
     )
@@ -81,10 +84,10 @@ fun NotiFetchScaffold(
                             icon = {
                                 Icon(
                                     imageVector = if (selected) item.selectedIcon else item.unselectedIcon,
-                                    contentDescription = item.label
+                                    contentDescription = stringResource(item.labelResId)
                                 )
                             },
-                            label = { Text(text = item.label) },
+                            label = { Text(text = stringResource(item.labelResId)) },
                             selected = selected,
                             onClick = {
                                 onNavigate(item.route)

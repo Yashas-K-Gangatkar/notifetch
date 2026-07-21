@@ -24,8 +24,8 @@ android {
         applicationId = "com.notifetch.app"
         minSdk = 24
         targetSdk = 35
-        versionCode = 108
-        versionName = "2.9.81"
+        versionCode = 109
+        versionName = "2.9.82"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -140,6 +140,8 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.lifecycle.process)
     implementation(libs.androidx.activity.compose)
+    // v2.9.82: AppCompat for per-app language switching (AppCompatDelegate.setApplicationLocales)
+    implementation("androidx.appcompat:appcompat:1.7.0")
 
     // Compose
     implementation(platform(libs.androidx.compose.bom))

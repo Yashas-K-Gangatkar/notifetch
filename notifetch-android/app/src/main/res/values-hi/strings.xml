@@ -94,6 +94,12 @@
     <string name="settings_dark_mode_desc">डार्क/लाइट थीम टॉगल करें</string>
     <string name="settings_auto_sync">ऑटो सिंक</string>
     <string name="settings_auto_sync_desc">हर %1$d मिनट में सर्वर पर सूचनाएं सिंक करें</string>
+    <string name="settings_language">भाषा</string>
+    <string name="settings_language_desc">ऐप की भाषा चुनें</string>
+    <string name="settings_language_english">English</string>
+    <string name="settings_language_hindi">हिन्दी</string>
+    <string name="settings_language_system">सिस्टम डिफ़ॉल्ट</string>
+    <string name="settings_language_dialog_title">भाषा चुनें</string>
     <string name="settings_platform_filters">प्लेटफॉर्म फ़िल्टर</string>
     <string name="settings_platform_filters_desc">चुनें कि किन डिलीवरी पार्टनर ऐप्स की निगरानी करनी है</string>
     <string name="settings_tap_for_updates">Play Store पर अपडेट चेक करने के लिए टैप करें</string>
@@ -216,6 +222,7 @@
 
     <!-- ============ Navigation ============ -->
     <string name="nav_home">होम</string>
+    <string name="nav_earnings">गतिविधि</string>
     <string name="nav_settings">सेटिंग्स</string>
     <string name="nav_profile">प्रोफ़ाइल</string>
 

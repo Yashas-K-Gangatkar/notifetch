@@ -29,6 +29,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Feedback
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.NewReleases
 import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.RestartAlt
@@ -44,6 +45,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -75,6 +77,10 @@ import com.notifetch.app.util.Helpers
 import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
+import androidx.compose.ui.res.stringResource
+import com.notifetch.app.R
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material.icons.filled.CloudDone
@@ -92,8 +98,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedButton
 import com.notifetch.app.ui.viewmodel.ProfileViewModel
-import androidx.compose.ui.res.stringResource
-import com.notifetch.app.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -118,6 +122,10 @@ fun SettingsScreen(
     var renamingPlatform by remember { mutableStateOf<PlatformConfig?>(null) }
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showSignOutDialog by remember { mutableStateOf(false) }
+    // v2.9.82: Language picker dialog state
+    var showLanguageDialog by remember { mutableStateOf(false) }
+    val currentLocale = AppCompatDelegate.getApplicationLocales()
+    val currentLangTag = if (currentLocale.isEmpty) "system" else currentLocale.toLanguageTags()
 
     // v2.9.15: Expanded category state for grouped platform list
     val expandedCategories = remember { mutableStateOf<Set<String>>(emptySet()) }
@@ -374,6 +382,39 @@ fun SettingsScreen(
                             Switch(
                                 checked = uiState.isDarkMode,
                                 onCheckedChange = { viewModel.setDarkMode(it) }
+                            )
+                        }
+
+                        // v2.9.82: Language picker
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                                .clickable { showLanguageDialog = true },
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Language,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(stringResource(R.string.settings_language), style = MaterialTheme.typography.bodyLarge)
+                                Text(
+                                    text = when (currentLangTag) {
+                                        "en" -> stringResource(R.string.settings_language_english)
+                                        "hi" -> stringResource(R.string.settings_language_hindi)
+                                        else -> stringResource(R.string.settings_language_system)
+                                    },
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
 
@@ -869,6 +910,86 @@ fun SettingsScreen(
 
             item { Spacer(modifier = Modifier.height(24.dp)) }
         }
+    }
+
+    // v2.9.82: Language picker dialog
+    if (showLanguageDialog) {
+        AlertDialog(
+            onDismissRequest = { showLanguageDialog = false },
+            title = { Text(stringResource(R.string.settings_language_dialog_title)) },
+            text = {
+                Column {
+                    // System default
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                AppCompatDelegate.setApplicationLocales(LocaleListCompat.getEmptyLocaleList())
+                                showLanguageDialog = false
+                            }
+                            .padding(vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        RadioButton(
+                            selected = currentLangTag == "system",
+                            onClick = {
+                                AppCompatDelegate.setApplicationLocales(LocaleListCompat.getEmptyLocaleList())
+                                showLanguageDialog = false
+                            }
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(stringResource(R.string.settings_language_system))
+                    }
+                    // English
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags("en"))
+                                showLanguageDialog = false
+                            }
+                            .padding(vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        RadioButton(
+                            selected = currentLangTag == "en",
+                            onClick = {
+                                AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags("en"))
+                                showLanguageDialog = false
+                            }
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(stringResource(R.string.settings_language_english))
+                    }
+                    // Hindi
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags("hi"))
+                                showLanguageDialog = false
+                            }
+                            .padding(vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        RadioButton(
+                            selected = currentLangTag == "hi",
+                            onClick = {
+                                AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags("hi"))
+                                showLanguageDialog = false
+                            }
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(stringResource(R.string.settings_language_hindi))
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showLanguageDialog = false }) {
+                    Text(stringResource(R.string.common_cancel))
+                }
+            }
+        )
     }
 
     // Delete confirmation dialog
