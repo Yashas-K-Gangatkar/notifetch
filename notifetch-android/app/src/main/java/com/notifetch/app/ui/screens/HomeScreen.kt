@@ -84,13 +84,14 @@ import com.notifetch.app.ui.theme.getPlatformColor
 import com.notifetch.app.ui.viewmodel.HomeViewModel
 import com.notifetch.app.util.Helpers
 import com.notifetch.app.util.UserMode
+import androidx.compose.ui.res.stringResource
+import com.notifetch.app.R
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun HomeScreen(
     onNavigateToDetail: (Long) -> Unit,
     onNavigateToPermission: () -> Unit,
-    onNavigateToProfile: () -> Unit = {},
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     // SINGLE uiState — no separate collectAsState calls
@@ -99,7 +100,7 @@ fun HomeScreen(
 
     // Check notification listener status and navigate to permission if needed.
     // Uses a flag to prevent navigation loops (BUG #18 cleanup).
-    var hasNavigatedToPermission by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf(false) }
+    var hasNavigatedToPermission by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         val isEnabled = NotiFetchListenerService.isListenerEnabled(context)
@@ -137,20 +138,15 @@ fun HomeScreen(
         ) {
             TopAppBar(
                 title = {
-                    // v2.9.69: App logo (NF squircle) + NotiFetch text, clickable → profile
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.clickable { onNavigateToProfile() }
-                    ) {
-                        // v2.9.70: Use actual app launcher icon image
-                        androidx.compose.foundation.Image(
-                            painter = androidx.compose.ui.res.painterResource(id = com.notifetch.app.R.drawable.ic_launcher_foreground),
-                            contentDescription = "NotiFetch",
-                            modifier = Modifier.size(36.dp)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.NotificationsActive,
+                            contentDescription = null,
+                            tint = Color.White
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "NotiFetch",
+                            text = stringResource(R.string.home_title),
                             fontWeight = FontWeight.Bold,
                             color = Color.White
                         )
@@ -163,20 +159,20 @@ fun HomeScreen(
                             val intent = Intent(Intent.ACTION_SEND).apply {
                                 type = "text/csv"
                                 putExtra(Intent.EXTRA_TEXT, csv)
-                                putExtra(Intent.EXTRA_SUBJECT, "NotiFetch ${uiState.userMode.name} Notifications Export")
+                                putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.home_export_subject, uiState.userMode.name))
                             }
-                            context.startActivity(Intent.createChooser(intent, "Export Notifications"))
+                            context.startActivity(Intent.createChooser(intent, context.getString(R.string.home_export_chooser)))
                         }) {
                             Icon(
                                 imageVector = Icons.Default.FileDownload,
-                                contentDescription = "Export",
+                                contentDescription = stringResource(R.string.home_export_cd),
                                 tint = Color.White
                             )
                         }
                     }
                     if (uiState.unreadCount > 0) {
                         TextButton(onClick = { viewModel.markAllAsRead() }) {
-                            Text("Mark all read", color = Color.White.copy(alpha = 0.9f))
+                            Text(stringResource(R.string.home_mark_all_read), color = Color.White.copy(alpha = 0.9f))
                         }
                     }
                     IconButton(onClick = { viewModel.syncNow() }) {
@@ -190,7 +186,7 @@ fun HomeScreen(
                         )
                         Icon(
                             imageVector = Icons.Default.Sync,
-                            contentDescription = "Sync",
+                            contentDescription = stringResource(R.string.home_sync_cd),
                             tint = Color.White,
                             modifier = Modifier.graphicsLayer {
                                 rotationZ = syncRotation
@@ -219,9 +215,6 @@ fun HomeScreen(
             }
         }
 
-        // ── v2.9.69: Free Premium Countdown ──────────────────────────────
-        FreePremiumCountdown()
-
         // ── Mode Toggle: Rider / Customer ──────────────────────────────────
         Row(
             modifier = Modifier
@@ -248,12 +241,12 @@ fun HomeScreen(
             ) {
                 Icon(
                     imageVector = Icons.Default.DeliveryDining,
-                    contentDescription = "Rider",
+                    contentDescription = stringResource(R.string.home_rider_cd),
                     tint = if (uiState.userMode == UserMode.RIDER) Color.White else Color.Gray
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "Rider",
+                    text = stringResource(R.string.home_rider),
                     fontWeight = FontWeight.Bold,
                     color = if (uiState.userMode == UserMode.RIDER) Color.White else Color.Gray
                 )
@@ -278,58 +271,16 @@ fun HomeScreen(
             ) {
                 Icon(
                     imageVector = Icons.Default.ShoppingBag,
-                    contentDescription = "Customer",
+                    contentDescription = stringResource(R.string.home_customer_cd),
                     tint = if (uiState.userMode == UserMode.CUSTOMER) Color.White else Color.Gray
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "Customer",
+                    text = stringResource(R.string.home_customer),
                     fontWeight = FontWeight.Bold,
                     color = if (uiState.userMode == UserMode.CUSTOMER) Color.White else Color.Gray
                 )
             }
-        }
-
-        // v2.9.72 Phase 3: Quick filter chips
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 4.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            // 🔥 High Value chip
-            androidx.compose.material3.FilterChip(
-                selected = uiState.highValueOnly,
-                onClick = { viewModel.setHighValueOnly(!uiState.highValueOnly) },
-                label = { Text("🔥 High Value", style = MaterialTheme.typography.labelSmall) },
-                modifier = Modifier
-            )
-            // Today chip
-            androidx.compose.material3.FilterChip(
-                selected = uiState.timeFilter == com.notifetch.app.ui.viewmodel.TimeFilter.TODAY,
-                onClick = {
-                    viewModel.setTimeFilter(
-                        if (uiState.timeFilter == com.notifetch.app.ui.viewmodel.TimeFilter.TODAY)
-                            com.notifetch.app.ui.viewmodel.TimeFilter.ALL
-                        else com.notifetch.app.ui.viewmodel.TimeFilter.TODAY
-                    )
-                },
-                label = { Text("Today", style = MaterialTheme.typography.labelSmall) },
-                modifier = Modifier
-            )
-            // This Week chip
-            androidx.compose.material3.FilterChip(
-                selected = uiState.timeFilter == com.notifetch.app.ui.viewmodel.TimeFilter.THIS_WEEK,
-                onClick = {
-                    viewModel.setTimeFilter(
-                        if (uiState.timeFilter == com.notifetch.app.ui.viewmodel.TimeFilter.THIS_WEEK)
-                            com.notifetch.app.ui.viewmodel.TimeFilter.ALL
-                        else com.notifetch.app.ui.viewmodel.TimeFilter.THIS_WEEK
-                    )
-                },
-                label = { Text("This Week", style = MaterialTheme.typography.labelSmall) },
-                modifier = Modifier
-            )
         }
 
         PullToRefreshBox(
@@ -350,17 +301,17 @@ fun HomeScreen(
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         StatCard(
-                            title = if (uiState.userMode == UserMode.RIDER) "Today's Earnings" else "Notifications Today",
+                            title = if (uiState.userMode == UserMode.RIDER) stringResource(R.string.home_today_earnings) else stringResource(R.string.home_notifications_today),
                             value = uiState.todayCount.toString(),
                             icon = Icons.Default.ReceiptLong,
                             subtitle = if (uiState.userMode == UserMode.RIDER)
                                 Helpers.formatCurrency(uiState.todayEarnings)
                             else
-                                "${uiState.unreadCount} unread",
+                                stringResource(R.string.home_unread_count, uiState.unreadCount),
                             modifier = Modifier.weight(1f)
                         )
                         StatCard(
-                            title = if (uiState.userMode == UserMode.RIDER) "Week Earnings" else "Total Captured",
+                            title = if (uiState.userMode == UserMode.RIDER) stringResource(R.string.home_week_earnings) else stringResource(R.string.home_total_captured),
                             value = if (uiState.userMode == UserMode.RIDER)
                                 Helpers.formatCurrency(uiState.weekEarnings)
                             else
@@ -397,7 +348,10 @@ fun HomeScreen(
                                 )
                                 Spacer(modifier = Modifier.width(10.dp))
                                 Text(
-                                    text = "${uiState.unreadCount} unread notification${if (uiState.unreadCount != 1) "s" else ""}",
+                                    text = if (uiState.unreadCount == 1)
+                                        stringResource(R.string.home_unread_notifications_one, uiState.unreadCount)
+                                    else
+                                        stringResource(R.string.home_unread_notifications_many, uiState.unreadCount),
                                     style = MaterialTheme.typography.bodyMedium,
                                     fontWeight = FontWeight.Medium,
                                     color = MaterialTheme.colorScheme.onSurface
@@ -428,7 +382,7 @@ fun HomeScreen(
                         FilterChip(
                             selected = uiState.selectedPlatform == null,
                             onClick = { viewModel.onPlatformFilterChange(null) },
-                            label = { Text("All") },
+                            label = { Text(stringResource(R.string.home_filter_all)) },
                             colors = FilterChipDefaults.filterChipColors(
                                 selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
                                 selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
@@ -464,11 +418,11 @@ fun HomeScreen(
                     item {
                         AnimatedEmptyState(
                             icon = if (uiState.userMode == UserMode.RIDER) Icons.Default.DeliveryDining else Icons.Default.ShoppingBag,
-                            title = if (uiState.userMode == UserMode.RIDER) "No deliveries yet" else "No orders yet",
+                            title = if (uiState.userMode == UserMode.RIDER) stringResource(R.string.home_no_deliveries) else stringResource(R.string.home_no_orders),
                             subtitle = if (uiState.userMode == UserMode.RIDER)
-                                "Notifications from delivery partner apps will appear here once captured"
+                                stringResource(R.string.home_empty_subtitle_rider)
                             else
-                                "Notifications from customer apps will appear here once captured"
+                                stringResource(R.string.home_empty_subtitle_customer)
                         )
                     }
                 } else {
@@ -496,7 +450,7 @@ fun HomeScreen(
                     // Affiliation disclaimer at the bottom of notifications
                     item {
                         Text(
-                            text = "NotiFetch is not affiliated with any delivery platform. Platform names are used for identification only.",
+                            text = stringResource(R.string.home_affiliation_disclaimer),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                             textAlign = TextAlign.Center,
@@ -586,138 +540,6 @@ private fun AnimatedEmptyState(
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
             textAlign = TextAlign.Center
-        )
-    }
-}
-
-/**
- * v2.9.69: Free Premium Countdown
- *
- * Shows a live countdown timer for the 6-month free premium period.
- * End date: December 20, 2026 00:00:00 UTC
- * (6 months from June 20, 2026 — the approximate launch date)
- *
- * Displays: months, days, hours, minutes, seconds — updating every second.
- * When the countdown reaches zero, shows "Premium expired".
- */
-@Composable
-private fun FreePremiumCountdown() {
-    // End date: December 20, 2026 00:00:00 UTC
-    val endDate = remember {
-        java.util.Calendar.getInstance().apply {
-            set(2026, 11, 20, 0, 0, 0)  // January = month 0
-            set(java.util.Calendar.MILLISECOND, 0)
-        }.timeInMillis
-    }
-
-    var remainingMs by remember { mutableStateOf(endDate - System.currentTimeMillis()) }
-
-    // Update every second
-    androidx.compose.runtime.LaunchedEffect(Unit) {
-        while (true) {
-            remainingMs = endDate - System.currentTimeMillis()
-            if (remainingMs <= 0) break
-            kotlinx.coroutines.delay(1000)
-        }
-    }
-
-    if (remainingMs <= 0) {
-        // Premium expired
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 4.dp),
-            shape = RoundedCornerShape(12.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.5f)
-            )
-        ) {
-            Row(
-                modifier = Modifier.padding(12.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text("⏰ Free Premium has ended. Upgrade to continue.", style = MaterialTheme.typography.bodySmall)
-            }
-        }
-        return
-    }
-
-    // Calculate months, days, hours, minutes, seconds
-    val totalSeconds = remainingMs / 1000
-    val months = (totalSeconds / (30 * 24 * 3600)).toInt()
-    val daysAfterMonths = (totalSeconds % (30 * 24 * 3600)).toInt()
-    val days = daysAfterMonths / (24 * 3600)
-    val hours = (daysAfterMonths % (24 * 3600)) / 3600
-    val minutes = (daysAfterMonths % 3600) / 60
-    val seconds = daysAfterMonths % 60
-
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 4.dp),
-        shape = RoundedCornerShape(22.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = "🎉 Free Premium Active",
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFFFF5A1F)
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = "Premium expires in:",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Spacer(modifier = Modifier.height(6.dp))
-
-            // Countdown boxes
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                CountdownUnit(value = months, label = "Months")
-                CountdownUnit(value = days, label = "Days")
-                CountdownUnit(value = hours, label = "Hours")
-                CountdownUnit(value = minutes, label = "Min")
-                CountdownUnit(value = seconds, label = "Sec")
-            }
-        }
-    }
-}
-
-@Composable
-private fun CountdownUnit(value: Int, label: String) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Box(
-            modifier = Modifier
-                .size(40.dp)
-                .clip(RoundedCornerShape(8.dp))
-                .background(Color(0xFFFF5A1F)),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = String.format("%02d", value),
-                fontWeight = FontWeight.Bold,
-                color = Color.White,
-                style = MaterialTheme.typography.titleMedium
-            )
-        }
-        Spacer(modifier = Modifier.height(2.dp))
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }

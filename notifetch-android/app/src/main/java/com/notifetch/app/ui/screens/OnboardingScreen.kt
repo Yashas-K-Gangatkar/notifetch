@@ -43,6 +43,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.notifetch.app.notification.NotiFetchListenerService
 import com.notifetch.app.util.BatteryOptimizationHelper
+import androidx.compose.ui.res.stringResource
+import com.notifetch.app.R
 
 /**
  * v2.9.11: Onboarding Tutorial
@@ -68,33 +70,28 @@ fun OnboardingScreen(
     val pages = listOf(
         OnboardingPage(
             icon = Icons.Default.RocketLaunch,
-            title = "Never Miss a Delivery Order",
-            description = "NotiFetch captures delivery notifications from Swiggy, Zomato, Zepto, Blinkit, and 115+ more apps — " +
-                    "all in one place. No more switching between apps to find your next order.",
+            title = stringResource(R.string.onboarding_title_1),
+            description = stringResource(R.string.onboarding_desc_1),
             gradient = listOf(Color(0xFFFFC107), Color(0xFFFF9800)),
-            buttonText = "Get Started",
+            buttonText = stringResource(R.string.onboarding_get_started),
             action = null
         ),
         OnboardingPage(
             icon = Icons.Default.NotificationsActive,
-            title = "Grant Notification Access",
-            description = "To capture delivery notifications, you need to grant NotiFetch permission to read notifications. " +
-                    "Tap below to open Android Settings → Notification Access → enable NotiFetch.\n\n" +
-                    "We only store notification text you can already see — never passwords, OTPs, or extras bundle data.",
+            title = stringResource(R.string.onboarding_title_2),
+            description = stringResource(R.string.onboarding_desc_2),
             gradient = listOf(Color(0xFF4CAF50), Color(0xFF2E7D32)),
-            buttonText = "Open Notification Settings",
+            buttonText = stringResource(R.string.onboarding_open_settings),
             action = {
                 NotiFetchListenerService.openNotificationSettings(context)
             }
         ),
         OnboardingPage(
             icon = Icons.Default.BatteryFull,
-            title = "Keep NotiFetch Alive",
-            description = "Android may kill NotiFetch in the background to save battery, stopping notification capture. " +
-                    "Tap below to whitelist NotiFetch from battery optimization.\n\n" +
-                    "On Xiaomi/Samsung/OPPO/Vivo, you may also need to enable 'Auto-start' in OEM-specific settings.",
+            title = stringResource(R.string.onboarding_title_3),
+            description = stringResource(R.string.onboarding_desc_3),
             gradient = listOf(Color(0xFF2196F3), Color(0xFF1565C0)),
-            buttonText = "Disable Battery Optimization",
+            buttonText = stringResource(R.string.onboarding_disable_battery),
             action = {
                 if (context is android.app.Activity) {
                     BatteryOptimizationHelper.requestBatteryOptimizationExemption(context)
@@ -198,7 +195,7 @@ fun OnboardingScreen(
                 )
             ) {
                 Text(
-                    text = if (currentPage < totalPages - 1) page.buttonText else "Start Using NotiFetch",
+                    text = if (currentPage < totalPages - 1) page.buttonText else stringResource(R.string.onboarding_start_using),
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp
                 )
@@ -210,11 +207,11 @@ fun OnboardingScreen(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp)
                 ) {
-                    Text("Skip Tutorial")
+                    Text(stringResource(R.string.onboarding_skip))
                 }
             } else {
                 Text(
-                    text = "You can change these permissions anytime in Settings",
+                    text = stringResource(R.string.onboarding_change_anytime),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center

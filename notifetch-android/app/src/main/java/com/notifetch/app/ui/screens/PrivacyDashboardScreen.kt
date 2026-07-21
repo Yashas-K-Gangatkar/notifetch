@@ -57,6 +57,8 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.notifetch.app.ui.viewmodel.SettingsViewModel
 import kotlinx.coroutines.launch
+import androidx.compose.ui.res.stringResource
+import com.notifetch.app.R
 
 /**
  * v2.9.11: Privacy Dashboard
@@ -88,10 +90,10 @@ fun PrivacyDashboardScreen(
             .background(MaterialTheme.colorScheme.background)
     ) {
         TopAppBar(
-            title = { Text("Privacy Dashboard") },
+            title = { Text(stringResource(R.string.privacy_dashboard_title)) },
             navigationIcon = {
                 IconButton(onClick = onNavigateBack) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.common_back))
                 }
             },
             colors = TopAppBarDefaults.topAppBarColors(
@@ -141,13 +143,13 @@ fun PrivacyDashboardScreen(
                     }
                     Spacer(modifier = Modifier.height(12.dp))
                     Text(
-                        text = "Your Data, Your Control",
+                        text = stringResource(R.string.privacy_your_data_your_control),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "NotiFetch is committed to transparency. Here's everything we've collected about you.",
+                        text = stringResource(R.string.privacy_transparency),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = androidx.compose.ui.text.style.TextAlign.Center
@@ -162,17 +164,17 @@ fun PrivacyDashboardScreen(
             ) {
                 StatCard(
                     modifier = Modifier.weight(1f),
-                    label = "Notifications",
+                    label = stringResource(R.string.privacy_notifications_count),
                     value = uiState.notificationsCount.toString()
                 )
                 StatCard(
                     modifier = Modifier.weight(1f),
-                    label = "Unread",
+                    label = stringResource(R.string.privacy_unread),
                     value = uiState.unreadCount.toString()
                 )
                 StatCard(
                     modifier = Modifier.weight(1f),
-                    label = "Data Size",
+                    label = stringResource(R.string.privacy_data_size),
                     value = formatSize(uiState.dataCollectedSizeBytes)
                 )
             }
@@ -184,18 +186,18 @@ fun PrivacyDashboardScreen(
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
-                        text = "What We Store",
+                        text = stringResource(R.string.privacy_what_we_store),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     val items = listOf(
-                        "Notification title, text, bigText, subText (only what you can see)",
-                        "Source app package name (e.g., com.application.zomato)",
-                        "Platform display name (e.g., \"Zomato\")",
-                        "Detected order value, pickup/dropoff locations (parsed from notification text)",
-                        "Timestamp when notification was received",
-                        "User mode (rider vs customer) — used for filtering"
+                        stringResource(R.string.privacy_store_item_1),
+                        stringResource(R.string.privacy_store_item_2),
+                        stringResource(R.string.privacy_store_item_3),
+                        stringResource(R.string.privacy_store_item_4),
+                        stringResource(R.string.privacy_store_item_5),
+                        stringResource(R.string.privacy_store_item_6)
                     )
                     items.forEach { item ->
                         Row(
@@ -226,18 +228,18 @@ fun PrivacyDashboardScreen(
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
-                        text = "What We NEVER Store",
+                        text = stringResource(R.string.privacy_what_we_never_store),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.error
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     val notCollected = listOf(
-                        "Notification extras bundle (may contain OTPs, auth tokens, PII)",
-                        "Delivery platform credentials (we never ask for passwords)",
-                        "Payment information (we never see your credit card / UPI)",
-                        "Your contacts, location, camera, microphone",
-                        "Browser history, SMS messages, call logs"
+                        stringResource(R.string.privacy_never_store_item_1),
+                        stringResource(R.string.privacy_never_store_item_2),
+                        stringResource(R.string.privacy_never_store_item_3),
+                        stringResource(R.string.privacy_never_store_item_4),
+                        stringResource(R.string.privacy_never_store_item_5)
                     )
                     notCollected.forEach { item ->
                         Row(
@@ -270,12 +272,12 @@ fun PrivacyDashboardScreen(
                             // Share JSON via Android share sheet
                             val shareIntent = Intent(Intent.ACTION_SEND).apply {
                                 type = "application/json"
-                                putExtra(Intent.EXTRA_SUBJECT, "NotiFetch - My Data Export.json")
+                                putExtra(Intent.EXTRA_SUBJECT, "NotiFetch - My Data Export.json")  // TODO: i18n — filename, keep as-is
                                 putExtra(Intent.EXTRA_TEXT, json)
                             }
-                            context.startActivity(Intent.createChooser(shareIntent, "Export My Data"))
+                            context.startActivity(Intent.createChooser(shareIntent, context.getString(R.string.privacy_export_my_data_chooser)))
                         } catch (e: Exception) {
-                            Toast.makeText(context, "Export failed: ${e.message}", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, context.getString(R.string.privacy_export_failed, e.message ?: ""), Toast.LENGTH_SHORT).show()
                         }
                     }
                 },
@@ -289,7 +291,7 @@ fun PrivacyDashboardScreen(
             ) {
                 Icon(Icons.Default.Download, contentDescription = null, modifier = Modifier.size(20.dp))
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Export My Data (JSON)", fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.privacy_export_data_json), fontWeight = FontWeight.SemiBold)
             }
 
             // View privacy policy
@@ -305,7 +307,7 @@ fun PrivacyDashboardScreen(
             ) {
                 Icon(Icons.Default.Visibility, contentDescription = null, modifier = Modifier.size(20.dp))
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("View Privacy Policy", fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.privacy_view_policy), fontWeight = FontWeight.SemiBold)
             }
 
             // Delete all data (with confirmation dialog)
@@ -321,14 +323,14 @@ fun PrivacyDashboardScreen(
             ) {
                 Icon(Icons.Default.DeleteForever, contentDescription = null, modifier = Modifier.size(20.dp))
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Delete All My Data", fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.privacy_delete_all), fontWeight = FontWeight.SemiBold)
             }
 
             Spacer(modifier = Modifier.height(32.dp))
 
             // Legal footer
             Text(
-                text = "Compliance: DPDP Act 2023 (India) §§ 8, 9 • GDPR Articles 15, 17, 20",
+                text = stringResource(R.string.privacy_compliance_footer),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.fillMaxWidth(),
@@ -341,12 +343,10 @@ fun PrivacyDashboardScreen(
     if (showDeleteConfirm) {
         AlertDialog(
             onDismissRequest = { showDeleteConfirm = false },
-            title = { Text("Delete ALL Data?", fontWeight = FontWeight.Bold) },
+            title = { Text(stringResource(R.string.privacy_delete_all_title), fontWeight = FontWeight.Bold) },
             text = {
                 Text(
-                    "This will permanently delete all ${uiState.notificationsCount} captured notifications from your device. " +
-                            "This action cannot be undone.\n\n" +
-                            "Server-side data (if any was synced) will also be scheduled for deletion."
+                    stringResource(R.string.privacy_delete_all_text, uiState.notificationsCount)
                 )
             },
             confirmButton = {
@@ -354,16 +354,16 @@ fun PrivacyDashboardScreen(
                     onClick = {
                         viewModel.deleteAllData()
                         showDeleteConfirm = false
-                        Toast.makeText(context, "All data deleted", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, context.getString(R.string.privacy_all_data_deleted), Toast.LENGTH_SHORT).show()
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
                 ) {
-                    Text("Delete Everything")
+                    Text(stringResource(R.string.common_delete_everything))
                 }
             },
             dismissButton = {
                 OutlinedButton(onClick = { showDeleteConfirm = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.common_cancel))
                 }
             }
         )

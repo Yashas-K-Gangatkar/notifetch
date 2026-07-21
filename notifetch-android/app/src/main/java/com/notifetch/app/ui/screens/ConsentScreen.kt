@@ -51,6 +51,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.notifetch.app.data.repository.dataStore
+import androidx.compose.ui.res.stringResource
+import com.notifetch.app.R
 
 /**
  * Consent Screen — shown on first launch BEFORE any data collection.
@@ -98,7 +100,7 @@ fun ConsentScreen(
         // App icon
         Icon(
             imageVector = Icons.Default.NotificationsActive,
-            contentDescription = "NotiFetch",
+            contentDescription = stringResource(R.string.app_name),
             modifier = Modifier.size(64.dp),
             tint = MaterialTheme.colorScheme.primary
         )
@@ -106,7 +108,7 @@ fun ConsentScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "Before You Begin",
+            text = stringResource(R.string.consent_before_you_begin),
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onBackground,
@@ -116,7 +118,7 @@ fun ConsentScreen(
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "NotiFetch needs your informed consent before collecting any data. Please read and accept each statement below.",
+            text = stringResource(R.string.consent_intro),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
@@ -128,8 +130,8 @@ fun ConsentScreen(
         ConsentCard(
             icon = Icons.Default.Security,
             iconTint = MaterialTheme.colorScheme.primary,
-            title = "Data Collection",
-            description = "NotiFetch reads notifications from delivery partner/driver apps using Android's NotificationListenerService API. We collect ONLY:\n• Notification title and text\n• Order value, pickup/dropoff locations, distance\n• Platform name and timestamp\n\nWe NEVER access: banking, social media, personal messages, or any other app notifications.\n\nWe NEVER store: raw notification extras, auth tokens, or data you cannot see in the notification shade.\n\nRetention: Data is stored locally on your device and auto-deleted after 30 days. You can delete it anytime.",
+            title = stringResource(R.string.consent_data_collection_title),
+            description = stringResource(R.string.consent_data_collection_desc),
             checked = consentDataCollection,
             onCheckedChange = { consentDataCollection = it }
         )
@@ -140,8 +142,8 @@ fun ConsentScreen(
         ConsentCard(
             icon = Icons.Default.Shield,
             iconTint = MaterialTheme.colorScheme.error,
-            title = "No Affiliation",
-            description = "NotiFetch is NOT affiliated with, endorsed by, or connected to any delivery platform (Swiggy, Zomato, Uber, DoorDash, Amazon, etc.). Platform names appear in the app for identification purposes only. You can customize any platform name to whatever you prefer.",
+            title = stringResource(R.string.consent_no_affiliation_title),
+            description = stringResource(R.string.consent_no_affiliation_desc),
             checked = consentNoAffiliation,
             onCheckedChange = { consentNoAffiliation = it }
         )
@@ -152,8 +154,8 @@ fun ConsentScreen(
         ConsentCard(
             icon = Icons.Default.Gavel,
             iconTint = MaterialTheme.colorScheme.tertiary,
-            title = "Your Responsibility",
-            description = "You are solely responsible for complying with the terms of service of each delivery platform you use. NotiFetch is a personal notification management tool. We do not encourage or support any violation of platform terms. If a platform prohibits using third-party notification tools, you must decide whether to use NotiFetch for that platform.\n\nIMPORTANT: Delivery platforms CAN detect that a notification listener is active on your device. This is an Android system feature and cannot be hidden. Some platforms may warn or deactivate drivers who use notification reading tools. By continuing, you acknowledge this risk.",
+            title = stringResource(R.string.consent_your_responsibility_title),
+            description = stringResource(R.string.consent_your_responsibility_desc),
             checked = consentUserResponsibility,
             onCheckedChange = { consentUserResponsibility = it }
         )
@@ -164,11 +166,11 @@ fun ConsentScreen(
         ConsentCard(
             icon = Icons.Default.PrivacyTip,
             iconTint = MaterialTheme.colorScheme.secondary,
-            title = "Privacy Policy & Your Rights",
-            description = "You have the right to delete all your data at any time, export your data, and revoke consent. Data is retained for 30 days and then automatically deleted. We follow India DPDP Act 2023 and EU GDPR standards. By continuing, you agree to our Privacy Policy and Terms of Service.",
+            title = stringResource(R.string.consent_privacy_policy_title),
+            description = stringResource(R.string.consent_privacy_policy_desc),
             checked = consentPrivacyPolicy,
             onCheckedChange = { consentPrivacyPolicy = it },
-            linkText = "Read Privacy Policy & Terms",
+            linkText = stringResource(R.string.consent_read_privacy_policy),
             onLinkClick = {
                 val intent = android.content.Intent(
                     android.content.Intent.ACTION_VIEW,
@@ -183,13 +185,13 @@ fun ConsentScreen(
         // Continue button
         Button(
             onClick = {
-                // v2.9.66: persist FIRST, then navigate (was racing before)
+                // Persist consent to DataStore so it's not shown again
                 scope.launch {
                     context.dataStore.edit { prefs ->
                         prefs[CONSENT_GRANTED_KEY] = true
                     }
-                    onConsentGranted()
                 }
+                onConsentGranted()
             },
             enabled = allConsentsGiven,
             modifier = Modifier
@@ -208,7 +210,7 @@ fun ConsentScreen(
             )
             Spacer(modifier = Modifier.padding(horizontal = 8.dp))
             Text(
-                text = "I Agree — Continue",
+                text = stringResource(R.string.consent_i_agree_continue),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold
             )
@@ -224,7 +226,7 @@ fun ConsentScreen(
                 .height(48.dp),
             shape = RoundedCornerShape(12.dp)
         ) {
-            Text("Decline — Exit App")
+            Text(stringResource(R.string.consent_decline_exit))
         }
 
         Spacer(modifier = Modifier.height(16.dp))

@@ -23,13 +23,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.CloudDone
 import androidx.compose.material.icons.filled.CloudOff
 import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.Devices
-import androidx.compose.material3.IconButton
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Gavel
@@ -69,11 +67,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.notifetch.app.BuildConfig
 import com.notifetch.app.ui.viewmodel.ProfileViewModel
 import com.notifetch.app.util.Constants
+import androidx.compose.ui.res.stringResource
+import com.notifetch.app.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
-    onNavigateBack: () -> Unit = {},
     viewModel: ProfileViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -102,15 +101,7 @@ fun ProfileScreen(
                         tint = MaterialTheme.colorScheme.primary
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Profile", fontWeight = FontWeight.Bold)
-                }
-            },
-            navigationIcon = {
-                IconButton(onClick = onNavigateBack) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back"
-                    )
+                    Text(stringResource(R.string.profile_title), fontWeight = FontWeight.Bold)
                 }
             },
             colors = TopAppBarDefaults.topAppBarColors(
@@ -145,9 +136,9 @@ fun ProfileScreen(
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
                     text = when {
-                        uiState.isSignedIn && !uiState.isAnonymous -> uiState.userDisplayName ?: "Signed In"
-                        uiState.isSignedIn && uiState.isAnonymous -> "Connected (Anonymous)"
-                        else -> "Not Signed In"
+                        uiState.isSignedIn && !uiState.isAnonymous -> uiState.userDisplayName ?: stringResource(R.string.profile_signed_in)
+                        uiState.isSignedIn && uiState.isAnonymous -> stringResource(R.string.profile_connected_anonymous)
+                        else -> stringResource(R.string.profile_not_signed_in)
                     },
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
@@ -196,18 +187,18 @@ fun ProfileScreen(
                     Column {
                         Text(
                             text = when {
-                                uiState.isSignedIn && !uiState.isAnonymous -> "Backend Connected"
-                                uiState.isSignedIn && uiState.isAnonymous -> "Connected (Anonymous)"
-                                else -> "Not Connected"
+                                uiState.isSignedIn && !uiState.isAnonymous -> stringResource(R.string.profile_backend_connected)
+                                uiState.isSignedIn && uiState.isAnonymous -> stringResource(R.string.profile_connected_anonymous)
+                                else -> stringResource(R.string.profile_backend_disconnected)
                             },
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.SemiBold
                         )
                         Text(
                             text = when {
-                                uiState.isSignedIn && !uiState.isAnonymous -> "Signed in with Google. Notifications sync across devices."
-                                uiState.isSignedIn && uiState.isAnonymous -> "Connected anonymously. Sign in with Google for full sync."
-                                else -> "Sign in with Google to sync notifications across devices"
+                                uiState.isSignedIn && !uiState.isAnonymous -> stringResource(R.string.profile_signed_in_google_desc)
+                                uiState.isSignedIn && uiState.isAnonymous -> stringResource(R.string.profile_anonymous_desc)
+                                else -> stringResource(R.string.profile_sign_in_with_google_to_sync)
                             },
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -223,16 +214,16 @@ fun ProfileScreen(
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
-                        text = "Device Information",
+                        text = stringResource(R.string.profile_device_info),
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Spacer(modifier = Modifier.height(12.dp))
-                    InfoRow(icon = Icons.Default.Devices, label = "Device ID", value = uiState.deviceId.take(12) + "...")
+                    InfoRow(icon = Icons.Default.Devices, label = stringResource(R.string.profile_device_id), value = uiState.deviceId.take(12) + "...")
                     val userId = uiState.userId
                     if (userId != null) {
-                        InfoRow(icon = Icons.Default.Person, label = "User ID", value = userId.take(12) + "...")
+                        InfoRow(icon = Icons.Default.Person, label = stringResource(R.string.profile_user_id), value = userId.take(12) + "...")
                     }
                 }
             }
@@ -244,14 +235,14 @@ fun ProfileScreen(
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
-                        text = "Your Data Rights",
+                        text = stringResource(R.string.profile_data_rights),
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.primary
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "Under India DPDP Act 2023 and EU GDPR, you have the right to access, export, and delete all your data at any time.",
+                        text = stringResource(R.string.profile_data_rights_desc),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -273,7 +264,7 @@ fun ProfileScreen(
                                 // No browser available
                                 android.widget.Toast.makeText(
                                     context,
-                                    "Please visit ${Constants.BASE_URL} to export your data",
+                                    context.getString(R.string.profile_export_visit_url_toast, Constants.BASE_URL),
                                     android.widget.Toast.LENGTH_LONG
                                 ).show()
                             }
@@ -289,7 +280,7 @@ fun ProfileScreen(
                             modifier = Modifier.size(18.dp)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Export My Data")
+                        Text(stringResource(R.string.profile_export_data))
                     }
 
                     Spacer(modifier = Modifier.height(8.dp))
@@ -311,7 +302,7 @@ fun ProfileScreen(
                             modifier = Modifier.size(18.dp)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Delete All My Data")
+                        Text(stringResource(R.string.profile_delete_all_data))
                     }
                 }
             }
@@ -326,7 +317,7 @@ fun ProfileScreen(
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
-                        text = "Legal",
+                        text = stringResource(R.string.profile_legal),
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.tertiary
@@ -335,8 +326,8 @@ fun ProfileScreen(
 
                     LegalLinkRow(
                         icon = Icons.Default.PrivacyTip,
-                        label = "Privacy Policy",
-                        subtitle = "DPDP Act 2023 & GDPR compliant"
+                        label = stringResource(R.string.profile_privacy_policy),
+                        subtitle = stringResource(R.string.profile_privacy_policy_subtitle)
                     ) {
                         context.startActivity(
                             Intent(Intent.ACTION_VIEW, Uri.parse("${Constants.BASE_URL}privacy"))
@@ -347,8 +338,8 @@ fun ProfileScreen(
 
                     LegalLinkRow(
                         icon = Icons.Default.Gavel,
-                        label = "Terms of Service",
-                        subtitle = "Including platform ToS disclaimer"
+                        label = stringResource(R.string.profile_terms_of_service),
+                        subtitle = stringResource(R.string.profile_terms_subtitle)
                     ) {
                         context.startActivity(
                             Intent(Intent.ACTION_VIEW, Uri.parse("${Constants.BASE_URL}terms"))
@@ -359,8 +350,8 @@ fun ProfileScreen(
 
                     LegalLinkRow(
                         icon = Icons.Default.Shield,
-                        label = "No Affiliation Notice",
-                        subtitle = "NotiFetch is not affiliated with any delivery platform"
+                        label = stringResource(R.string.profile_no_affiliation),
+                        subtitle = stringResource(R.string.profile_no_affiliation_subtitle)
                     ) {
                         context.startActivity(
                             Intent(Intent.ACTION_VIEW, Uri.parse("${Constants.BASE_URL}terms#no-affiliation"))
@@ -376,13 +367,6 @@ fun ProfileScreen(
                     color = MaterialTheme.colorScheme.primary
                 )
             } else if (!uiState.isSignedIn) {
-                // v2.9.68: Made sign-in clearly OPTIONAL
-                Text(
-                    text = "Sign in is optional. NotiFetch works without an account — your notifications stay on your phone. Sign in only if you want to sync to the web dashboard.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
                 // Google Sign-In button
                 Button(
                     onClick = {
@@ -404,7 +388,7 @@ fun ProfileScreen(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Continue with Google (Optional)",
+                        text = stringResource(R.string.profile_continue_with_google),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -431,7 +415,7 @@ fun ProfileScreen(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Sign in with Google",
+                        text = stringResource(R.string.profile_sign_in_with_google),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -453,7 +437,7 @@ fun ProfileScreen(
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Sign Out")
+                    Text(stringResource(R.string.profile_sign_out))
                 }
             } else {
                 // Already signed in with Google — sign out
@@ -470,7 +454,7 @@ fun ProfileScreen(
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Sign Out")
+                    Text(stringResource(R.string.profile_sign_out))
                 }
             }
 
@@ -495,7 +479,7 @@ fun ProfileScreen(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = uiState.error ?: "Unknown error",
+                            text = uiState.error ?: stringResource(R.string.common_unknown_error),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.error
                         )
@@ -516,7 +500,7 @@ fun ProfileScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "NotiFetch",
+                        text = stringResource(R.string.app_name),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary
@@ -528,12 +512,12 @@ fun ProfileScreen(
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "Delivery Driver Notification Aggregator",
+                        text = stringResource(R.string.profile_app_tagline),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
-                        text = "Captures and aggregates notifications from delivery partner apps to help you track earnings and manage orders. Not affiliated with any delivery platform.",
+                        text = stringResource(R.string.profile_app_description),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center
@@ -549,13 +533,10 @@ fun ProfileScreen(
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
-            title = { Text("Delete All Data?") },
+            title = { Text(stringResource(R.string.profile_delete_title)) },
             text = {
                 Text(
-                    "This will permanently delete all your captured notifications from this device " +
-                    "and request deletion from our servers. If you're signed in, your synced data " +
-                    "will also be removed. This action cannot be undone. We recommend exporting " +
-                    "your data first."
+                    stringResource(R.string.profile_delete_text)
                 )
             },
             confirmButton = {
@@ -568,12 +549,12 @@ fun ProfileScreen(
                         contentColor = MaterialTheme.colorScheme.error
                     )
                 ) {
-                    Text("Delete Everything")
+                    Text(stringResource(R.string.common_delete_everything))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDeleteDialog = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.common_cancel))
                 }
             }
         )
@@ -583,9 +564,9 @@ fun ProfileScreen(
     if (showSignOutDialog) {
         AlertDialog(
             onDismissRequest = { showSignOutDialog = false },
-            title = { Text("Sign Out?") },
+            title = { Text(stringResource(R.string.profile_sign_out_title)) },
             text = {
-                Text("You will be signed out of your account. You can sign in again anytime.")
+                Text(stringResource(R.string.profile_sign_out_text))
             },
             confirmButton = {
                 TextButton(
@@ -597,12 +578,12 @@ fun ProfileScreen(
                         contentColor = MaterialTheme.colorScheme.error
                     )
                 ) {
-                    Text("Sign Out")
+                    Text(stringResource(R.string.profile_sign_out))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showSignOutDialog = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.common_cancel))
                 }
             }
         )

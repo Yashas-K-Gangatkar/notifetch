@@ -43,7 +43,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -59,6 +58,8 @@ import com.notifetch.app.ui.components.PlatformIcon
 import com.notifetch.app.ui.theme.getPlatformColor
 import com.notifetch.app.ui.viewmodel.NotificationDetailViewModel
 import com.notifetch.app.util.Helpers
+import androidx.compose.ui.res.stringResource
+import com.notifetch.app.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -77,12 +78,12 @@ fun NotificationDetailScreen(
             .background(MaterialTheme.colorScheme.background)
     ) {
         TopAppBar(
-            title = { Text("Notification Details") },
+            title = { Text(stringResource(R.string.detail_title)) },
             navigationIcon = {
                 IconButton(onClick = onNavigateBack) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back"
+                        contentDescription = stringResource(R.string.common_back)
                     )
                 }
             },
@@ -94,7 +95,7 @@ fun NotificationDetailScreen(
                     }) {
                         Icon(
                             imageVector = Icons.Default.Delete,
-                            contentDescription = "Delete",
+                            contentDescription = stringResource(R.string.detail_delete),
                             tint = MaterialTheme.colorScheme.error
                         )
                     }
@@ -111,15 +112,9 @@ fun NotificationDetailScreen(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("Loading...", style = MaterialTheme.typography.bodyLarge)
+                Text(stringResource(R.string.detail_loading), style = MaterialTheme.typography.bodyLarge)
             }
         } else if (notification == null) {
-            // v2.9.71: Show brief message + auto-navigate back
-            // instead of stranding user on 'not found' screen
-            LaunchedEffect(Unit) {
-                kotlinx.coroutines.delay(1500)
-                onNavigateBack()
-            }
             Column(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.Center,
@@ -133,14 +128,8 @@ fun NotificationDetailScreen(
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    text = "Notification no longer available",
+                    text = stringResource(R.string.detail_not_found),
                     style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "Returning to home...",
-                    style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
@@ -205,19 +194,13 @@ fun NotificationDetailScreen(
                 //   5. Play Store (last resort — app not installed)
                 Button(
                     onClick = {
-                        try {
-                            openSourceApp(
-                                context = context,
-                                packageName = notification.packageName,
-                                displayName = displayPlatformName,
-                                deepLinkUri = notification.deepLinkUri,
-                                deepLinkComponent = notification.deepLinkComponent,
-                                systemNotificationId = notification.systemNotificationId
-                            )
-                        } catch (e: Exception) {
-                            android.util.Log.e("NotiFetchOpen", "Button onClick crashed", e)
-                            Toast.makeText(context, "Error opening app: ${e.message}", Toast.LENGTH_LONG).show()
-                        }
+                        openSourceApp(
+                            context = context,
+                            packageName = notification.packageName,
+                            displayName = displayPlatformName,
+                            deepLinkUri = notification.deepLinkUri,
+                            deepLinkComponent = notification.deepLinkComponent
+                        )
                     },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
@@ -231,7 +214,7 @@ fun NotificationDetailScreen(
                         modifier = Modifier.size(20.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Open $displayPlatformName", fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.detail_open_platform, displayPlatformName), fontWeight = FontWeight.Bold)
                 }
 
                 // ── Quick Actions Row ────────────────────────────────────
@@ -246,18 +229,18 @@ fun NotificationDetailScreen(
                                 append("${notification.title}\n")
                                 if (notification.body.isNotBlank()) append("${notification.body}\n")
                                 if (notification.bigText.isNotBlank()) append("${notification.bigText}\n")
-                                if (notification.orderValue != null) append("Value: ${Helpers.formatCurrency(notification.orderValue, notification.currency)}\n")
-                                append("From: $displayPlatformName")
+                                if (notification.orderValue != null) append(context.getString(R.string.detail_value_prefix, Helpers.formatCurrency(notification.orderValue, notification.currency)) + "\n")
+                                append(context.getString(R.string.detail_from_prefix, displayPlatformName))
                             }
                             clipboardManager.setText(AnnotatedString(textToCopy))
-                            Toast.makeText(context, "Copied to clipboard", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, context.getString(R.string.detail_copied_to_clipboard), Toast.LENGTH_SHORT).show()
                         },
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(12.dp)
                     ) {
                         Icon(Icons.Default.ContentCopy, contentDescription = null, modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text("Copy", style = MaterialTheme.typography.labelMedium)
+                        Text(stringResource(R.string.detail_copy), style = MaterialTheme.typography.labelMedium)
                     }
 
                     // Share
@@ -266,21 +249,21 @@ fun NotificationDetailScreen(
                             val shareText = buildString {
                                 append("${notification.title}\n")
                                 if (notification.body.isNotBlank()) append("${notification.body}\n")
-                                if (notification.orderValue != null) append("Value: ${Helpers.formatCurrency(notification.orderValue, notification.currency)}\n")
-                                append("From: $displayPlatformName")
+                                if (notification.orderValue != null) append(context.getString(R.string.detail_value_prefix, Helpers.formatCurrency(notification.orderValue, notification.currency)) + "\n")
+                                append(context.getString(R.string.detail_from_prefix, displayPlatformName))
                             }
                             val shareIntent = Intent(Intent.ACTION_SEND).apply {
                                 type = "text/plain"
                                 putExtra(Intent.EXTRA_TEXT, shareText)
                             }
-                            context.startActivity(Intent.createChooser(shareIntent, "Share"))
+                            context.startActivity(Intent.createChooser(shareIntent, context.getString(R.string.detail_share_chooser)))
                         },
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(12.dp)
                     ) {
                         Icon(Icons.Default.Share, contentDescription = null, modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text("Share", style = MaterialTheme.typography.labelMedium)
+                        Text(stringResource(R.string.detail_share), style = MaterialTheme.typography.labelMedium)
                     }
                 }
 
@@ -307,7 +290,7 @@ fun NotificationDetailScreen(
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(
-                            text = "Title",
+                            text = stringResource(R.string.detail_title_label),
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -395,7 +378,7 @@ fun NotificationDetailScreen(
                     if (notification.orderValue != null) {
                         InfoDetailCard(
                             icon = Icons.Default.Payments,
-                            label = "Order Value",
+                            label = stringResource(R.string.detail_order_value),
                             value = Helpers.formatCurrency(notification.orderValue, notification.currency),
                             modifier = Modifier.weight(1f)
                         )
@@ -403,7 +386,7 @@ fun NotificationDetailScreen(
                     if (notification.distance != null) {
                         InfoDetailCard(
                             icon = Icons.Default.Straighten,
-                            label = "Distance",
+                            label = stringResource(R.string.detail_distance),
                             value = notification.distance,
                             modifier = Modifier.weight(1f)
                         )
@@ -413,7 +396,7 @@ fun NotificationDetailScreen(
                 // Pickup location
                 if (notification.pickupLocation != null) {
                     LocationCard(
-                        label = "Pickup",
+                        label = stringResource(R.string.detail_pickup),
                         location = notification.pickupLocation,
                         icon = Icons.Default.LocationOn
                     )
@@ -422,7 +405,7 @@ fun NotificationDetailScreen(
                 // Dropoff location
                 if (notification.dropoffLocation != null) {
                     LocationCard(
-                        label = "Drop-off",
+                        label = stringResource(R.string.detail_dropoff),
                         location = notification.dropoffLocation,
                         icon = Icons.Default.LocationOn
                     )
@@ -437,152 +420,88 @@ fun NotificationDetailScreen(
 /**
  * Opens the source app that generated the notification.
  *
- * v2.9.35: 4-tier fallback strategy — each tier guarded by [resolveActivity]
- * pre-check to prevent the silent failures that plagued v2.9.30–v2.9.34.
+ * v2.9.29: CORRECT ORDER — try specific page FIRST, fall back to main screen.
  *
  * When you tap a notification in Android's status bar, the system fires the
  * notification's contentIntent (PendingIntent). This opens the EXACT screen
  * the app intended (offer page, order tracking, etc.).
  *
- * The listener service extracts that Intent's URI (via [Intent.toUri] with
- * [Intent.URI_INTENT_SCHEME]) and persists it as `deepLinkUri`. We also
- * persist the explicit component (`deepLinkComponent`) as a fallback.
+ * We cache that same PendingIntent. By firing it FIRST, we replicate the
+ * exact same behavior as tapping the notification in the status bar.
  *
- * Tier 1: Reconstruct the original Intent from [deepLinkUri] using
- *         [Intent.parseUri] with [Intent.URI_INTENT_SCHEME]. This is the
- *         exact same Intent the source app posted — opens the specific page.
- *
- * Tier 2: If [deepLinkComponent] is set (e.g. "in.swiggy.partner/.HomeActivity"),
- *         build a component-only Intent. Less precise than Tier 1 (no extras,
- *         no action, no data) but still lands on a specific Activity.
- *
- * Tier 3: [PackageManager.getLaunchIntentForPackage] — opens the app's MAIN
- *         screen. Always works if the app is installed. This is the
- *         guaranteed fallback that v2.9.28 confirmed as reliable.
- *
- * Tier 4: Play Store (app not installed).
- *
- * v2.9.47: Removed resolveActivity() pre-checks. On Android 11+ (API 30+),
- * package visibility filtering causes resolveActivity() to return null even
- * when the target activity exists and is launchable. This caused deep links
- * to silently fall through to the main screen (Tier 3) instead of opening
- * the specific order/offer page.
- *
- * The fix: call startActivity() directly and catch ActivityNotFoundException.
- * startActivity() bypasses package visibility filtering for explicit component
- * intents and parsed URI intents — it only throws if the activity truly doesn't
- * exist. This is the correct Android 11+ pattern for deep link resolution.
+ * If the cache is empty (process was killed), we fall back to:
+ *   - Persisted deep link URI (from database)
+ *   - getLaunchIntentForPackage (opens main screen — always works)
+ *   - Play Store (app not installed)
  */
-/**
- * v2.9.60 SECURITY HARDENING: Strip all FLAG_GRANT_* URI permission flags from an Intent.
- *
- * v2.9.59 only stripped flags from the top-level intent — but Intent.parseUri() can
- * produce an intent with a nested [Intent.selector], and the selector can independently
- * carry FLAG_GRANT_* flags. An attacker-controlled URI could put the GRANT flags on the
- * selector to bypass the v2.9.59 fix.
- *
- * This function recursively strips GRANT flags from:
- *   1. The top-level intent
- *   2. The nested selector intent (if any)
- *   3. Any ClipData items (each ClipData item can carry its own URI + grants)
- *
- * It also nulls out ClipData URI permission grants as a defense-in-depth measure.
- *
- * @param intent The Intent to sanitize (modified in place)
- */
-private fun stripGrantFlags(intent: Intent) {
-    // 1) Strip GRANT flags from the top-level intent.
-    val grantMask = (
-        Intent.FLAG_GRANT_READ_URI_PERMISSION or
-        Intent.FLAG_GRANT_WRITE_URI_PERMISSION or
-        Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION or
-        Intent.FLAG_GRANT_PREFIX_URI_PERMISSION
-    ).inv()
-    intent.flags = intent.flags and grantMask
-
-    // 2) Recursively strip from the nested selector intent (if present).
-    //    Selector intents are used by `intent:` URIs that wrap a chooser.
-    @Suppress("DEPRECATION")
-    val selector = intent.selector
-    if (selector != null) {
-        selector.flags = selector.flags and grantMask
-        // Selectors can theoretically have nested selectors too — recurse one level.
-        @Suppress("DEPRECATION")
-        selector.selector?.let { it.flags = it.flags and grantMask }
-    }
-
-    // 3) Strip URI permission grants from ClipData.
-    //    ClipData items can carry URIs that get auto-granted when the intent fires.
-    //    We keep the ClipData (so the receiving app can read text/etc.) but revoke
-    //    the URI grants by removing the GRANT flags from each item's intent.
-    val clipData = intent.clipData
-    if (clipData != null) {
-        for (i in 0 until clipData.itemCount) {
-            val item = clipData.getItemAt(i)
-            item.intent?.let { stripGrantFlags(it) }
-        }
-    }
-}
-
 private fun openSourceApp(
     context: android.content.Context,
     packageName: String,
     displayName: String,
     deepLinkUri: String? = null,
-    deepLinkComponent: String? = null,
-    systemNotificationId: Int? = null
+    deepLinkComponent: String? = null
 ) {
-    val pm = context.packageManager
-    val logTag = "NotiFetchOpen"
-
-    if (packageName.isBlank()) {
-        android.util.Log.e(logTag, "Package name is missing!")
-        return
-    }
-
-    // v2.9.67: SIMPLIFIED — just open the app. No deep link tiers.
-    //
-    // After 6 months of trying to deep-link to specific order pages, we
-    // learned that Android's notification listener API makes this unreliable:
-    //   - PendingIntent tokens get invalidated
-    //   - getActiveNotifications() only works if listener is alive
-    //   - OEM battery kills make listener die randomly
-    //   - Each delivery app handles deep links differently
-    //
-    // For delivery riders, opening the app IS the right action — the app
-    // automatically shows them what they need to do (new order, delivery
-    // update, etc.). They don't need to land on a specific page.
-    //
-    // getLaunchIntentForPackage() is 100% reliable. Every tap opens the app.
-
-    // ── Open the app (main screen) ──
     try {
-        val launchIntent = pm.getLaunchIntentForPackage(packageName)
+        val pm = context.packageManager
+
+        // ── Strategy 1: getLaunchIntentForPackage — opens MAIN SCREEN ──────
+        // v2.9.34: This is NOW Strategy 1 (was Strategy 2).
+        // The cached PendingIntent was "succeeding" without throwing but the
+        // app wasn't actually opening. Then `return` prevented the fallback.
+        // getLaunchIntentForPackage ALWAYS works — confirmed in v2.9.28.
+        var launchIntent = pm.getLaunchIntentForPackage(packageName)
+
+        // Strategy 2b: If null, resolve launcher activity manually
+        if (launchIntent == null) {
+            try {
+                val mainIntent = Intent(Intent.ACTION_MAIN).apply {
+                    addCategory(Intent.CATEGORY_LAUNCHER)
+                    setPackage(packageName)
+                }
+                val resolveInfo = pm.resolveActivity(mainIntent, 0)
+                if (resolveInfo != null) {
+                    launchIntent = Intent(Intent.ACTION_MAIN).apply {
+                        addCategory(Intent.CATEGORY_LAUNCHER)
+                        setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
+                        component = ComponentName(resolveInfo.activityInfo.packageName, resolveInfo.activityInfo.name)
+                    }
+                }
+            } catch (_: Exception) { }
+        }
+
         if (launchIntent != null) {
-            launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            // v2.9.33: If we have a deep link URI that's a regular URL (not serialized Intent),
+            // add it as data — the app MAY open the specific page
+            if (!deepLinkUri.isNullOrBlank() && !deepLinkUri.startsWith("intent:") && !deepLinkUri.startsWith("#Intent;")) {
+                try {
+                    launchIntent.data = Uri.parse(deepLinkUri)
+                } catch (_: Exception) { }
+            }
+            launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
             context.startActivity(launchIntent)
-            android.util.Log.d(logTag, "Opened $packageName → main screen")
+            android.util.Log.d("NotiFetchOpen", "Opened $packageName via launch intent → main screen")
             return
         }
-    } catch (e: Exception) {
-        android.util.Log.w(logTag, "Launch intent failed: ${e.message}")
-    }
 
-    // ── App not installed → Play Store ──
-    android.util.Log.w(logTag, "App $packageName not installed — opening Play Store")
-    Toast.makeText(context, "$displayName not installed", Toast.LENGTH_SHORT).show()
-    try {
-        val playStoreIntent = Intent(Intent.ACTION_VIEW).apply {
-            data = Uri.parse("market://details?id=$packageName")
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        // ── Strategy 3: Play Store (app not installed) ─────────────────────
+        android.util.Log.w("NotiFetchOpen", "App $packageName not installed — opening Play Store")
+        Toast.makeText(context, context.getString(R.string.detail_not_installed, displayName), Toast.LENGTH_SHORT).show()
+        try {
+            val playStoreIntent = Intent(Intent.ACTION_VIEW).apply {
+                data = Uri.parse("market://details?id=$packageName")
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            context.startActivity(playStoreIntent)
+        } catch (_: Exception) {
+            val webIntent = Intent(Intent.ACTION_VIEW).apply {
+                data = Uri.parse("https://play.google.com/store/apps/details?id=$packageName")
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            context.startActivity(webIntent)
         }
-        context.startActivity(playStoreIntent)
-    } catch (_: Exception) {
-        val webIntent = Intent(Intent.ACTION_VIEW).apply {
-            data = Uri.parse("https://play.google.com/store/apps/details?id=$packageName")
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        }
-        context.startActivity(webIntent)
+    } catch (e: Exception) {
+        android.util.Log.e("NotiFetchOpen", "Failed to open $packageName", e)
+        Toast.makeText(context, context.getString(R.string.detail_could_not_open, displayName), Toast.LENGTH_SHORT).show()
     }
 }
 @Composable

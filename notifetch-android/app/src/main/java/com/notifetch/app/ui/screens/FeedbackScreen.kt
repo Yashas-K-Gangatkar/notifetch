@@ -25,6 +25,8 @@ import com.notifetch.app.BuildConfig
 import com.notifetch.app.notification.NotiFetchListenerService
 import com.notifetch.app.ui.viewmodel.HomeViewModel
 import kotlinx.coroutines.launch
+import androidx.compose.ui.res.stringResource
+import com.notifetch.app.R
 
 /**
  * v2.9.16: In-App Feedback System
@@ -69,10 +71,10 @@ fun FeedbackScreen(
             .background(MaterialTheme.colorScheme.background)
     ) {
         TopAppBar(
-            title = { Text("Send Feedback") },
+            title = { Text(stringResource(R.string.feedback_title)) },
             navigationIcon = {
                 IconButton(onClick = onNavigateBack) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.common_back))
                 }
             },
             colors = TopAppBarDefaults.topAppBarColors(
@@ -89,7 +91,7 @@ fun FeedbackScreen(
         ) {
             // Feedback type selector
             Text(
-                "What kind of feedback?",
+                stringResource(R.string.feedback_kind_question),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold
             )
@@ -100,21 +102,21 @@ fun FeedbackScreen(
             ) {
                 FeedbackTypeChip(
                     icon = Icons.Default.BugReport,
-                    label = "Bug Report",
+                    label = stringResource(R.string.feedback_bug_report),
                     selected = feedbackType == FeedbackType.BUG,
                     onClick = { feedbackType = FeedbackType.BUG },
                     modifier = Modifier.weight(1f)
                 )
                 FeedbackTypeChip(
                     icon = Icons.Default.Lightbulb,
-                    label = "Feature Request",
+                    label = stringResource(R.string.feedback_feature_request),
                     selected = feedbackType == FeedbackType.FEATURE,
                     onClick = { feedbackType = FeedbackType.FEATURE },
                     modifier = Modifier.weight(1f)
                 )
                 FeedbackTypeChip(
                     icon = Icons.Default.Feedback,
-                    label = "General",
+                    label = stringResource(R.string.feedback_general),
                     selected = feedbackType == FeedbackType.GENERAL,
                     onClick = { feedbackType = FeedbackType.GENERAL },
                     modifier = Modifier.weight(1f)
@@ -127,9 +129,9 @@ fun FeedbackScreen(
                 onValueChange = { message = it },
                 label = {
                     Text(when (feedbackType) {
-                        FeedbackType.BUG -> "Describe the bug (what happened, what you expected)"
-                        FeedbackType.FEATURE -> "What feature would you like?"
-                        FeedbackType.GENERAL -> "Your feedback"
+                        FeedbackType.BUG -> stringResource(R.string.feedback_bug_label)
+                        FeedbackType.FEATURE -> stringResource(R.string.feedback_feature_label)
+                        FeedbackType.GENERAL -> stringResource(R.string.feedback_general_label)
                     })
                 },
                 modifier = Modifier
@@ -137,7 +139,7 @@ fun FeedbackScreen(
                     .heightIn(min = 120.dp),
                 shape = RoundedCornerShape(12.dp),
                 supportingText = {
-                    Text("${message.length} characters")
+                    Text(stringResource(R.string.feedback_characters_count, message.length))
                 }
             )
 
@@ -152,9 +154,9 @@ fun FeedbackScreen(
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("Include diagnostic info", style = MaterialTheme.typography.bodyMedium)
+                    Text(stringResource(R.string.feedback_include_diagnostic), style = MaterialTheme.typography.bodyMedium)
                     Text(
-                        "Device model, Android version, app version, listener status — helps us debug faster",
+                        stringResource(R.string.feedback_diagnostic_desc),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -201,7 +203,7 @@ fun FeedbackScreen(
                         putExtra(Intent.EXTRA_SUBJECT, subject)
                         putExtra(Intent.EXTRA_TEXT, fullMessage)
                     }
-                    context.startActivity(Intent.createChooser(intent, "Send Feedback"))
+                    context.startActivity(Intent.createChooser(intent, context.getString(R.string.feedback_send)))
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -214,22 +216,10 @@ fun FeedbackScreen(
             ) {
                 Icon(Icons.Default.Send, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Send Feedback", fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.feedback_send), fontWeight = FontWeight.SemiBold)
             }
 
-            // v2.9.71: Visible explanation so user knows what will happen
-            Text(
-                text = "When you tap Send via WhatsApp, your description will be copied to your clipboard. Open the NotiFetch group and paste it there.",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(vertical = 4.dp)
-            )
-
-            // v2.9.69: Send via WhatsApp — opens NotiFetch group DIRECTLY
-            // Copies message to clipboard, then opens the group invite link.
-            // WhatsApp opens the group (if user is a member), user pastes message.
-            // This is the ONLY way to open a specific WhatsApp group from an app —
-            // WhatsApp doesn't support deep-linking to groups with pre-filled text.
+            // Alternative: WhatsApp
             OutlinedButton(
                 onClick = {
                     val subject = when (feedbackType) {
@@ -238,28 +228,10 @@ fun FeedbackScreen(
                         FeedbackType.GENERAL -> "📝 FEEDBACK"
                     }
                     val fullMessage = "$subject: $message\n\n$diagnosticInfo"
-
-                    // Copy message to clipboard
-                    val clipboard = context.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
-                    clipboard.setPrimaryClip(android.content.ClipData.newPlainText("NotiFetch Feedback", fullMessage))
-
-                    // Show toast telling user to paste
-                    android.widget.Toast.makeText(
-                        context,
-                        "Message copied! Paste it in the NotiFetch group.",
-                        android.widget.Toast.LENGTH_LONG
-                    ).show()
-
-                    // Open the NotiFetch WhatsApp group directly
-                    val groupIntent = Intent(Intent.ACTION_VIEW).apply {
-                        data = android.net.Uri.parse("https://chat.whatsapp.com/IHYTQwoyu8hDiXg3MRgWko")
-                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    val intent = Intent(Intent.ACTION_VIEW).apply {
+                        data = android.net.Uri.parse("https://wa.me/919000000000?text=${java.net.URLEncoder.encode(fullMessage, "UTF-8")}")
                     }
-                    try {
-                        context.startActivity(groupIntent)
-                    } catch (_: Exception) {
-                        android.widget.Toast.makeText(context, "Cannot open WhatsApp", android.widget.Toast.LENGTH_SHORT).show()
-                    }
+                    context.startActivity(intent)
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -267,7 +239,7 @@ fun FeedbackScreen(
                 shape = RoundedCornerShape(12.dp),
                 enabled = message.isNotBlank()
             ) {
-                Text("Send via WhatsApp")
+                Text(stringResource(R.string.feedback_send_whatsapp))
             }
 
             Spacer(modifier = Modifier.height(32.dp))

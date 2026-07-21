@@ -1,70 +1,355 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">NotiFetch</string>
-    <string name="app_name_long">NotiFetch - डिलीवरी नोटिफिकेशन एग्रीगेटर</string>
-    <string name="notification_listener_label">NotiFetch नोटिफिकेशन लिसनर</string>
+    <string name="app_name_long">NotiFetch - डिलीवरी सूचना एग्रीगेटर</string>
+    <string name="notification_listener_label">NotiFetch सूचना श्रोता</string>
     <string name="notification_channel_name">NotiFetch सेवा</string>
-    <string name="notification_channel_description">डिलीवरी पार्टनर नोटिफिकेशन कैप्चर करने के लिए बैकग्राउंड सेवा</string>
+    <string name="notification_channel_description">डिलीवरी पार्टनर सूचनाएं कैप्चर करने के लिए बैकग्राउंड सेवा</string>
 
-    <!-- Permission screen -->
-    <string name="permission_title">नोटिफिकेशन एक्सेस चालू करें</string>
-    <string name="permission_description">NotiFetch को डिलीवरी पार्टनर नोटिफिकेशन कैप्चर करने के लिए नोटिफिकेशन एक्सेस चाहिए।</string>
+    <!-- ============ Common strings shared across screens ============ -->
+    <string name="common_back">वापस</string>
+    <string name="common_cancel">रद्द करें</string>
+    <string name="common_save">सहेजें</string>
+    <string name="common_reset">रीसेट करें</string>
+    <string name="common_delete_everything">सब कुछ हटाएं</string>
+    <string name="common_unknown_error">अज्ञात त्रुटि</string>
+    <string name="common_completed">पूर्ण</string>
+    <string name="common_good">ठीक</string>
+    <string name="common_warning">चेतावनी</string>
+    <string name="common_critical">गंभीर</string>
+
+    <!-- ============ Permission screen ============ -->
+    <string name="permission_title">सूचना एक्सेस सक्षम करें</string>
+    <string name="permission_description">NotiFetch को डिलीवरी पार्टनर सूचनाएं कैप्चर करने और आपकी कमाई ट्रैक करने के लिए सूचना एक्सेस की आवश्यकता है।</string>
+    <string name="permission_description_long">NotiFetch को डिलीवरी पार्टनर सूचनाएं कैप्चर करने और सभी प्लेटफार्मों पर अपनी कमाई ट्रैक करने के लिए सूचना एक्सेस की आवश्यकता है।</string>
     <string name="permission_step_1">नीचे दिए गए \"सेटिंग्स खोलें\" बटन पर टैप करें</string>
-    <string name="permission_step_2">नोटिफिकेशन एक्सेस लिस्ट में \"NotiFetch\" खोजें</string>
-    <string name="permission_step_3">नोटिफिकेशन एक्सेस के लिए स्विच ON करें</string>
-    <string name="permission_step_4">\"अनुमति दें\" पर टैप करके पुष्टि करें</string>
+    <string name="permission_step_2">सूचना एक्सेस सूची में \"NotiFetch\" ढूंढें</string>
+    <string name="permission_step_3">सूचना एक्सेस की अनुमति देने के लिए स्विच को ON करें</string>
+    <string name="permission_step_4">संवाद पर \"अनुमति दें\" पर टैप करके पुष्टि करें</string>
     <string name="permission_step_5">NotiFetch पर लौटें — सब तैयार है!</string>
-    <string name="permission_open_settings">नोटिफिकेशन सेटिंग्स खोलें</string>
-    <string name="permission_alt_settings">वैकल्पिक: ऐप नोटिफिकेशन सेटिंग्स</string>
-    <string name="permission_privacy_note">NotiFetch केवल डिलीवरी पार्टनर ऐप्स के नोटिफिकेशन पढ़ता है। आपके व्यक्तिगत संदेश और अन्य ऐप नोटिफिकेशन कभी एक्सेस नहीं किए जाते।</string>
-    <string name="permission_enabled">नोटिफिकेशन एक्सेस चालू है! आप सब तैयार हैं।</string>
+    <string name="permission_open_settings">सूचना सेटिंग्स खोलें</string>
+    <string name="permission_alt_settings">वैकल्पिक: ऐप सूचना सेटिंग्स</string>
+    <string name="permission_privacy_note">NotiFetch केवल डिलीवरी पार्टनर ऐप्स की सूचनाएं पढ़ता है। आपके व्यक्तिगत संदेश और अन्य ऐप सूचनाएं कभी एक्सेस नहीं की जातीं।</string>
+    <string name="permission_enabled">सूचना एक्सेस सक्षम है! आप पूरी तरह तैयार हैं।</string>
+    <string name="permission_setup_instructions">सेटअप निर्देश</string>
+    <string name="permission_what_we_read">हम क्या पढ़ते हैं</string>
+    <string name="permission_what_we_read_desc">केवल 55+ सत्यापित डिलीवरी पार्टनर/ड्राइवर ऐप्स की सूचनाएं। हम निकालते हैं: शीर्षक, पाठ, ऑर्डर मूल्य, पिकअप/ड्रॉपऑफ स्थान और दूरी। यह वह डेटा है जो आप अपनी स्क्रीन पर पहले से देख सकते हैं।</string>
+    <string name="permission_what_we_never_access">हम कभी एक्सेस नहीं करते</string>
+    <string name="permission_what_we_never_access_desc">बैंकिंग ऐप्स, सोशल मीडिया, व्यक्तिगत संदेश, WhatsApp, SMS, ईमेल, या हमारी डिलीवरी पार्टनर सूची में नहीं हैं वैसे कोई भी ऐप। हम कभी क्रेडेंशियल, ऑथ टोकन, या कच्चे नोटिफिकेशन एक्स्ट्रा स्टोर नहीं करते।</string>
+    <string name="permission_legal_notice">कानूनी नोटिस</string>
+    <string name="permission_legal_notice_desc">NotiFetch किसी भी डिलीवरी प्लेटफॉर्म से संबद्ध नहीं है। प्लेटफॉर्म नाम केवल पहचान के लिए उपयोग किए जाते हैं (आप इन्हें अनुकूलित कर सकते हैं)। आप प्रत्येक प्लेटफॉर्म की सेवा शर्तों का पालन करने के लिए जिम्मेदार हैं। सूचना एक्सेस सक्षम करके, आप हमारी गोपनीयता नीति में वर्णित अनुसार डेटा संग्रह के लिए सहमत होते हैं।</string>
 
-    <!-- Home screen -->
+    <!-- ============ Consent screen ============ -->
+    <string name="consent_before_you_begin">शुरू करने से पहले</string>
+    <string name="consent_intro">NotiFetch को कोई भी डेटा एकत्र करने से पहले आपकी सूचित सहमति चाहिए। कृपया नीचे दिए गए प्रत्येक कथन को पढ़ें और स्वीकार करें।</string>
+    <string name="consent_data_collection_title">डेटा संग्रह</string>
+    <string name="consent_data_collection_desc">NotiFetch Android के NotificationListenerService API का उपयोग करके डिलीवरी पार्टनर/ड्राइवर ऐप्स की सूचनाएं पढ़ता है। हम केवल यह संग्रह करते हैं:\n• सूचना शीर्षक और पाठ\n• ऑर्डर मूल्य, पिकअप/ड्रॉपऑफ स्थान, दूरी\n• प्लेटफॉर्म नाम और टाइमस्टैम्प\n\nहम कभी एक्सेस नहीं करते: बैंकिंग, सोशल मीडिया, व्यक्तिगत संदेश, या कोई अन्य ऐप सूचनाएं।\n\nहम कभी स्टोर नहीं करते: कच्चे नोटिफिकेशन एक्स्ट्रा, ऑथ टोकन, या वह डेटा जिसे आप सूचना पैनल में नहीं देख सकते।\n\nप्रतिधारण: डेटा आपके डिवाइस पर लोकल रूप से स्टोर किया जाता है और 30 दिनों के बाद स्वतः हट जाता है। आप इसे कभी भी हटा सकते हैं।</string>
+    <string name="consent_no_affiliation_title">कोई संबद्धता नहीं</string>
+    <string name="consent_no_affiliation_desc">NotiFetch किसी भी डिलीवरी प्लेटफॉर्म (Swiggy, Zomato, Uber, DoorDash, Amazon, आदि) से संबद्ध, समर्थित, या जुड़ा हुआ नहीं है। प्लेटफॉर्म नाम केवल पहचान के लिए ऐप में दिखाई देते हैं। आप किसी भी प्लेटफॉर्म का नाम अपनी पसंद के अनुसार बदल सकते हैं।</string>
+    <string name="consent_your_responsibility_title">आपकी जिम्मेदारी</string>
+    <string name="consent_your_responsibility_desc">आप अपने द्वारा उपयोग किए जाने वाले प्रत्येक डिलीवरी प्लेटफॉर्म की सेवा शर्तों का पालन करने के लिए पूरी तरह जिम्मेदार हैं। NotiFetch एक व्यक्तिगत सूचना प्रबंधन उपकरण है। हम प्लेटफॉर्म शर्तों के किसी भी उल्लंघन को प्रोत्साहित या समर्थन नहीं करते। यदि कोई प्लेटफॉर्म तृतीय-पक्ष सूचना टूल का उपयोग करने पर रोक लगाता है, तो आपको तय करना होगा कि उस प्लेटफॉर्म के लिए NotiFetch का उपयोग करना है या नहीं।\n\nमहत्वपूर्ण: डिलीवरी प्लेटफॉर्म यह पता लगा सकते हैं कि आपके डिवाइस पर सूचना श्रोता सक्रिय है। यह एक Android सिस्टम फीचर है और छिपाया नहीं जा सकता। कुछ प्लेटफॉर्म सूचना पढ़ने वाले टूल का उपयोग करने वाले ड्राइवरों को चेतावनी दे सकते हैं या निष्क्रिय कर सकते हैं। जारी रखकर, आप इस जोखिम को स्वीकार करते हैं।</string>
+    <string name="consent_privacy_policy_title">गोपनीयता नीति और आपके अधिकार</string>
+    <string name="consent_privacy_policy_desc">आपके पास कभी भी अपना सारा डेटा हटाने, अपना डेटा निर्यात करने, और सहमति वापस लेने का अधिकार है। डेटा 30 दिनों के लिए रखा जाता है और फिर स्वतः हट जाता है। हम भारत DPDP अधिनियम 2023 और ईयू GDPR मानकों का पालन करते हैं। जारी रखकर, आप हमारी गोपनीयता नीति और सेवा की शर्तों से सहमत होते हैं।</string>
+    <string name="consent_read_privacy_policy">गोपनीयता नीति और शर्तें पढ़ें</string>
+    <string name="consent_i_agree_continue">मैं सहमत हूं — जारी रखें</string>
+    <string name="consent_decline_exit">अस्वीकार — ऐप से बाहर निकलें</string>
+
+    <!-- ============ Home screen ============ -->
     <string name="home_title">NotiFetch</string>
-    <string name="home_empty_title">अभी कोई नोटिफिकेशन नहीं</string>
-    <string name="home_empty_subtitle">डिलीवरी पार्टनर ऐप्स के नोटिफिकेशन यहां दिखेंगे</string>
+    <string name="home_empty_title">अभी तक कोई सूचना नहीं</string>
+    <string name="home_empty_subtitle">डिलीवरी पार्टनर ऐप्स से सूचनाएं यहां दिखाई देंगी</string>
     <string name="home_mark_all_read">सभी पढ़ा हुआ चिह्नित करें</string>
-    <string name="home_search_placeholder">नोटिफिकेशन खोजें…</string>
+    <string name="home_search_placeholder">सूचनाएं खोजें…</string>
     <string name="home_today">आज</string>
     <string name="home_this_week">इस सप्ताह</string>
     <string name="home_filter_all">सभी</string>
+    <string name="home_export_cd">निर्यात करें</string>
+    <string name="home_export_subject">NotiFetch %1$s सूचनाएं निर्यात</string>
+    <string name="home_export_chooser">सूचनाएं निर्यात करें</string>
+    <string name="home_sync_cd">सिंक करें</string>
+    <string name="home_rider_cd">राइडर</string>
+    <string name="home_rider">राइडर</string>
+    <string name="home_customer_cd">ग्राहक</string>
+    <string name="home_customer">ग्राहक</string>
+    <string name="home_today_earnings">आज की कमाई</string>
+    <string name="home_notifications_today">आज की सूचनाएं</string>
+    <string name="home_unread_count">%1$d अपठित</string>
+    <string name="home_week_earnings">सप्ताह की कमाई</string>
+    <string name="home_total_captured">कुल कैप्चर की गई</string>
+    <string name="home_unread_notifications_one">%1$d अपठित सूचना</string>
+    <string name="home_unread_notifications_many">%1$d अपठित सूचनाएं</string>
+    <string name="home_no_deliveries">अभी तक कोई डिलीवरी नहीं</string>
+    <string name="home_no_orders">अभी तक कोई ऑर्डर नहीं</string>
+    <string name="home_empty_subtitle_rider">डिलीवरी पार्टनर ऐप्स से सूचनाएं कैप्चर होने के बाद यहां दिखाई देंगी</string>
+    <string name="home_empty_subtitle_customer">ग्राहक ऐप्स से सूचनाएं कैप्चर होने के बाद यहां दिखाई देंगी</string>
+    <string name="home_affiliation_disclaimer">NotiFetch किसी भी डिलीवरी प्लेटफॉर्म से संबद्ध नहीं है। प्लेटफॉर्म नाम केवल पहचान के लिए उपयोग किए जाते हैं।</string>
 
-    <!-- Settings screen -->
+    <!-- ============ Settings screen ============ -->
     <string name="settings_title">सेटिंग्स</string>
-    <string name="settings_notification_listener">नोटिफिकेशन लिसनर</string>
-    <string name="settings_listener_active">सक्रिय — नोटिफिकेशन कैप्चर हो रहे हैं</string>
-    <string name="settings_listener_disabled">बंद — चालू करने के लिए टैप करें</string>
+    <string name="settings_notification_listener">सूचना श्रोता</string>
+    <string name="settings_listener_active">सक्रिय — सूचनाएं कैप्चर हो रही हैं</string>
+    <string name="settings_listener_disabled">अक्षम — सक्षम करने के लिए टैप करें</string>
     <string name="settings_general">सामान्य</string>
     <string name="settings_dark_mode">डार्क मोड</string>
     <string name="settings_dark_mode_desc">डार्क/लाइट थीम टॉगल करें</string>
     <string name="settings_auto_sync">ऑटो सिंक</string>
-    <string name="settings_auto_sync_desc">नोटिफिकेशन सर्वर पर सिंक करें</string>
-    <string name="settings_platform_filters">प्लेटफॉर्म फिल्टर</string>
-    <string name="settings_platform_filters_desc">किन डिलीवरी पार्टनर ऐप्स को मॉनिटर करना है चुनें</string>
+    <string name="settings_auto_sync_desc">हर %1$d मिनट में सर्वर पर सूचनाएं सिंक करें</string>
+    <string name="settings_platform_filters">प्लेटफॉर्म फ़िल्टर</string>
+    <string name="settings_platform_filters_desc">चुनें कि किन डिलीवरी पार्टनर ऐप्स की निगरानी करनी है</string>
+    <string name="settings_tap_for_updates">Play Store पर अपडेट चेक करने के लिए टैप करें</string>
+    <string name="settings_listener_health_check">श्रोता हेल्थ चेक</string>
+    <string name="settings_send_feedback">फ़ीडबैक भेजें</string>
+    <string name="settings_platform_names">प्लेटफॉर्म नाम</string>
+    <string name="settings_platform_names_disclaimer">आसान पहचान के लिए डिफ़ॉल्ट नाम वास्तविक ब्रांड नामों का उपयोग करते हैं। आप किसी भी प्लेटफॉर्म का नाम अपनी पसंद के अनुसार बदल सकते हैं — यह आपकी पसंद है। अनुकूलित करने के लिए संपादन आइकन पर टैप करें।</string>
+    <string name="settings_category_summary">%1$d सक्षम · %2$d प्लेटफॉर्म</string>
+    <string name="settings_collapse">संक्षिप्त करें</string>
+    <string name="settings_expand">विस्तार करें</string>
+    <string name="settings_privacy_note">NotiFetch केवल ऊपर सूचीबद्ध डिलीवरी पार्टनर ऐप्स की सूचनाएं पढ़ता है। व्यक्तिगत संदेश, सोशल मीडिया और अन्य ऐप सूचनाएं कभी एक्सेस या स्टोर नहीं की जातीं।</string>
+    <string name="settings_about">परिचय</string>
+    <string name="settings_app_version">ऐप संस्करण</string>
+    <string name="settings_check_for_updates">अपडेट चेक करें</string>
+    <string name="settings_check_for_updates_desc">नवीनतम संस्करण के लिए Play Store खोलें</string>
+    <string name="settings_account">खाता</string>
+    <string name="settings_not_signed_in">साइन इन नहीं है</string>
+    <string name="settings_not_signed_in_desc">ऐप बिना लॉगिन के काम करता है — आपकी सूचनाएं आपके डिवाइस पर कैप्चर और स्टोर की जाती हैं। डिवाइस में सिंक करने और कमाई ट्रैक करने के लिए notifetch.in पर साइन इन करें।</string>
+    <string name="settings_signing_in">साइन इन हो रहा है…</string>
+    <string name="settings_legal_disclaimer">कानूनी अस्वीकरण</string>
+    <string name="settings_legal_disclaimer_text">NotiFetch एक स्वतंत्र सूचना एग्रीगेशन टूल है। NotiFetch किसी भी डिलीवरी प्लेटफॉर्म, रेस्टोरेंट, या ब्रांड से संबद्ध, समर्थित, या साझेदारी में नहीं है। सभी ट्रेडमार्क उनके संबंधित स्वामियों के हैं। दिखाए गए प्लेटफॉर्म नाम सामान्य हैं और उपयोगकर्ता द्वारा अनुकूलित किए जा सकते हैं। NotiFetch केवल उपयोगकर्ता को दिखाई देने वाली सूचना सामग्री को पढ़ता है — यह क्रेडेंशियल, OTP, या भुगतान जानकारी एक्सेस नहीं करता।</string>
+    <string name="settings_delete_text">यह इस डिवाइस से आपकी सभी कैप्चर की गई सूचनाओं को स्थायी रूप से हटा देगा और हमारे सर्वर से हटाने का अनुरोध करेगा। यह क्रिया पूर्ववत नहीं की जा सकती। हम पहले अपना डेटा निर्यात करने की सलाह देते हैं।</string>
+    <string name="settings_sign_out_text">आप साइन आउट हो जाएंगे। आप कभी भी फिर से साइन इन कर सकते हैं।</string>
+    <string name="settings_custom_badge">कस्टम</string>
+    <string name="settings_default_label">डिफ़ॉल्ट: %1$s</string>
+    <string name="settings_captured_count">%1$d कैप्चर की गई • %2$s</string>
+    <string name="settings_captured_count_no_time">%1$d कैप्चर की गई</string>
+    <string name="settings_never">कभी नहीं</string>
+    <string name="settings_rename_cd">नाम बदलें</string>
+    <string name="settings_rename_platform_title">प्लेटफॉर्म का नाम बदलें</string>
+    <string name="settings_rename_text">चुनें कि \"%1$s\" आपके ऐप में कैसे दिखे। आप ब्रांड नाम, शॉर्ट कोड, या अपनी पसंद का कुछ भी उपयोग कर सकते हैं।</string>
+    <string name="settings_display_name">प्रदर्शन नाम</string>
+    <string name="settings_rename_disclaimer">यह आपकी व्यक्तिगत पसंद है। NotiFetch किसी भी डिलीवरी प्लेटफॉर्म से संबद्ध नहीं है।</string>
 
-    <!-- Profile screen -->
-    <string name="profile_title">प्रोफाइल</string>
+    <!-- ============ Profile screen ============ -->
+    <string name="profile_title">प्रोफ़ाइल</string>
     <string name="profile_connected">कनेक्टेड</string>
+    <string name="profile_signed_in">साइन इन है</string>
     <string name="profile_not_signed_in">साइन इन नहीं है</string>
     <string name="profile_backend_connected">बैकएंड कनेक्टेड</string>
-    <string name="profile_backend_disconnected">कनेक्ट नहीं है</string>
+    <string name="profile_backend_disconnected">कनेक्टेड नहीं है</string>
+    <string name="profile_connected_anonymous">कनेक्टेड (अनाम)</string>
     <string name="profile_sign_in">अनाम रूप से साइन इन करें</string>
     <string name="profile_re_authenticate">पुनः प्रमाणित करें</string>
+    <string name="profile_signed_in_google_desc">Google से साइन इन है। सूचनाएं डिवाइस में सिंक होती हैं।</string>
+    <string name="profile_anonymous_desc">अनाम रूप से कनेक्टेड। पूर्ण सिंक के लिए Google से साइन इन करें।</string>
+    <string name="profile_anonymous_desc_short">अनाम रूप से कनेक्टेड। पूर्ण सिंक के लिए साइन इन करें।</string>
+    <string name="profile_sign_in_to_sync">डिवाइस में सूचनाएं सिंक करने के लिए साइन इन करें</string>
+    <string name="profile_sign_in_with_google_to_sync">डिवाइस में सूचनाएं सिंक करने के लिए Google से साइन इन करें</string>
+    <string name="profile_device_info">डिवाइस जानकारी</string>
+    <string name="profile_device_id">डिवाइस ID</string>
+    <string name="profile_user_id">यूज़र ID</string>
+    <string name="profile_data_rights">आपके डेटा अधिकार</string>
+    <string name="profile_data_rights_desc">भारत DPDP अधिनियम 2023 और ईयू GDPR के तहत, आपके पास कभी भी अपने सभी डेटा तक पहुंचने, निर्यात करने और हटाने का अधिकार है।</string>
+    <string name="profile_export_data">मेरा डेटा निर्यात करें</string>
+    <string name="profile_delete_all_data">मेरा सारा डेटा हटाएं</string>
+    <string name="profile_legal">कानूनी</string>
+    <string name="profile_privacy_policy">गोपनीयता नीति</string>
+    <string name="profile_privacy_policy_subtitle">DPDP अधिनियम 2023 और GDPR अनुपालन</string>
+    <string name="profile_terms_of_service">सेवा की शर्तें</string>
+    <string name="profile_terms_subtitle">प्लेटफॉर्म ToS अस्वीकरण सहित</string>
+    <string name="profile_no_affiliation">कोई संबद्धता नोटिस नहीं</string>
+    <string name="profile_no_affiliation_subtitle">NotiFetch किसी भी डिलीवरी प्लेटफॉर्म से संबद्ध नहीं है</string>
+    <string name="profile_continue_with_google">Google के साथ जारी रखें</string>
+    <string name="profile_sign_in_with_google">Google से साइन इन करें</string>
+    <string name="profile_sign_out">साइन आउट</string>
+    <string name="profile_sign_out_title">साइन आउट करें?</string>
+    <string name="profile_sign_out_text">आप अपने खाते से साइन आउट हो जाएंगे। आप कभी भी फिर से साइन इन कर सकते हैं।</string>
+    <string name="profile_delete_title">सारा डेटा हटाएं?</string>
+    <string name="profile_delete_text">यह इस डिवाइस से आपकी सभी कैप्चर की गई सूचनाओं को स्थायी रूप से हटा देगा और हमारे सर्वर से हटाने का अनुरोध करेगा। यदि आप साइन इन हैं, तो आपका सिंक किया गया डेटा भी हटा दिया जाएगा। यह क्रिया पूर्ववत नहीं की जा सकती। हम पहले अपना डेटा निर्यात करने की सलाह देते हैं।</string>
+    <string name="profile_app_tagline">डिलीवरी ड्राइवर सूचना एग्रीगेटर</string>
+    <string name="profile_app_description">डिलीवरी पार्टनर ऐप्स की सूचनाएं कैप्चर और एकत्र करके आपको अपनी कमाई ट्रैक करने और ऑर्डर प्रबंधित करने में मदद करता है। किसी भी डिलीवरी प्लेटफॉर्म से संबद्ध नहीं है।</string>
 
-    <!-- Notification detail -->
-    <string name="detail_title">नोटिफिकेशन विवरण</string>
-    <string name="detail_not_found">नोटिफिकेशन उपलब्ध नहीं</string>
+    <!-- ============ Notification detail ============ -->
+    <string name="detail_title">सूचना विवरण</string>
+    <string name="detail_not_found">सूचना नहीं मिली</string>
     <string name="detail_delete">हटाएं</string>
+    <string name="detail_loading">लोड हो रहा है…</string>
+    <string name="detail_open_platform">%1$s खोलें</string>
+    <string name="detail_copied_to_clipboard">क्लिपबोर्ड पर कॉपी किया गया</string>
+    <string name="detail_copy">कॉपी करें</string>
+    <string name="detail_share">साझा करें</string>
+    <string name="detail_share_chooser">साझा करें</string>
+    <string name="detail_title_label">शीर्षक</string>
+    <string name="detail_body_label">मुख्य भाग</string>
+    <string name="detail_full_text_label">पूरा पाठ</string>
+    <string name="detail_sub_text_label">उप पाठ</string>
+    <string name="detail_order_value">ऑर्डर मूल्य</string>
+    <string name="detail_distance">दूरी</string>
+    <string name="detail_pickup">पिकअप</string>
+    <string name="detail_dropoff">ड्रॉप-ऑफ</string>
+    <string name="detail_not_installed">%1$s इंस्टॉल नहीं है</string>
+    <string name="detail_could_not_open">%1$s नहीं खोल सका</string>
+    <string name="detail_value_prefix">मूल्य: %1$s</string>
+    <string name="detail_from_prefix">प्रेषक: %1$s</string>
 
-    <!-- Navigation -->
+    <!-- ============ Platform names ============ -->
+    <string name="platform_swiggy_partner">Swiggy Partner</string>
+    <string name="platform_zomato_delivery">Zomato Delivery</string>
+    <string name="platform_amazon_flex">Amazon Flex</string>
+    <string name="platform_zepto_partner">Zepto Cafe Partner</string>
+    <string name="platform_blinkit_partner">Blinkit Partner</string>
+    <string name="platform_bigbasket_partner">BigBasket Partner</string>
+    <string name="platform_dunzo_partner">Dunzo Partner</string>
+    <string name="platform_porter_partner">Porter Partner</string>
+    <string name="platform_rapido_captain">Rapido Captain</string>
+    <string name="platform_ola_driver">Ola Driver</string>
+    <string name="platform_uber_driver">Uber Driver</string>
+    <string name="platform_flipkart_logistics">Flipkart Logistics</string>
+    <string name="platform_shadowfax_partner">Shadowfax Partner</string>
+
+    <!-- ============ Categories ============ -->
+    <string name="category_new_order">नया ऑर्डर</string>
+    <string name="category_order_update">अपडेट</string>
+    <string name="category_completed">पूर्ण</string>
+    <string name="category_cancelled">रद्द</string>
+    <string name="category_earnings">कमाई</string>
+    <string name="category_availability">स्थिति</string>
+    <string name="category_general">सामान्य</string>
+
+    <!-- ============ Navigation ============ -->
     <string name="nav_home">होम</string>
     <string name="nav_settings">सेटिंग्स</string>
-    <string name="nav_profile">प्रोफाइल</string>
+    <string name="nav_profile">प्रोफ़ाइल</string>
 
-    <!-- v2.9.12: Widget -->
-    <string name="widget_description">NotiFetch से नवीनतम डिलीवरी नोटिफिकेशन</string>
+    <!-- ============ Widget ============ -->
+    <string name="widget_description">NotiFetch से नवीनतम डिलीवरी सूचनाएं</string>
 
-    <!-- v2.9.72: Language -->
-    <string name="settings_language">भाषा</string>
-    <string name="settings_language_desc">ऐप की भाषा चुनें</string>
+    <!-- ============ Earnings ============ -->
+    <string name="earnings_title">कमाई</string>
+    <string name="earnings_today">आज</string>
+    <string name="earnings_week">इस सप्ताह</string>
+    <string name="earnings_month">इस महीने</string>
+    <string name="earnings_total">कुल अनुमानित</string>
+    <string name="earnings_cash_out">निकासी</string>
+    <string name="earnings_waitlist">निकासी वेटलिस्ट में शामिल हों</string>
+    <string name="earnings_points">पॉइंट्स</string>
+    <string name="earnings_estimated">अनुमानित कमाई</string>
+    <string name="earnings_disclaimer">कमाई कैप्चर की गई सूचनाओं पर आधारित अनुमान हैं। वास्तविक नकद भुगतान NotiFetch मोनेटाइजेशन लॉन्च होने के बाद शुरू होंगे (लक्ष्य Q1 2027)। पहले सूचित होने के लिए वेटलिस्ट में शामिल हों।</string>
+    <string name="earnings_points_count">%1$d पॉइंट्स</string>
+    <string name="earnings_privacy_banner">सारा कमाई डेटा आपके डिवाइस पर ही रहता है। कोई ट्रैकिंग नहीं, कोई विज्ञापन नहीं।</string>
+    <string name="earnings_orders_count">%1$d ऑर्डर</string>
+    <string name="earnings_platform_breakdown">प्लेटफॉर्म ब्रेकडाउन</string>
+    <string name="earnings_dashboard_notifications">सूचनाएं</string>
+    <string name="earnings_dashboard_high_value">हाई-वैल्यू</string>
+    <string name="earnings_dashboard_referrals">रेफरल</string>
+    <string name="earnings_how_you_earn">आप कैसे कमाते हैं</string>
+    <string name="earnings_each_notification">प्रत्येक कैप्चर की गई सूचना</string>
+    <string name="earnings_10_points">+10 पॉइंट्स</string>
+    <string name="earnings_each_rupee">प्रत्येक ₹1 ऑर्डर मूल्य का पता लगने पर</string>
+    <string name="earnings_1_point">+1 पॉइंट</string>
+    <string name="earnings_each_high_value">प्रत्येक हाई-वैल्यू ऑफर (30%+ छूट)</string>
+    <string name="earnings_50_points">+50 पॉइंट्स</string>
+    <string name="earnings_each_referral">प्रत्येक सफल रेफरल</string>
+    <string name="earnings_1000_points">+1000 पॉइंट्स</string>
+    <string name="earnings_conversion_rate">रूपांतरण दर</string>
+    <string name="earnings_conversion_value">1000 पॉइंट्स = ₹1</string>
+    <string name="earnings_refer_earn">रेफर करें और 1000 पॉइंट्स कमाएं</string>
+    <string name="earnings_referral_code_label">आपका रेफरल कोड:</string>
+    <string name="earnings_share_link_label">शेयर लिंक:</string>
+    <string name="earnings_share_notifetch">NotiFetch साझा करें</string>
+    <string name="earnings_share_with_friends">दोस्तों के साथ शेयर करें</string>
+    <string name="earnings_waitlist_desc">वास्तविक नकद भुगतान NotiFetch मोनेटाइजेशन लॉन्च होने के बाद शुरू होंगे (लक्ष्य Q1 2027)। पहले सूचित होने के लिए वेटलिस्ट में शामिल हों।</string>
+    <string name="earnings_dashboard_disclaimer">कमाई कैप्चर की गई सूचनाओं पर आधारित अनुमान हैं। पॉइंट्स तब वास्तविक नकद में बदल जाएंगे जब NotiFetch डेटा बिक्री ₹50,000/माह तक पहुंचे। तब तक, पॉइंट्स को Premium टियर के महीनों में बदला जा सकता है।</string>
+
+    <!-- ============ Feedback screen ============ -->
+    <string name="feedback_title">फ़ीडबैक भेजें</string>
+    <string name="feedback_kind_question">किस तरह का फ़ीडबैक?</string>
+    <string name="feedback_bug_report">बग रिपोर्ट</string>
+    <string name="feedback_feature_request">फीचर अनुरोध</string>
+    <string name="feedback_general">सामान्य</string>
+    <string name="feedback_bug_label">बग का वर्णन करें (क्या हुआ, आपको क्या उम्मीद थी)</string>
+    <string name="feedback_feature_label">आप कौन सा फीचर चाहते हैं?</string>
+    <string name="feedback_general_label">आपका फ़ीडबैक</string>
+    <string name="feedback_characters_count">%1$d अक्षर</string>
+    <string name="feedback_include_diagnostic">डायग्नोस्टिक जानकारी शामिल करें</string>
+    <string name="feedback_diagnostic_desc">डिवाइस मॉडल, Android संस्करण, ऐप संस्करण, श्रोता स्थिति — डिबगिंग में मदद करता है</string>
+    <string name="feedback_send">फ़ीडबैक भेजें</string>
+    <string name="feedback_send_whatsapp">इसके बजाय WhatsApp से भेजें</string>
+
+    <!-- ============ Listener Health Check screen ============ -->
+    <string name="health_check_title">श्रोता हेल्थ चेक</string>
+    <string name="health_check_refresh">रिफ्रेश करें</string>
+    <string name="health_check_device_label">डिवाइस: %1$s</string>
+    <string name="health_check_realme_warning">Realme डिवाइस को 3 अलग-अलग अनुमतियां चाहिए। तीनों के बिना, श्रोता 1-2 मिनट में बंद हो जाता है।</string>
+    <string name="health_check_aggressive_oem_warning">%1$s बैकग्राउंड ऐप्स को ज़ोर से बंद करता है। नीचे दी गई सभी अनुमतियां प्रदान करना सुनिश्चित करें।</string>
+    <string name="health_check_notif_access_title">सूचना एक्सेस</string>
+    <string name="health_check_notif_access_granted">प्रदान की गई — NotiFetch सूचनाएं पढ़ सकता है</string>
+    <string name="health_check_notif_access_not_granted">प्रदान नहीं की गई — NotiFetch कोई सूचनाएं कैप्चर नहीं कर सकता</string>
+    <string name="health_check_grant_access">एक्सेस प्रदान करें</string>
+    <string name="health_check_battery_title">बैटरी ऑप्टिमाइज़ेशन</string>
+    <string name="health_check_battery_exempt">छूट प्राप्त — Android NotiFetch को बैटरी के लिए बंद नहीं करेगा</string>
+    <string name="health_check_battery_not_exempt">छूट प्राप्त नहीं — Android बैकग्राउंड में NotiFetch को बंद कर सकता है</string>
+    <string name="health_check_disable_battery">बैटरी ऑप्टिमाइज़ेशन अक्षम करें</string>
+    <string name="health_check_autostart_title">%1$s ऑटो-स्टार्ट</string>
+    <string name="health_check_autostart_subtitle">%1$s के लिए आवश्यक — इसके बिना, श्रोता 1-2 मिनट में बंद हो जाता है।\n\n%1$s पर, नीचे दिए गए बटन पर टैप करने के बाद:\n1. सूची में NotiFetch ढूंढें\n2. स्विच को ON करें\n3. (केवल Realme) यह भी चेक करें: ऐप बैटरी सेवर → कोई प्रतिबंध नहीं</string>
+    <string name="health_check_open_autostart">%1$s ऑटो-स्टार्ट सेटिंग्स खोलें</string>
+    <string name="health_check_realme_battery_saver_title">Realme ऐप बैटरी सेवर</string>
+    <string name="health_check_realme_battery_saver_subtitle">Realme UI में Android से अलग एक तीसरी बैटरी सेटिंग है।\n\nअपने Realme फोन पर:\n1. सेटिंग्स → ऐप्स → NotiFetch\n2. \'ऐप बैटरी सेवर\' पर टैप करें\n3. \'कोई प्रतिबंध नहीं\' (या \'बंद\') चुनें\n4. बैटरी में \'बैकग्राउंड गतिविधि की अनुमति दें\' भी सक्षम करें</string>
+    <string name="health_check_open_notifetch_settings">NotiFetch ऐप सेटिंग्स खोलें</string>
+    <string name="health_check_all_passed">सभी जांचें पास हो गईं!</string>
+    <string name="health_check_permissions_missing">कुछ अनुमतियां गायब हैं</string>
+    <string name="health_check_all_passed_desc">NotiFetch आपके सभी डिलीवरी ऐप्स की सूचनाएं कैप्चर कर रहा होगा। यदि फिर भी नहीं दिख रहीं, तो अपना फोन रीस्टार्ट करने का प्रयास करें।</string>
+    <string name="health_check_permissions_missing_desc">ऊपर दी गई अनुमतियां प्रदान करें, फिर NotiFetch रीस्टार्ट करें। Swiggy, Zomato, Zepto, Blinkit, Pizza Hut, McDonald\'s, Domino\'s, Popeyes, Rapido, आदि की सूचनाएं कुछ मिनटों में दिखनी शुरू हो जाएंगी।</string>
+    <string name="health_check_diagnostic_title">सूचना डायग्नोस्टिक</string>
+    <string name="health_check_hide">छिपाएं</string>
+    <string name="health_check_show_log">लॉग दिखाएं</string>
+    <string name="health_check_untracked_warning">⚠️ %1$d अनट्रैक किए गए ऐप्स का पता चला!</string>
+    <string name="health_check_untracked_desc">ये ऐप्स सूचनाएं भेजते हैं लेकिन NotiFetch उन्हें नहीं पहचानता। पैकेज नाम गलत हो सकते हैं। इसे ठीक करने के लिए फ़ीडबैक के माध्यम से यह लॉग भेजें।</string>
+    <string name="health_check_send_log">लॉग भेजें</string>
+    <string name="health_check_send_diagnostic_log">डायग्नोस्टिक लॉग भेजें</string>
+    <string name="health_check_clear_log">लॉग साफ़ करें</string>
+    <string name="health_check_log_cleared">लॉग साफ़ कर दिया गया।</string>
+
+    <!-- ============ Onboarding screen ============ -->
+    <string name="onboarding_title_1">कोई भी डिलीवरी ऑर्डर मिस न करें</string>
+    <string name="onboarding_desc_1">NotiFetch Swiggy, Zomato, Zepto, Blinkit, और 115+ अन्य ऐप्स से डिलीवरी सूचनाएं कैप्चर करता है — सब एक जगह। अपना अगला ऑर्डर खोजने के लिए ऐप्स के बीच स्विच करना बंद करें।</string>
+    <string name="onboarding_get_started">शुरू करें</string>
+    <string name="onboarding_title_2">सूचना एक्सेस प्रदान करें</string>
+    <string name="onboarding_desc_2">डिलीवरी सूचनाएं कैप्चर करने के लिए, आपको NotiFetch को सूचनाएं पढ़ने की अनुमति देनी होगी। Android सेटिंग्स → सूचना एक्सेस → NotiFetch सक्षम करने के लिए नीचे टैप करें।\n\nहम केवल वही सूचना पाठ स्टोर करते हैं जो आप पहले से देख सकते हैं — कभी पासवर्ड, OTP, या एक्स्ट्रा बंडल डेटा नहीं।</string>
+    <string name="onboarding_open_settings">सूचना सेटिंग्स खोलें</string>
+    <string name="onboarding_title_3">NotiFetch को जीवित रखें</string>
+    <string name="onboarding_desc_3">Android बैटरी बचाने के लिए NotiFetch को बैकग्राउंड में बंद कर सकता है, जिससे सूचना कैप्चर रुक जाता है। NotiFetch को बैटरी ऑप्टिमाइज़ेशन से छूट देने के लिए नीचे टैप करें।\n\nXiaomi/Samsung/OPPO/Vivo पर, आपको OEM-विशिष्ट सेटिंग्स में \'ऑटो-स्टार्ट\' भी सक्षम करना पड़ सकता है।</string>
+    <string name="onboarding_disable_battery">बैटरी ऑप्टिमाइज़ेशन अक्षम करें</string>
+    <string name="onboarding_start_using">NotiFetch उपयोग शुरू करें</string>
+    <string name="onboarding_skip">ट्यूटोरियल छोड़ें</string>
+    <string name="onboarding_change_anytime">आप इन अनुमतियों को सेटिंग्स में कभी भी बदल सकते हैं</string>
+
+    <!-- ============ Privacy Dashboard screen ============ -->
+    <string name="privacy_dashboard_title">गोपनीयता डैशबोर्ड</string>
+    <string name="privacy_your_data_your_control">आपका डेटा, आपका नियंत्रण</string>
+    <string name="privacy_transparency">NotiFetch पारदर्शिता के प्रति प्रतिबद्ध है। यहाँ हमने आपके बारे में जो कुछ भी एकत्र किया है, वह सब कुछ है।</string>
+    <string name="privacy_notifications_count">सूचनाएं</string>
+    <string name="privacy_unread">अपठित</string>
+    <string name="privacy_data_size">डेटा आकार</string>
+    <string name="privacy_what_we_store">हम क्या स्टोर करते हैं</string>
+    <string name="privacy_store_item_1">सूचना शीर्षक, पाठ, bigText, subText (केवल जो आप देख सकते हैं)</string>
+    <string name="privacy_store_item_2">सोर्स ऐप पैकेज नाम (जैसे, com.application.zomato)</string>
+    <string name="privacy_store_item_3">प्लेटफॉर्म प्रदर्शन नाम (जैसे, \"Zomato\")</string>
+    <string name="privacy_store_item_4">पहचाना गया ऑर्डर मूल्य, पिकअप/ड्रॉपऑफ स्थान (सूचना पाठ से पार्स किया गया)</string>
+    <string name="privacy_store_item_5">सूचना प्राप्त होने का टाइमस्टैम्प</string>
+    <string name="privacy_store_item_6">यूज़र मोड (राइडर बनाम ग्राहक) — फ़िल्टरिंग के लिए उपयोग</string>
+    <string name="privacy_what_we_never_store">हम कभी स्टोर नहीं करते</string>
+    <string name="privacy_never_store_item_1">नोटिफिकेशन एक्स्ट्रा बंडल (इसमें OTP, ऑथ टोकन, PII हो सकते हैं)</string>
+    <string name="privacy_never_store_item_2">डिलीवरी प्लेटफॉर्म क्रेडेंशियल (हम कभी पासवर्ड नहीं मांगते)</string>
+    <string name="privacy_never_store_item_3">भुगतान जानकारी (हम आपका क्रेडिट कार्ड / UPI कभी नहीं देखते)</string>
+    <string name="privacy_never_store_item_4">आपके संपर्क, स्थान, कैमरा, माइक्रोफ़ोन</string>
+    <string name="privacy_never_store_item_5">ब्राउज़र इतिहास, SMS संदेश, कॉल लॉग</string>
+    <string name="privacy_export_data_json">मेरा डेटा निर्यात करें (JSON)</string>
+    <string name="privacy_view_policy">गोपनीयता नीति देखें</string>
+    <string name="privacy_delete_all">मेरा सारा डेटा हटाएं</string>
+    <string name="privacy_compliance_footer">अनुपालन: DPDP अधिनियम 2023 (भारत) §§ 8, 9 • GDPR अनुच्छेद 15, 17, 20</string>
+    <string name="privacy_delete_all_title">सारा डेटा हटाएं?</string>
+    <string name="privacy_delete_all_text">यह आपके डिवाइस से सभी %1$d कैप्चर की गई सूचनाएं स्थायी रूप से हटा देगा। यह क्रिया पूर्ववत नहीं की जा सकती।\n\nसर्वर-साइड डेटा (यदि कुछ सिंक किया गया था) को भी हटाने के लिए शेड्यूल किया जाएगा।</string>
+    <string name="privacy_all_data_deleted">सारा डेटा हटा दिया गया</string>
+    <string name="privacy_export_my_data_chooser">मेरा डेटा निर्यात करें</string>
+    <string name="privacy_export_failed">निर्यात विफल: %1$s</string>
+    <string name="profile_export_visit_url_toast">अपना डेटा निर्यात करने के लिए %1$s पर जाएं</string>
 </resources>

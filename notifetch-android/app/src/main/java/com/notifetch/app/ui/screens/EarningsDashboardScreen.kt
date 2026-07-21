@@ -27,6 +27,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.notifetch.app.util.EarningsCalculator
 import com.notifetch.app.util.ReferralManager
+import androidx.compose.ui.res.stringResource
+import com.notifetch.app.R
 
 /**
  * v2.9.16: Earnings Dashboard Screen
@@ -101,13 +103,13 @@ fun EarningsDashboardScreen(
                     color = Color.White
                 )
                 Text(
-                    text = "Estimated Earnings",
+                    text = stringResource(R.string.earnings_estimated),
                     color = Color.White.copy(alpha = 0.8f),
                     fontSize = 14.sp
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "$totalPoints points",
+                    text = stringResource(R.string.earnings_points_count, totalPoints),
                     color = Color.White.copy(alpha = 0.6f),
                     fontSize = 12.sp
                 )
@@ -124,19 +126,19 @@ fun EarningsDashboardScreen(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 EarningsStatCard(
-                    title = "Notifications",
+                    title = stringResource(R.string.earnings_dashboard_notifications),
                     value = totalNotifications.toString(),
                     icon = Icons.Default.TrendingUp,
                     modifier = Modifier.weight(1f)
                 )
                 EarningsStatCard(
-                    title = "High-Value",
+                    title = stringResource(R.string.earnings_dashboard_high_value),
                     value = highValueOfferCount.toString(),
                     icon = Icons.Default.Star,
                     modifier = Modifier.weight(1f)
                 )
                 EarningsStatCard(
-                    title = "Referrals",
+                    title = stringResource(R.string.earnings_dashboard_referrals),
                     value = referralCount.toString(),
                     icon = Icons.Default.Group,
                     modifier = Modifier.weight(1f)
@@ -149,16 +151,16 @@ fun EarningsDashboardScreen(
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text("How You Earn", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.earnings_how_you_earn), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
                     Spacer(modifier = Modifier.height(8.dp))
-                    EarnRow("Each notification captured", "+10 points")
-                    EarnRow("Each ₹1 of order value detected", "+1 point")
-                    EarnRow("Each high-value offer (30%+ off)", "+50 points")
-                    EarnRow("Each successful referral", "+1000 points")
+                    EarnRow(stringResource(R.string.earnings_each_notification), stringResource(R.string.earnings_10_points))
+                    EarnRow(stringResource(R.string.earnings_each_rupee), stringResource(R.string.earnings_1_point))
+                    EarnRow(stringResource(R.string.earnings_each_high_value), stringResource(R.string.earnings_50_points))
+                    EarnRow(stringResource(R.string.earnings_each_referral), stringResource(R.string.earnings_1000_points))
                     Spacer(modifier = Modifier.height(8.dp))
                     HorizontalDivider()
                     Spacer(modifier = Modifier.height(8.dp))
-                    EarnRow("Conversion rate", "1000 points = ₹1")
+                    EarnRow(stringResource(R.string.earnings_conversion_rate), stringResource(R.string.earnings_conversion_value))
                 }
             }
 
@@ -174,10 +176,10 @@ fun EarningsDashboardScreen(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Default.CardGiftcard, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Refer & Earn 1000 Points", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
+                        Text(stringResource(R.string.earnings_refer_earn), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
                     }
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text("Your referral code:", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(stringResource(R.string.earnings_referral_code_label), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Text(
                         text = referralCode,
                         style = MaterialTheme.typography.headlineSmall,
@@ -185,7 +187,7 @@ fun EarningsDashboardScreen(
                         color = MaterialTheme.colorScheme.primary
                     )
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text("Share link:", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(stringResource(R.string.earnings_share_link_label), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Text(
                         text = referralLink,
                         style = MaterialTheme.typography.bodySmall,
@@ -195,12 +197,12 @@ fun EarningsDashboardScreen(
                     Button(
                         onClick = {
                             val intent = ReferralManager.createShareIntent(context)
-                            context.startActivity(Intent.createChooser(intent, "Share NotiFetch"))
+                            context.startActivity(Intent.createChooser(intent, context.getString(R.string.earnings_share_notifetch)))
                         },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(8.dp)
                     ) {
-                        Text("Share with Friends")
+                        Text(stringResource(R.string.earnings_share_with_friends))
                     }
                 }
             }
@@ -214,11 +216,10 @@ fun EarningsDashboardScreen(
                 )
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text("Cash Out", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.earnings_cash_out), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Real cash payouts start once NotiFetch monetization launches (targeting Q1 2027). " +
-                               "Join the waitlist to be notified first when payouts go live.",
+                        text = stringResource(R.string.earnings_waitlist_desc),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -231,16 +232,14 @@ fun EarningsDashboardScreen(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(8.dp)
                     ) {
-                        Text("Join Cash Out Waitlist")
+                        Text(stringResource(R.string.earnings_waitlist))
                     }
                 }
             }
 
             // Disclaimer
             Text(
-                text = "Earnings are estimates based on captured notifications. " +
-                       "Points convert to real cash when NotiFetch data sales reach ₹50,000/month. " +
-                       "Until then, points can be exchanged for Premium tier months.",
+                text = stringResource(R.string.earnings_dashboard_disclaimer),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(horizontal = 8.dp)

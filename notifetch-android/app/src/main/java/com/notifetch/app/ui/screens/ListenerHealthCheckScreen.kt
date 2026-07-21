@@ -64,6 +64,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.notifetch.app.notification.NotiFetchListenerService
 import com.notifetch.app.util.BatteryOptimizationHelper
+import androidx.compose.ui.res.stringResource
+import com.notifetch.app.R
 
 /**
  * v2.9.14: Listener Health Check Screen
@@ -118,15 +120,15 @@ fun ListenerHealthCheckScreen(
             .background(MaterialTheme.colorScheme.background)
     ) {
         TopAppBar(
-            title = { Text("Listener Health Check") },
+            title = { Text(stringResource(R.string.health_check_title)) },
             navigationIcon = {
                 IconButton(onClick = onNavigateBack) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.common_back))
                 }
             },
             actions = {
                 IconButton(onClick = { refresh() }) {
-                    Icon(Icons.Default.Refresh, contentDescription = "Refresh")
+                    Icon(Icons.Default.Refresh, contentDescription = stringResource(R.string.health_check_refresh))
                 }
             },
             colors = TopAppBarDefaults.topAppBarColors(
@@ -159,7 +161,7 @@ fun ListenerHealthCheckScreen(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "Device: $oemName",
+                            text = stringResource(R.string.health_check_device_label, oemName),
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.SemiBold
                         )
@@ -167,14 +169,14 @@ fun ListenerHealthCheckScreen(
                     if (isRealme) {
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = "Realme devices need 3 separate permissions. Without all 3, the listener dies in 1-2 minutes.",
+                            text = stringResource(R.string.health_check_realme_warning),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.error
                         )
                     } else if (isAggressiveOem) {
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = "$oemName aggressively kills background apps. Make sure to grant all permissions below.",
+                            text = stringResource(R.string.health_check_aggressive_oem_warning, oemName),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -185,13 +187,13 @@ fun ListenerHealthCheckScreen(
             // ── Health Check 1: Notification access ─────────────────────────
             HealthCheckItem(
                 icon = Icons.Default.NotificationsActive,
-                title = "Notification Access",
+                title = stringResource(R.string.health_check_notif_access_title),
                 subtitle = if (notificationAccessGranted)
-                    "Granted — NotiFetch can read notifications"
+                    stringResource(R.string.health_check_notif_access_granted)
                 else
-                    "Not granted — NotiFetch cannot capture any notifications",
+                    stringResource(R.string.health_check_notif_access_not_granted),
                 status = if (notificationAccessGranted) HealthStatus.GOOD else HealthStatus.CRITICAL,
-                actionLabel = if (notificationAccessGranted) null else "Grant Access",
+                actionLabel = if (notificationAccessGranted) null else stringResource(R.string.health_check_grant_access),
                 onAction = {
                     NotiFetchListenerService.openNotificationSettings(context)
                 }
@@ -200,13 +202,13 @@ fun ListenerHealthCheckScreen(
             // ── Health Check 2: Battery optimization ────────────────────────
             HealthCheckItem(
                 icon = Icons.Default.BatteryAlert,
-                title = "Battery Optimization",
+                title = stringResource(R.string.health_check_battery_title),
                 subtitle = if (batteryOptimizationExempt)
-                    "Exempt — Android won't kill NotiFetch for battery"
+                    stringResource(R.string.health_check_battery_exempt)
                 else
-                    "Not exempt — Android may kill NotiFetch in background",
+                    stringResource(R.string.health_check_battery_not_exempt),
                 status = if (batteryOptimizationExempt) HealthStatus.GOOD else HealthStatus.CRITICAL,
-                actionLabel = if (batteryOptimizedExemptLabel(batteryOptimizationExempt)) null else "Disable Battery Optimization",
+                actionLabel = if (batteryOptimizedExemptLabel(batteryOptimizationExempt)) null else stringResource(R.string.health_check_disable_battery),
                 onAction = {
                     activity?.let {
                         BatteryOptimizationHelper.requestBatteryOptimizationExemption(it)
@@ -218,14 +220,10 @@ fun ListenerHealthCheckScreen(
             if (isAggressiveOem) {
                 HealthCheckItem(
                     icon = Icons.Default.Warning,
-                    title = "$oemName Auto-start",
-                    subtitle = "Required for $oemName — without this, listener dies in 1-2 minutes.\n\n" +
-                            "On $oemName, after tapping the button below:\n" +
-                            "1. Find NotiFetch in the list\n" +
-                            "2. Toggle the switch ON\n" +
-                            "3. (Realme only) Also check: App battery saver → No restriction",
+                    title = stringResource(R.string.health_check_autostart_title, oemName),
+                    subtitle = stringResource(R.string.health_check_autostart_subtitle, oemName, oemName),
                     status = HealthStatus.WARNING,  // Can't programmatically verify, so always warn
-                    actionLabel = "Open $oemName Auto-start Settings",
+                    actionLabel = stringResource(R.string.health_check_open_autostart, oemName),
                     onAction = {
                         activity?.let {
                             BatteryOptimizationHelper.openOemAutoStartSettings(it)
@@ -238,15 +236,10 @@ fun ListenerHealthCheckScreen(
             if (isRealme) {
                 HealthCheckItem(
                     icon = Icons.Default.BatteryAlert,
-                    title = "Realme App Battery Saver",
-                    subtitle = "Realme UI has a 3rd battery setting separate from Android's.\n\n" +
-                            "On your Realme phone:\n" +
-                            "1. Settings → Apps → NotiFetch\n" +
-                            "2. Tap 'App battery saver'\n" +
-                            "3. Choose 'No restriction' (or 'Off')\n" +
-                            "4. Also enable 'Allow background activity' in Battery",
+                    title = stringResource(R.string.health_check_realme_battery_saver_title),
+                    subtitle = stringResource(R.string.health_check_realme_battery_saver_subtitle),
                     status = HealthStatus.WARNING,
-                    actionLabel = "Open NotiFetch App Settings",
+                    actionLabel = stringResource(R.string.health_check_open_notifetch_settings),
                     onAction = {
                         activity?.let {
                             BatteryOptimizationHelper.openRealmeAppBatterySaver(it)
@@ -285,18 +278,18 @@ fun ListenerHealthCheckScreen(
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = if (allGood && !isAggressiveOem)
-                            "All checks passed!"
+                            stringResource(R.string.health_check_all_passed)
                         else
-                            "Some permissions missing",
+                            stringResource(R.string.health_check_permissions_missing),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = if (allGood && !isAggressiveOem)
-                            "NotiFetch should be capturing notifications from all your delivery apps. If you still don't see them, try restarting your phone."
+                            stringResource(R.string.health_check_all_passed_desc)
                         else
-                            "Grant the permissions above, then restart NotiFetch. Notifications from Swiggy, Zomato, Zepto, Blinkit, Pizza Hut, McDonald's, Domino's, Popeyes, Rapido, etc. should start appearing within minutes.",
+                            stringResource(R.string.health_check_permissions_missing_desc),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = androidx.compose.ui.text.style.TextAlign.Center
@@ -330,7 +323,7 @@ fun ListenerHealthCheckScreen(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "Notification Diagnostic",
+                            text = stringResource(R.string.health_check_diagnostic_title),
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.SemiBold,
                             modifier = Modifier.weight(1f)
@@ -343,7 +336,7 @@ fun ListenerHealthCheckScreen(
                             shape = RoundedCornerShape(8.dp),
                             contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 12.dp, vertical = 4.dp)
                         ) {
-                            Text(if (showDiagnostic) "Hide" else "Show Log", style = MaterialTheme.typography.labelSmall)
+                            Text(if (showDiagnostic) stringResource(R.string.health_check_hide) else stringResource(R.string.health_check_show_log), style = MaterialTheme.typography.labelSmall)
                         }
                     }
 
@@ -354,15 +347,14 @@ fun ListenerHealthCheckScreen(
                         val untracked = com.notifetch.app.notification.DiagnosticLogger.getUntrackedPackages(context)
                         if (untracked.isNotEmpty()) {
                             Text(
-                                text = "⚠️ ${untracked.size} UNTRACKED apps detected!",
+                                text = stringResource(R.string.health_check_untracked_warning, untracked.size),
                                 style = MaterialTheme.typography.titleSmall,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.error
                             )
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
-                                text = "These apps send notifications but NotiFetch doesn't recognize them. " +
-                                       "The package names may be wrong. Send this log via Feedback so we can fix it.",
+                                text = stringResource(R.string.health_check_untracked_desc),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -390,42 +382,31 @@ fun ListenerHealthCheckScreen(
 
                         Spacer(modifier = Modifier.height(8.dp))
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            // v2.9.68: Send Log via WhatsApp directly (was generic share sheet)
                             OutlinedButton(
                                 onClick = {
-                                    val intent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
+                                    val shareIntent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
                                         type = "text/plain"
-                                        setPackage("com.whatsapp")
+                                        putExtra(android.content.Intent.EXTRA_SUBJECT, "NotiFetch Diagnostic Log")
                                         putExtra(android.content.Intent.EXTRA_TEXT, diagnosticText)
                                     }
-                                    try {
-                                        context.startActivity(intent)
-                                    } catch (e: Exception) {
-                                        // WhatsApp not installed — fall back to generic share sheet
-                                        val shareIntent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
-                                            type = "text/plain"
-                                            putExtra(android.content.Intent.EXTRA_SUBJECT, "NotiFetch Diagnostic Log")
-                                            putExtra(android.content.Intent.EXTRA_TEXT, diagnosticText)
-                                        }
-                                        context.startActivity(android.content.Intent.createChooser(shareIntent, "Send Diagnostic Log"))
-                                    }
+                                    context.startActivity(android.content.Intent.createChooser(shareIntent, context.getString(R.string.health_check_send_diagnostic_log)))
                                 },
                                 shape = RoundedCornerShape(8.dp),
                                 modifier = Modifier.weight(1f)
                             ) {
                                 Icon(Icons.Default.Send, contentDescription = null, modifier = Modifier.size(16.dp))
                                 Spacer(modifier = Modifier.width(4.dp))
-                                Text("Send via WhatsApp", style = MaterialTheme.typography.labelSmall)
+                                Text(stringResource(R.string.health_check_send_log), style = MaterialTheme.typography.labelSmall)
                             }
                             OutlinedButton(
                                 onClick = {
                                     com.notifetch.app.notification.DiagnosticLogger.clearLog(context)
-                                    diagnosticText = "Log cleared."
+                                    diagnosticText = context.getString(R.string.health_check_log_cleared)
                                 },
                                 shape = RoundedCornerShape(8.dp),
                                 modifier = Modifier.weight(1f)
                             ) {
-                                Text("Clear Log", style = MaterialTheme.typography.labelSmall)
+                                Text(stringResource(R.string.health_check_clear_log), style = MaterialTheme.typography.labelSmall)
                             }
                         }
                     }
@@ -491,7 +472,7 @@ private fun HealthCheckItem(
                     HealthStatus.GOOD -> {
                         Icon(
                             Icons.Default.CheckCircle,
-                            contentDescription = "Good",
+                            contentDescription = stringResource(R.string.common_good),
                             tint = statusColor,
                             modifier = Modifier.size(24.dp)
                         )
@@ -499,7 +480,7 @@ private fun HealthCheckItem(
                     HealthStatus.WARNING -> {
                         Icon(
                             Icons.Default.Warning,
-                            contentDescription = "Warning",
+                            contentDescription = stringResource(R.string.common_warning),
                             tint = statusColor,
                             modifier = Modifier.size(24.dp)
                         )
@@ -507,7 +488,7 @@ private fun HealthCheckItem(
                     HealthStatus.CRITICAL -> {
                         Icon(
                             Icons.Default.Error,
-                            contentDescription = "Critical",
+                            contentDescription = stringResource(R.string.common_critical),
                             tint = statusColor,
                             modifier = Modifier.size(24.dp)
                         )

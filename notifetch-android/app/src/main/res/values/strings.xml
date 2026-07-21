@@ -6,9 +6,22 @@
     <string name="notification_channel_name">NotiFetch Service</string>
     <string name="notification_channel_description">Background service for capturing delivery partner notifications</string>
 
-    <!-- Permission screen -->
+    <!-- ============ Common strings shared across screens ============ -->
+    <string name="common_back">Back</string>
+    <string name="common_cancel">Cancel</string>
+    <string name="common_save">Save</string>
+    <string name="common_reset">Reset</string>
+    <string name="common_delete_everything">Delete Everything</string>
+    <string name="common_unknown_error">Unknown error</string>
+    <string name="common_completed">Completed</string>
+    <string name="common_good">Good</string>
+    <string name="common_warning">Warning</string>
+    <string name="common_critical">Critical</string>
+
+    <!-- ============ Permission screen ============ -->
     <string name="permission_title">Enable Notification Access</string>
     <string name="permission_description">NotiFetch needs notification access to capture delivery partner notifications and help you track your earnings.</string>
+    <string name="permission_description_long">NotiFetch needs notification access to capture delivery partner notifications and help you track your earnings across all platforms.</string>
     <string name="permission_step_1">Tap the \"Open Settings\" button below</string>
     <string name="permission_step_2">Find \"NotiFetch\" in the notification access list</string>
     <string name="permission_step_3">Toggle the switch ON to allow notification access</string>
@@ -18,8 +31,30 @@
     <string name="permission_alt_settings">Alternative: App Notification Settings</string>
     <string name="permission_privacy_note">NotiFetch only reads notifications from delivery partner apps. Your personal messages and other app notifications are never accessed.</string>
     <string name="permission_enabled">Notification access is enabled! You\'re all set.</string>
+    <string name="permission_setup_instructions">Setup Instructions</string>
+    <string name="permission_what_we_read">What We Read</string>
+    <string name="permission_what_we_read_desc">Only notifications from 55+ verified delivery partner/driver apps. We extract: title, text, order value, pickup/dropoff locations, and distance. This is data you can already see on your screen.</string>
+    <string name="permission_what_we_never_access">What We NEVER Access</string>
+    <string name="permission_what_we_never_access_desc">Banking apps, social media, personal messages, WhatsApp, SMS, email, or any app not on our delivery partner list. We never store credentials, auth tokens, or raw notification extras.</string>
+    <string name="permission_legal_notice">Legal Notice</string>
+    <string name="permission_legal_notice_desc">NotiFetch is not affiliated with any delivery platform. Platform names are used for identification only (you can customize them). You are responsible for complying with each platform\'s terms of service. By enabling notification access, you consent to data collection as described in our Privacy Policy.</string>
 
-    <!-- Home screen -->
+    <!-- ============ Consent screen ============ -->
+    <string name="consent_before_you_begin">Before You Begin</string>
+    <string name="consent_intro">NotiFetch needs your informed consent before collecting any data. Please read and accept each statement below.</string>
+    <string name="consent_data_collection_title">Data Collection</string>
+    <string name="consent_data_collection_desc">NotiFetch reads notifications from delivery partner/driver apps using Android\'s NotificationListenerService API. We collect ONLY:\n• Notification title and text\n• Order value, pickup/dropoff locations, distance\n• Platform name and timestamp\n\nWe NEVER access: banking, social media, personal messages, or any other app notifications.\n\nWe NEVER store: raw notification extras, auth tokens, or data you cannot see in the notification shade.\n\nRetention: Data is stored locally on your device and auto-deleted after 30 days. You can delete it anytime.</string>
+    <string name="consent_no_affiliation_title">No Affiliation</string>
+    <string name="consent_no_affiliation_desc">NotiFetch is NOT affiliated with, endorsed by, or connected to any delivery platform (Swiggy, Zomato, Uber, DoorDash, Amazon, etc.). Platform names appear in the app for identification purposes only. You can customize any platform name to whatever you prefer.</string>
+    <string name="consent_your_responsibility_title">Your Responsibility</string>
+    <string name="consent_your_responsibility_desc">You are solely responsible for complying with the terms of service of each delivery platform you use. NotiFetch is a personal notification management tool. We do not encourage or support any violation of platform terms. If a platform prohibits using third-party notification tools, you must decide whether to use NotiFetch for that platform.\n\nIMPORTANT: Delivery platforms CAN detect that a notification listener is active on your device. This is an Android system feature and cannot be hidden. Some platforms may warn or deactivate drivers who use notification reading tools. By continuing, you acknowledge this risk.</string>
+    <string name="consent_privacy_policy_title">Privacy Policy &amp; Your Rights</string>
+    <string name="consent_privacy_policy_desc">You have the right to delete all your data at any time, export your data, and revoke consent. Data is retained for 30 days and then automatically deleted. We follow India DPDP Act 2023 and EU GDPR standards. By continuing, you agree to our Privacy Policy and Terms of Service.</string>
+    <string name="consent_read_privacy_policy">Read Privacy Policy &amp; Terms</string>
+    <string name="consent_i_agree_continue">I Agree — Continue</string>
+    <string name="consent_decline_exit">Decline — Exit App</string>
+
+    <!-- ============ Home screen ============ -->
     <string name="home_title">NotiFetch</string>
     <string name="home_empty_title">No notifications yet</string>
     <string name="home_empty_subtitle">Notifications from delivery partner apps will appear here once captured</string>
@@ -28,8 +63,28 @@
     <string name="home_today">Today</string>
     <string name="home_this_week">This Week</string>
     <string name="home_filter_all">All</string>
+    <string name="home_export_cd">Export</string>
+    <string name="home_export_subject">NotiFetch %1$s Notifications Export</string>
+    <string name="home_export_chooser">Export Notifications</string>
+    <string name="home_sync_cd">Sync</string>
+    <string name="home_rider_cd">Rider</string>
+    <string name="home_rider">Rider</string>
+    <string name="home_customer_cd">Customer</string>
+    <string name="home_customer">Customer</string>
+    <string name="home_today_earnings">Today\'s Earnings</string>
+    <string name="home_notifications_today">Notifications Today</string>
+    <string name="home_unread_count">%1$d unread</string>
+    <string name="home_week_earnings">Week Earnings</string>
+    <string name="home_total_captured">Total Captured</string>
+    <string name="home_unread_notifications_one">%1$d unread notification</string>
+    <string name="home_unread_notifications_many">%1$d unread notifications</string>
+    <string name="home_no_deliveries">No deliveries yet</string>
+    <string name="home_no_orders">No orders yet</string>
+    <string name="home_empty_subtitle_rider">Notifications from delivery partner apps will appear here once captured</string>
+    <string name="home_empty_subtitle_customer">Notifications from customer apps will appear here once captured</string>
+    <string name="home_affiliation_disclaimer">NotiFetch is not affiliated with any delivery platform. Platform names are used for identification only.</string>
 
-    <!-- Settings screen -->
+    <!-- ============ Settings screen ============ -->
     <string name="settings_title">Settings</string>
     <string name="settings_notification_listener">Notification Listener</string>
     <string name="settings_listener_active">Active — capturing notifications</string>
@@ -38,25 +93,104 @@
     <string name="settings_dark_mode">Dark Mode</string>
     <string name="settings_dark_mode_desc">Toggle dark/light theme</string>
     <string name="settings_auto_sync">Auto Sync</string>
-    <string name="settings_auto_sync_desc">Sync notifications to server</string>
+    <string name="settings_auto_sync_desc">Sync notifications to server every %1$d min</string>
     <string name="settings_platform_filters">Platform Filters</string>
     <string name="settings_platform_filters_desc">Toggle which delivery partner apps to monitor</string>
+    <string name="settings_tap_for_updates">Tap to check for updates on Play Store</string>
+    <string name="settings_listener_health_check">Listener Health Check</string>
+    <string name="settings_send_feedback">Send Feedback</string>
+    <string name="settings_platform_names">Platform Names</string>
+    <string name="settings_platform_names_disclaimer">Default names use real brand names for easy identification. You can rename any platform to whatever you prefer — this is your choice. Tap the edit icon to customize.</string>
+    <string name="settings_category_summary">%1$d enabled · %2$d platforms</string>
+    <string name="settings_collapse">Collapse</string>
+    <string name="settings_expand">Expand</string>
+    <string name="settings_privacy_note">NotiFetch only reads notifications from the delivery partner apps listed above. Personal messages, social media, and other app notifications are never accessed or stored.</string>
+    <string name="settings_about">About</string>
+    <string name="settings_app_version">App Version</string>
+    <string name="settings_check_for_updates">Check for Updates</string>
+    <string name="settings_check_for_updates_desc">Open Play Store to check for latest version</string>
+    <string name="settings_account">Account</string>
+    <string name="settings_not_signed_in">Not signed in</string>
+    <string name="settings_not_signed_in_desc">The app works without login — your notifications are captured and stored on your device. Sign in at notifetch.in to sync across devices and track earnings.</string>
+    <string name="settings_signing_in">Signing in…</string>
+    <string name="settings_legal_disclaimer">Legal Disclaimer</string>
+    <string name="settings_legal_disclaimer_text">NotiFetch is an independent notification aggregation tool. NotiFetch is NOT affiliated with, endorsed by, or partnered with any delivery platform, restaurant, or brand. All trademarks belong to their respective owners. Platform names shown are generic and can be customized by the user. NotiFetch only reads notification content visible to the user — it does not access credentials, OTPs, or payment information.</string>
+    <string name="settings_delete_text">This will permanently delete all your captured notifications from this device and request deletion from our servers. This action cannot be undone. We recommend exporting your data first.</string>
+    <string name="settings_sign_out_text">You will be signed out. You can sign in again anytime.</string>
+    <string name="settings_custom_badge">custom</string>
+    <string name="settings_default_label">Default: %1$s</string>
+    <string name="settings_captured_count">%1$d captured • %2$s</string>
+    <string name="settings_captured_count_no_time">%1$d captured</string>
+    <string name="settings_never">Never</string>
+    <string name="settings_rename_cd">Rename</string>
+    <string name="settings_rename_platform_title">Rename Platform</string>
+    <string name="settings_rename_text">Choose how \"%1$s\" appears in your app. You can use the brand name, a short code, or anything you prefer.</string>
+    <string name="settings_display_name">Display Name</string>
+    <string name="settings_rename_disclaimer">This is your personal preference. NotiFetch is not affiliated with any delivery platform.</string>
 
-    <!-- Profile screen -->
+    <!-- ============ Profile screen ============ -->
     <string name="profile_title">Profile</string>
     <string name="profile_connected">Connected</string>
+    <string name="profile_signed_in">Signed In</string>
     <string name="profile_not_signed_in">Not Signed In</string>
     <string name="profile_backend_connected">Backend Connected</string>
     <string name="profile_backend_disconnected">Not Connected</string>
+    <string name="profile_connected_anonymous">Connected (Anonymous)</string>
     <string name="profile_sign_in">Sign in Anonymously</string>
     <string name="profile_re_authenticate">Re-authenticate</string>
+    <string name="profile_signed_in_google_desc">Signed in with Google. Notifications sync across devices.</string>
+    <string name="profile_anonymous_desc">Connected anonymously. Sign in with Google for full sync.</string>
+    <string name="profile_anonymous_desc_short">Connected anonymously. Sign in for full sync.</string>
+    <string name="profile_sign_in_to_sync">Sign in to sync notifications across devices</string>
+    <string name="profile_sign_in_with_google_to_sync">Sign in with Google to sync notifications across devices</string>
+    <string name="profile_device_info">Device Information</string>
+    <string name="profile_device_id">Device ID</string>
+    <string name="profile_user_id">User ID</string>
+    <string name="profile_data_rights">Your Data Rights</string>
+    <string name="profile_data_rights_desc">Under India DPDP Act 2023 and EU GDPR, you have the right to access, export, and delete all your data at any time.</string>
+    <string name="profile_export_data">Export My Data</string>
+    <string name="profile_delete_all_data">Delete All My Data</string>
+    <string name="profile_legal">Legal</string>
+    <string name="profile_privacy_policy">Privacy Policy</string>
+    <string name="profile_privacy_policy_subtitle">DPDP Act 2023 &amp; GDPR compliant</string>
+    <string name="profile_terms_of_service">Terms of Service</string>
+    <string name="profile_terms_subtitle">Including platform ToS disclaimer</string>
+    <string name="profile_no_affiliation">No Affiliation Notice</string>
+    <string name="profile_no_affiliation_subtitle">NotiFetch is not affiliated with any delivery platform</string>
+    <string name="profile_continue_with_google">Continue with Google</string>
+    <string name="profile_sign_in_with_google">Sign in with Google</string>
+    <string name="profile_sign_out">Sign Out</string>
+    <string name="profile_sign_out_title">Sign Out?</string>
+    <string name="profile_sign_out_text">You will be signed out of your account. You can sign in again anytime.</string>
+    <string name="profile_delete_title">Delete All Data?</string>
+    <string name="profile_delete_text">This will permanently delete all your captured notifications from this device and request deletion from our servers. If you\'re signed in, your synced data will also be removed. This action cannot be undone. We recommend exporting your data first.</string>
+    <string name="profile_app_tagline">Delivery Driver Notification Aggregator</string>
+    <string name="profile_app_description">Captures and aggregates notifications from delivery partner apps to help you track earnings and manage orders. Not affiliated with any delivery platform.</string>
 
-    <!-- Notification detail -->
+    <!-- ============ Notification detail ============ -->
     <string name="detail_title">Notification Details</string>
     <string name="detail_not_found">Notification not found</string>
     <string name="detail_delete">Delete</string>
+    <string name="detail_loading">Loading…</string>
+    <string name="detail_open_platform">Open %1$s</string>
+    <string name="detail_copied_to_clipboard">Copied to clipboard</string>
+    <string name="detail_copy">Copy</string>
+    <string name="detail_share">Share</string>
+    <string name="detail_share_chooser">Share</string>
+    <string name="detail_title_label">Title</string>
+    <string name="detail_body_label">Body</string>
+    <string name="detail_full_text_label">Full Text</string>
+    <string name="detail_sub_text_label">Sub Text</string>
+    <string name="detail_order_value">Order Value</string>
+    <string name="detail_distance">Distance</string>
+    <string name="detail_pickup">Pickup</string>
+    <string name="detail_dropoff">Drop-off</string>
+    <string name="detail_not_installed">%1$s not installed</string>
+    <string name="detail_could_not_open">Could not open %1$s</string>
+    <string name="detail_value_prefix">Value: %1$s</string>
+    <string name="detail_from_prefix">From: %1$s</string>
 
-    <!-- Platform names -->
+    <!-- ============ Platform names ============ -->
     <string name="platform_swiggy_partner">Swiggy Partner</string>
     <string name="platform_zomato_delivery">Zomato Delivery</string>
     <string name="platform_amazon_flex">Amazon Flex</string>
@@ -71,7 +205,7 @@
     <string name="platform_flipkart_logistics">Flipkart Logistics</string>
     <string name="platform_shadowfax_partner">Shadowfax Partner</string>
 
-    <!-- Categories -->
+    <!-- ============ Categories ============ -->
     <string name="category_new_order">New Order</string>
     <string name="category_order_update">Update</string>
     <string name="category_completed">Completed</string>
@@ -80,15 +214,15 @@
     <string name="category_availability">Status</string>
     <string name="category_general">General</string>
 
-    <!-- Navigation -->
+    <!-- ============ Navigation ============ -->
     <string name="nav_home">Home</string>
     <string name="nav_settings">Settings</string>
     <string name="nav_profile">Profile</string>
 
-    <!-- v2.9.12: Widget -->
+    <!-- ============ Widget ============ -->
     <string name="widget_description">Latest delivery notifications from NotiFetch</string>
 
-    <!-- v2.9.12: Earnings -->
+    <!-- ============ Earnings ============ -->
     <string name="earnings_title">Earnings</string>
     <string name="earnings_today">Today</string>
     <string name="earnings_week">This Week</string>
@@ -99,7 +233,123 @@
     <string name="earnings_points">Points</string>
     <string name="earnings_estimated">Estimated Earnings</string>
     <string name="earnings_disclaimer">Earnings are estimates based on captured notifications. Real cash payouts begin once NotiFetch monetization launches (targeting Q1 2027). Join the waitlist to be notified first.</string>
-    <!-- v2.9.72: Language -->
-    <string name="settings_language">Language</string>
-    <string name="settings_language_desc">Choose app language</string>
+    <string name="earnings_points_count">%1$d points</string>
+    <string name="earnings_privacy_banner">All earnings data stays on your device. No tracking, no ads.</string>
+    <string name="earnings_orders_count">%1$d orders</string>
+    <string name="earnings_platform_breakdown">Platform Breakdown</string>
+    <string name="earnings_dashboard_notifications">Notifications</string>
+    <string name="earnings_dashboard_high_value">High-Value</string>
+    <string name="earnings_dashboard_referrals">Referrals</string>
+    <string name="earnings_how_you_earn">How You Earn</string>
+    <string name="earnings_each_notification">Each notification captured</string>
+    <string name="earnings_10_points">+10 points</string>
+    <string name="earnings_each_rupee">Each ₹1 of order value detected</string>
+    <string name="earnings_1_point">+1 point</string>
+    <string name="earnings_each_high_value">Each high-value offer (30%+ off)</string>
+    <string name="earnings_50_points">+50 points</string>
+    <string name="earnings_each_referral">Each successful referral</string>
+    <string name="earnings_1000_points">+1000 points</string>
+    <string name="earnings_conversion_rate">Conversion rate</string>
+    <string name="earnings_conversion_value">1000 points = ₹1</string>
+    <string name="earnings_refer_earn">Refer &amp; Earn 1000 Points</string>
+    <string name="earnings_referral_code_label">Your referral code:</string>
+    <string name="earnings_share_link_label">Share link:</string>
+    <string name="earnings_share_notifetch">Share NotiFetch</string>
+    <string name="earnings_share_with_friends">Share with Friends</string>
+    <string name="earnings_waitlist_desc">Real cash payouts start once NotiFetch monetization launches (targeting Q1 2027). Join the waitlist to be notified first when payouts go live.</string>
+    <string name="earnings_dashboard_disclaimer">Earnings are estimates based on captured notifications. Points convert to real cash when NotiFetch data sales reach ₹50,000/month. Until then, points can be exchanged for Premium tier months.</string>
+
+    <!-- ============ Feedback screen ============ -->
+    <string name="feedback_title">Send Feedback</string>
+    <string name="feedback_kind_question">What kind of feedback?</string>
+    <string name="feedback_bug_report">Bug Report</string>
+    <string name="feedback_feature_request">Feature Request</string>
+    <string name="feedback_general">General</string>
+    <string name="feedback_bug_label">Describe the bug (what happened, what you expected)</string>
+    <string name="feedback_feature_label">What feature would you like?</string>
+    <string name="feedback_general_label">Your feedback</string>
+    <string name="feedback_characters_count">%1$d characters</string>
+    <string name="feedback_include_diagnostic">Include diagnostic info</string>
+    <string name="feedback_diagnostic_desc">Device model, Android version, app version, listener status — helps us debug faster</string>
+    <string name="feedback_send">Send Feedback</string>
+    <string name="feedback_send_whatsapp">Send via WhatsApp Instead</string>
+
+    <!-- ============ Listener Health Check screen ============ -->
+    <string name="health_check_title">Listener Health Check</string>
+    <string name="health_check_refresh">Refresh</string>
+    <string name="health_check_device_label">Device: %1$s</string>
+    <string name="health_check_realme_warning">Realme devices need 3 separate permissions. Without all 3, the listener dies in 1-2 minutes.</string>
+    <string name="health_check_aggressive_oem_warning">%1$s aggressively kills background apps. Make sure to grant all permissions below.</string>
+    <string name="health_check_notif_access_title">Notification Access</string>
+    <string name="health_check_notif_access_granted">Granted — NotiFetch can read notifications</string>
+    <string name="health_check_notif_access_not_granted">Not granted — NotiFetch cannot capture any notifications</string>
+    <string name="health_check_grant_access">Grant Access</string>
+    <string name="health_check_battery_title">Battery Optimization</string>
+    <string name="health_check_battery_exempt">Exempt — Android won\'t kill NotiFetch for battery</string>
+    <string name="health_check_battery_not_exempt">Not exempt — Android may kill NotiFetch in background</string>
+    <string name="health_check_disable_battery">Disable Battery Optimization</string>
+    <string name="health_check_autostart_title">%1$s Auto-start</string>
+    <string name="health_check_autostart_subtitle">Required for %1$s — without this, listener dies in 1-2 minutes.\n\nOn %1$s, after tapping the button below:\n1. Find NotiFetch in the list\n2. Toggle the switch ON\n3. (Realme only) Also check: App battery saver → No restriction</string>
+    <string name="health_check_open_autostart">Open %1$s Auto-start Settings</string>
+    <string name="health_check_realme_battery_saver_title">Realme App Battery Saver</string>
+    <string name="health_check_realme_battery_saver_subtitle">Realme UI has a 3rd battery setting separate from Android\'s.\n\nOn your Realme phone:\n1. Settings → Apps → NotiFetch\n2. Tap \'App battery saver\'\n3. Choose \'No restriction\' (or \'Off\')\n4. Also enable \'Allow background activity\' in Battery</string>
+    <string name="health_check_open_notifetch_settings">Open NotiFetch App Settings</string>
+    <string name="health_check_all_passed">All checks passed!</string>
+    <string name="health_check_permissions_missing">Some permissions missing</string>
+    <string name="health_check_all_passed_desc">NotiFetch should be capturing notifications from all your delivery apps. If you still don\'t see them, try restarting your phone.</string>
+    <string name="health_check_permissions_missing_desc">Grant the permissions above, then restart NotiFetch. Notifications from Swiggy, Zomato, Zepto, Blinkit, Pizza Hut, McDonald\'s, Domino\'s, Popeyes, Rapido, etc. should start appearing within minutes.</string>
+    <string name="health_check_diagnostic_title">Notification Diagnostic</string>
+    <string name="health_check_hide">Hide</string>
+    <string name="health_check_show_log">Show Log</string>
+    <string name="health_check_untracked_warning">⚠️ %1$d UNTRACKED apps detected!</string>
+    <string name="health_check_untracked_desc">These apps send notifications but NotiFetch doesn\'t recognize them. The package names may be wrong. Send this log via Feedback so we can fix it.</string>
+    <string name="health_check_send_log">Send Log</string>
+    <string name="health_check_send_diagnostic_log">Send Diagnostic Log</string>
+    <string name="health_check_clear_log">Clear Log</string>
+    <string name="health_check_log_cleared">Log cleared.</string>
+
+    <!-- ============ Onboarding screen ============ -->
+    <string name="onboarding_title_1">Never Miss a Delivery Order</string>
+    <string name="onboarding_desc_1">NotiFetch captures delivery notifications from Swiggy, Zomato, Zepto, Blinkit, and 115+ more apps — all in one place. No more switching between apps to find your next order.</string>
+    <string name="onboarding_get_started">Get Started</string>
+    <string name="onboarding_title_2">Grant Notification Access</string>
+    <string name="onboarding_desc_2">To capture delivery notifications, you need to grant NotiFetch permission to read notifications. Tap below to open Android Settings → Notification Access → enable NotiFetch.\n\nWe only store notification text you can already see — never passwords, OTPs, or extras bundle data.</string>
+    <string name="onboarding_open_settings">Open Notification Settings</string>
+    <string name="onboarding_title_3">Keep NotiFetch Alive</string>
+    <string name="onboarding_desc_3">Android may kill NotiFetch in the background to save battery, stopping notification capture. Tap below to whitelist NotiFetch from battery optimization.\n\nOn Xiaomi/Samsung/OPPO/Vivo, you may also need to enable \'Auto-start\' in OEM-specific settings.</string>
+    <string name="onboarding_disable_battery">Disable Battery Optimization</string>
+    <string name="onboarding_start_using">Start Using NotiFetch</string>
+    <string name="onboarding_skip">Skip Tutorial</string>
+    <string name="onboarding_change_anytime">You can change these permissions anytime in Settings</string>
+
+    <!-- ============ Privacy Dashboard screen ============ -->
+    <string name="privacy_dashboard_title">Privacy Dashboard</string>
+    <string name="privacy_your_data_your_control">Your Data, Your Control</string>
+    <string name="privacy_transparency">NotiFetch is committed to transparency. Here\'s everything we\'ve collected about you.</string>
+    <string name="privacy_notifications_count">Notifications</string>
+    <string name="privacy_unread">Unread</string>
+    <string name="privacy_data_size">Data Size</string>
+    <string name="privacy_what_we_store">What We Store</string>
+    <string name="privacy_store_item_1">Notification title, text, bigText, subText (only what you can see)</string>
+    <string name="privacy_store_item_2">Source app package name (e.g., com.application.zomato)</string>
+    <string name="privacy_store_item_3">Platform display name (e.g., \"Zomato\")</string>
+    <string name="privacy_store_item_4">Detected order value, pickup/dropoff locations (parsed from notification text)</string>
+    <string name="privacy_store_item_5">Timestamp when notification was received</string>
+    <string name="privacy_store_item_6">User mode (rider vs customer) — used for filtering</string>
+    <string name="privacy_what_we_never_store">What We NEVER Store</string>
+    <string name="privacy_never_store_item_1">Notification extras bundle (may contain OTPs, auth tokens, PII)</string>
+    <string name="privacy_never_store_item_2">Delivery platform credentials (we never ask for passwords)</string>
+    <string name="privacy_never_store_item_3">Payment information (we never see your credit card / UPI)</string>
+    <string name="privacy_never_store_item_4">Your contacts, location, camera, microphone</string>
+    <string name="privacy_never_store_item_5">Browser history, SMS messages, call logs</string>
+    <string name="privacy_export_data_json">Export My Data (JSON)</string>
+    <string name="privacy_view_policy">View Privacy Policy</string>
+    <string name="privacy_delete_all">Delete All My Data</string>
+    <string name="privacy_compliance_footer">Compliance: DPDP Act 2023 (India) §§ 8, 9 • GDPR Articles 15, 17, 20</string>
+    <string name="privacy_delete_all_title">Delete ALL Data?</string>
+    <string name="privacy_delete_all_text">This will permanently delete all %1$d captured notifications from your device. This action cannot be undone.\n\nServer-side data (if any was synced) will also be scheduled for deletion.</string>
+    <string name="privacy_all_data_deleted">All data deleted</string>
+    <string name="privacy_export_my_data_chooser">Export My Data</string>
+    <string name="privacy_export_failed">Export failed: %1$s</string>
+    <string name="profile_export_visit_url_toast">Please visit %1$s to export your data</string>
 </resources>

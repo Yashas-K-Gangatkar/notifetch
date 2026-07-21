@@ -20,7 +20,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.HealthAndSafety
 import androidx.compose.material.icons.filled.ExpandMore
@@ -41,7 +40,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -85,21 +83,17 @@ import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Gavel
 import androidx.compose.material.icons.filled.Login
-import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PrivacyTip
 import androidx.compose.material.icons.filled.Shield
-import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Slider
 import com.notifetch.app.ui.viewmodel.ProfileViewModel
-import com.notifetch.app.data.repository.dataStore
-import androidx.datastore.preferences.core.edit
-import kotlinx.coroutines.launch
+import androidx.compose.ui.res.stringResource
+import com.notifetch.app.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -107,7 +101,6 @@ fun SettingsScreen(
     onNavigateToPrivacy: () -> Unit = {},
     onNavigateToHealthCheck: () -> Unit = {},
     onNavigateToFeedback: () -> Unit = {},
-    onNavigateToPlatforms: () -> Unit = {},
     viewModel: SettingsViewModel = hiltViewModel(),
     profileViewModel: ProfileViewModel = hiltViewModel()
 ) {
@@ -155,7 +148,7 @@ fun SettingsScreen(
                         tint = MaterialTheme.colorScheme.primary
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Settings", fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.settings_title), fontWeight = FontWeight.Bold)
                 }
             },
             colors = TopAppBarDefaults.topAppBarColors(
@@ -216,7 +209,7 @@ fun SettingsScreen(
                                 fontWeight = FontWeight.Bold
                             )
                             Text(
-                                "Tap to check for updates on Play Store",
+                                stringResource(R.string.settings_tap_for_updates),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -260,15 +253,15 @@ fun SettingsScreen(
                         Spacer(modifier = Modifier.width(12.dp))
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = "Notification Listener",
+                                text = stringResource(R.string.settings_notification_listener),
                                 style = MaterialTheme.typography.titleSmall,
                                 fontWeight = FontWeight.SemiBold
                             )
                             Text(
                                 text = if (uiState.isListenerEnabled)
-                                    "Active — capturing notifications"
+                                    stringResource(R.string.settings_listener_active)
                                 else
-                                    "Disabled — tap to enable",
+                                    stringResource(R.string.settings_listener_disabled),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = if (uiState.isListenerEnabled)
                                     MaterialTheme.colorScheme.primary
@@ -301,7 +294,7 @@ fun SettingsScreen(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Listener Health Check",
+                        text = stringResource(R.string.settings_listener_health_check),
                         fontWeight = FontWeight.SemiBold
                     )
                     Spacer(modifier = Modifier.weight(1f))
@@ -328,7 +321,7 @@ fun SettingsScreen(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Send Feedback",
+                        text = stringResource(R.string.settings_send_feedback),
                         fontWeight = FontWeight.SemiBold
                     )
                     Spacer(modifier = Modifier.weight(1f))
@@ -343,7 +336,7 @@ fun SettingsScreen(
             // General Settings
             item {
                 Text(
-                    text = "General",
+                    text = stringResource(R.string.settings_general),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -371,9 +364,9 @@ fun SettingsScreen(
                             )
                             Spacer(modifier = Modifier.width(12.dp))
                             Column(modifier = Modifier.weight(1f)) {
-                                Text("Dark Mode", style = MaterialTheme.typography.bodyLarge)
+                                Text(stringResource(R.string.settings_dark_mode), style = MaterialTheme.typography.bodyLarge)
                                 Text(
-                                    "Toggle dark/light theme",
+                                    stringResource(R.string.settings_dark_mode_desc),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -381,113 +374,6 @@ fun SettingsScreen(
                             Switch(
                                 checked = uiState.isDarkMode,
                                 onCheckedChange = { viewModel.setDarkMode(it) }
-                            )
-                        }
-
-                        // v2.9.72 Phase 4: Language selector
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Language,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text("Language", style = MaterialTheme.typography.bodyLarge)
-                                Text(
-                                    "Choose app language",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                            var languageExpanded by remember { mutableStateOf(false) }
-                            androidx.compose.material3.TextButton(onClick = { languageExpanded = true }) {
-                                Text(
-                                    when (java.util.Locale.getDefault().language) {
-                                        "hi" -> "हिंदी"
-                                        "ta" -> "தமிழ்"
-                                        "te" -> "తెలుగు"
-                                        "kn" -> "ಕನ್ನಡ"
-                                        else -> "English"
-                                    }
-                                )
-                            }
-                            androidx.compose.material3.DropdownMenu(
-                                expanded = languageExpanded,
-                                onDismissRequest = { languageExpanded = false }
-                            ) {
-                                val languages = listOf(
-                                    "en" to "English",
-                                    "hi" to "हिंदी",
-                                    "ta" to "தமிழ்",
-                                    "te" to "తెలుగు",
-                                    "kn" to "ಕನ್ನಡ"
-                                )
-                                for ((code, name) in languages) {
-                                    androidx.compose.material3.DropdownMenuItem(
-                                        text = { Text(name) },
-                                        onClick = {
-                                            languageExpanded = false
-                                            val locale = java.util.Locale(code)
-                                            java.util.Locale.setDefault(locale)
-                                            val config = context.resources.configuration
-                                            config.setLocale(locale)
-                                            context.resources.updateConfiguration(config, context.resources.displayMetrics)
-                                            // Recreate activity to apply language
-                                            (context as? android.app.Activity)?.recreate()
-                                        }
-                                    )
-                                }
-                            }
-                        }
-
-                        // v2.9.68: Glass transparency slider
-                        val cardTransparency = remember { mutableStateOf(0.92f) }
-                        val scope = androidx.compose.runtime.rememberCoroutineScope()
-                        androidx.compose.runtime.LaunchedEffect(Unit) {
-                            context.dataStore.data.collect { prefs ->
-                                cardTransparency.value = prefs[SettingsViewModel.CARD_TRANSPARENCY_KEY] ?: 0.92f
-                            }
-                        }
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp)
-                        ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(
-                                    imageVector = Icons.Default.Tune,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                                Spacer(modifier = Modifier.width(12.dp))
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text("Glass Effect", style = MaterialTheme.typography.bodyLarge)
-                                    Text(
-                                        "Adjust background transparency",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
-                            }
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Slider(
-                                value = cardTransparency.value,
-                                onValueChange = { cardTransparency.value = it },
-                                onValueChangeFinished = {
-                                    scope.launch {
-                                        context.dataStore.edit { prefs ->
-                                            prefs[SettingsViewModel.CARD_TRANSPARENCY_KEY] = cardTransparency.value
-                                        }
-                                    }
-                                },
-                                valueRange = 0.3f..0.95f,
-                                steps = 12
                             )
                         }
 
@@ -505,9 +391,9 @@ fun SettingsScreen(
                             )
                             Spacer(modifier = Modifier.width(12.dp))
                             Column(modifier = Modifier.weight(1f)) {
-                                Text("Auto Sync", style = MaterialTheme.typography.bodyLarge)
+                                Text(stringResource(R.string.settings_auto_sync), style = MaterialTheme.typography.bodyLarge)
                                 Text(
-                                    "Sync notifications to server every ${uiState.syncIntervalMinutes} min",
+                                    stringResource(R.string.settings_auto_sync_desc, uiState.syncIntervalMinutes),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -524,7 +410,7 @@ fun SettingsScreen(
             // Platform Names section
             item {
                 Text(
-                    text = "Platform Names",
+                    text = stringResource(R.string.settings_platform_names),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -553,7 +439,7 @@ fun SettingsScreen(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "Default names use real brand names for easy identification. You can rename any platform to whatever you prefer — this is your choice. Tap the edit icon to customize.",
+                            text = stringResource(R.string.settings_platform_names_disclaimer),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -561,49 +447,81 @@ fun SettingsScreen(
                 }
             }
 
-            // v2.9.68: Platforms button — opens separate screen with categories
-            // Replaces the old long scrollable list of 169+ platforms
-            item {
-                val totalEnabled = uiState.platformConfigs.count { it.isEnabled }
-                val totalPlatforms = uiState.platformConfigs.size
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f)
-                    )
-                ) {
-                    Row(
+            // v2.9.15: Platform list grouped by category (expand/collapse)
+            // Like choosing sports in college: pick a category, then see platforms
+            val groupedPlatforms = uiState.platformConfigs.groupBy {
+                com.notifetch.app.util.Constants.getCategoryForPackage(it.packageName)
+            }.toSortedMap()
+
+            groupedPlatforms.forEach { (category, platforms) ->
+                // Category header (clickable to expand/collapse)
+                item(key = "category_$category") {
+                    val isExpanded = expandedCategories.value.contains(category)
+                    val categoryName = com.notifetch.app.util.Constants.getCategoryDisplayName(category)
+                    val categoryIcon = com.notifetch.app.util.Constants.getCategoryIcon(category)
+                    val enabledCount = platforms.count { it.isEnabled }
+
+                    Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable { onNavigateToPlatforms() }
-                            .padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "📦",
-                            style = MaterialTheme.typography.titleMedium,
-                            modifier = Modifier.size(24.dp)
+                            .padding(vertical = 4.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = if (isExpanded)
+                                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f)
+                            else
+                                MaterialTheme.colorScheme.surface
                         )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Column(modifier = Modifier.weight(1f)) {
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { toggleCategory(category) }
+                                .padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
                             Text(
-                                text = "Platforms",
-                                style = MaterialTheme.typography.titleSmall,
-                                fontWeight = FontWeight.SemiBold
+                                text = categoryIcon,
+                                style = MaterialTheme.typography.titleMedium,
+                                modifier = Modifier.size(24.dp)
                             )
-                            Text(
-                                text = "$totalEnabled of $totalPlatforms enabled",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = categoryName,
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                                Text(
+                                    text = stringResource(R.string.settings_category_summary, enabledCount, platforms.size),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            Icon(
+                                imageVector = if (isExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                                contentDescription = if (isExpanded) stringResource(R.string.settings_collapse) else stringResource(R.string.settings_expand),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                            contentDescription = "Open",
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    }
+                }
+
+                // Platform cards (only shown when category is expanded)
+                if (expandedCategories.value.contains(category)) {
+                    items(
+                        items = platforms,
+                        key = { it.packageName }
+                    ) { config ->
+                        PlatformNameCard(
+                            config = config,
+                            onToggle = { enabled ->
+                                viewModel.togglePlatform(config.packageName, enabled)
+                            },
+                            onRename = {
+                                renamingPlatform = config
+                                showRenameDialog = true
+                            }
                         )
                     }
                 }
@@ -632,7 +550,7 @@ fun SettingsScreen(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "NotiFetch only reads notifications from the delivery partner apps listed above. Personal messages, social media, and other app notifications are never accessed or stored.",
+                            text = stringResource(R.string.settings_privacy_note),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -643,7 +561,7 @@ fun SettingsScreen(
             // About section
             item {
                 Text(
-                    text = "About",
+                    text = stringResource(R.string.settings_about),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -682,7 +600,7 @@ fun SettingsScreen(
                             )
                             Spacer(modifier = Modifier.width(12.dp))
                             Column(modifier = Modifier.weight(1f)) {
-                                Text("App Version", style = MaterialTheme.typography.bodyLarge)
+                                Text(stringResource(R.string.settings_app_version), style = MaterialTheme.typography.bodyLarge)
                                 Text(
                                     "v$versionName ($versionCode)",
                                     style = MaterialTheme.typography.bodySmall,
@@ -712,49 +630,12 @@ fun SettingsScreen(
                             )
                             Spacer(modifier = Modifier.width(12.dp))
                             Column(modifier = Modifier.weight(1f)) {
-                                Text("Check for Updates", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
+                                Text(stringResource(R.string.settings_check_for_updates), style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
                                 Text(
-                                    "Open Play Store to check for latest version",
+                                    stringResource(R.string.settings_check_for_updates_desc),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
-                            }
-                        }
-
-                        // v2.9.40: Debug-only test crash button — verifies Sentry/Crashlytics
-                        // are wired up correctly. Tap to send test exception to both dashboards,
-                        // then check Sentry (notifetch.sentry.io) within 30 seconds.
-                        if (com.notifetch.app.BuildConfig.DEBUG) {
-                            HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable {
-                                        com.google.firebase.crashlytics.FirebaseCrashlytics.getInstance()
-                                            .recordException(RuntimeException("Test crash from NotiFetch debug menu"))
-                                    }
-                                    .padding(16.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.BugReport,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.error
-                                )
-                                Spacer(modifier = Modifier.width(12.dp))
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text(
-                                        "Send Test Crash (Debug)",
-                                        style = MaterialTheme.typography.bodyLarge,
-                                        fontWeight = FontWeight.Medium,
-                                        color = MaterialTheme.colorScheme.error
-                                    )
-                                    Text(
-                                        "Verify Sentry + Crashlytics are working",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
                             }
                         }
                     }
@@ -764,7 +645,7 @@ fun SettingsScreen(
             // ── Account Section (migrated from Profile) ──────────────
             item {
                 Text(
-                    text = "Account",
+                    text = stringResource(R.string.settings_account),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -797,18 +678,18 @@ fun SettingsScreen(
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
                                 text = when {
-                                    profileState.isSignedIn && !profileState.isAnonymous -> profileState.userDisplayName ?: "Signed In"
-                                    profileState.isSignedIn && profileState.isAnonymous -> "Connected (Anonymous)"
-                                    else -> "Not Signed In"
+                                    profileState.isSignedIn && !profileState.isAnonymous -> profileState.userDisplayName ?: stringResource(R.string.profile_signed_in)
+                                    profileState.isSignedIn && profileState.isAnonymous -> stringResource(R.string.profile_connected_anonymous)
+                                    else -> stringResource(R.string.profile_not_signed_in)
                                 },
                                 style = MaterialTheme.typography.titleSmall,
                                 fontWeight = FontWeight.SemiBold
                             )
                             Text(
                                 text = when {
-                                    profileState.isSignedIn && !profileState.isAnonymous -> "Signed in with Google. Notifications sync across devices."
-                                    profileState.isSignedIn && profileState.isAnonymous -> "Connected anonymously. Sign in for full sync."
-                                    else -> "Sign in to sync notifications across devices"
+                                    profileState.isSignedIn && !profileState.isAnonymous -> stringResource(R.string.profile_signed_in_google_desc)
+                                    profileState.isSignedIn && profileState.isAnonymous -> stringResource(R.string.profile_anonymous_desc_short)
+                                    else -> stringResource(R.string.profile_sign_in_to_sync)
                                 },
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -829,7 +710,7 @@ fun SettingsScreen(
                         ) {
                             CircularProgressIndicator(modifier = Modifier.size(20.dp), color = MaterialTheme.colorScheme.primary)
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Signing in...", style = MaterialTheme.typography.bodyMedium)
+                            Text(stringResource(R.string.settings_signing_in), style = MaterialTheme.typography.bodyMedium)
                         }
                     }
                 } else if (!profileState.isSignedIn || profileState.isAnonymous) {
@@ -848,13 +729,13 @@ fun SettingsScreen(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Text(
-                                text = "Not signed in",
+                                text = stringResource(R.string.settings_not_signed_in),
                                 style = MaterialTheme.typography.titleSmall,
                                 fontWeight = FontWeight.SemiBold
                             )
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
-                                text = "The app works without login — your notifications are captured and stored on your device. Sign in at notifetch.in to sync across devices and track earnings.",
+                                text = stringResource(R.string.settings_not_signed_in_desc),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 textAlign = androidx.compose.ui.text.style.TextAlign.Center
@@ -869,7 +750,7 @@ fun SettingsScreen(
                     ) {
                         Icon(Icons.Default.Logout, contentDescription = null, modifier = Modifier.size(18.dp))
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Sign Out")
+                        Text(stringResource(R.string.profile_sign_out))
                     }
                 }
             }
@@ -877,7 +758,7 @@ fun SettingsScreen(
             // ── Data Rights Section (GDPR + DPDP Act) ────────────────
             item {
                 Text(
-                    text = "Your Data Rights",
+                    text = stringResource(R.string.profile_data_rights),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -892,26 +773,17 @@ fun SettingsScreen(
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(
-                            text = "Your notifications stay on your phone. Download a copy for your records, or clear them anytime.",
+                            text = stringResource(R.string.profile_data_rights_desc),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Spacer(modifier = Modifier.height(12.dp))
                         OutlinedButton(
                             onClick = {
-                                // v2.9.69: Local CSV export — no web redirect
-                                // Shares notifications as CSV via Android share sheet
-                                // User can save to file, send via email, etc.
                                 try {
-                                    val csv = viewModel.exportNotificationsAsCsv()
-                                    val shareIntent = Intent(Intent.ACTION_SEND).apply {
-                                        type = "text/csv"
-                                        putExtra(Intent.EXTRA_TEXT, csv)
-                                        putExtra(Intent.EXTRA_SUBJECT, "NotiFetch Notifications Export")
-                                    }
-                                    context.startActivity(Intent.createChooser(shareIntent, "Download Notifications"))
+                                    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("${Constants.BASE_URL}dashboard/settings")))
                                 } catch (e: Exception) {
-                                    Toast.makeText(context, "Export failed: ${e.message}", Toast.LENGTH_LONG).show()
+                                    Toast.makeText(context, context.getString(R.string.profile_export_visit_url_toast, Constants.BASE_URL), Toast.LENGTH_LONG).show()
                                 }
                             },
                             modifier = Modifier.fillMaxWidth().height(44.dp),
@@ -919,7 +791,7 @@ fun SettingsScreen(
                         ) {
                             Icon(Icons.Default.Download, contentDescription = null, modifier = Modifier.size(16.dp))
                             Spacer(modifier = Modifier.width(6.dp))
-                            Text("Download a Copy")
+                            Text(stringResource(R.string.profile_export_data))
                         }
                         Spacer(modifier = Modifier.height(8.dp))
                         Button(
@@ -930,7 +802,7 @@ fun SettingsScreen(
                         ) {
                             Icon(Icons.Default.DeleteForever, contentDescription = null, modifier = Modifier.size(16.dp))
                             Spacer(modifier = Modifier.width(6.dp))
-                            Text("Clear All Notifications")
+                            Text(stringResource(R.string.profile_delete_all_data))
                         }
                     }
                 }
@@ -939,7 +811,7 @@ fun SettingsScreen(
             // ── Legal Section ────────────────────────────────────────
             item {
                 Text(
-                    text = "Legal",
+                    text = stringResource(R.string.profile_legal),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -956,13 +828,13 @@ fun SettingsScreen(
                     )
                 ) {
                     Column(modifier = Modifier.padding(4.dp)) {
-                        LegalLinkRow(icon = Icons.Default.PrivacyTip, label = "Privacy Policy", subtitle = "DPDP Act 2023 & GDPR compliant") {
+                        LegalLinkRow(icon = Icons.Default.PrivacyTip, label = stringResource(R.string.profile_privacy_policy), subtitle = stringResource(R.string.profile_privacy_policy_subtitle)) {
                             context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("${Constants.BASE_URL}privacy")))
                         }
-                        LegalLinkRow(icon = Icons.Default.Gavel, label = "Terms of Service", subtitle = "Including platform ToS disclaimer") {
+                        LegalLinkRow(icon = Icons.Default.Gavel, label = stringResource(R.string.profile_terms_of_service), subtitle = stringResource(R.string.profile_terms_subtitle)) {
                             context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("${Constants.BASE_URL}terms")))
                         }
-                        LegalLinkRow(icon = Icons.Default.Shield, label = "No Affiliation Notice", subtitle = "NotiFetch is not affiliated with any delivery platform") {
+                        LegalLinkRow(icon = Icons.Default.Shield, label = stringResource(R.string.profile_no_affiliation), subtitle = stringResource(R.string.profile_no_affiliation_subtitle)) {
                             context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("${Constants.BASE_URL}terms#no-affiliation")))
                         }
                     }
@@ -980,13 +852,13 @@ fun SettingsScreen(
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(
-                            text = "Legal Disclaimer",
+                            text = stringResource(R.string.settings_legal_disclaimer),
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.SemiBold
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = "NotiFetch is an independent notification aggregation tool. NotiFetch is NOT affiliated with, endorsed by, or partnered with any delivery platform, restaurant, or brand. All trademarks belong to their respective owners. Platform names shown are generic and can be customized by the user. NotiFetch only reads notification content visible to the user — it does not access credentials, OTPs, or payment information.",
+                            text = stringResource(R.string.settings_legal_disclaimer_text),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             lineHeight = 16.sp
@@ -1003,9 +875,9 @@ fun SettingsScreen(
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
-            title = { Text("Clear All Notifications?") },
+            title = { Text(stringResource(R.string.profile_delete_title)) },
             text = {
-                Text("This will remove all captured notifications from this phone. This action cannot be undone. We recommend downloading a copy first.")
+                Text(stringResource(R.string.settings_delete_text))
             },
             confirmButton = {
                 TextButton(
@@ -1014,10 +886,10 @@ fun SettingsScreen(
                         showDeleteDialog = false
                     },
                     colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
-                ) { Text("Clear All") }
+                ) { Text(stringResource(R.string.common_delete_everything)) }
             },
             dismissButton = {
-                TextButton(onClick = { showDeleteDialog = false }) { Text("Cancel") }
+                TextButton(onClick = { showDeleteDialog = false }) { Text(stringResource(R.string.common_cancel)) }
             }
         )
     }
@@ -1026,8 +898,8 @@ fun SettingsScreen(
     if (showSignOutDialog) {
         AlertDialog(
             onDismissRequest = { showSignOutDialog = false },
-            title = { Text("Sign Out?") },
-            text = { Text("You will be signed out. You can sign in again anytime.") },
+            title = { Text(stringResource(R.string.profile_sign_out_title)) },
+            text = { Text(stringResource(R.string.settings_sign_out_text)) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -1035,10 +907,10 @@ fun SettingsScreen(
                         showSignOutDialog = false
                     },
                     colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
-                ) { Text("Sign Out") }
+                ) { Text(stringResource(R.string.profile_sign_out)) }
             },
             dismissButton = {
-                TextButton(onClick = { showSignOutDialog = false }) { Text("Cancel") }
+                TextButton(onClick = { showSignOutDialog = false }) { Text(stringResource(R.string.common_cancel)) }
             }
         )
     }
@@ -1114,7 +986,7 @@ private fun PlatformNameCard(
                             )
                         ) {
                             Text(
-                                text = "custom",
+                                text = stringResource(R.string.settings_custom_badge),
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp)
@@ -1124,7 +996,7 @@ private fun PlatformNameCard(
                 }
                 Text(
                     text = if (isCustom)
-                        "Default: ${config.displayName}"
+                        stringResource(R.string.settings_default_label, config.displayName)
                     else
                         config.packageName,
                     style = MaterialTheme.typography.labelSmall,
@@ -1134,7 +1006,7 @@ private fun PlatformNameCard(
                 )
                 if (config.notificationCount > 0) {
                     Text(
-                        text = "${config.notificationCount} captured • ${config.lastNotificationAt?.let { Helpers.formatTimeAgo(it) } ?: "Never"}",
+                        text = stringResource(R.string.settings_captured_count, config.notificationCount, config.lastNotificationAt?.let { Helpers.formatTimeAgo(it) } ?: stringResource(R.string.settings_never)),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -1147,7 +1019,7 @@ private fun PlatformNameCard(
             ) {
                 Icon(
                     imageVector = Icons.Default.Edit,
-                    contentDescription = "Rename",
+                    contentDescription = stringResource(R.string.settings_rename_cd),
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(18.dp)
                 )
@@ -1200,12 +1072,12 @@ private fun RenamePlatformDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
-            Text("Rename Platform")
+            Text(stringResource(R.string.settings_rename_platform_title))
         },
         text = {
             Column {
                 Text(
-                    text = "Choose how \"${config.displayName}\" appears in your app. You can use the brand name, a short code, or anything you prefer.",
+                    text = stringResource(R.string.settings_rename_text, config.displayName),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -1213,7 +1085,7 @@ private fun RenamePlatformDialog(
                 OutlinedTextField(
                     value = customName,
                     onValueChange = { customName = it },
-                    label = { Text("Display Name") },
+                    label = { Text(stringResource(R.string.settings_display_name)) },
                     placeholder = { Text(config.displayName) },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
@@ -1229,7 +1101,7 @@ private fun RenamePlatformDialog(
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "This is your personal preference. NotiFetch is not affiliated with any delivery platform.",
+                    text = stringResource(R.string.settings_rename_disclaimer),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -1250,7 +1122,7 @@ private fun RenamePlatformDialog(
             ) {
                 Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(modifier = Modifier.width(4.dp))
-                Text("Save")
+                Text(stringResource(R.string.common_save))
             }
         },
         dismissButton = {
@@ -1259,11 +1131,11 @@ private fun RenamePlatformDialog(
                     FilledTonalButton(onClick = onReset) {
                         Icon(Icons.Default.RestartAlt, contentDescription = null, modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text("Reset")
+                        Text(stringResource(R.string.common_reset))
                     }
                 }
                 TextButton(onClick = onDismiss) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.common_cancel))
                 }
             }
         }

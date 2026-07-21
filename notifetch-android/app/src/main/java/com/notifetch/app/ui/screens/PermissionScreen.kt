@@ -43,6 +43,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.notifetch.app.notification.NotiFetchListenerService
+import androidx.compose.ui.res.stringResource
+import com.notifetch.app.R
 
 @Composable
 fun PermissionScreen(
@@ -82,7 +84,7 @@ fun PermissionScreen(
         // App icon
         Icon(
             imageVector = Icons.Default.NotificationsActive,
-            contentDescription = "NotiFetch",
+            contentDescription = stringResource(R.string.app_name),
             modifier = Modifier.size(80.dp),
             tint = MaterialTheme.colorScheme.primary
         )
@@ -90,7 +92,7 @@ fun PermissionScreen(
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(
-            text = "Enable Notification Access",
+            text = stringResource(R.string.permission_title),
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onBackground,
@@ -100,7 +102,7 @@ fun PermissionScreen(
         Spacer(modifier = Modifier.height(12.dp))
 
         Text(
-            text = "NotiFetch needs notification access to capture delivery partner notifications and help you track your earnings across all platforms.",
+            text = stringResource(R.string.permission_description_long),
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
@@ -121,7 +123,7 @@ fun PermissionScreen(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Text(
-                    text = "Setup Instructions",
+                    text = stringResource(R.string.permission_setup_instructions),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface
@@ -129,27 +131,27 @@ fun PermissionScreen(
 
                 StepItem(
                     number = 1,
-                    text = "Tap the \"Open Settings\" button below",
+                    text = stringResource(R.string.permission_step_1),
                     isCompleted = false
                 )
                 StepItem(
                     number = 2,
-                    text = "Find \"NotiFetch\" in the notification access list",
+                    text = stringResource(R.string.permission_step_2),
                     isCompleted = false
                 )
                 StepItem(
                     number = 3,
-                    text = "Toggle the switch ON to allow notification access",
+                    text = stringResource(R.string.permission_step_3),
                     isCompleted = false
                 )
                 StepItem(
                     number = 4,
-                    text = "Confirm by tapping \"Allow\" on the dialog",
+                    text = stringResource(R.string.permission_step_4),
                     isCompleted = false
                 )
                 StepItem(
                     number = 5,
-                    text = "Return to NotiFetch — you're all set!",
+                    text = stringResource(R.string.permission_step_5),
                     isCompleted = isListenerEnabled
                 )
             }
@@ -178,14 +180,14 @@ fun PermissionScreen(
                 Spacer(modifier = Modifier.width(8.dp))
                 Column {
                     Text(
-                        text = "What We Read",
+                        text = stringResource(R.string.permission_what_we_read),
                         style = MaterialTheme.typography.labelLarge,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.primary
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Only notifications from 55+ verified delivery partner/driver apps. We extract: title, text, order value, pickup/dropoff locations, and distance. This is data you can already see on your screen.",
+                        text = stringResource(R.string.permission_what_we_read_desc),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -216,14 +218,14 @@ fun PermissionScreen(
                 Spacer(modifier = Modifier.width(8.dp))
                 Column {
                     Text(
-                        text = "What We NEVER Access",
+                        text = stringResource(R.string.permission_what_we_never_access),
                         style = MaterialTheme.typography.labelLarge,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.error
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Banking apps, social media, personal messages, WhatsApp, SMS, email, or any app not on our delivery partner list. We never store credentials, auth tokens, or raw notification extras.",
+                        text = stringResource(R.string.permission_what_we_never_access_desc),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -254,14 +256,14 @@ fun PermissionScreen(
                 Spacer(modifier = Modifier.width(8.dp))
                 Column {
                     Text(
-                        text = "Legal Notice",
+                        text = stringResource(R.string.permission_legal_notice),
                         style = MaterialTheme.typography.labelLarge,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.tertiary
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "NotiFetch is not affiliated with any delivery platform. Platform names are used for identification only (you can customize them). You are responsible for complying with each platform's terms of service. By enabling notification access, you consent to data collection as described in our Privacy Policy.",
+                        text = stringResource(R.string.permission_legal_notice_desc),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -291,7 +293,7 @@ fun PermissionScreen(
             )
             Spacer(modifier = Modifier.padding(horizontal = 8.dp))
             Text(
-                text = "Open Notification Settings",
+                text = stringResource(R.string.permission_open_settings),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold
             )
@@ -318,7 +320,7 @@ fun PermissionScreen(
                 modifier = Modifier.size(18.dp)
             )
             Spacer(modifier = Modifier.padding(horizontal = 6.dp))
-            Text("Alternative: App Notification Settings")
+            Text(stringResource(R.string.permission_alt_settings))
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -342,7 +344,7 @@ fun PermissionScreen(
                     )
                     Spacer(modifier = Modifier.padding(horizontal = 8.dp))
                     Text(
-                        text = "Notification access is enabled! You're all set.",
+                        text = stringResource(R.string.permission_enabled),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onPrimaryContainer
                     )
@@ -364,7 +366,7 @@ private fun StepItem(
         if (isCompleted) {
             Icon(
                 imageVector = Icons.Default.CheckCircle,
-                contentDescription = "Completed",
+                contentDescription = stringResource(R.string.common_completed),
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(24.dp)
             )

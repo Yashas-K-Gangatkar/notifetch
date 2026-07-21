@@ -6,7 +6,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Analytics
+import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material3.*
@@ -20,11 +20,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.notifetch.app.ui.components.ShareEarningsCard
 import com.notifetch.app.ui.theme.BrandGradientEnd
 import com.notifetch.app.ui.theme.BrandGradientStart
 import com.notifetch.app.ui.viewmodel.EarningsViewModel
 import com.notifetch.app.util.Helpers
+import androidx.compose.ui.res.stringResource
+import com.notifetch.app.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -52,12 +53,12 @@ fun EarningsScreen(
                 title = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
-                            imageVector = Icons.Default.Analytics,
+                            imageVector = Icons.Default.AccountBalanceWallet,
                             contentDescription = null,
                             tint = Color.White
                         )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Activity", fontWeight = FontWeight.Bold, color = Color.White)
+                        Text(stringResource(R.string.earnings_title), fontWeight = FontWeight.Bold, color = Color.White)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -91,7 +92,7 @@ fun EarningsScreen(
                         )
                         Spacer(modifier = Modifier.width(12.dp))
                         Text(
-                            "NotiFetch helps you never miss an order. Your notifications stay on your phone.",
+                            stringResource(R.string.earnings_privacy_banner),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -111,13 +112,13 @@ fun EarningsScreen(
                         shape = RoundedCornerShape(12.dp)
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
-                            Text("Today", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(stringResource(R.string.earnings_today), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             Text(
-                                "${uiState.todayOrders}",
+                                Helpers.formatCurrency(uiState.todayEarnings),
                                 style = MaterialTheme.typography.headlineSmall,
                                 fontWeight = FontWeight.Bold
                             )
-                            Text("orders captured", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(stringResource(R.string.earnings_orders_count, uiState.todayOrders), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
                     // This Week
@@ -126,13 +127,13 @@ fun EarningsScreen(
                         shape = RoundedCornerShape(12.dp)
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
-                            Text("This Week", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(stringResource(R.string.earnings_week), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             Text(
-                                "${uiState.weekOrders}",
+                                Helpers.formatCurrency(uiState.weekEarnings),
                                 style = MaterialTheme.typography.headlineSmall,
                                 fontWeight = FontWeight.Bold
                             )
-                            Text("orders captured", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(stringResource(R.string.earnings_orders_count, uiState.weekOrders), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
                 }
@@ -156,36 +157,23 @@ fun EarningsScreen(
                         )
                         Spacer(modifier = Modifier.width(12.dp))
                         Column(modifier = Modifier.weight(1f)) {
-                            Text("This Month", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(stringResource(R.string.earnings_month), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             Text(
-                                "${uiState.monthOrders}",
+                                Helpers.formatCurrency(uiState.monthEarnings),
                                 style = MaterialTheme.typography.headlineMedium,
                                 fontWeight = FontWeight.Bold
                             )
                         }
-                        Text("orders captured", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(stringResource(R.string.earnings_orders_count, uiState.monthOrders), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
-            }
-
-            // v2.9.81: Share earnings CTA — placed below the today/week/month
-            // summary cards and above the per-platform breakdown.
-            // Counts only platforms with at least one captured notification,
-            // so the "across N platforms" line in the shared message stays honest.
-            item {
-                val activePlatformCount = uiState.platformBreakdown.count { it.count > 0 }
-                ShareEarningsCard(
-                    todayEarnings = uiState.todayEarnings,
-                    todayOrders = uiState.todayOrders,
-                    platformCount = activePlatformCount
-                )
             }
 
             // Platform breakdown — always visible
             if (uiState.platformBreakdown.isNotEmpty()) {
                 item {
                     Text(
-                        "Orders by Platform",
+                        stringResource(R.string.earnings_platform_breakdown),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(top = 8.dp)
@@ -202,9 +190,10 @@ fun EarningsScreen(
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(earning.platform, fontWeight = FontWeight.Medium)
+                                Text(stringResource(R.string.earnings_orders_count, earning.count), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                             Text(
-                                "${earning.count} orders",
+                                Helpers.formatCurrency(earning.earnings),
                                 fontWeight = FontWeight.Bold,
                                 style = MaterialTheme.typography.titleMedium
                             )
