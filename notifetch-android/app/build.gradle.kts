@@ -24,8 +24,8 @@ android {
         applicationId = "com.notifetch.app"
         minSdk = 24
         targetSdk = 35
-        versionCode = 110
-        versionName = "2.9.82"
+        versionCode = 111
+        versionName = "2.9.83"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -142,6 +142,9 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     // v2.9.82: AppCompat for per-app language switching (AppCompatDelegate.setApplicationLocales)
     implementation("androidx.appcompat:appcompat:1.7.0")
+    // v2.9.83: QR code generation + scanning
+    implementation("com.google.zxing:core:3.5.3")
+    implementation("com.journeyapps:zxing-android-embedded:4.3.0")
 
     // Compose
     implementation(platform(libs.androidx.compose.bom))

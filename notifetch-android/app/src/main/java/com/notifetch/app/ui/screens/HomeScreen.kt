@@ -292,6 +292,11 @@ fun HomeScreen(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
+                // v2.9.83: Premium status banner
+                item {
+                    com.notifetch.app.ui.components.PremiumBanner()
+                }
+
                 // ── Stats section ──────────────────────────────────────
                 item {
                     Row(

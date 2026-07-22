@@ -131,6 +131,17 @@ fun NotiFetchNavHost() {
     LaunchedEffect(Unit) {
         val activity = context as? android.app.Activity
         activity?.intent?.let { intent ->
+            // v2.9.83: Handle referral deep links (notifetch.in/r/CODE)
+            val data = intent.data
+            if (data != null) {
+                val url = data.toString()
+                val referralCode = com.notifetch.app.util.ReferralManager.extractReferralCode(url)
+                if (referralCode != null) {
+                    // Award premium days to this user (the scanner/recipient)
+                    com.notifetch.app.util.PremiumManager.recordScan(context, referralCode)
+                }
+            }
+
             if (intent.action == "OPEN_NOTIFICATION_DETAIL") {
                 val id = if (intent.extras?.get("notificationId") is Long) {
                     intent.getLongExtra("notificationId", -1L)
@@ -329,7 +340,16 @@ fun NotiFetchNavHost() {
             }
 
             composable("earnings") {
-                EarningsScreen()
+                EarningsScreen(
+                    onNavigateToScanner = { navController.navigate("qr-scanner") }
+                )
+            }
+
+            // v2.9.83: QR Scanner screen for referral code scanning
+            composable("qr-scanner") {
+                com.notifetch.app.ui.screens.QrScannerScreen(
+                    onNavigateBack = { navController.popBackStack() }
+                )
             }
 
             composable("settings") {

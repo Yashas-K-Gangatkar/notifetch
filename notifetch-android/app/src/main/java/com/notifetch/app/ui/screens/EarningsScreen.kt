@@ -30,6 +30,7 @@ import com.notifetch.app.R
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EarningsScreen(
+    onNavigateToScanner: () -> Unit = {},
     viewModel: EarningsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -175,6 +176,13 @@ fun EarningsScreen(
                     todayEarnings = uiState.todayEarnings,
                     todayOrders = uiState.todayOrders,
                     platformCount = uiState.platformBreakdown.count { it.count > 0 }
+                )
+            }
+
+            // v2.9.83: Referral QR card — share QR, scan QR, earn free premium
+            item {
+                com.notifetch.app.ui.components.ReferralQrCard(
+                    onScanClick = onNavigateToScanner
                 )
             }
 

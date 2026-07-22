@@ -100,6 +100,48 @@
     <string name="settings_language_hindi">हिन्दी (Hindi)</string>
     <string name="settings_language_system">System default</string>
     <string name="settings_language_dialog_title">Select Language</string>
+
+    <!-- ============ Premium / Referral (v2.9.83) ============ -->
+    <string name="premium_title">Premium</string>
+    <string name="premium_active">Premium Active</string>
+    <string name="premium_free_tier">Free Tier</string>
+    <string name="premium_days_remaining">%1$d days premium remaining</string>
+    <string name="premium_one_day_remaining">1 day premium remaining</string>
+    <string name="premium_hours_remaining">%1$d hours premium remaining</string>
+    <string name="premium_expired">Premium expired — share your QR to get free days</string>
+    <string name="premium_unlock_all">All features unlocked!</string>
+    <string name="premium_unlock_more">Share your QR code to unlock premium</string>
+
+    <!-- QR Referral -->
+    <string name="referral_title">Refer &amp; Earn Free Premium</string>
+    <string name="referral_subtitle">Share your QR code. When someone scans it, you both get free premium days!</string>
+    <string name="referral_your_code">Your Referral Code</string>
+    <string name="referral_your_qr">Your QR Code</string>
+    <string name="referral_share_qr">Share QR Code</string>
+    <string name="referral_scan_qr">Scan Someone\'s QR Code</string>
+    <string name="referral_scan_subtitle">Scan a friend\'s QR to get 7 days premium FREE</string>
+    <string name="referral_share_link">Share Link</string>
+    <string name="referral_stats_title">Your Referral Stats</string>
+    <string name="referral_total_referrals">Total Referrals</string>
+    <string name="referral_premium_earned">Premium Days Earned</string>
+    <string name="referral_how_it_works">How it works</string>
+    <string name="referral_step_1">1. Share your QR code with friends</string>
+    <string name="referral_step_2">2. They scan it with the NotiFetch app</string>
+    <string name="referral_step_3">3. You both get free premium days!</string>
+    <string name="referral_step_4">4. Refer 10 friends = 1 full month FREE</string>
+    <string name="referral_reward_sharer">You get 3 days per scan</string>
+    <string name="referral_reward_scanner">They get 7 days welcome bonus</string>
+    <string name="referral_scan_success_title">Premium Activated! 🎉</string>
+    <string name="referral_scan_success_msg">You got %1$d days of premium FREE! Enjoy all features.</string>
+    <string name="referral_scan_error_own">You can\'t scan your own code!</string>
+    <string name="referral_scan_error_duplicate">You already scanned this code!</string>
+    <string name="referral_scan_error_invalid">Invalid QR code. Please scan a NotiFetch referral QR.</string>
+    <string name="referral_scan_camera_permission">Camera permission is required to scan QR codes</string>
+    <string name="referral_scan_grant_permission">Grant Camera Permission</string>
+    <string name="referral_scan_cancel">Cancel</string>
+    <string name="referral_scan_done">Done</string>
+    <string name="referral_month_bonus">🎉 Bonus: 10 referrals = 1 month FREE! You earned 30 bonus days!</string>
+    <string name="referral_share_message">🔔 Get NotiFetch — never miss a delivery order! Use my code %1$s and get 7 days premium FREE. Download: %2$s</string>
     <string name="settings_platform_filters">Platform Filters</string>
     <string name="settings_platform_filters_desc">Toggle which delivery partner apps to monitor</string>
     <string name="settings_tap_for_updates">Tap to check for updates on Play Store</string>
