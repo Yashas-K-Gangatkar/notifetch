@@ -96,10 +96,10 @@ fun QrScannerScreen(
         }
         // Record the scan and award premium days
         when (val recordResult = PremiumManager.recordScan(context, referralCode)) {
-            is ScanResult.Success -> {
+            is com.notifetch.app.util.ScanResult.Success -> {
                 scanResult = ScanResultState.Success(recordResult.daysAwarded)
             }
-            is ScanResult.Error -> {
+            is com.notifetch.app.util.ScanResult.Error -> {
                 scanResult = ScanResultState.Error(recordResult.message)
             }
         }
