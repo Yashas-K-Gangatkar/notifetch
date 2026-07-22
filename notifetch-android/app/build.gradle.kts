@@ -18,14 +18,14 @@ val localProps = Properties().apply {
 
 android {
     namespace = "com.notifetch.app"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.notifetch.app"
         minSdk = 24
-        targetSdk = 35
-        versionCode = 111
-        versionName = "2.9.83"
+        targetSdk = 36
+        versionCode = 112
+        versionName = "2.9.84"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
