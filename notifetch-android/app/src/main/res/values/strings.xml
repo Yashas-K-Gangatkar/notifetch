@@ -138,6 +138,9 @@
     <string name="referral_scan_error_invalid">Invalid QR code. Please scan a NotiFetch referral QR.</string>
     <string name="referral_scan_camera_permission">Camera permission is required to scan QR codes</string>
     <string name="referral_scan_grant_permission">Grant Camera Permission</string>
+    <string name="referral_scan_camera_button">Scan with Camera</string>
+    <string name="referral_scan_gallery_button">Scan from Gallery</string>
+    <string name="referral_scan_help">Tip: Screenshot a friend\'s QR code from WhatsApp/Instagram, then use Scan from Gallery</string>
     <string name="referral_scan_cancel">Cancel</string>
     <string name="referral_scan_done">Done</string>
     <string name="referral_month_bonus">🎉 Bonus: 10 referrals = 1 month FREE! You earned 30 bonus days!</string>

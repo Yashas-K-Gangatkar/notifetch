@@ -138,6 +138,9 @@
     <string name="referral_scan_error_invalid">अमान्य QR कोड। कृपया NotiFetch रेफरल QR स्कैन करें।</string>
     <string name="referral_scan_camera_permission">QR कोड स्कैन करने के लिए कैमरा अनुमति आवश्यक है</string>
     <string name="referral_scan_grant_permission">कैमरा अनुमति दें</string>
+    <string name="referral_scan_camera_button">कैमरा से स्कैन करें</string>
+    <string name="referral_scan_gallery_button">गैलरी से स्कैन करें</string>
+    <string name="referral_scan_help">सुझाव: WhatsApp/Instagram से दोस्त के QR का स्क्रीनशॉट लें, फिर गैलरी से स्कैन का उपयोग करें</string>
     <string name="referral_scan_cancel">रद्द करें</string>
     <string name="referral_scan_done">हो गया</string>
     <string name="referral_month_bonus">🎉 बोनस: 10 रेफरल = 1 महीना मुफ्त! आपको 30 बोनस दिन मिले!</string>
