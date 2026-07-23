@@ -8,6 +8,7 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -41,6 +42,7 @@ import com.notifetch.app.data.local.CapturedNotification
 import com.notifetch.app.ui.theme.getPlatformColor
 import com.notifetch.app.util.Helpers
 
+@OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
 fun NotificationCard(
     notification: CapturedNotification,
@@ -61,7 +63,10 @@ fun NotificationCard(
                 ambientColor = if (notification.isRead) Color.Transparent else platformColor.copy(alpha = 0.1f),
                 spotColor = if (notification.isRead) Color.Transparent else platformColor.copy(alpha = 0.1f)
             )
-            .clickable { onClick(notification.id) },
+            .combinedClickable(
+                onClick = { onClick(notification.id) },
+                onLongClick = { onLongClick?.invoke(notification.packageName ?: notification.source ?: "") }
+            ),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         colors = CardDefaults.cardColors(

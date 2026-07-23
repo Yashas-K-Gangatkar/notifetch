@@ -445,6 +445,15 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    // v2.9.91: Rename platform from home screen (long-press notification)
+    fun renamePlatform(packageName: String, newName: String) {
+        viewModelScope.launch {
+            try {
+                repository.updateCustomDisplayName(packageName, newName)
+            } catch (_: Exception) { }
+        }
+    }
+
     /**
      * Export currently filtered notifications as CSV string.
      * Includes all visible notifications based on current mode, platform filter, and search query.

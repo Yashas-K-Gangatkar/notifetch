@@ -50,6 +50,8 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
@@ -102,6 +104,11 @@ fun HomeScreen(
     // Check notification listener status and navigate to permission if needed.
     // Uses a flag to prevent navigation loops (BUG #18 cleanup).
     var hasNavigatedToPermission by remember { mutableStateOf(false) }
+    // v2.9.91: Rename dialog state — long-press notification to rename platform
+    var showRenameDialog by remember { mutableStateOf(false) }
+    var renamePackageName by remember { mutableStateOf("") }
+    var renameCurrentName by remember { mutableStateOf("") }
+    var renameNewName by remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
         val isEnabled = NotiFetchListenerService.isListenerEnabled(context)
@@ -452,6 +459,12 @@ fun HomeScreen(
                             notification = notification,
                             onClick = onClick,
                             displayPlatformName = resolvedName,
+                            onLongClick = { pkgName ->
+                                renamePackageName = pkgName
+                                renameCurrentName = resolvedName ?: notification.platform ?: ""
+                                renameNewName = resolvedName ?: notification.platform ?: ""
+                                showRenameDialog = true
+                            },
                             modifier = Modifier.padding(horizontal = 16.dp)
                         )
                     }
@@ -474,6 +487,47 @@ fun HomeScreen(
                 item { Spacer(modifier = Modifier.height(24.dp)) }
             }
         }
+    }
+
+    // v2.9.91: Rename platform dialog — triggered by long-pressing a notification
+    if (showRenameDialog) {
+        AlertDialog(
+            onDismissRequest = { showRenameDialog = false },
+            title = { Text("Rename Platform") },
+            text = {
+                Column {
+                    Text(
+                        text = "Current: $renameCurrentName",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                    OutlinedTextField(
+                        value = renameNewName,
+                        onValueChange = { renameNewName = it },
+                        label = { Text("New name") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    val trimmed = renameNewName.trim()
+                    if (trimmed.isNotEmpty() && trimmed != renameCurrentName) {
+                        viewModel.renamePlatform(renamePackageName, trimmed)
+                    }
+                    showRenameDialog = false
+                }) {
+                    Text("Save")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showRenameDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 }
 
