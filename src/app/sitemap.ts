@@ -30,10 +30,22 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.3,
     },
     {
+      url: `${baseUrl}/legal-defense`,
+      lastModified,
+      changeFrequency: "monthly",
+      priority: 0.5,
+    },
+    {
       url: `${baseUrl}/terms`,
       lastModified,
       changeFrequency: "yearly",
       priority: 0.3,
+    },
+    {
+      url: `${baseUrl}/download`,
+      lastModified,
+      changeFrequency: "weekly",
+      priority: 0.8,
     },
   ];
 }
