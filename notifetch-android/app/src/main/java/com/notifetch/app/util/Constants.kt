@@ -3,7 +3,7 @@ package com.notifetch.app.util
 object Constants {
 
     const val DATABASE_NAME = "notifetch_db"
-    const val BASE_URL = "https://www.notifetch.in/"
+    const val BASE_URL = "https:
     const val NOTIFICATION_CHANNEL_ID = "notifetch_channel"
     const val NOTIFICATION_CHANNEL_NAME = "NotiFetch Service"
     const val SYNC_WORK_NAME = "notifetch_sync_work"
@@ -15,7 +15,7 @@ object Constants {
     // Only includes apps with CONFIRMED package names from Google Play Store
     //
     // LEGAL NOTE — User Choice Model:
-    // Default display names are GENERIC (e.g., "Food Delivery Platform 1")
+
     // to avoid trademark infringement. Users can customize any platform
     // name to whatever they prefer. This "user choice" model provides:
     //   1. Zero trademark risk (we don't use brand names by default)
@@ -26,90 +26,90 @@ object Constants {
 
     val PARTNER_PACKAGES = mapOf(
         // ── Food Delivery ──────────────────────────────────────────────────
-        "com.ubercab.driver" to "Uber",                      // Uber Driver/Eats 
-        "com.doordash.driverapp" to "DoorDash",              // DoorDash Dasher 
-        "com.grubhub.driver" to "Grubhub",                   // Grubhub Driver 
-        "com.deliveroo.driverapp" to "Deliveroo",             // Deliveroo Rider 
-        "com.justeat.courier.uk" to "Just Eat",             // Just Eat Courier UK
-        "com.takeaway.delivered4all" to "Takeaway.com",        // Takeaway.com Courier (EU)
-        "com.lieferando.courier" to "Lieferando",           // Lieferando Courier 
-        "com.logistics.rider.foodpanda" to "Foodpanda",      // Foodpanda Rider 
-        "in.swiggy.deliveryapp" to "Swiggy",              // Swiggy Delivery Partner 
-        "com.zomato.delivery" to "Zomato",                // Zomato Delivery 
-        "br.com.ifood.driver.app" to "iFood",           // iFood Entregador 
-        "com.rappi.storekeeper" to "Rappi",             // Rappi Repartidor 
-        "com.wolt.courierapp" to "Wolt",                   // Wolt Courier 
-        "com.logistics.rider.glovo" to "Glovo",            // Glovo Courier 
-        "com.demaecan.DemaecanDriver" to "Demae-can",       // Demae-can Driver 
-        "com.logistics.rider.talabat" to "Talabat",          // Talabat Rider 
-        "com.menulog.courier" to "Menulog",                // Menulog Courier 
-        "com.sankuai.sailor.courier" to "Keeta",             // Keeta Rider 
+        "com.ubercab.driver" to "Platform 167",
+        "com.doordash.driverapp" to "Platform 141",
+        "com.grubhub.driver" to "Platform 142",
+        "com.deliveroo.driverapp" to "Platform 143",
+        "com.justeat.courier.uk" to "Platform 144",
+        "com.takeaway.delivered4all" to "Platform 145",
+        "com.lieferando.courier" to "Platform 146",
+        "com.logistics.rider.foodpanda" to "Platform 147",
+        "in.swiggy.deliveryapp" to "Platform 136",
+        "com.zomato.delivery" to "Platform 137",
+        "br.com.ifood.driver.app" to "Platform 148",
+        "com.rappi.storekeeper" to "Platform 149",
+        "com.wolt.courierapp" to "Platform 150",
+        "com.logistics.rider.glovo" to "Platform 151",
+        "com.demaecan.PlatformcanDriver" to "Platform 15",
+        "com.logistics.rider.talabat" to "Platform 152",
+        "com.menulog.courier" to "Platform 153",
+        "com.sankuai.sailor.courier" to "Platform 18",
 
         // ── Grocery Delivery ───────────────────────────────────────────────
-        "com.instacart.shopper" to "Instacart",            // Instacart Shopper 
-        "com.gopuff.godrive2.live" to "Gopuff",             // Gopuff Driver 
-        "app.blinkit.onboarding" to "Blinkit",            // Blinkit Delivery Partner 
-        "com.bigbasket.dapp.activity" to "BigBasket",     // BigBasket Delivery Partner 
-        "com.mercadoenvios.crowdsourcing" to "Mercado Libre Envios",     // Mercado Libre Envios Extra 
-        "com.mercadoenvios.driver" to "Mercado Libre Envios",              // Mercado Libre Envios Flex 
-        "au.com.woolworths.android.driver" to "WooliesGO",         // WooliesGO 
-        "com.zepto.rider" to "Zepto",                     // Zepto Delivery Partner 
-        "com.flink.workforce" to "Flink",                    // Flink Workforce 
-        "com.shipt.shopper" to "Shipt",                    // Shipt Shopper 
+        "com.instacart.shopper" to "Platform 154",
+        "com.gopuff.godrive2.live" to "Platform 20",
+        "app.blinkit.onboarding" to "Platform 155",
+        "com.bigbasket.dapp.activity" to "Platform 156",
+        "com.mercadoenvios.crowdsourcing" to "Platform 24",
+        "com.mercadoenvios.driver" to "Platform 24",
+        "au.com.woolworths.android.driver" to "Platform 25",
+        "com.zepto.rider" to "Platform 158",
+        "com.flink.workforce" to "Platform 27",
+        "com.shipt.shopper" to "Platform 159",
 
         // ── Package & Parcel ──────────────────────────────────────────────
-        "com.amazon.flex.rabbit" to "Amazon Flex",                 // Amazon Flex 
-        "com.ups.genesispd" to "UPS Pickup &",                       // UPS Pickup & Delivery 
-        "com.dunzo.partner" to "Dunzo",                    // Dunzo Partner 
-        "com.lalamove.global.driver.sea" to "Lalamove",     // Lalamove Driver 
-        "global.dostavista.courier" to "Borzo/WeFast",            // Borzo/WeFast Courier 
+        "com.amazon.flex.rabbit" to "Platform 64",
+        "com.ups.genesispd" to "Platform 30",
+        "com.dunzo.partner" to "Platform 176",
+        "com.lalamove.global.driver.sea" to "Platform 32",
+        "global.dostavista.courier" to "Platform 33",
 
         // ── Courier & Express ─────────────────────────────────────────────
-        "com.postmates.android.courier" to "Postmates",      // Postmates Fleet 
-        "com.roadie.drive.android.app" to "Roadie",         // Roadie Driver 
-        "com.stuart.courier" to "Stuart",                  // Stuart Courier 
-        "com.quadx.riderapp" to "GoGo Xpress",                     // GoGo Xpress Rider 
+        "com.postmates.android.courier" to "Platform 34",
+        "com.roadie.drive.android.app" to "Platform 35",
+        "com.stuart.courier" to "Platform 36",
+        "com.quadx.riderapp" to "Platform 37",
 
         // ── Last-Mile Delivery ────────────────────────────────────────────
-        "com.amazon.relay" to "Amazon Relay/Logistics",                      // Amazon Relay/Logistics 
-        "com.ekartkiranaonboarding" to "Flipkart/Ekart",           // Flipkart/Ekart Delivery Partner 
-        "com.ekart.logistics.app" to "Ekart",              // Ekart Field X 
-        "id.my.irsyadf.jobdriver" to "JOS KURIR/JNE",                  // JOS KURIR/JNE 
-        "com.aramex.ecourier" to "Aramex",                 // Aramex Courier 
-        "co.ninjavan.swiftninja_global" to "Ninja Van",     // Ninja Van Driver 
+        "com.amazon.relay" to "Platform 38",
+        "com.ekartkiranaonboarding" to "Platform 39",
+        "com.ekart.logistics.app" to "Platform 40",
+        "id.my.irsyadf.jobdriver" to "Platform 41",
+        "com.aramex.ecourier" to "Platform 42",
+        "co.ninjavan.swiftninja_global" to "Platform 43",
 
         // ── Ride & Transport ──────────────────────────────────────────────
-        "com.lyft.android.driver" to "Lyft",                // Lyft Driver 
-        "com.olacabs.oladriver" to "Ola",                   // Ola Driver 
-        "com.grabtaxi.driver2" to "Grab",                   // Grab Driver 
-        "com.careem.adma" to "Careem Captain",                     // Careem Captain 
-        "com.didiglobal.driver" to "DiDi",                  // DiDi Driver 
-        "ee.mtakso.driver" to "Bolt",                       // Bolt Driver 
+        "com.lyft.android.driver" to "Platform 173",
+        "com.olacabs.oladriver" to "Platform 168",
+        "com.grabtaxi.driver2" to "Platform 169",
+        "com.careem.adma" to "Platform 47",
+        "com.didiglobal.driver" to "Platform 171",
+        "ee.mtakso.driver" to "Platform 172",
 
         // ── Other Delivery Partners ────────────────────────────────────────
-        "com.theporter.android.driverapp" to "Porter",      // Porter Driver 
-        "com.rapido.rider" to "Rapido Captain",                    // Rapido Captain 
-        "com.rapido.passenger" to "Rapido",              // Rapido Customer  — v2.9.24 fix
-        "in.shadowfax.gandalf" to "Shadowfax",            // Shadowfax Delivery Partner 
-        "com.gojek.partner" to "Gojek Driver/GoPartner",                     // Gojek Driver/GoPartner 
-        "com.delhivery.delhiverypartner" to "Delhivery",   // Delhivery Partner 
-        "com.ecomexpress.oneBoarding" to "Ecom Express Sathi",           // Ecom Express Sathi 
-        "com.xpressbees.unified_new_arch" to "Xpressbees",         // Xpressbees 
-        "in.letstransport.supply" to "LetsTransport",              // LetsTransport Partner 
-        "net.blowhorn.driverapp" to "Blowhorn",             // Blowhorn Driver 
-        "com.driveu.partner" to "DriveU",                  // DriveU Partner 
-        "app.yulu.android.partner" to "Yulu",              // Yulu Partner 
+        "com.theporter.android.driverapp" to "Platform 50",
+        "com.rapido.rider" to "Platform 51",
+        "com.rapido.passenger" to "Platform 52",
+        "in.shadowfax.gandalf" to "Platform 53",
+        "com.gojek.partner" to "Platform 54",
+        "com.delhivery.delhiverypartner" to "Platform 174",
+        "com.ecomexpress.oneBoarding" to "Platform 56",
+        "com.xpressbees.unified_new_arch" to "Platform 175",
+        "in.letstransport.supply" to "Platform 58",
+        "net.blowhorn.driverapp" to "Platform 59",
+        "com.driveu.partner" to "Platform 60",
+        "app.yulu.android.partner" to "Platform 61",
 
         // ── Alternate/legacy packages (for compatibility) ──────────────────
-        "in.swiggy.partner" to "Swiggy Restaurant",                  // Swiggy Restaurant Partner 
-        "com.zomato.deliverypartner" to "Zomato Delivery",         // Zomato alternate package
-        "com.amazon.flex" to "Amazon Flex",
-        "com.flipkart.logistics" to "Flipkart",           // Flipkart old package
-        // ── Freight",              // Flipkart old package
+        "in.swiggy.partner" to "Platform 62",
+        "com.zomato.deliverypartner" to "Platform 63",
+        "com.amazon.flex" to "Platform 64",
+        "com.flipkart.logistics" to "Platform 163",
+        // ── Freight
 
         // ── Freight  ───────────────────────────────────────────
-        "com.convoy.driverapp"                                   to "Convoy",      // (US)
-        "com.blackbuck.driver"                                   to "BlackBuck",      // (India)
+        "com.convoy.driverapp"                                   to "Platform 66",
+        "com.blackbuck.driver"                                   to "Platform 67",
     )
 
     // Source identifiers for API (machine-readable, not user-facing)
@@ -118,94 +118,94 @@ object Constants {
     }.toMap()
 
     // ═══════════════════════════════════════════════════════════════════════
-    // Platform colors keyed by PACKAGE NAME (not display name!)
+
     // This ensures colors work regardless of user customizing the display name.
     // Colors are the actual brand colors used in nominative fair use context.
     // ═══════════════════════════════════════════════════════════════════════
     val PLATFORM_COLORS = mapOf(
         // Food Delivery
-        "com.ubercab.driver" to "#FFC107",              // Uber — Black
-        "com.doordash.driverapp" to "#FF9800",          // DoorDash — Red
-        "com.grubhub.driver" to "#FF6B35",              // Grubhub — Orange
-        "com.deliveroo.driverapp" to "#F59E0B",         // Deliveroo — Teal
-        "com.justeat.courier.uk" to "#FB923C",          // Just Eat — Orange
-        "com.takeaway.delivered4all" to "#FFC107",      // Takeaway — Orange
-        "com.lieferando.courier" to "#FF9800",          // Lieferando — Orange
-        "com.logistics.rider.foodpanda" to "#FF6B35",   // Foodpanda — Pink/Red
-        "in.swiggy.deliveryapp" to "#F59E0B",           // Swiggy — Orange
-        "com.zomato.delivery" to "#FB923C",             // Zomato — Red
-        "br.com.ifood.driver.app" to "#FFC107",         // iFood — Red
-        "com.rappi.storekeeper" to "#FF9800",           // Rappi — Orange/Red
-        "com.wolt.courierapp" to "#FF6B35",             // Wolt — Cyan
-        "com.logistics.rider.glovo" to "#F59E0B",       // Glovo — Yellow
-        "com.demaecan.DemaecanDriver" to "#FB923C",     // Demae-can — Red
-        "com.logistics.rider.talabat" to "#FFC107",     // Talabat — Orange
-        "com.menulog.courier" to "#FF9800",             // Menulog — Orange
-        "com.sankuai.sailor.courier" to "#FF6B35",      // Keeta — Yellow
+        "com.ubercab.driver" to "Platform 362",
+        "com.doordash.driverapp" to "Platform 363",
+        "com.grubhub.driver" to "Platform 364",
+        "com.deliveroo.driverapp" to "Platform 360",
+        "com.justeat.courier.uk" to "Platform 361",
+        "com.takeaway.delivered4all" to "Platform 362",
+        "com.lieferando.courier" to "Platform 363",
+        "com.logistics.rider.foodpanda" to "Platform 364",
+        "in.swiggy.deliveryapp" to "Platform 360",
+        "com.zomato.delivery" to "Platform 361",
+        "br.com.ifood.driver.app" to "Platform 362",
+        "com.rappi.storekeeper" to "Platform 363",
+        "com.wolt.courierapp" to "Platform 364",
+        "com.logistics.rider.glovo" to "Platform 360",
+        "com.demaecan.PlatformcanDriver" to "Platform 361",
+        "com.logistics.rider.talabat" to "Platform 362",
+        "com.menulog.courier" to "Platform 363",
+        "com.sankuai.sailor.courier" to "Platform 364",
 
         // Grocery
-        "com.instacart.shopper" to "#F59E0B",           // Instacart — Green
-        "com.gopuff.godrive2.live" to "#FB923C",        // Gopuff — Purple
-        "app.blinkit.onboarding" to "#FFC107",          // Blinkit — Yellow
-        "com.bigbasket.dapp.activity" to "#FF9800",     // BigBasket — Green
-        "com.mercadoenvios.crowdsourcing" to "#FF6B35", // Mercado Libre — Yellow
-        "com.mercadoenvios.driver" to "#F59E0B",        // Mercado Flex — Yellow
-        "au.com.woolworths.android.driver" to "#FB923C", // WooliesGO — Green
-        "com.zepto.rider" to "#FFC107",                 // Zepto — Purple/Magenta
-        "com.flink.workforce" to "#FF9800",             // Flink — Orange
-        "com.shipt.shopper" to "#FF6B35",               // Shipt — Teal
+        "com.instacart.shopper" to "Platform 360",
+        "com.gopuff.godrive2.live" to "Platform 361",
+        "app.blinkit.onboarding" to "Platform 362",
+        "com.bigbasket.dapp.activity" to "Platform 363",
+        "com.mercadoenvios.crowdsourcing" to "Platform 364",
+        "com.mercadoenvios.driver" to "Platform 360",
+        "au.com.woolworths.android.driver" to "Platform 361",
+        "com.zepto.rider" to "Platform 362",
+        "com.flink.workforce" to "Platform 363",
+        "com.shipt.shopper" to "Platform 364",
 
         // Package
-        "com.amazon.flex.rabbit" to "#F59E0B",          // Amazon Flex — Orange
-        "com.ups.genesispd" to "#FB923C",               // UPS — Brown
-        "com.dunzo.partner" to "#FFC107",               // Dunzo — Green
-        "com.lalamove.global.driver.sea" to "#FF9800",  // Lalamove — Orange
-        "global.dostavista.courier" to "#FF6B35",       // Borzo — Green
+        "com.amazon.flex.rabbit" to "Platform 360",
+        "com.ups.genesispd" to "Platform 361",
+        "com.dunzo.partner" to "Platform 362",
+        "com.lalamove.global.driver.sea" to "Platform 363",
+        "global.dostavista.courier" to "Platform 364",
 
         // Courier
-        "com.postmates.android.courier" to "#F59E0B",   // Postmates — Black
-        "com.roadie.drive.android.app" to "#FB923C",    // Roadie — Blue
-        "com.stuart.courier" to "#FFC107",              // Stuart — Indigo
-        "com.quadx.riderapp" to "#FF9800",              // GoGo Xpress — Orange
+        "com.postmates.android.courier" to "Platform 360",
+        "com.roadie.drive.android.app" to "Platform 361",
+        "com.stuart.courier" to "Platform 362",
+        "com.quadx.riderapp" to "Platform 363",
 
         // Last-Mile
-        "com.amazon.relay" to "#FF6B35",                // Amazon Relay — Orange
-        "com.ekartkiranaonboarding" to "#F59E0B",       // Ekart — Blue
-        "com.ekart.logistics.app" to "#FB923C",         // Ekart Field X — Blue
-        "id.my.irsyadf.jobdriver" to "#FFC107",         // JNE — Orange
-        "com.aramex.ecourier" to "#FF9800",             // Aramex — Red
-        "co.ninjavan.swiftninja_global" to "#FF6B35",   // Ninja Van — Orange
+        "com.amazon.relay" to "Platform 364",
+        "com.ekartkiranaonboarding" to "Platform 360",
+        "com.ekart.logistics.app" to "Platform 361",
+        "id.my.irsyadf.jobdriver" to "Platform 362",
+        "com.aramex.ecourier" to "Platform 363",
+        "co.ninjavan.swiftninja_global" to "Platform 364",
 
         // Ride
-        "com.lyft.android.driver" to "#F59E0B",         // Lyft — Pink
-        "com.olacabs.oladriver" to "#FB923C",           // Ola — Green
-        "com.grabtaxi.driver2" to "#FFC107",            // Grab — Green
-        "com.careem.adma" to "#FF9800",                 // Careem — Green
-        "com.didiglobal.driver" to "#FF6B35",           // DiDi — Orange
-        "ee.mtakso.driver" to "#F59E0B",                // Bolt — Green
+        "com.lyft.android.driver" to "Platform 360",
+        "com.olacabs.oladriver" to "Platform 361",
+        "com.grabtaxi.driver2" to "Platform 362",
+        "com.careem.adma" to "Platform 363",
+        "com.didiglobal.driver" to "Platform 364",
+        "ee.mtakso.driver" to "Platform 360",
 
         // Other
-        "com.theporter.android.driverapp" to "#FB923C", // Porter — Blue
-        "com.rapido.rider" to "#FFC107",                // Rapido — Yellow
-        "com.rapido.passenger" to "#FF9800",          // Rapido Passenger — Yellow
-        "com.rapido.passenger" to "#FF6B35",          // Rapido Passenger — Yellow
-        "in.shadowfax.gandalf" to "#F59E0B",            // Shadowfax — Orange
-        "com.gojek.partner" to "#FB923C",               // Gojek — Green
-        "com.delhivery.delhiverypartner" to "#FFC107",  // Delhivery — Blue
-        "com.ecomexpress.oneBoarding" to "#FF9800",     // Ecom Express — Orange
-        "com.xpressbees.unified_new_arch" to "#FF6B35", // Xpressbees — Pink
-        "in.letstransport.supply" to "#F59E0B",         // LetsTransport — Cyan
-        "net.blowhorn.driverapp" to "#FB923C",          // Blowhorn — Deep Orange
-        "com.driveu.partner" to "#FFC107",              // DriveU — Orange
-        "app.yulu.android.partner" to "#FF9800",        // Yulu — Teal
+        "com.theporter.android.driverapp" to "Platform 361",
+        "com.rapido.rider" to "Platform 362",
+        "com.rapido.passenger" to "Platform 363",
+        "com.rapido.passenger" to "Platform 364",
+        "in.shadowfax.gandalf" to "Platform 360",
+        "com.gojek.partner" to "Platform 361",
+        "com.delhivery.delhiverypartner" to "Platform 362",
+        "com.ecomexpress.oneBoarding" to "Platform 363",
+        "com.xpressbees.unified_new_arch" to "Platform 364",
+        "in.letstransport.supply" to "Platform 360",
+        "net.blowhorn.driverapp" to "Platform 361",
+        "com.driveu.partner" to "Platform 362",
+        "app.yulu.android.partner" to "Platform 363",
 
         // Legacy packages
-        "in.swiggy.partner" to "#FF6B35",               // Swiggy alt — Orange
-        "com.zomato.deliverypartner" to "#F59E0B",      // Zomato alt — Red
-        "com.amazon.flex" to "#FB923C",                 // Amazon Flex old — Orange
-        "com.flipkart.logistics" to "#FFC107",          // Flipkart old — Blue
-        "com.convoy.driverapp"                           to "#FF9800",      // Convoy Driver
-        "com.blackbuck.driver"                           to "#FF6B35",      // BlackBuck Driver
+        "in.swiggy.partner" to "Platform 364",
+        "com.zomato.deliverypartner" to "Platform 360",
+        "com.amazon.flex" to "Platform 361",
+        "com.flipkart.logistics" to "Platform 362",
+        "com.convoy.driverapp"                           to "Platform 363",
+        "com.blackbuck.driver"                           to "Platform 364",
     )
 
     // Time constants
@@ -215,7 +215,7 @@ object Constants {
     // Legal compliance: NotiFetch does NOT access delivery platform APIs,
     // store credentials, or use OAuth tokens. It only reads notification
     // content that the user can already see on their device.
-    // Platform display names use real brand names under nominative fair use.
+
     // Users can customize any display name through the app settings.
     const val LEGAL_DISCLAIMER = "NotiFetch reads notifications you can already see. We never access platform APIs or store credentials. Platform names are customizable by the user."
 
@@ -227,161 +227,161 @@ object Constants {
 
     val CUSTOMER_PACKAGES = mapOf(
         // ── Food Delivery (Customer Apps) ─────────────────────────────────
-        "in.swiggy.android" to "Swiggy",                           // Swiggy Customer 
-        "com.application.zomato" to "Zomato",                      // Zomato Customer 
-        "com.application.zomato.district" to "Zomato District",          // Zomato District
-        "com.magicpin.local" to "Magicpin",
-        "com.ubercab.eats" to "Uber Eats",
-        "com.doordash.consumerapp" to "DoorDash",                  // DoorDash Customer 
-        "com.grubhub.android" to "Grubhub",                        // Grubhub Customer 
-        "com.deliveroo.orderapp" to "Deliveroo",                    // Deliveroo Customer 
-        "com.justeat.app.uk" to "Just Eat",                  // Just Eat Customer UK
-        "com.takeaway.android" to "Takeaway.com",
-        "com.lieferando.android" to "Lieferando",                  // Lieferando Customer 
-        "com.foodpanda.android" to "Foodpanda",                    // Foodpanda Customer 
-        "br.com.ifood" to "iFood",                                 // iFood Customer 
-        "com.rappi.app" to "Rappi",                                // Rappi Customer 
-        "com.wolt.android" to "Wolt",                              // Wolt Customer 
-        "com.glovoapp.android" to "Glovo",                         // Glovo Customer 
-        "com.talabat.android" to "Talabat",                        // Talabat Customer 
-        "com.menulog.android" to "Menulog",                        // Menulog Customer 
+        "in.swiggy.android" to "Platform 136",
+        "com.application.zomato" to "Platform 137",
+        "com.application.zomato.district" to "Platform 138",
+        "com.magicpin.local" to "Platform 139",
+        "com.ubercab.eats" to "Platform 140",
+        "com.doordash.consumerapp" to "Platform 141",
+        "com.grubhub.android" to "Platform 142",
+        "com.deliveroo.orderapp" to "Platform 143",
+        "com.justeat.app.uk" to "Platform 144",
+        "com.takeaway.android" to "Platform 145",
+        "com.lieferando.android" to "Platform 146",
+        "com.foodpanda.android" to "Platform 147",
+        "br.com.ifood" to "Platform 148",
+        "com.rappi.app" to "Platform 149",
+        "com.wolt.android" to "Platform 150",
+        "com.glovoapp.android" to "Platform 151",
+        "com.talabat.android" to "Platform 152",
+        "com.menulog.android" to "Platform 153",
 
         // ── Grocery (Customer Apps) ────────────────────────────────────────
-        "com.instacart.app" to "Instacart",                        // Instacart Customer 
-        "app.blinkit" to "Blinkit",                                // Blinkit Customer 
-        "com.bigbasket.mobileapp" to "BigBasket",                  // BigBasket Customer 
-        "com.zepto.app" to "Zepto",                                // Zepto Customer  — old package
-        "com.zeptoconsumerapp" to "Zepto",                          // Zepto Customer  — v2.9.24 fix: actual package name
-        "com.shipt.android" to "Shipt",                            // Shipt Customer 
-        "au.com.woolworths.android" to "Woolworths",               // Woolworths Customer 
+        "com.instacart.app" to "Platform 154",
+        "app.blinkit" to "Platform 155",
+        "com.bigbasket.mobileapp" to "Platform 156",
+        "com.zepto.app" to "Platform 158",
+        "com.zeptoconsumerapp" to "Platform 158",
+        "com.shipt.android" to "Platform 159",
+        "au.com.woolworths.android" to "Platform 160",
 
         // ── E-Commerce (Customer Apps) ────────────────────────────────────
-        "in.amazon.mShop.android.shopping" to "Amazon Shopping",            // Amazon Shopping 
-        "com.amazon.mShop.android.shopping" to "Amazon Shopping",           // Amazon Shopping 
-        "com.flipkart.android" to "Flipkart",                      // Flipkart Customer 
-        "com.myntra.android" to "Myntra",                          // Myntra Customer 
-        "com.meesho.app" to "Meesho",                              // Meesho Customer 
-        "in.swiggy.android.instamart" to "Swiggy Instamart",              // Swiggy Instamart 
+        "in.amazon.mShop.android.shopping" to "Platform 162",
+        "com.amazon.mShop.android.shopping" to "Platform 162",
+        "com.flipkart.android" to "Platform 163",
+        "com.myntra.android" to "Platform 164",
+        "com.meesho.app" to "Platform 165",
+        "in.swiggy.android.instamart" to "Platform 166",
 
         // ── Ride & Transport (Customer Apps) ──────────────────────────────
-        "com.ubercab" to "Uber",                                   // Uber Customer 
-        "com.olacabs.customer" to "Ola",                           // Ola Customer 
-        "com.grabtaxi.passenger" to "Grab",                        // Grab Customer 
-        "com.careem.acma" to "Careem",                             // Careem Customer 
-        "com.didiglobal.passenger" to "DiDi",                      // DiDi Customer 
-        "ee.mtakso.client" to "Bolt",                              // Bolt Customer 
-        "com.lyft.android" to "Lyft",                              // Lyft Customer 
+        "com.ubercab" to "Platform 167",
+        "com.olacabs.customer" to "Platform 168",
+        "com.grabtaxi.passenger" to "Platform 169",
+        "com.careem.acma" to "Platform 170",
+        "com.didiglobal.passenger" to "Platform 171",
+        "ee.mtakso.client" to "Platform 172",
+        "com.lyft.android" to "Platform 173",
 
         // ── Package Tracking (Customer Apps) ──────────────────────────────
-        "com.delhivery.track" to "Delhivery",                      // Delhivery Customer 
-        "com.xpressbees.track" to "Xpressbees",                    // Xpressbees Customer 
-        "com.dunzo.user" to "Dunzo",                               // Dunzo Customer 
+        "com.delhivery.track" to "Platform 174",
+        "com.xpressbees.track" to "Platform 175",
+        "com.dunzo.user" to "Platform 176",
 
         // ── Food (China) — Customer Apps ──────────────────────────────────
-        "com.sankuai.meituan"                                    to "Meituan",      // (China)
-        "me.ele"                                                 to "Ele.me",      // (China)
+        "com.sankuai.meituan"                                    to "Platform 177",
+        "me.ele"                                                 to "Platform 178",
 
         // ── Grocery (EU) — Customer Apps ──────────────────────────────────
-        "com.gorillasapp"                                        to "Gorillas",      // (EU/UK — acquired by Getir)
-        "com.getir"                                              to "Getir",      // (EU/UK/MENA)
+        "com.gorillasapp"                                        to "Platform 179",
+        "com.getir"                                              to "Platform 180",
 
         // ── Package & Parcel — Customer Apps ───────────────────────────────
-        "com.fedex.android.apps.fedexmobile"                     to "FedEx",      // (Global)
-        "com.dhl.parcel.uk"                                      to "DHL",      // (Global)
-        "com.sf.activity"                                        to "SF Express",      // (China)
+        "com.fedex.android.apps.fedexmobile"                     to "Platform 181",
+        "com.dhl.parcel.uk"                                      to "Platform 182",
+        "com.sf.activity"                                        to "Platform 183",
 
         // ── Medical / Pharmacy — Customer Apps ────────────────────────────
-        "com.capsule.pharmacy"                                   to "Capsule",      // (US)
-        "com.nowrx.android"                                      to "NowRx",      // (US)
-        "com.indpro.pharmeasy"                                   to "PharmEasy",      // (India)
-        "com.netmeds.android"                                    to "Netmeds",      // (India)
-        "com.aranoah.healthkart.plus"                            to "1mg",      // (India)
+        "com.capsule.pharmacy"                                   to "Platform 184",
+        "com.nowrx.android"                                      to "Platform 185",
+        "com.indpro.pharmeasy"                                   to "Platform 186",
+        "com.netmeds.android"                                    to "Platform 187",
+        "com.aranoah.healthkart.plus"                            to "Platform 188",
 
         // ── Alcohol — Customer Apps ────────────────────────────────────────
-        "com.drizly.drizly"                                      to "Drizly",      // (US — acquired by Uber)
-        "com.minibar.android"                                    to "Minibar",      // (US)
-        "com.saucey.android"                                     to "Saucey",      // (US)
-        "com.hipbar.android"                                     to "HipBar",      // (India)
+        "com.drizly.drizly"                                      to "Platform 189",
+        "com.minibar.android"                                    to "Platform 190",
+        "com.saucey.android"                                     to "Platform 191",
+        "com.hipbar.android"                                     to "Platform 192",
 
         // ── Flowers — Customer Apps ────────────────────────────────────────
-        "com.bloomnation.bloomnation"                            to "BloomNation",      // (US)
-        "com.ftd.app.bloom"                                      to "1-800-Flowers",               // 1-800-Flowers (US)
-        "com.interflora.android"                                 to "Interflora",      // (Europe/Oceania)
-        "com.fnp.android"                                        to "Ferns N Petals",              // Ferns N Petals (India)
+        "com.bloomnation.bloomnation"                            to "Platform 193",
+        "com.ftd.app.bloom"                                      to "Platform 194",
+        "com.interflora.android"                                 to "Platform 195",
+        "com.fnp.android"                                        to "Platform 196",
 
         // ── Laundry — Customer Apps ────────────────────────────────────────
-        "com.rinse.app"                                          to "Rinse",      // (US)
-        "com.flycleaners.android"                                to "FlyCleaners",      // (US)
-        "com.laundrokart.app"                                    to "LaundroKart",      // (India)
-        "com.presso.app"                                         to "Presso",      // (SEA/MENA)
+        "com.rinse.app"                                          to "Platform 197",
+        "com.flycleaners.android"                                to "Platform 198",
+        "com.laundrokart.app"                                    to "Platform 199",
+        "com.presso.app"                                         to "Platform 200",
 
         // ── Pet Supplies — Customer Apps ───────────────────────────────────
-        "com.chewy.android"                                      to "Chewy",      // (US)
-        "com.petsathome.android"                                 to "Pets at Home",                // Pets at Home (UK)
-        "com.hutf.android"                                       to "Heads Up For Tails",      // (India)
+        "com.chewy.android"                                      to "Platform 201",
+        "com.petsathome.android"                                 to "Platform 202",
+        "com.hutf.android"                                       to "Platform 203",
 
         // ── Furniture — Customer Apps ──────────────────────────────────────
-        "com.wayfair.wayfair"                                    to "Wayfair",      // (US/Europe)
-        "com.castlery.app"                                       to "Castlery",      // (SEA/Oceania)
-        "com.urbanladder.app"                                    to "Urban Ladder",      // (India)
+        "com.wayfair.wayfair"                                    to "Platform 204",
+        "com.castlery.app"                                       to "Platform 205",
+        "com.urbanladder.app"                                    to "Platform 206",
 
         // ── Bicycle Courier ────────────────────────────────────────────────
-        "com.couriersplease.app"                                 to "Courier Please",      // (Australia)
+        "com.couriersplease.app"                                 to "Platform 207",
 
         // ── Document ───────────────────────────────────────────────────────
-        "com.dex.android"                                        to "Dex",      // (US)
-        "com.couriire.app"                                       to "Couriire",      // (India)
+        "com.dex.android"                                        to "Platform 208",
+        "com.couriire.app"                                       to "Platform 209",
 
         // ── Same-Day (China) ───────────────────────────────────────────────
-        "com.cainiao.wireless.dumps"                             to "Cainiao",      // (China)
+        "com.cainiao.wireless.dumps"                             to "Platform 210",
 
         // ── White-Glove ────────────────────────────────────────────────────
-        "com.xpo.logistics"                                      to "XPO Logistics",      // (US/Europe)
-        "com.jingdong.app.mall"                                  to "JD Logistics",      // (China)
+        "com.xpo.logistics"                                      to "Platform 211",
+        "com.jingdong.app.mall"                                  to "Platform 212",
 
         // ── Cannabis ───────────────────────────────────────────────────────
-        "com.eaze.android"                                       to "Eaze",      // (US)
-        "com.dutchie.android"                                    to "Dutchie",      // (US)
+        "com.eaze.android"                                       to "Platform 213",
+        "com.dutchie.android"                                    to "Platform 214",
 
         // ── QSR (Quick Service Restaurants) — Customer Apps ────────────────
-        "com.dominos"                                            to "Domino's India",
-        "com.dominos.android"                                    to "Domino's US",      // (US)
+        "com.dominos"                                            to "Platform 215",
+        "com.dominos.android"                                    to "Platform 216",
 
         // v2.9.66: NotiFetch Tester (test app for deep link verification)
-        "com.notifetch.tester"                                   to "NotiFetch Tester",
-        "com.pizzahut.android"                                   to "Pizza Hut",             // Pizza Hut India (India)
-        "com.pizzahut.android.global"                            to "Pizza Hut Global",                   // Pizza Hut (Global)
-        "com.papajohns.android"                                  to "Papa John's",      // (US/Global)
-        "com.mcdonalds.mcdeliveryindia"                          to "McDelivery India",      // (India)
-        "com.mcdonalds.app"                                      to "McDonald's",      // (Global) — old package
-        "com.mcdonalds.mobileapp"                                to "McDonald's — v2.9.24 fix: actual package name",
-        "com.bkindia"                                            to "Burger King India",           // Burger King India (India)
-        "com.bk"                                                 to "Burger King",                 // Burger King (Global)
-        "com.wendys.nutritiontool"                               to "Wendy's",      // (US)
-        "com.fiveguys.android"                                   to "Five Guys",      // (US/Europe)
-        "com.kfc.india"                                          to "KFC India",      // (India)
-        "com.kfc.android"                                        to "KFC",      // (Global)
-        "com.chickfila.app"                                      to "Chick-fil-A",      // (US)
-        "com.popeyes.android"                                    to "Popeyes",      // (US/Global) — old package
-        "com.jubl.popeyes"                                      to "Popeyes — v2.9.24 fix: actual package name",      // (Jubilant FoodWorks)
-        "com.chipotle.android"                                   to "Chipotle",      // (US/Europe)
-        "com.tacobell"                                           to "Taco Bell",      // (US/Europe/LATAM)
-        "com.subway.subwaymobile"                                to "Subway",      // (Global)
-        "com.panera.bread"                                       to "Panera Bread",      // (US)
-        "com.starbucks.mobilecard"                               to "Starbucks",      // (Global)
-        "com.starbucks.in"                                       to "Starbucks India",      // (India)
-        "com.dunkinbrands.dunkindonuts"                          to "Dunkin'",      // (US)
-        "com.timhortons.app"                                     to "Tim Hortons",      // (US/Canada)
-        "com.eatsure"                                            to "EatSure",      // (India)
-        "com.box8.app"                                           to "Box8",      // (India)
-        "com.faasos.behrouz"                                     to "Behrouz Biryani",      // (India)
-        "com.chaayos"                                            to "Chaayos",      // (India)
-        "com.wowmomo"                                            to "Wow! Momo",      // (India)
-        "com.faasos"                                             to "Faasos",      // (India)
-        "com.faasos.ovenstory"                                   to "Oven Story Pizza",            // Oven Story Pizza (India)
-        "com.faasos.mandarinfox"                                 to "Mandarin Fox",      // (India)
-        "com.faasos.bowlcompany"                                 to "The Bowl Company",  // (India)
-        "com.lenotre.android"                                    to "LENOTRE Dessert",   // (MENA)
+        "com.notifetch.tester"                                   to "Platform 217",
+        "com.pizzahut.android"                                   to "Platform 218",
+        "com.pizzahut.android.global"                            to "Platform 219",
+        "com.papajohns.android"                                  to "Platform 220",
+        "com.mcdonalds.mcdeliveryindia"                          to "Platform 221",
+        "com.mcdonalds.app"                                      to "Platform 222",
+        "com.mcdonalds.mobileapp"                                to "Platform 223",
+        "com.bkindia"                                            to "Platform 224",
+        "com.bk"                                                 to "Platform 225",
+        "com.wendys.nutritiontool"                               to "Platform 226",
+        "com.fiveguys.android"                                   to "Platform 227",
+        "com.kfc.india"                                          to "Platform 228",
+        "com.kfc.android"                                        to "Platform 229",
+        "com.chickfila.app"                                      to "Platform 230",
+        "com.popeyes.android"                                    to "Platform 231",
+        "com.jubl.popeyes"                                      to "Platform 232",
+        "com.chipotle.android"                                   to "Platform 233",
+        "com.tacobell"                                           to "Platform 234",
+        "com.subway.subwaymobile"                                to "Platform 235",
+        "com.panera.bread"                                       to "Platform 236",
+        "com.starbucks.mobilecard"                               to "Platform 237",
+        "com.starbucks.in"                                       to "Platform 238",
+        "com.dunkinbrands.dunkindonuts"                          to "Platform 239",
+        "com.timhortons.app"                                     to "Platform 240",
+        "com.eatsure"                                            to "Platform 241",
+        "com.box8.app"                                           to "Platform 242",
+        "com.faasos.behrouz"                                     to "Platform 243",
+        "com.chaayos"                                            to "Platform 244",
+        "com.wowmomo"                                            to "Platform 245",
+        "com.faasos"                                             to "Platform 246",
+        "com.faasos.ovenstory"                                   to "Platform 247",
+        "com.faasos.mandarinfox"                                 to "Platform 248",
+        "com.faasos.bowlcompany"                                 to "Platform 249",
+        "com.lenotre.android"                                    to "Platform 250",
     )
 
     // Combined map for the notification listener to use
@@ -391,128 +391,128 @@ object Constants {
     // Customer platform colors
     val CUSTOMER_PLATFORM_COLORS = mapOf(
         // Food Delivery
-        "in.swiggy.android" to "#F59E0B",              // Swiggy — Orange
-        "com.application.zomato" to "#FB923C",         // Zomato — Red
-        "com.application.zomato.district" to "#FFC107", // Zomato District — Red
-        "com.magicpin.local" to "#FF9800",             // Magicpin — Red/Orange
-        "com.ubercab.eats" to "#FF6B35",               // Uber Eats — Green
-        "com.doordash.consumerapp" to "#F59E0B",       // DoorDash — Red
-        "com.grubhub.android" to "#FB923C",            // Grubhub — Orange
-        "com.deliveroo.orderapp" to "#FFC107",         // Deliveroo — Teal
-        "com.justeat.app.uk" to "#FF9800",             // Just Eat — Orange
-        "com.takeaway.android" to "#FF6B35",           // Takeaway — Orange
-        "com.lieferando.android" to "#F59E0B",         // Lieferando — Orange
-        "com.foodpanda.android" to "#FB923C",          // Foodpanda — Pink/Red
-        "br.com.ifood" to "#FFC107",                   // iFood — Red
-        "com.rappi.app" to "#FF9800",                  // Rappi — Orange/Red
-        "com.wolt.android" to "#FF6B35",               // Wolt — Cyan
-        "com.glovoapp.android" to "#F59E0B",           // Glovo — Yellow
-        "com.talabat.android" to "#FB923C",            // Talabat — Orange
-        "com.menulog.android" to "#FFC107",            // Menulog — Orange
+        "in.swiggy.android" to "Platform 360",
+        "com.application.zomato" to "Platform 361",
+        "com.application.zomato.district" to "Platform 362",
+        "com.magicpin.local" to "Platform 363",
+        "com.ubercab.eats" to "Platform 364",
+        "com.doordash.consumerapp" to "Platform 360",
+        "com.grubhub.android" to "Platform 361",
+        "com.deliveroo.orderapp" to "Platform 362",
+        "com.justeat.app.uk" to "Platform 363",
+        "com.takeaway.android" to "Platform 364",
+        "com.lieferando.android" to "Platform 360",
+        "com.foodpanda.android" to "Platform 361",
+        "br.com.ifood" to "Platform 362",
+        "com.rappi.app" to "Platform 363",
+        "com.wolt.android" to "Platform 364",
+        "com.glovoapp.android" to "Platform 360",
+        "com.talabat.android" to "Platform 361",
+        "com.menulog.android" to "Platform 362",
 
         // Grocery
-        "com.instacart.app" to "#FF9800",              // Instacart — Green
-        "app.blinkit" to "#FF6B35",                    // Blinkit — Yellow
-        "com.bigbasket.mobileapp" to "#F59E0B",        // BigBasket — Green
-        "com.zepto.app" to "#FB923C",                  // Zepto — Purple
-        "com.zeptoconsumerapp" to "#FF9800",          // Zepto — Purple (v2.9.24)
-        "com.shipt.android" to "#FF6B35",              // Shipt — Teal
-        "au.com.woolworths.android" to "#F59E0B",      // Woolworths — Green
+        "com.instacart.app" to "Platform 363",
+        "app.blinkit" to "Platform 364",
+        "com.bigbasket.mobileapp" to "Platform 360",
+        "com.zepto.app" to "Platform 361",
+        "com.zeptoconsumerapp" to "Platform 363",
+        "com.shipt.android" to "Platform 364",
+        "au.com.woolworths.android" to "Platform 360",
 
         // E-Commerce
-        "in.amazon.mShop.android.shopping" to "#FB923C", // Amazon — Orange
-        "com.amazon.mShop.android.shopping" to "#FFC107",// Amazon — Orange
-        "com.flipkart.android" to "#FF9800",             // Flipkart — Blue
-        "com.myntra.android" to "#FF6B35",             // Myntra — Pink
-        "com.meesho.app" to "#F59E0B",                 // Meesho — Purple
-        "in.swiggy.android.instamart" to "#FB923C",    // Instamart — Orange
+        "in.amazon.mShop.android.shopping" to "Platform 361",
+        "com.amazon.mShop.android.shopping" to "Platform 362",
+        "com.flipkart.android" to "Platform 363",
+        "com.myntra.android" to "Platform 364",
+        "com.meesho.app" to "Platform 360",
+        "in.swiggy.android.instamart" to "Platform 361",
 
         // Ride
-        "com.ubercab" to "#FFC107",                    // Uber — Black
-        "com.olacabs.customer" to "#FF9800",           // Ola — Green
-        "com.grabtaxi.passenger" to "#FF6B35",         // Grab — Green
-        "com.careem.acma" to "#F59E0B",                // Careem — Green
-        "com.didiglobal.passenger" to "#FB923C",       // DiDi — Orange
-        "ee.mtakso.client" to "#FFC107",               // Bolt — Green
-        "com.lyft.android" to "#FF9800",               // Lyft — Pink
+        "com.ubercab" to "Platform 362",
+        "com.olacabs.customer" to "Platform 363",
+        "com.grabtaxi.passenger" to "Platform 364",
+        "com.careem.acma" to "Platform 360",
+        "com.didiglobal.passenger" to "Platform 361",
+        "ee.mtakso.client" to "Platform 362",
+        "com.lyft.android" to "Platform 363",
 
         // Package Tracking
-        "com.delhivery.track" to "#FF6B35",            // Delhivery — Blue
-        "com.xpressbees.track" to "#F59E0B",           // Xpressbees — Pink
-        "com.dunzo.user" to "#FB923C",                 // Dunzo — Green
-        "com.sankuai.meituan"                            to "#FFC107",      // Meituan
-        "me.ele"                                         to "#FF9800",      // Ele.me
-        "com.gorillasapp"                                to "#FF6B35",      // Gorillas
-        "com.getir"                                      to "#F59E0B",      // Getir
-        "com.fedex.android.apps.fedexmobile"             to "#FB923C",      // FedEx
-        "com.dhl.parcel.uk"                              to "#FFC107",      // DHL
-        "com.sf.activity"                                to "#FF9800",      // SF Express
-        "com.capsule.pharmacy"                           to "#FF6B35",      // Capsule
-        "com.nowrx.android"                              to "#F59E0B",      // NowRx
-        "com.indpro.pharmeasy"                           to "#FB923C",      // PharmEasy
-        "com.netmeds.android"                            to "#FFC107",      // Netmeds
-        "com.aranoah.healthkart.plus"                    to "#FF9800",      // 1mg
-        "com.drizly.drizly"                              to "#FF6B35",      // Drizly
-        "com.minibar.android"                            to "#F59E0B",      // Minibar
-        "com.saucey.android"                             to "#FB923C",      // Saucey
-        "com.hipbar.android"                             to "#FFC107",      // HipBar
-        "com.bloomnation.bloomnation"                    to "#FF9800",      // BloomNation
-        "com.ftd.app.bloom"                              to "#FF6B35",      // 1-800-Flowers
-        "com.interflora.android"                         to "#F59E0B",      // Interflora
-        "com.fnp.android"                                to "#FB923C",      // Ferns N Petals
-        "com.rinse.app"                                  to "#FFC107",      // Rinse
-        "com.flycleaners.android"                        to "#FF9800",      // FlyCleaners
-        "com.laundrokart.app"                            to "#FF6B35",      // LaundroKart
-        "com.presso.app"                                 to "#F59E0B",      // Presso
-        "com.chewy.android"                              to "#FB923C",      // Chewy
-        "com.petsathome.android"                         to "#FFC107",      // Pets at Home
-        "com.hutf.android"                               to "#FF9800",      // Heads Up For Tails
-        "com.wayfair.wayfair"                            to "#FF6B35",      // Wayfair
-        "com.castlery.app"                               to "#F59E0B",      // Castlery
-        "com.urbanladder.app"                            to "#FB923C",      // Urban Ladder
-        "com.couriersplease.app"                         to "#FFC107",      // Courier Please
-        "com.dex.android"                                to "#FF9800",      // Dex
-        "com.couriire.app"                               to "#FF6B35",      // Couriire
-        "com.cainiao.wireless.dumps"                     to "#F59E0B",      // Cainiao
-        "com.xpo.logistics"                              to "#FB923C",      // XPO Logistics
-        "com.jingdong.app.mall"                          to "#FFC107",      // JD Logistics
-        "com.eaze.android"                               to "#FF9800",      // Eaze
-        "com.dutchie.android"                            to "#FF6B35",      // Dutchie
-        "com.dominos"                                    to "#F59E0B",      // Domino's India
-        "com.dominos.android"                            to "#FB923C",      // Domino's US
-        "com.pizzahut.android"                           to "#FFC107",      // Pizza Hut India
-        "com.pizzahut.android.global"                    to "#FF9800",      // Pizza Hut
-        "com.papajohns.android"                          to "#FF6B35",      // Papa John's
-        "com.mcdonalds.mcdeliveryindia"                  to "#F59E0B",      // McDelivery India
-        "com.mcdonalds.app"                              to "#FB923C",      // McDonald's
-        "com.mcdonalds.mobileapp"                        to "#FFC107",      // McDonald's (v2.9.24)
-        "com.bkindia"                                    to "#FF9800",      // Burger King India
-        "com.bk"                                         to "#FF6B35",      // Burger King
-        "com.wendys.nutritiontool"                       to "#F59E0B",      // Wendy's
-        "com.fiveguys.android"                           to "#FB923C",      // Five Guys
-        "com.kfc.india"                                  to "#FFC107",      // KFC India
-        "com.kfc.android"                                to "#FF9800",      // KFC
-        "com.chickfila.app"                              to "#FF6B35",      // Chick-fil-A
-        "com.popeyes.android"                            to "#F59E0B",      // Popeyes
-        "com.jubl.popeyes"                              to "#FB923C",      // Popeyes (v2.9.24)
-        "com.chipotle.android"                           to "#FFC107",      // Chipotle
-        "com.tacobell"                                   to "#FF9800",      // Taco Bell
-        "com.subway.subwaymobile"                        to "#FF6B35",      // Subway
-        "com.panera.bread"                               to "#F59E0B",      // Panera Bread
-        "com.starbucks.mobilecard"                       to "#FB923C",      // Starbucks
-        "com.starbucks.in"                               to "#FFC107",      // Starbucks India
-        "com.dunkinbrands.dunkindonuts"                  to "#FF9800",      // Dunkin'
-        "com.timhortons.app"                             to "#FF6B35",      // Tim Hortons
-        "com.eatsure"                                    to "#F59E0B",      // EatSure
-        "com.box8.app"                                   to "#FB923C",      // Box8
-        "com.faasos.behrouz"                             to "#FFC107",      // Behrouz Biryani
-        "com.chaayos"                                    to "#FF9800",      // Chaayos
-        "com.wowmomo"                                    to "#FF6B35",      // Wow! Momo
-        "com.faasos"                                     to "#F59E0B",      // Faasos
-        "com.faasos.ovenstory"                           to "#FB923C",      // Oven Story Pizza
-        "com.faasos.mandarinfox"                         to "#FFC107",      // Mandarin Fox
-        "com.faasos.bowlcompany"                         to "#FF9800",      // The Bowl Company
-        "com.lenotre.android"                            to "#FF6B35",      // LENOTRE Dessert
+        "com.delhivery.track" to "Platform 364",
+        "com.xpressbees.track" to "Platform 360",
+        "com.dunzo.user" to "Platform 361",
+        "com.sankuai.meituan"                            to "Platform 362",
+        "me.ele"                                         to "Platform 363",
+        "com.gorillasapp"                                to "Platform 364",
+        "com.getir"                                      to "Platform 360",
+        "com.fedex.android.apps.fedexmobile"             to "Platform 361",
+        "com.dhl.parcel.uk"                              to "Platform 362",
+        "com.sf.activity"                                to "Platform 363",
+        "com.capsule.pharmacy"                           to "Platform 364",
+        "com.nowrx.android"                              to "Platform 360",
+        "com.indpro.pharmeasy"                           to "Platform 361",
+        "com.netmeds.android"                            to "Platform 362",
+        "com.aranoah.healthkart.plus"                    to "Platform 363",
+        "com.drizly.drizly"                              to "Platform 364",
+        "com.minibar.android"                            to "Platform 360",
+        "com.saucey.android"                             to "Platform 361",
+        "com.hipbar.android"                             to "Platform 362",
+        "com.bloomnation.bloomnation"                    to "Platform 363",
+        "com.ftd.app.bloom"                              to "Platform 364",
+        "com.interflora.android"                         to "Platform 360",
+        "com.fnp.android"                                to "Platform 361",
+        "com.rinse.app"                                  to "Platform 362",
+        "com.flycleaners.android"                        to "Platform 363",
+        "com.laundrokart.app"                            to "Platform 364",
+        "com.presso.app"                                 to "Platform 360",
+        "com.chewy.android"                              to "Platform 361",
+        "com.petsathome.android"                         to "Platform 362",
+        "com.hutf.android"                               to "Platform 363",
+        "com.wayfair.wayfair"                            to "Platform 364",
+        "com.castlery.app"                               to "Platform 360",
+        "com.urbanladder.app"                            to "Platform 361",
+        "com.couriersplease.app"                         to "Platform 362",
+        "com.dex.android"                                to "Platform 363",
+        "com.couriire.app"                               to "Platform 364",
+        "com.cainiao.wireless.dumps"                     to "Platform 360",
+        "com.xpo.logistics"                              to "Platform 361",
+        "com.jingdong.app.mall"                          to "Platform 362",
+        "com.eaze.android"                               to "Platform 363",
+        "com.dutchie.android"                            to "Platform 364",
+        "com.dominos"                                    to "Platform 360",
+        "com.dominos.android"                            to "Platform 361",
+        "com.pizzahut.android"                           to "Platform 362",
+        "com.pizzahut.android.global"                    to "Platform 363",
+        "com.papajohns.android"                          to "Platform 364",
+        "com.mcdonalds.mcdeliveryindia"                  to "Platform 360",
+        "com.mcdonalds.app"                              to "Platform 361",
+        "com.mcdonalds.mobileapp"                        to "Platform 362",
+        "com.bkindia"                                    to "Platform 363",
+        "com.bk"                                         to "Platform 364",
+        "com.wendys.nutritiontool"                       to "Platform 360",
+        "com.fiveguys.android"                           to "Platform 361",
+        "com.kfc.india"                                  to "Platform 362",
+        "com.kfc.android"                                to "Platform 363",
+        "com.chickfila.app"                              to "Platform 364",
+        "com.popeyes.android"                            to "Platform 360",
+        "com.jubl.popeyes"                              to "Platform 361",
+        "com.chipotle.android"                           to "Platform 362",
+        "com.tacobell"                                   to "Platform 363",
+        "com.subway.subwaymobile"                        to "Platform 364",
+        "com.panera.bread"                               to "Platform 360",
+        "com.starbucks.mobilecard"                       to "Platform 361",
+        "com.starbucks.in"                               to "Platform 362",
+        "com.dunkinbrands.dunkindonuts"                  to "Platform 363",
+        "com.timhortons.app"                             to "Platform 364",
+        "com.eatsure"                                    to "Platform 360",
+        "com.box8.app"                                   to "Platform 361",
+        "com.faasos.behrouz"                             to "Platform 362",
+        "com.chaayos"                                    to "Platform 363",
+        "com.wowmomo"                                    to "Platform 364",
+        "com.faasos"                                     to "Platform 360",
+        "com.faasos.ovenstory"                           to "Platform 361",
+        "com.faasos.mandarinfox"                         to "Platform 362",
+        "com.faasos.bowlcompany"                         to "Platform 363",
+        "com.lenotre.android"                            to "Platform 364",
     )
 
     // Combined platform colors
@@ -599,148 +599,148 @@ enum class UserMode(val label: String) {
 
 enum class PlatformSource(val displayName: String, val packageName: String, val sourceId: String, val category: String) {
     // Food Delivery
-    UBER_DRIVER("Uber Driver", "com.ubercab.driver", "uber_driver", "food"),
-    DOORDASH("DoorDash Dasher", "com.doordash.driverapp", "doordash_dasher", "food"),
-    GRUBHUB("Grubhub Driver", "com.grubhub.driver", "grubhub_driver", "food"),
-    DELIVEROO("Deliveroo Rider", "com.deliveroo.driverapp", "deliveroo_rider", "food"),
-    JUSTEAT("Just Eat Courier", "com.justeat.courier.uk", "justeat_courier", "food"),
-    TAKEAWAY("Takeaway Courier", "com.takeaway.delivered4all", "takeaway_courier", "food"),
-    LIEFERANDO("Lieferando Courier", "com.lieferando.courier", "lieferando_courier", "food"),
-    FOODPANDA("Foodpanda Rider", "com.logistics.rider.foodpanda", "foodpanda_rider", "food"),
-    SWIGGY("Swiggy Delivery", "in.swiggy.deliveryapp", "swiggy_delivery", "food"),
-    ZOMATO("Zomato Delivery", "com.zomato.delivery", "zomato_delivery", "food"),
-    IFOOD("iFood Entregador", "br.com.ifood.driver.app", "ifood_entregador", "food"),
-    RAPPI("Rappi Repartidor", "com.rappi.storekeeper", "rappi_repartidor", "food"),
-    WOLT("Wolt Courier", "com.wolt.courierapp", "wolt_courier", "food"),
-    GLOVO("Glovo Courier", "com.logistics.rider.glovo", "glovo_courier", "food"),
-    DEMAECAN("Demae-can Driver", "com.demaecan.DemaecanDriver", "demaecan_driver", "food"),
-    TALABAT("Talabat Rider", "com.logistics.rider.talabat", "talabat_rider", "food"),
-    MENULOG("Menulog Courier", "com.menulog.courier", "menulog_courier", "food"),
-    KEETA("Keeta Rider", "com.sankuai.sailor.courier", "keeta_rider", "food"),
+    PLATFORM_01("Platform 1", "com.ubercab.driver", "uber_driver", "food"),
+    PLATFORM_02("Platform 2", "com.doordash.driverapp", "doordash_dasher", "food"),
+    PLATFORM_03("Platform 3", "com.grubhub.driver", "grubhub_driver", "food"),
+    PLATFORM_04("Platform 4", "com.deliveroo.driverapp", "deliveroo_rider", "food"),
+    PLATFORM_05("Platform 5", "com.justeat.courier.uk", "justeat_courier", "food"),
+    PLATFORM_06("Platform 6", "com.takeaway.delivered4all", "takeaway_courier", "food"),
+    PLATFORM_07("Platform 7", "com.lieferando.courier", "lieferando_courier", "food"),
+    PLATFORM_08("Platform 8", "com.logistics.rider.foodpanda", "foodpanda_rider", "food"),
+    PLATFORM_09("Platform 9", "in.swiggy.deliveryapp", "swiggy_delivery", "food"),
+    PLATFORM_10("Platform 10", "com.zomato.delivery", "zomato_delivery", "food"),
+    PLATFORM_11("Platform 11", "br.com.ifood.driver.app", "ifood_entregador", "food"),
+    PLATFORM_12("Platform 12", "com.rappi.storekeeper", "rappi_repartidor", "food"),
+    PLATFORM_13("Platform 13", "com.wolt.courierapp", "wolt_courier", "food"),
+    PLATFORM_14("Platform 14", "com.logistics.rider.glovo", "glovo_courier", "food"),
+    PLATFORM_15("Platform 15", "com.demaecan.PlatformcanDriver", "demaecan_driver", "food"),
+    PLATFORM_16("Platform 16", "com.logistics.rider.talabat", "talabat_rider", "food"),
+    PLATFORM_17("Platform 17", "com.menulog.courier", "menulog_courier", "food"),
+    PLATFORM_18("Platform 18", "com.sankuai.sailor.courier", "keeta_rider", "food"),
 
     // Grocery
-    INSTACART("Instacart Shopper", "com.instacart.shopper", "instacart_shopper", "grocery"),
-    GOPUFF("Gopuff Driver", "com.gopuff.godrive2.live", "gopuff_driver", "grocery"),
-    BLINKIT("Blinkit Delivery", "app.blinkit.onboarding", "blinkit_partner", "grocery"),
-    BIGBASKET("BigBasket Delivery", "com.bigbasket.dapp.activity", "bigbasket_partner", "grocery"),
-    MERCADO("Mercado Envios", "com.mercadoenvios.crowdsourcing", "mercado_envios", "grocery"),
-    WOOLWORTHS("WooliesGO", "au.com.woolworths.android.driver", "woolworths_driver", "grocery"),
-    ZEPTO("Zepto Delivery", "com.zepto.rider", "zepto_partner", "grocery"),
-    FLINK("Flink Rider", "com.flink.workforce", "flink_rider", "grocery"),
-    SHIPT("Shipt Shopper", "com.shipt.shopper", "shipt_shopper", "grocery"),
+    PLATFORM_19("Platform 19", "com.instacart.shopper", "instacart_shopper", "grocery"),
+    PLATFORM_20("Platform 20", "com.gopuff.godrive2.live", "gopuff_driver", "grocery"),
+    PLATFORM_21("Platform 21", "app.blinkit.onboarding", "blinkit_partner", "grocery"),
+    PLATFORM_22("Platform 22", "com.bigbasket.dapp.activity", "bigbasket_partner", "grocery"),
+    PLATFORM_23("Platform 23", "com.mercadoenvios.crowdsourcing", "mercado_envios", "grocery"),
+    PLATFORM_24("Platform 24", "au.com.woolworths.android.driver", "woolworths_driver", "grocery"),
+    PLATFORM_25("Platform 25", "com.zepto.rider", "zepto_partner", "grocery"),
+    PLATFORM_26("Platform 26", "com.flink.workforce", "flink_rider", "grocery"),
+    PLATFORM_27("Platform 27", "com.shipt.shopper", "shipt_shopper", "grocery"),
 
     // Package
-    AMAZON_FLEX("Amazon Flex", "com.amazon.flex.rabbit", "amazon_flex", "package"),
-    UPS("UPS Driver", "com.ups.genesispd", "ups_driver", "package"),
-    DUNZO("Dunzo Partner", "com.dunzo.partner", "dunzo_partner", "package"),
-    LALAMOVE("Lalamove Driver", "com.lalamove.global.driver.sea", "lalamove_driver", "package"),
-    BORZO("Borzo Courier", "global.dostavista.courier", "borzo_courier", "package"),
+    PLATFORM_28("Platform 28", "com.amazon.flex.rabbit", "amazon_flex", "package"),
+    PLATFORM_29("Platform 29", "com.ups.genesispd", "ups_driver", "package"),
+    PLATFORM_30("Platform 30", "com.dunzo.partner", "dunzo_partner", "package"),
+    PLATFORM_31("Platform 31", "com.lalamove.global.driver.sea", "lalamove_driver", "package"),
+    PLATFORM_32("Platform 32", "global.dostavista.courier", "borzo_courier", "package"),
 
     // Courier
-    POSTMATES("Postmates Fleet", "com.postmates.android.courier", "postmates_fleet", "courier"),
-    ROADIE("Roadie Driver", "com.roadie.drive.android.app", "roadie_driver", "courier"),
-    STUART("Stuart Courier", "com.stuart.courier", "stuart_courier", "courier"),
-    GOGO("GoGo Xpress", "com.quadx.riderapp", "gogo_rider", "courier"),
+    PLATFORM_33("Platform 33", "com.postmates.android.courier", "postmates_fleet", "courier"),
+    PLATFORM_34("Platform 34", "com.roadie.drive.android.app", "roadie_driver", "courier"),
+    PLATFORM_35("Platform 35", "com.stuart.courier", "stuart_courier", "courier"),
+    PLATFORM_36("Platform 36", "com.quadx.riderapp", "gogo_rider", "courier"),
 
     // Last-Mile
-    AMAZON_RELAY("Amazon Relay", "com.amazon.relay", "amazon_relay", "last-mile"),
-    EKART("Ekart Delivery", "com.ekartkiranaonboarding", "ekart_partner", "last-mile"),
-    EKART_FIELD("Ekart Field X", "com.ekart.logistics.app", "ekart_field", "last-mile"),
-    JNE("JNE Kurir", "id.my.irsyadf.jobdriver", "jne_kurir", "last-mile"),
-    ARAMEX("Aramex Courier", "com.aramex.ecourier", "aramex_courier", "last-mile"),
-    NINJA_VAN("Ninja Van Driver", "co.ninjavan.swiftninja_global", "ninja_van_driver", "last-mile"),
+    AMAZON_RELAY("Platform 37", "com.amazon.relay", "amazon_relay", "last-mile"),
+    EKART("Platform 38", "com.ekartkiranaonboarding", "ekart_partner", "last-mile"),
+    EKART_FIELD("Platform 39", "com.ekart.logistics.app", "ekart_field", "last-mile"),
+    JNE("Platform 40", "id.my.irsyadf.jobdriver", "jne_kurir", "last-mile"),
+    ARAMEX("Platform 41", "com.aramex.ecourier", "aramex_courier", "last-mile"),
+    NINJA_VAN("Platform 42", "co.ninjavan.swiftninja_global", "ninja_van_driver", "last-mile"),
 
     // Ride
-    LYFT("Lyft Driver", "com.lyft.android.driver", "lyft_driver", "ride"),
-    OLA("Ola Driver", "com.olacabs.oladriver", "ola_driver", "ride"),
-    GRAB("Grab Driver", "com.grabtaxi.driver2", "grab_driver", "ride"),
-    CAREEM("Careem Captain", "com.careem.adma", "careem_captain", "ride"),
-    DIDI("DiDi Driver", "com.didiglobal.driver", "didi_driver", "ride"),
-    BOLT("Bolt Driver", "ee.mtakso.driver", "bolt_driver", "ride"),
+    LYFT("Platform 43", "com.lyft.android.driver", "lyft_driver", "ride"),
+    PLATFORM_37("Platform 44", "com.olacabs.oladriver", "ola_driver", "ride"),
+    GRAB("Platform 45", "com.grabtaxi.driver2", "grab_driver", "ride"),
+    CAREEM("Platform 46", "com.careem.adma", "careem_captain", "ride"),
+    DIDI("Platform 47", "com.didiglobal.driver", "didi_driver", "ride"),
+    BOLT("Platform 48", "ee.mtakso.driver", "bolt_driver", "ride"),
 
     // India-specific
-    PORTER("Porter Driver", "com.theporter.android.driverapp", "porter_partner", "package"),
-    RAPIDO("Rapido Captain", "com.rapido.rider", "rapido_captain", "ride"),
-    SHADOWFAX("Shadowfax Delivery", "in.shadowfax.gandalf", "shadowfax_partner", "last-mile"),
-    DELHIVERY("Delhivery Partner", "com.delhivery.delhiverypartner", "delhivery_partner", "last-mile"),
-    ECOM_EXPRESS("Ecom Express", "com.ecomexpress.oneBoarding", "ecom_express", "last-mile"),
-    XPRESSBEES("Xpressbees", "com.xpressbees.unified_new_arch", "xpressbees", "last-mile"),
-    LETSTRANSPORT("LetsTransport", "in.letstransport.supply", "letstransport_partner", "courier"),
-    BLOWHORN("Blowhorn Driver", "net.blowhorn.driverapp", "blowhorn_driver", "courier"),
-    DRIVEU("DriveU Partner", "com.driveu.partner", "driveu_partner", "ride"),
-    YULU("Yulu Partner", "app.yulu.android.partner", "yulu_partner", "ride"),
-    GOJEK("Gojek Driver", "com.gojek.partner", "gojek_driver", "food"),
-    MEITUAN("Meituan", "com.sankuai.meituan", "meituan", "food"),
-    ELE_ME("Ele.me", "me.ele", "ele_me", "food"),
-    GORILLAS("Gorillas", "com.gorillasapp", "gorillas", "grocery"),
-    GETIR("Getir", "com.getir", "getir", "grocery"),
-    FEDEX("FedEx", "com.fedex.android.apps.fedexmobile", "fedex", "package"),
-    DHL("DHL", "com.dhl.parcel.uk", "dhl", "package"),
-    SF_EXPRESS("SF Express", "com.sf.activity", "sf_express", "last-mile"),
-    CAPSULE("Capsule", "com.capsule.pharmacy", "capsule", "medical"),
-    NOWRX("NowRx", "com.nowrx.android", "nowrx", "medical"),
-    PHARMEASY("PharmEasy", "com.indpro.pharmeasy", "pharmeasy", "medical"),
-    NETMEDS("Netmeds", "com.netmeds.android", "netmeds", "medical"),
-    ONE_MG("1mg", "com.aranoah.healthkart.plus", "1mg", "medical"),
-    DRIZLY("Drizly", "com.drizly.drizly", "drizly", "alcohol"),
-    MINIBAR("Minibar", "com.minibar.android", "minibar", "alcohol"),
-    SAUCEY("Saucey", "com.saucey.android", "saucey", "alcohol"),
-    HIPBAR("HipBar", "com.hipbar.android", "hipbar", "alcohol"),
-    BLOOMNATION("BloomNation", "com.bloomnation.bloomnation", "bloomnation", "flower"),
-    FLOWERS_1800("1-800-Flowers", "com.ftd.app.bloom", "1800_flowers", "flower"),
-    INTERFLORA("Interflora", "com.interflora.android", "interflora", "flower"),
-    FERNS_PETALS("Ferns N Petals", "com.fnp.android", "ferns_petals", "flower"),
-    RINSE("Rinse", "com.rinse.app", "rinse", "laundry"),
-    FLYCLEANERS("FlyCleaners", "com.flycleaners.android", "flycleaners", "laundry"),
-    LAUNDROKART("LaundroKart", "com.laundrokart.app", "laundrokart", "laundry"),
-    PRESSO("Presso", "com.presso.app", "presso", "laundry"),
-    CHEWY("Chewy", "com.chewy.android", "chewy", "pet-supplies"),
-    PETS_AT_HOME("Pets at Home", "com.petsathome.android", "pets_at_home", "pet-supplies"),
-    HEADS_UP_FOR_TAILS("Heads Up For Tails", "com.hutf.android", "heads_up_for_tails", "pet-supplies"),
-    WAYFAIR_DELIVERY("Wayfair", "com.wayfair.wayfair", "wayfair_delivery", "furniture"),
-    CASTLERY("Castlery", "com.castlery.app", "castlery", "furniture"),
-    URBAN_LADDER("Urban Ladder", "com.urbanladder.app", "urban_ladder", "furniture"),
-    COURIER_PLEASE("Courier Please", "com.couriersplease.app", "courier_please", "bicycle-courier"),
-    DEX("Dex", "com.dex.android", "dex", "document"),
-    COURIIRE("Couriire", "com.couriire.app", "couriire", "document"),
-    CAINIAO("Cainiao", "com.cainiao.wireless.dumps", "cainiao", "same-day"),
-    XPO("XPO Logistics", "com.xpo.logistics", "xpo", "white-glove"),
-    JD_LOGISTICS("JD Logistics", "com.jingdong.app.mall", "jd_logistics", "white-glove"),
-    EAZE("Eaze", "com.eaze.android", "eaze", "cannabis"),
-    DUTCHIE("Dutchie", "com.dutchie.android", "dutchie", "cannabis"),
-    CONVOY("Convoy Driver", "com.convoy.driverapp", "convoy", "freight"),
-    BLACKBUCK("BlackBuck Driver", "com.blackbuck.driver", "blackbuck", "freight"),
-    DOMINOS_INDIA("Domino's India", "com.dominos", "dominos_india", "qsr"),
-    DOMINOS_US("Domino's US", "com.dominos.android", "dominos_us", "qsr"),
-    PIZZA_HUT_INDIA("Pizza Hut India", "com.pizzahut.android", "pizza_hut_india", "qsr"),
-    PIZZA_HUT("Pizza Hut", "com.pizzahut.android.global", "pizza_hut", "qsr"),
-    PAPA_JOHNS("Papa John's", "com.papajohns.android", "papa_johns", "qsr"),
-    MCDELIVERY_INDIA("McDelivery India", "com.mcdonalds.mcdeliveryindia", "mcdelivery_india", "qsr"),
-    MCDONALDS("McDonald's", "com.mcdonalds.app", "mcdonalds", "qsr"),
-    BURGER_KING_INDIA("Burger King India", "com.bkindia", "burger_king_india", "qsr"),
-    BURGER_KING("Burger King", "com.bk", "burger_king", "qsr"),
-    WENDYS("Wendy's", "com.wendys.nutritiontool", "wendys", "qsr"),
-    FIVE_GUYS("Five Guys", "com.fiveguys.android", "five_guys", "qsr"),
-    KFC_INDIA("KFC India", "com.kfc.india", "kfc_india", "qsr"),
-    KFC("KFC", "com.kfc.android", "kfc", "qsr"),
-    CHICK_FIL_A("Chick-fil-A", "com.chickfila.app", "chick_fil_a", "qsr"),
-    POPEYES("Popeyes", "com.popeyes.android", "popeyes", "qsr"),
-    CHIPOTLE("Chipotle", "com.chipotle.android", "chipotle", "qsr"),
-    TACO_BELL("Taco Bell", "com.tacobell", "taco_bell", "qsr"),
-    SUBWAY("Subway", "com.subway.subwaymobile", "subway", "qsr"),
-    PANERA("Panera Bread", "com.panera.bread", "panera", "qsr"),
-    STARBUCKS("Starbucks", "com.starbucks.mobilecard", "starbucks", "qsr"),
-    STARBUCKS_INDIA("Starbucks India", "com.starbucks.in", "starbucks_india", "qsr"),
-    DUNKIN("Dunkin'", "com.dunkinbrands.dunkindonuts", "dunkin", "qsr"),
-    TIM_HORTONS("Tim Hortons", "com.timhortons.app", "tim_hortons", "qsr"),
-    EATSURE("EatSure", "com.eatsure", "eatsure", "qsr"),
-    BOX8("Box8", "com.box8.app", "box8", "qsr"),
-    BEHROUZ("Behrouz Biryani", "com.faasos.behrouz", "behrouz", "qsr"),
-    CHAAYOS("Chaayos", "com.chaayos", "chaayos", "qsr"),
-    WOW_MOMO("Wow! Momo", "com.wowmomo", "wow_momo", "qsr"),
-    FAASOS("Faasos", "com.faasos", "faasos", "qsr"),
-    OVEN_STORY("Oven Story Pizza", "com.faasos.ovenstory", "oven_story", "qsr"),
-    MANDARIN_FOX("Mandarin Fox", "com.faasos.mandarinfox", "mandarin_fox", "qsr"),
-    THE_BOWL_COMPANY("The Bowl Company", "com.faasos.bowlcompany", "the_bowl_company", "qsr"),
-    LENOTRE_DESSERT("LENOTRE Dessert", "com.lenotre.android", "lenotre_dessert", "qsr"),
+    PORTER("Platform 49", "com.theporter.android.driverapp", "porter_partner", "package"),
+    RAPIDO("Platform 50", "com.rapido.rider", "rapido_captain", "ride"),
+    SHADOWFAX("Platform 51", "in.shadowfax.gandalf", "shadowfax_partner", "last-mile"),
+    PLATFORM_38("Platform 52", "com.delhivery.delhiverypartner", "delhivery_partner", "last-mile"),
+    ECOM_EXPRESS("Platform 53", "com.ecomexpress.oneBoarding", "ecom_express", "last-mile"),
+    XPRESSBEES("Platform 54", "com.xpressbees.unified_new_arch", "xpressbees", "last-mile"),
+    LETSTRANSPORT("Platform 55", "in.letstransport.supply", "letstransport_partner", "courier"),
+    BLOWHORN("Platform 56", "net.blowhorn.driverapp", "blowhorn_driver", "courier"),
+    DRIVEU("Platform 57", "com.driveu.partner", "driveu_partner", "ride"),
+    YULU("Platform 58", "app.yulu.android.partner", "yulu_partner", "ride"),
+    GOJEK("Platform 59", "com.gojek.partner", "gojek_driver", "food"),
+    MEITUAN("Platform 60", "com.sankuai.meituan", "meituan", "food"),
+    ELE_ME("Platform 61", "me.ele", "ele_me", "food"),
+    GORILLAS("Platform 62", "com.gorillasapp", "gorillas", "grocery"),
+    GETIR("Platform 63", "com.getir", "getir", "grocery"),
+    FEDEX("Platform 64", "com.fedex.android.apps.fedexmobile", "fedex", "package"),
+    PLATFORM_39("Platform 65", "com.dhl.parcel.uk", "dhl", "package"),
+    SF_EXPRESS("Platform 66", "com.sf.activity", "sf_express", "last-mile"),
+    CAPSULE("Platform 67", "com.capsule.pharmacy", "capsule", "medical"),
+    NOWRX("Platform 68", "com.nowrx.android", "nowrx", "medical"),
+    PHARMEASY("Platform 69", "com.indpro.pharmeasy", "pharmeasy", "medical"),
+    NETMEDS("Platform 70", "com.netmeds.android", "netmeds", "medical"),
+    ONE_MG("Platform 71", "com.aranoah.healthkart.plus", "1mg", "medical"),
+    DRIZLY("Platform 72", "com.drizly.drizly", "drizly", "alcohol"),
+    MINIBAR("Platform 73", "com.minibar.android", "minibar", "alcohol"),
+    SAUCEY("Platform 74", "com.saucey.android", "saucey", "alcohol"),
+    HIPBAR("Platform 75", "com.hipbar.android", "hipbar", "alcohol"),
+    BLOOMNATION("Platform 76", "com.bloomnation.bloomnation", "bloomnation", "flower"),
+    FLOWERS_1800("Platform 77", "com.ftd.app.bloom", "1800_flowers", "flower"),
+    INTERFLORA("Platform 78", "com.interflora.android", "interflora", "flower"),
+    FERNS_PETALS("Platform 79", "com.fnp.android", "ferns_petals", "flower"),
+    RINSE("Platform 80", "com.rinse.app", "rinse", "laundry"),
+    FLYCLEANERS("Platform 81", "com.flycleaners.android", "flycleaners", "laundry"),
+    LAUNDROKART("Platform 82", "com.laundrokart.app", "laundrokart", "laundry"),
+    PRESSO("Platform 83", "com.presso.app", "presso", "laundry"),
+    CHEWY("Platform 84", "com.chewy.android", "chewy", "pet-supplies"),
+    PETS_AT_HOME("Platform 85", "com.petsathome.android", "pets_at_home", "pet-supplies"),
+    HEADS_UP_FOR_TAILS("Platform 86", "com.hutf.android", "heads_up_for_tails", "pet-supplies"),
+    WAYFAIR_DELIVERY("Platform 87", "com.wayfair.wayfair", "wayfair_delivery", "furniture"),
+    CASTLERY("Platform 88", "com.castlery.app", "castlery", "furniture"),
+    URBAN_LADDER("Platform 89", "com.urbanladder.app", "urban_ladder", "furniture"),
+    COURIER_PLEASE("Platform 90", "com.couriersplease.app", "courier_please", "bicycle-courier"),
+    DEX("Platform 91", "com.dex.android", "dex", "document"),
+    COURIIRE("Platform 92", "com.couriire.app", "couriire", "document"),
+    CAINIAO("Platform 93", "com.cainiao.wireless.dumps", "cainiao", "same-day"),
+    XPO("Platform 94", "com.xpo.logistics", "xpo", "white-glove"),
+    JD_LOGISTICS("Platform 95", "com.jingdong.app.mall", "jd_logistics", "white-glove"),
+    EAZE("Platform 96", "com.eaze.android", "eaze", "cannabis"),
+    DUTCHIE("Platform 97", "com.dutchie.android", "dutchie", "cannabis"),
+    CONVOY("Platform 98", "com.convoy.driverapp", "convoy", "freight"),
+    BLACKBUCK("Platform 99", "com.blackbuck.driver", "blackbuck", "freight"),
+    DOMINOS_INDIA("Platform 100", "com.dominos", "dominos_india", "qsr"),
+    DOMINOS_US("Platform 101", "com.dominos.android", "dominos_us", "qsr"),
+    PIZZA_HUT_INDIA("Platform 102", "com.pizzahut.android", "pizza_hut_india", "qsr"),
+    PIZZA_HUT("Platform 103", "com.pizzahut.android.global", "pizza_hut", "qsr"),
+    PAPA_JOHNS("Platform 104", "com.papajohns.android", "papa_johns", "qsr"),
+    MCDELIVERY_INDIA("Platform 105", "com.mcdonalds.mcdeliveryindia", "mcdelivery_india", "qsr"),
+    MCDONALDS("Platform 106", "com.mcdonalds.app", "mcdonalds", "qsr"),
+    BURGER_KING_INDIA("Platform 107", "com.bkindia", "burger_king_india", "qsr"),
+    BURGER_KING("Platform 108", "com.bk", "burger_king", "qsr"),
+    WENDYS("Platform 109", "com.wendys.nutritiontool", "wendys", "qsr"),
+    FIVE_GUYS("Platform 110", "com.fiveguys.android", "five_guys", "qsr"),
+    KFC_INDIA("Platform 111", "com.kfc.india", "kfc_india", "qsr"),
+    KFC("Platform 112", "com.kfc.android", "kfc", "qsr"),
+    CHICK_FIL_A("Platform 113", "com.chickfila.app", "chick_fil_a", "qsr"),
+    POPEYES("Platform 114", "com.popeyes.android", "popeyes", "qsr"),
+    CHIPOTLE("Platform 115", "com.chipotle.android", "chipotle", "qsr"),
+    TACO_BELL("Platform 116", "com.tacobell", "taco_bell", "qsr"),
+    SUBWAY("Platform 117", "com.subway.subwaymobile", "subway", "qsr"),
+    PANERA("Platform 118", "com.panera.bread", "panera", "qsr"),
+    STARBUCKS("Platform 119", "com.starbucks.mobilecard", "starbucks", "qsr"),
+    STARBUCKS_INDIA("Platform 120", "com.starbucks.in", "starbucks_india", "qsr"),
+    DUNKIN("Platform 121", "com.dunkinbrands.dunkindonuts", "dunkin", "qsr"),
+    TIM_HORTONS("Platform 122", "com.timhortons.app", "tim_hortons", "qsr"),
+    EATSURE("Platform 123", "com.eatsure", "eatsure", "qsr"),
+    BOX8("Platform 124", "com.box8.app", "box8", "qsr"),
+    BEHROUZ("Platform 125", "com.faasos.behrouz", "behrouz", "qsr"),
+    CHAAYOS("Platform 126", "com.chaayos", "chaayos", "qsr"),
+    WOW_MOMO("Platform 127", "com.wowmomo", "wow_momo", "qsr"),
+    FAASOS("Platform 128", "com.faasos", "faasos", "qsr"),
+    OVEN_STORY("Platform 129", "com.faasos.ovenstory", "oven_story", "qsr"),
+    MANDARIN_FOX("Platform 130", "com.faasos.mandarinfox", "mandarin_fox", "qsr"),
+    THE_BOWL_COMPANY("Platform 131", "com.faasos.bowlcompany", "the_bowl_company", "qsr"),
+    LENOTRE_DESSERT("Platform 132", "com.lenotre.android", "lenotre_dessert", "qsr"),
 }

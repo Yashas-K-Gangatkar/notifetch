@@ -1,0 +1,767 @@
+{
+  "Uber": {
+    "number": "Platform 167",
+    "package": "com.ubercab",
+    "index": 167
+  },
+  "DoorDash": {
+    "number": "Platform 141",
+    "package": "com.doordash.consumerapp",
+    "index": 141
+  },
+  "Grubhub": {
+    "number": "Platform 142",
+    "package": "com.grubhub.android",
+    "index": 142
+  },
+  "Deliveroo": {
+    "number": "Platform 143",
+    "package": "com.deliveroo.orderapp",
+    "index": 143
+  },
+  "Just Eat": {
+    "number": "Platform 144",
+    "package": "com.justeat.app.uk",
+    "index": 144
+  },
+  "Takeaway.com": {
+    "number": "Platform 145",
+    "package": "com.takeaway.android",
+    "index": 145
+  },
+  "Lieferando": {
+    "number": "Platform 146",
+    "package": "com.lieferando.android",
+    "index": 146
+  },
+  "Foodpanda": {
+    "number": "Platform 147",
+    "package": "com.foodpanda.android",
+    "index": 147
+  },
+  "Swiggy": {
+    "number": "Platform 136",
+    "package": "in.swiggy.android",
+    "index": 136
+  },
+  "Zomato": {
+    "number": "Platform 137",
+    "package": "com.application.zomato",
+    "index": 137
+  },
+  "iFood": {
+    "number": "Platform 148",
+    "package": "br.com.ifood",
+    "index": 148
+  },
+  "Rappi": {
+    "number": "Platform 149",
+    "package": "com.rappi.app",
+    "index": 149
+  },
+  "Wolt": {
+    "number": "Platform 150",
+    "package": "com.wolt.android",
+    "index": 150
+  },
+  "Glovo": {
+    "number": "Platform 151",
+    "package": "com.glovoapp.android",
+    "index": 151
+  },
+  "Demae-can": {
+    "number": "Platform 15",
+    "package": "com.demaecan.DemaecanDriver",
+    "index": 15
+  },
+  "Talabat": {
+    "number": "Platform 152",
+    "package": "com.talabat.android",
+    "index": 152
+  },
+  "Menulog": {
+    "number": "Platform 153",
+    "package": "com.menulog.android",
+    "index": 153
+  },
+  "Keeta": {
+    "number": "Platform 18",
+    "package": "com.sankuai.sailor.courier",
+    "index": 18
+  },
+  "Instacart": {
+    "number": "Platform 154",
+    "package": "com.instacart.app",
+    "index": 154
+  },
+  "Gopuff": {
+    "number": "Platform 20",
+    "package": "com.gopuff.godrive2.live",
+    "index": 20
+  },
+  "Blinkit": {
+    "number": "Platform 155",
+    "package": "app.blinkit",
+    "index": 155
+  },
+  "BigBasket": {
+    "number": "Platform 156",
+    "package": "com.bigbasket.mobileapp",
+    "index": 156
+  },
+  "Mercado Libre Envios": {
+    "number": "Platform 24",
+    "package": "com.mercadoenvios.driver",
+    "index": 24
+  },
+  "WooliesGO": {
+    "number": "Platform 25",
+    "package": "au.com.woolworths.android.driver",
+    "index": 25
+  },
+  "Zepto": {
+    "number": "Platform 158",
+    "package": "com.zeptoconsumerapp",
+    "index": 158
+  },
+  "Flink": {
+    "number": "Platform 27",
+    "package": "com.flink.workforce",
+    "index": 27
+  },
+  "Shipt": {
+    "number": "Platform 159",
+    "package": "com.shipt.android",
+    "index": 159
+  },
+  "Amazon Flex": {
+    "number": "Platform 64",
+    "package": "com.amazon.flex",
+    "index": 64
+  },
+  "UPS Pickup &": {
+    "number": "Platform 30",
+    "package": "com.ups.genesispd",
+    "index": 30
+  },
+  "Dunzo": {
+    "number": "Platform 176",
+    "package": "com.dunzo.user",
+    "index": 176
+  },
+  "Lalamove": {
+    "number": "Platform 32",
+    "package": "com.lalamove.global.driver.sea",
+    "index": 32
+  },
+  "Borzo/WeFast": {
+    "number": "Platform 33",
+    "package": "global.dostavista.courier",
+    "index": 33
+  },
+  "Postmates": {
+    "number": "Platform 34",
+    "package": "com.postmates.android.courier",
+    "index": 34
+  },
+  "Roadie": {
+    "number": "Platform 35",
+    "package": "com.roadie.drive.android.app",
+    "index": 35
+  },
+  "Stuart": {
+    "number": "Platform 36",
+    "package": "com.stuart.courier",
+    "index": 36
+  },
+  "GoGo Xpress": {
+    "number": "Platform 37",
+    "package": "com.quadx.riderapp",
+    "index": 37
+  },
+  "Amazon Relay/Logistics": {
+    "number": "Platform 38",
+    "package": "com.amazon.relay",
+    "index": 38
+  },
+  "Flipkart/Ekart": {
+    "number": "Platform 39",
+    "package": "com.ekartkiranaonboarding",
+    "index": 39
+  },
+  "Ekart": {
+    "number": "Platform 40",
+    "package": "com.ekart.logistics.app",
+    "index": 40
+  },
+  "JOS KURIR/JNE": {
+    "number": "Platform 41",
+    "package": "id.my.irsyadf.jobdriver",
+    "index": 41
+  },
+  "Aramex": {
+    "number": "Platform 42",
+    "package": "com.aramex.ecourier",
+    "index": 42
+  },
+  "Ninja Van": {
+    "number": "Platform 43",
+    "package": "co.ninjavan.swiftninja_global",
+    "index": 43
+  },
+  "Lyft": {
+    "number": "Platform 173",
+    "package": "com.lyft.android",
+    "index": 173
+  },
+  "Ola": {
+    "number": "Platform 168",
+    "package": "com.olacabs.customer",
+    "index": 168
+  },
+  "Grab": {
+    "number": "Platform 169",
+    "package": "com.grabtaxi.passenger",
+    "index": 169
+  },
+  "Careem Captain": {
+    "number": "Platform 47",
+    "package": "com.careem.adma",
+    "index": 47
+  },
+  "DiDi": {
+    "number": "Platform 171",
+    "package": "com.didiglobal.passenger",
+    "index": 171
+  },
+  "Bolt": {
+    "number": "Platform 172",
+    "package": "ee.mtakso.client",
+    "index": 172
+  },
+  "Porter": {
+    "number": "Platform 50",
+    "package": "com.theporter.android.driverapp",
+    "index": 50
+  },
+  "Rapido Captain": {
+    "number": "Platform 51",
+    "package": "com.rapido.rider",
+    "index": 51
+  },
+  "Rapido": {
+    "number": "Platform 52",
+    "package": "com.rapido.passenger",
+    "index": 52
+  },
+  "Shadowfax": {
+    "number": "Platform 53",
+    "package": "in.shadowfax.gandalf",
+    "index": 53
+  },
+  "Gojek Driver/GoPartner": {
+    "number": "Platform 54",
+    "package": "com.gojek.partner",
+    "index": 54
+  },
+  "Delhivery": {
+    "number": "Platform 174",
+    "package": "com.delhivery.track",
+    "index": 174
+  },
+  "Ecom Express Sathi": {
+    "number": "Platform 56",
+    "package": "com.ecomexpress.oneBoarding",
+    "index": 56
+  },
+  "Xpressbees": {
+    "number": "Platform 175",
+    "package": "com.xpressbees.track",
+    "index": 175
+  },
+  "LetsTransport": {
+    "number": "Platform 58",
+    "package": "in.letstransport.supply",
+    "index": 58
+  },
+  "Blowhorn": {
+    "number": "Platform 59",
+    "package": "net.blowhorn.driverapp",
+    "index": 59
+  },
+  "DriveU": {
+    "number": "Platform 60",
+    "package": "com.driveu.partner",
+    "index": 60
+  },
+  "Yulu": {
+    "number": "Platform 61",
+    "package": "app.yulu.android.partner",
+    "index": 61
+  },
+  "Swiggy Restaurant": {
+    "number": "Platform 62",
+    "package": "in.swiggy.partner",
+    "index": 62
+  },
+  "Zomato Delivery": {
+    "number": "Platform 63",
+    "package": "com.zomato.deliverypartner",
+    "index": 63
+  },
+  "Flipkart": {
+    "number": "Platform 163",
+    "package": "com.flipkart.android",
+    "index": 163
+  },
+  "Convoy": {
+    "number": "Platform 66",
+    "package": "com.convoy.driverapp",
+    "index": 66
+  },
+  "BlackBuck": {
+    "number": "Platform 67",
+    "package": "com.blackbuck.driver",
+    "index": 67
+  },
+  "#FFC107": {
+    "number": "Platform 362",
+    "package": "com.faasos.mandarinfox",
+    "index": 362
+  },
+  "#FF9800": {
+    "number": "Platform 363",
+    "package": "com.faasos.bowlcompany",
+    "index": 363
+  },
+  "#FF6B35": {
+    "number": "Platform 364",
+    "package": "com.lenotre.android",
+    "index": 364
+  },
+  "#F59E0B": {
+    "number": "Platform 360",
+    "package": "com.faasos",
+    "index": 360
+  },
+  "#FB923C": {
+    "number": "Platform 361",
+    "package": "com.faasos.ovenstory",
+    "index": 361
+  },
+  "Zomato District": {
+    "number": "Platform 138",
+    "package": "com.application.zomato.district",
+    "index": 138
+  },
+  "Magicpin": {
+    "number": "Platform 139",
+    "package": "com.magicpin.local",
+    "index": 139
+  },
+  "Uber Eats": {
+    "number": "Platform 140",
+    "package": "com.ubercab.eats",
+    "index": 140
+  },
+  "Woolworths": {
+    "number": "Platform 160",
+    "package": "au.com.woolworths.android",
+    "index": 160
+  },
+  "Amazon Shopping": {
+    "number": "Platform 162",
+    "package": "com.amazon.mShop.android.shopping",
+    "index": 162
+  },
+  "Myntra": {
+    "number": "Platform 164",
+    "package": "com.myntra.android",
+    "index": 164
+  },
+  "Meesho": {
+    "number": "Platform 165",
+    "package": "com.meesho.app",
+    "index": 165
+  },
+  "Swiggy Instamart": {
+    "number": "Platform 166",
+    "package": "in.swiggy.android.instamart",
+    "index": 166
+  },
+  "Careem": {
+    "number": "Platform 170",
+    "package": "com.careem.acma",
+    "index": 170
+  },
+  "Meituan": {
+    "number": "Platform 177",
+    "package": "com.sankuai.meituan",
+    "index": 177
+  },
+  "Ele.me": {
+    "number": "Platform 178",
+    "package": "me.ele",
+    "index": 178
+  },
+  "Gorillas": {
+    "number": "Platform 179",
+    "package": "com.gorillasapp",
+    "index": 179
+  },
+  "Getir": {
+    "number": "Platform 180",
+    "package": "com.getir",
+    "index": 180
+  },
+  "FedEx": {
+    "number": "Platform 181",
+    "package": "com.fedex.android.apps.fedexmobile",
+    "index": 181
+  },
+  "DHL": {
+    "number": "Platform 182",
+    "package": "com.dhl.parcel.uk",
+    "index": 182
+  },
+  "SF Express": {
+    "number": "Platform 183",
+    "package": "com.sf.activity",
+    "index": 183
+  },
+  "Capsule": {
+    "number": "Platform 184",
+    "package": "com.capsule.pharmacy",
+    "index": 184
+  },
+  "NowRx": {
+    "number": "Platform 185",
+    "package": "com.nowrx.android",
+    "index": 185
+  },
+  "PharmEasy": {
+    "number": "Platform 186",
+    "package": "com.indpro.pharmeasy",
+    "index": 186
+  },
+  "Netmeds": {
+    "number": "Platform 187",
+    "package": "com.netmeds.android",
+    "index": 187
+  },
+  "1mg": {
+    "number": "Platform 188",
+    "package": "com.aranoah.healthkart.plus",
+    "index": 188
+  },
+  "Drizly": {
+    "number": "Platform 189",
+    "package": "com.drizly.drizly",
+    "index": 189
+  },
+  "Minibar": {
+    "number": "Platform 190",
+    "package": "com.minibar.android",
+    "index": 190
+  },
+  "Saucey": {
+    "number": "Platform 191",
+    "package": "com.saucey.android",
+    "index": 191
+  },
+  "HipBar": {
+    "number": "Platform 192",
+    "package": "com.hipbar.android",
+    "index": 192
+  },
+  "BloomNation": {
+    "number": "Platform 193",
+    "package": "com.bloomnation.bloomnation",
+    "index": 193
+  },
+  "1-800-Flowers": {
+    "number": "Platform 194",
+    "package": "com.ftd.app.bloom",
+    "index": 194
+  },
+  "Interflora": {
+    "number": "Platform 195",
+    "package": "com.interflora.android",
+    "index": 195
+  },
+  "Ferns N Petals": {
+    "number": "Platform 196",
+    "package": "com.fnp.android",
+    "index": 196
+  },
+  "Rinse": {
+    "number": "Platform 197",
+    "package": "com.rinse.app",
+    "index": 197
+  },
+  "FlyCleaners": {
+    "number": "Platform 198",
+    "package": "com.flycleaners.android",
+    "index": 198
+  },
+  "LaundroKart": {
+    "number": "Platform 199",
+    "package": "com.laundrokart.app",
+    "index": 199
+  },
+  "Presso": {
+    "number": "Platform 200",
+    "package": "com.presso.app",
+    "index": 200
+  },
+  "Chewy": {
+    "number": "Platform 201",
+    "package": "com.chewy.android",
+    "index": 201
+  },
+  "Pets at Home": {
+    "number": "Platform 202",
+    "package": "com.petsathome.android",
+    "index": 202
+  },
+  "Heads Up For Tails": {
+    "number": "Platform 203",
+    "package": "com.hutf.android",
+    "index": 203
+  },
+  "Wayfair": {
+    "number": "Platform 204",
+    "package": "com.wayfair.wayfair",
+    "index": 204
+  },
+  "Castlery": {
+    "number": "Platform 205",
+    "package": "com.castlery.app",
+    "index": 205
+  },
+  "Urban Ladder": {
+    "number": "Platform 206",
+    "package": "com.urbanladder.app",
+    "index": 206
+  },
+  "Courier Please": {
+    "number": "Platform 207",
+    "package": "com.couriersplease.app",
+    "index": 207
+  },
+  "Dex": {
+    "number": "Platform 208",
+    "package": "com.dex.android",
+    "index": 208
+  },
+  "Couriire": {
+    "number": "Platform 209",
+    "package": "com.couriire.app",
+    "index": 209
+  },
+  "Cainiao": {
+    "number": "Platform 210",
+    "package": "com.cainiao.wireless.dumps",
+    "index": 210
+  },
+  "XPO Logistics": {
+    "number": "Platform 211",
+    "package": "com.xpo.logistics",
+    "index": 211
+  },
+  "JD Logistics": {
+    "number": "Platform 212",
+    "package": "com.jingdong.app.mall",
+    "index": 212
+  },
+  "Eaze": {
+    "number": "Platform 213",
+    "package": "com.eaze.android",
+    "index": 213
+  },
+  "Dutchie": {
+    "number": "Platform 214",
+    "package": "com.dutchie.android",
+    "index": 214
+  },
+  "Domino's India": {
+    "number": "Platform 215",
+    "package": "com.dominos",
+    "index": 215
+  },
+  "Domino's US": {
+    "number": "Platform 216",
+    "package": "com.dominos.android",
+    "index": 216
+  },
+  "NotiFetch Tester": {
+    "number": "Platform 217",
+    "package": "com.notifetch.tester",
+    "index": 217
+  },
+  "Pizza Hut": {
+    "number": "Platform 218",
+    "package": "com.pizzahut.android",
+    "index": 218
+  },
+  "Pizza Hut Global": {
+    "number": "Platform 219",
+    "package": "com.pizzahut.android.global",
+    "index": 219
+  },
+  "Papa John's": {
+    "number": "Platform 220",
+    "package": "com.papajohns.android",
+    "index": 220
+  },
+  "McDelivery India": {
+    "number": "Platform 221",
+    "package": "com.mcdonalds.mcdeliveryindia",
+    "index": 221
+  },
+  "McDonald's": {
+    "number": "Platform 222",
+    "package": "com.mcdonalds.app",
+    "index": 222
+  },
+  "McDonald's \u2014 v2.9.24 fix: actual package name": {
+    "number": "Platform 223",
+    "package": "com.mcdonalds.mobileapp",
+    "index": 223
+  },
+  "Burger King India": {
+    "number": "Platform 224",
+    "package": "com.bkindia",
+    "index": 224
+  },
+  "Burger King": {
+    "number": "Platform 225",
+    "package": "com.bk",
+    "index": 225
+  },
+  "Wendy's": {
+    "number": "Platform 226",
+    "package": "com.wendys.nutritiontool",
+    "index": 226
+  },
+  "Five Guys": {
+    "number": "Platform 227",
+    "package": "com.fiveguys.android",
+    "index": 227
+  },
+  "KFC India": {
+    "number": "Platform 228",
+    "package": "com.kfc.india",
+    "index": 228
+  },
+  "KFC": {
+    "number": "Platform 229",
+    "package": "com.kfc.android",
+    "index": 229
+  },
+  "Chick-fil-A": {
+    "number": "Platform 230",
+    "package": "com.chickfila.app",
+    "index": 230
+  },
+  "Popeyes": {
+    "number": "Platform 231",
+    "package": "com.popeyes.android",
+    "index": 231
+  },
+  "Popeyes \u2014 v2.9.24 fix: actual package name": {
+    "number": "Platform 232",
+    "package": "com.jubl.popeyes",
+    "index": 232
+  },
+  "Chipotle": {
+    "number": "Platform 233",
+    "package": "com.chipotle.android",
+    "index": 233
+  },
+  "Taco Bell": {
+    "number": "Platform 234",
+    "package": "com.tacobell",
+    "index": 234
+  },
+  "Subway": {
+    "number": "Platform 235",
+    "package": "com.subway.subwaymobile",
+    "index": 235
+  },
+  "Panera Bread": {
+    "number": "Platform 236",
+    "package": "com.panera.bread",
+    "index": 236
+  },
+  "Starbucks": {
+    "number": "Platform 237",
+    "package": "com.starbucks.mobilecard",
+    "index": 237
+  },
+  "Starbucks India": {
+    "number": "Platform 238",
+    "package": "com.starbucks.in",
+    "index": 238
+  },
+  "Dunkin'": {
+    "number": "Platform 239",
+    "package": "com.dunkinbrands.dunkindonuts",
+    "index": 239
+  },
+  "Tim Hortons": {
+    "number": "Platform 240",
+    "package": "com.timhortons.app",
+    "index": 240
+  },
+  "EatSure": {
+    "number": "Platform 241",
+    "package": "com.eatsure",
+    "index": 241
+  },
+  "Box8": {
+    "number": "Platform 242",
+    "package": "com.box8.app",
+    "index": 242
+  },
+  "Behrouz Biryani": {
+    "number": "Platform 243",
+    "package": "com.faasos.behrouz",
+    "index": 243
+  },
+  "Chaayos": {
+    "number": "Platform 244",
+    "package": "com.chaayos",
+    "index": 244
+  },
+  "Wow! Momo": {
+    "number": "Platform 245",
+    "package": "com.wowmomo",
+    "index": 245
+  },
+  "Faasos": {
+    "number": "Platform 246",
+    "package": "com.faasos",
+    "index": 246
+  },
+  "Oven Story Pizza": {
+    "number": "Platform 247",
+    "package": "com.faasos.ovenstory",
+    "index": 247
+  },
+  "Mandarin Fox": {
+    "number": "Platform 248",
+    "package": "com.faasos.mandarinfox",
+    "index": 248
+  },
+  "The Bowl Company": {
+    "number": "Platform 249",
+    "package": "com.faasos.bowlcompany",
+    "index": 249
+  },
+  "LENOTRE Dessert": {
+    "number": "Platform 250",
+    "package": "com.lenotre.android",
+    "index": 250
+  }
+}
