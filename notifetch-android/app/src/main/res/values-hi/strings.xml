@@ -111,6 +111,9 @@
     <string name="premium_expired">प्रीमियम समाप्त — मुफ्त दिन पाने के लिए अपना QR साझा करें</string>
     <string name="premium_unlock_all">सभी सुविधाएँ अनलॉक!</string>
     <string name="premium_unlock_more">प्रीमियम अनलॉक करने के लिए अपना QR कोड साझा करें</string>
+    <string name="premium_countdown_title">प्रीमियम एक्सेस काउंटडाउन</string>
+    <string name="premium_countdown_to_dec">20 दिसंबर 2026 तक प्रीमियम एक्सेस</string>
+    <string name="premium_countdown_days">%1$d दिन शेष</string>
 
     <!-- QR रेफरल -->
     <string name="referral_title">रेफर करें और मुफ्त प्रीमियम पाएं</string>
@@ -119,7 +122,7 @@
     <string name="referral_your_qr">आपका QR कोड</string>
     <string name="referral_share_qr">QR कोड साझा करें</string>
     <string name="referral_scan_qr">किसी का QR कोड स्कैन करें</string>
-    <string name="referral_scan_subtitle">किसी दोस्त का QR स्कैन करें और 7 दिन प्रीमियम मुफ्त पाएं</string>
+    <string name="referral_scan_subtitle">QR स्कैन करें और 20 दिसंबर तक सभी प्लेटफॉर्म का प्रीमियम एक्सेस पाएं</string>
     <string name="referral_share_link">लिंक साझा करें</string>
     <string name="referral_stats_title">आपके रेफरल आँकड़े</string>
     <string name="referral_total_referrals">कुल रेफरल</string>
@@ -128,7 +131,7 @@
     <string name="referral_step_1">1. अपना QR कोड दोस्तों के साथ साझा करें</string>
     <string name="referral_step_2">2. वे NotiFetch ऐप से इसे स्कैन करते हैं</string>
     <string name="referral_step_3">3. आप दोनों को मुफ्त प्रीमियम दिन मिलते हैं!</string>
-    <string name="referral_step_4">4. 10 दोस्तों को रेफर करें = 1 पूरा महीना मुफ्त</string>
+    <string name="referral_step_4">4. 20 दोस्तों को रेफर करें = मुफ्त अवधि समाप्त होने के बाद 1 महीना प्रीमियम</string>
     <string name="referral_reward_sharer">आपको प्रति स्कैन 3 दिन मिलते हैं</string>
     <string name="referral_reward_scanner">उन्हें 7 दिन का स्वागत बोनस मिलता है</string>
     <string name="referral_scan_success_title">प्रीमियम सक्रिय! 🎉</string>

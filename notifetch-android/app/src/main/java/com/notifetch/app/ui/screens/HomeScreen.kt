@@ -92,6 +92,7 @@ import com.notifetch.app.R
 fun HomeScreen(
     onNavigateToDetail: (Long) -> Unit,
     onNavigateToPermission: () -> Unit,
+    onNavigateToProfile: () -> Unit = {},
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     // SINGLE uiState — no separate collectAsState calls
@@ -138,7 +139,10 @@ fun HomeScreen(
         ) {
             TopAppBar(
                 title = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.clickable { onNavigateToProfile() }
+                    ) {
                         Icon(
                             imageVector = Icons.Default.NotificationsActive,
                             contentDescription = null,

@@ -111,6 +111,9 @@
     <string name="premium_expired">Premium expired — share your QR to get free days</string>
     <string name="premium_unlock_all">All features unlocked!</string>
     <string name="premium_unlock_more">Share your QR code to unlock premium</string>
+    <string name="premium_countdown_title">Premium Access Countdown</string>
+    <string name="premium_countdown_to_dec">Premium access till December 20, 2026</string>
+    <string name="premium_countdown_days">%1$d days remaining</string>
 
     <!-- QR Referral -->
     <string name="referral_title">Refer &amp; Earn Free Premium</string>
@@ -119,7 +122,7 @@
     <string name="referral_your_qr">Your QR Code</string>
     <string name="referral_share_qr">Share QR Code</string>
     <string name="referral_scan_qr">Scan Someone\'s QR Code</string>
-    <string name="referral_scan_subtitle">Scan a friend\'s QR to get 7 days premium FREE</string>
+    <string name="referral_scan_subtitle">Scan the QR to get premium access to all platforms till December 20</string>
     <string name="referral_share_link">Share Link</string>
     <string name="referral_stats_title">Your Referral Stats</string>
     <string name="referral_total_referrals">Total Referrals</string>
@@ -128,7 +131,7 @@
     <string name="referral_step_1">1. Share your QR code with friends</string>
     <string name="referral_step_2">2. They scan it with the NotiFetch app</string>
     <string name="referral_step_3">3. You both get free premium days!</string>
-    <string name="referral_step_4">4. Refer 10 friends = 1 full month FREE</string>
+    <string name="referral_step_4">4. Refer 20 friends = 1 month premium after free period ends</string>
     <string name="referral_reward_sharer">You get 3 days per scan</string>
     <string name="referral_reward_scanner">They get 7 days welcome bonus</string>
     <string name="referral_scan_success_title">Premium Activated! 🎉</string>

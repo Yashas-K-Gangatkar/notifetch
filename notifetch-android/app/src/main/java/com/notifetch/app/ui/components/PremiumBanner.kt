@@ -87,10 +87,9 @@ fun PremiumBanner(
                 tint = Color.White,
                 modifier = Modifier.padding(end = 8.dp)
             )
-            Column {
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = if (isPremium) stringResource(R.string.premium_active)
-                           else stringResource(R.string.premium_free_tier),
+                    text = stringResource(R.string.premium_countdown_to_dec),
                     color = Color.White,
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.bodyMedium
@@ -109,6 +108,22 @@ fun PremiumBanner(
                     style = MaterialTheme.typography.bodySmall
                 )
             }
+            // Countdown to December 20, 2026
+            val dec20Days = remember {
+                val dec20 = java.util.Calendar.getInstance().apply {
+                    set(2026, java.util.Calendar.DECEMBER, 20, 0, 0, 0)
+                    set(java.util.Calendar.MILLISECOND, 0)
+                }
+                val now = java.util.Calendar.getInstance()
+                val diffMs = dec20.timeInMillis - now.timeInMillis
+                (diffMs / (1000 * 60 * 60 * 24)).coerceAtLeast(0)
+            }
+            Text(
+                text = stringResource(R.string.premium_countdown_days, dec20Days.toInt()),
+                color = Color.White,
+                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.titleMedium
+            )
         }
     }
 }

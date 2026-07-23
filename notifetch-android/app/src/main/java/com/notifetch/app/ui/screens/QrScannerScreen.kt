@@ -142,7 +142,7 @@ fun QrScannerScreen(
                 setDesiredBarcodeFormats(ScanOptions.QR_CODE)
                 setPrompt("Scan a NotiFetch referral QR code")
                 setBeepEnabled(true)
-                setOrientationLocked(false)
+                setOrientationLocked(true)
                 setBarcodeImageEnabled(false)
             }
             scanLauncher.launch(options)
@@ -203,7 +203,7 @@ fun QrScannerScreen(
                                     setDesiredBarcodeFormats(ScanOptions.QR_CODE)
                                     setPrompt("Scan a NotiFetch referral QR code")
                                     setBeepEnabled(true)
-                                    setOrientationLocked(false)
+                                    setOrientationLocked(true)
                                     setBarcodeImageEnabled(false)
                                 }
                                 scanLauncher.launch(options)

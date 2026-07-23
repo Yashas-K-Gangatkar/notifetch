@@ -32,7 +32,7 @@ object PremiumManager {
     const val REFERRER_REWARD_DAYS = 3L       // Sharer gets 3 days per scan
     const val REFEREE_REWARD_DAYS = 7L        // Scanner gets 7 days welcome bonus
     const val MAX_SCANS_PER_USER = 10         // Max scans a user can share (caps at 30 days = 1 month)
-    const val MONTH_BONUS_THRESHOLD = 10      // After 10 referrals, grant 1 full month bonus
+    const val MONTH_BONUS_THRESHOLD = 20      // After 20 referrals, grant 1 full month bonus
 
     private fun getPrefs(context: Context): SharedPreferences {
         return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
