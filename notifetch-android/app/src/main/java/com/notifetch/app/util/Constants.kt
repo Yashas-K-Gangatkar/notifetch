@@ -3,7 +3,7 @@ package com.notifetch.app.util
 object Constants {
 
     const val DATABASE_NAME = "notifetch_db"
-    const val BASE_URL = "https:
+    const val BASE_URL = "https://www.notifetch.in/"
     const val NOTIFICATION_CHANNEL_ID = "notifetch_channel"
     const val NOTIFICATION_CHANNEL_NAME = "NotiFetch Service"
     const val SYNC_WORK_NAME = "notifetch_sync_work"
