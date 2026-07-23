@@ -45,7 +45,7 @@
     <string name="consent_data_collection_title">डेटा संग्रह</string>
     <string name="consent_data_collection_desc">NotiFetch Android के NotificationListenerService API का उपयोग करके डिलीवरी पार्टनर/ड्राइवर ऐप्स की सूचनाएं पढ़ता है। हम केवल यह संग्रह करते हैं:\n• सूचना शीर्षक और पाठ\n• ऑर्डर मूल्य, पिकअप/ड्रॉपऑफ स्थान, दूरी\n• प्लेटफॉर्म नाम और टाइमस्टैम्प\n\nहम कभी एक्सेस नहीं करते: बैंकिंग, सोशल मीडिया, व्यक्तिगत संदेश, या कोई अन्य ऐप सूचनाएं।\n\nहम कभी स्टोर नहीं करते: कच्चे नोटिफिकेशन एक्स्ट्रा, ऑथ टोकन, या वह डेटा जिसे आप सूचना पैनल में नहीं देख सकते।\n\nप्रतिधारण: डेटा आपके डिवाइस पर लोकल रूप से स्टोर किया जाता है और 30 दिनों के बाद स्वतः हट जाता है। आप इसे कभी भी हटा सकते हैं।</string>
     <string name="consent_no_affiliation_title">कोई संबद्धता नहीं</string>
-    <string name="consent_no_affiliation_desc">NotiFetch किसी भी डिलीवरी प्लेटफॉर्म (Swiggy, Zomato, Uber, DoorDash, Amazon, आदि) से संबद्ध, समर्थित, या जुड़ा हुआ नहीं है। प्लेटफॉर्म नाम केवल पहचान के लिए ऐप में दिखाई देते हैं। आप किसी भी प्लेटफॉर्म का नाम अपनी पसंद के अनुसार बदल सकते हैं।</string>
+    <string name="consent_no_affiliation_desc">NotiFetch किसी भी डिलीवरी प्लेटफॉर्म से संबद्ध, समर्थित, या जुड़ा हुआ नहीं है। प्लेटफॉर्म नाम केवल पहचान के लिए ऐप में दिखाई देते हैं। आप किसी भी प्लेटफॉर्म का नाम अपनी पसंद के अनुसार बदल सकते हैं।</string>
     <string name="consent_your_responsibility_title">आपकी जिम्मेदारी</string>
     <string name="consent_your_responsibility_desc">आप अपने द्वारा उपयोग किए जाने वाले प्रत्येक डिलीवरी प्लेटफॉर्म की सेवा शर्तों का पालन करने के लिए पूरी तरह जिम्मेदार हैं। NotiFetch एक व्यक्तिगत सूचना प्रबंधन उपकरण है। हम प्लेटफॉर्म शर्तों के किसी भी उल्लंघन को प्रोत्साहित या समर्थन नहीं करते। यदि कोई प्लेटफॉर्म तृतीय-पक्ष सूचना टूल का उपयोग करने पर रोक लगाता है, तो आपको तय करना होगा कि उस प्लेटफॉर्म के लिए NotiFetch का उपयोग करना है या नहीं।\n\nमहत्वपूर्ण: डिलीवरी प्लेटफॉर्म यह पता लगा सकते हैं कि आपके डिवाइस पर सूचना श्रोता सक्रिय है। यह एक Android सिस्टम फीचर है और छिपाया नहीं जा सकता। कुछ प्लेटफॉर्म सूचना पढ़ने वाले टूल का उपयोग करने वाले ड्राइवरों को चेतावनी दे सकते हैं या निष्क्रिय कर सकते हैं। जारी रखकर, आप इस जोखिम को स्वीकार करते हैं।</string>
     <string name="consent_privacy_policy_title">गोपनीयता नीति और आपके अधिकार</string>
@@ -245,19 +245,19 @@
     <string name="detail_from_prefix">प्रेषक: %1$s</string>
 
     <!-- ============ Platform names ============ -->
-    <string name="platform_swiggy_partner">Swiggy Partner</string>
-    <string name="platform_zomato_delivery">Zomato Delivery</string>
-    <string name="platform_amazon_flex">Amazon Flex</string>
-    <string name="platform_zepto_partner">Zepto Cafe Partner</string>
-    <string name="platform_blinkit_partner">Blinkit Partner</string>
-    <string name="platform_bigbasket_partner">BigBasket Partner</string>
-    <string name="platform_dunzo_partner">Dunzo Partner</string>
-    <string name="platform_porter_partner">Porter Partner</string>
-    <string name="platform_rapido_captain">Rapido Captain</string>
-    <string name="platform_ola_driver">Ola Driver</string>
-    <string name="platform_uber_driver">Uber Driver</string>
-    <string name="platform_flipkart_logistics">Flipkart Logistics</string>
-    <string name="platform_shadowfax_partner">Shadowfax Partner</string>
+    <string name="platform_swiggy_partner">Platform 136</string>
+    <string name="platform_zomato_delivery">Platform 137</string>
+    <string name="platform_amazon_flex">Platform 64</string>
+    <string name="platform_zepto_partner">Platform 158</string>
+    <string name="platform_blinkit_partner">Platform 155</string>
+    <string name="platform_bigbasket_partner">Platform 156</string>
+    <string name="platform_dunzo_partner">Platform 160</string>
+    <string name="platform_porter_partner">Platform 161</string>
+    <string name="platform_rapido_captain">Platform 162</string>
+    <string name="platform_ola_driver">Platform 163</string>
+    <string name="platform_uber_driver">Platform 167</string>
+    <string name="platform_flipkart_logistics">Platform 170</string>
+    <string name="platform_shadowfax_partner">Platform 171</string>
 
     <!-- ============ Categories ============ -->
     <string name="category_new_order">नया ऑर्डर</string>
@@ -352,7 +352,7 @@
     <string name="health_check_all_passed">सभी जांचें पास हो गईं!</string>
     <string name="health_check_permissions_missing">कुछ अनुमतियां गायब हैं</string>
     <string name="health_check_all_passed_desc">NotiFetch आपके सभी डिलीवरी ऐप्स की सूचनाएं कैप्चर कर रहा होगा। यदि फिर भी नहीं दिख रहीं, तो अपना फोन रीस्टार्ट करने का प्रयास करें।</string>
-    <string name="health_check_permissions_missing_desc">ऊपर दी गई अनुमतियां प्रदान करें, फिर NotiFetch रीस्टार्ट करें। Swiggy, Zomato, Zepto, Blinkit, Pizza Hut, McDonald\'s, Domino\'s, Popeyes, Rapido, आदि की सूचनाएं कुछ मिनटों में दिखनी शुरू हो जाएंगी।</string>
+    <string name="health_check_permissions_missing_desc">ऊपर दी गई अनुमतियां प्रदान करें, फिर NotiFetch रीस्टार्ट करें। आपके डिलीवरी प्लेटफॉर्म की सूचनाएं कुछ मिनटों में दिखनी शुरू हो जाएंगी।</string>
     <string name="health_check_diagnostic_title">सूचना डायग्नोस्टिक</string>
     <string name="health_check_hide">छिपाएं</string>
     <string name="health_check_show_log">लॉग दिखाएं</string>
@@ -365,7 +365,7 @@
 
     <!-- ============ Onboarding screen ============ -->
     <string name="onboarding_title_1">कोई भी डिलीवरी ऑर्डर मिस न करें</string>
-    <string name="onboarding_desc_1">NotiFetch Swiggy, Zomato, Zepto, Blinkit, और 115+ अन्य ऐप्स से डिलीवरी सूचनाएं कैप्चर करता है — सब एक जगह। अपना अगला ऑर्डर खोजने के लिए ऐप्स के बीच स्विच करना बंद करें।</string>
+    <string name="onboarding_desc_1">NotiFetch 119+ डिलीवरी प्लेटफॉर्म से डिलीवरी सूचनाएं कैप्चर करता है — सब एक जगह। अपना अगला ऑर्डर खोजने के लिए ऐप्स के बीच स्विच करना बंद करें।</string>
     <string name="onboarding_get_started">शुरू करें</string>
     <string name="onboarding_title_2">सूचना एक्सेस प्रदान करें</string>
     <string name="onboarding_desc_2">डिलीवरी सूचनाएं कैप्चर करने के लिए, आपको NotiFetch को सूचनाएं पढ़ने की अनुमति देनी होगी। Android सेटिंग्स → सूचना एक्सेस → NotiFetch सक्षम करने के लिए नीचे टैप करें।\n\nहम केवल वही सूचना पाठ स्टोर करते हैं जो आप पहले से देख सकते हैं — कभी पासवर्ड, OTP, या एक्स्ट्रा बंडल डेटा नहीं।</string>
@@ -386,8 +386,8 @@
     <string name="privacy_data_size">डेटा आकार</string>
     <string name="privacy_what_we_store">हम क्या स्टोर करते हैं</string>
     <string name="privacy_store_item_1">सूचना शीर्षक, पाठ, bigText, subText (केवल जो आप देख सकते हैं)</string>
-    <string name="privacy_store_item_2">सोर्स ऐप पैकेज नाम (जैसे, com.application.zomato)</string>
-    <string name="privacy_store_item_3">प्लेटफॉर्म प्रदर्शन नाम (जैसे, \"Zomato\")</string>
+    <string name="privacy_store_item_2">सोर्स ऐप पैकेज नाम (तथ्यात्मक पहचानकर्ता)</string>
+    <string name="privacy_store_item_3">प्लेटफॉर्म प्रदर्शन नाम (उपयोगकर्ता-अनुकूलन योग्य)</string>
     <string name="privacy_store_item_4">पहचाना गया ऑर्डर मूल्य, पिकअप/ड्रॉपऑफ स्थान (सूचना पाठ से पार्स किया गया)</string>
     <string name="privacy_store_item_5">सूचना प्राप्त होने का टाइमस्टैम्प</string>
     <string name="privacy_store_item_6">यूज़र मोड (राइडर बनाम ग्राहक) — फ़िल्टरिंग के लिए उपयोग</string>

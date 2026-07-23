@@ -45,7 +45,7 @@
     <string name="consent_data_collection_title">Data Collection</string>
     <string name="consent_data_collection_desc">NotiFetch reads notifications from delivery partner/driver apps using Android\'s NotificationListenerService API. We collect ONLY:\n• Notification title and text\n• Order value, pickup/dropoff locations, distance\n• Platform name and timestamp\n\nWe NEVER access: banking, social media, personal messages, or any other app notifications.\n\nWe NEVER store: raw notification extras, auth tokens, or data you cannot see in the notification shade.\n\nRetention: Data is stored locally on your device and auto-deleted after 30 days. You can delete it anytime.</string>
     <string name="consent_no_affiliation_title">No Affiliation</string>
-    <string name="consent_no_affiliation_desc">NotiFetch is NOT affiliated with, endorsed by, or connected to any delivery platform (Swiggy, Zomato, Uber, DoorDash, Amazon, etc.). Platform names appear in the app for identification purposes only. You can customize any platform name to whatever you prefer.</string>
+    <string name="consent_no_affiliation_desc">NotiFetch is NOT affiliated with, endorsed by, or connected to any delivery platform. Platform numbers appear in the app for identification purposes only. You can customize any platform name to whatever you prefer.</string>
     <string name="consent_your_responsibility_title">Your Responsibility</string>
     <string name="consent_your_responsibility_desc">You are solely responsible for complying with the terms of service of each delivery platform you use. NotiFetch is a personal notification management tool. We do not encourage or support any violation of platform terms. If a platform prohibits using third-party notification tools, you must decide whether to use NotiFetch for that platform.\n\nIMPORTANT: Delivery platforms CAN detect that a notification listener is active on your device. This is an Android system feature and cannot be hidden. Some platforms may warn or deactivate drivers who use notification reading tools. By continuing, you acknowledge this risk.</string>
     <string name="consent_privacy_policy_title">Privacy Policy &amp; Your Rights</string>
@@ -245,19 +245,19 @@
     <string name="detail_from_prefix">From: %1$s</string>
 
     <!-- ============ Platform names ============ -->
-    <string name="platform_swiggy_partner">Swiggy Partner</string>
-    <string name="platform_zomato_delivery">Zomato Delivery</string>
-    <string name="platform_amazon_flex">Amazon Flex</string>
-    <string name="platform_zepto_partner">Zepto Cafe Partner</string>
-    <string name="platform_blinkit_partner">Blinkit Partner</string>
-    <string name="platform_bigbasket_partner">BigBasket Partner</string>
-    <string name="platform_dunzo_partner">Dunzo Partner</string>
-    <string name="platform_porter_partner">Porter Partner</string>
-    <string name="platform_rapido_captain">Rapido Captain</string>
-    <string name="platform_ola_driver">Ola Driver</string>
-    <string name="platform_uber_driver">Uber Driver</string>
-    <string name="platform_flipkart_logistics">Flipkart Logistics</string>
-    <string name="platform_shadowfax_partner">Shadowfax Partner</string>
+    <string name="platform_swiggy_partner">Platform 136</string>
+    <string name="platform_zomato_delivery">Platform 137</string>
+    <string name="platform_amazon_flex">Platform 64</string>
+    <string name="platform_zepto_partner">Platform 158</string>
+    <string name="platform_blinkit_partner">Platform 155</string>
+    <string name="platform_bigbasket_partner">Platform 156</string>
+    <string name="platform_dunzo_partner">Platform 160</string>
+    <string name="platform_porter_partner">Platform 161</string>
+    <string name="platform_rapido_captain">Platform 162</string>
+    <string name="platform_ola_driver">Platform 163</string>
+    <string name="platform_uber_driver">Platform 167</string>
+    <string name="platform_flipkart_logistics">Platform 170</string>
+    <string name="platform_shadowfax_partner">Platform 171</string>
 
     <!-- ============ Categories ============ -->
     <string name="category_new_order">New Order</string>
@@ -352,7 +352,7 @@
     <string name="health_check_all_passed">All checks passed!</string>
     <string name="health_check_permissions_missing">Some permissions missing</string>
     <string name="health_check_all_passed_desc">NotiFetch should be capturing notifications from all your delivery apps. If you still don\'t see them, try restarting your phone.</string>
-    <string name="health_check_permissions_missing_desc">Grant the permissions above, then restart NotiFetch. Notifications from Swiggy, Zomato, Zepto, Blinkit, Pizza Hut, McDonald\'s, Domino\'s, Popeyes, Rapido, etc. should start appearing within minutes.</string>
+    <string name="health_check_permissions_missing_desc">Grant the permissions above, then restart NotiFetch. Notifications from your delivery platforms should start appearing within minutes.</string>
     <string name="health_check_diagnostic_title">Notification Diagnostic</string>
     <string name="health_check_hide">Hide</string>
     <string name="health_check_show_log">Show Log</string>
@@ -365,7 +365,7 @@
 
     <!-- ============ Onboarding screen ============ -->
     <string name="onboarding_title_1">Never Miss a Delivery Order</string>
-    <string name="onboarding_desc_1">NotiFetch captures delivery notifications from Swiggy, Zomato, Zepto, Blinkit, and 115+ more apps — all in one place. No more switching between apps to find your next order.</string>
+    <string name="onboarding_desc_1">NotiFetch captures delivery notifications from 119+ delivery platforms — all in one place. No more switching between apps to find your next order.</string>
     <string name="onboarding_get_started">Get Started</string>
     <string name="onboarding_title_2">Grant Notification Access</string>
     <string name="onboarding_desc_2">To capture delivery notifications, you need to grant NotiFetch permission to read notifications. Tap below to open Android Settings → Notification Access → enable NotiFetch.\n\nWe only store notification text you can already see — never passwords, OTPs, or extras bundle data.</string>
@@ -386,8 +386,8 @@
     <string name="privacy_data_size">Data Size</string>
     <string name="privacy_what_we_store">What We Store</string>
     <string name="privacy_store_item_1">Notification title, text, bigText, subText (only what you can see)</string>
-    <string name="privacy_store_item_2">Source app package name (e.g., com.application.zomato)</string>
-    <string name="privacy_store_item_3">Platform display name (e.g., \"Zomato\")</string>
+    <string name="privacy_store_item_2">Source app package name (factual identifier)</string>
+    <string name="privacy_store_item_3">Platform display name (user-customizable)</string>
     <string name="privacy_store_item_4">Detected order value, pickup/dropoff locations (parsed from notification text)</string>
     <string name="privacy_store_item_5">Timestamp when notification was received</string>
     <string name="privacy_store_item_6">User mode (rider vs customer) — used for filtering</string>
