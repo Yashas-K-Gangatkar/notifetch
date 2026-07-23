@@ -366,6 +366,9 @@ fun NotiFetchNavHost() {
                     },
                     onNavigateToFeedback = {
                         navController.navigate("feedback")
+                    },
+                    onNavigateToPlatforms = {
+                        navController.navigate("platforms")
                     }
                 )
             }
