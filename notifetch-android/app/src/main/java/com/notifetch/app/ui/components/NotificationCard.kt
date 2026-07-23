@@ -46,7 +46,8 @@ fun NotificationCard(
     notification: CapturedNotification,
     onClick: (Long) -> Unit,
     modifier: Modifier = Modifier,
-    displayPlatformName: String? = null
+    displayPlatformName: String? = null,
+    onLongClick: ((String) -> Unit)? = null
 ) {
     val resolvedName = displayPlatformName ?: notification.platform
     val platformColor = getPlatformColor(resolvedName, notification.packageName)

@@ -132,58 +132,28 @@ export function PlatformsSection() {
           </p>
         </div>
 
-          {/* Link to full platform search */}
-          <div className="text-xs text-muted-foreground">
-            Can&apos;t find your platform? <a href="/platforms/search" className="text-amber-500 underline hover:text-amber-600">Search by brand name →</a>
-          </div>
-
         {/* Summary — real counts only, demo data explicitly labeled */}
         <div className="flex items-center justify-center gap-6 mb-2 flex-wrap">
           <div className="text-center">
             <p className="text-3xl font-bold text-amber-500">{PLATFORMS.length}</p>
             <p className="text-sm text-muted-foreground">Real Platforms</p>
           </div>
-
-          {/* Link to full platform search */}
-          <div className="text-xs text-muted-foreground">
-            Can&apos;t find your platform? <a href="/platforms/search" className="text-amber-500 underline hover:text-amber-600">Search by brand name →</a>
-          </div>
           <Separator orientation="vertical" className="h-10" />
           <div className="text-center">
             <p className="text-3xl font-bold">{DELIVERY_CATEGORIES.length}</p>
             <p className="text-sm text-muted-foreground">Categories</p>
-          </div>
-
-          {/* Link to full platform search */}
-          <div className="text-xs text-muted-foreground">
-            Can&apos;t find your platform? <a href="/platforms/search" className="text-amber-500 underline hover:text-amber-600">Search by brand name →</a>
           </div>
           <Separator orientation="vertical" className="h-10" />
           <div className="text-center">
             <p className="text-3xl font-bold">{REGIONS.length}</p>
             <p className="text-sm text-muted-foreground">Global Regions</p>
           </div>
-
-          {/* Link to full platform search */}
-          <div className="text-xs text-muted-foreground">
-            Can&apos;t find your platform? <a href="/platforms/search" className="text-amber-500 underline hover:text-amber-600">Search by brand name →</a>
-          </div>
           <Separator orientation="vertical" className="h-10" />
           <div className="text-center">
             <p className="text-3xl font-bold text-green-500">{connectedCount}</p>
             <p className="text-sm text-muted-foreground">Sample Preview</p>
           </div>
-
-          {/* Link to full platform search */}
-          <div className="text-xs text-muted-foreground">
-            Can&apos;t find your platform? <a href="/platforms/search" className="text-amber-500 underline hover:text-amber-600">Search by brand name →</a>
-          </div>
         </div>
-
-          {/* Link to full platform search */}
-          <div className="text-xs text-muted-foreground">
-            Can&apos;t find your platform? <a href="/platforms/search" className="text-amber-500 underline hover:text-amber-600">Search by brand name →</a>
-          </div>
         <p className="text-center text-xs text-muted-foreground/70 mb-8">
           <span className="inline-block bg-amber-500/10 text-amber-600 dark:text-amber-400 px-2 py-0.5 rounded-full font-semibold tracking-wide">DEMO</span>
           {" "}Sample notifications shown below are illustrative. Real notifications appear after you install the NotiFetch app and grant notification access.
@@ -203,8 +173,8 @@ export function PlatformsSection() {
           </div>
 
           {/* Link to full platform search */}
-          <div className="text-xs text-muted-foreground">
-            Can&apos;t find your platform? <a href="/platforms/search" className="text-amber-500 underline hover:text-amber-600">Search by brand name →</a>
+          <div className="text-xs text-muted-foreground mb-2">
+            Can&apos;t find your platform? <a href="/platforms/search" className="text-amber-500 underline hover:text-amber-600">Search by brand name to find your platform number →</a>
           </div>
 
           {/* Region filter pills */}
@@ -235,11 +205,6 @@ export function PlatformsSection() {
             ))}
           </div>
 
-          {/* Link to full platform search */}
-          <div className="text-xs text-muted-foreground">
-            Can&apos;t find your platform? <a href="/platforms/search" className="text-amber-500 underline hover:text-amber-600">Search by brand name →</a>
-          </div>
-
           {/* Category filter pills */}
           <div className="flex items-center gap-2 flex-wrap">
             <LayoutGrid className="w-4 h-4 text-muted-foreground shrink-0" />
@@ -267,17 +232,7 @@ export function PlatformsSection() {
               </button>
             ))}
           </div>
-
-          {/* Link to full platform search */}
-          <div className="text-xs text-muted-foreground">
-            Can&apos;t find your platform? <a href="/platforms/search" className="text-amber-500 underline hover:text-amber-600">Search by brand name →</a>
-          </div>
         </div>
-
-          {/* Link to full platform search */}
-          <div className="text-xs text-muted-foreground">
-            Can&apos;t find your platform? <a href="/platforms/search" className="text-amber-500 underline hover:text-amber-600">Search by brand name →</a>
-          </div>
 
         {/* Category Groups */}
         <div className="space-y-4">
@@ -310,17 +265,7 @@ export function PlatformsSection() {
                         {category.description} · {categoryPlatforms.length} platform{categoryPlatforms.length !== 1 ? "s" : ""}
                       </p>
                     </div>
-
-          {/* Link to full platform search */}
-          <div className="text-xs text-muted-foreground">
-            Can&apos;t find your platform? <a href="/platforms/search" className="text-amber-500 underline hover:text-amber-600">Search by brand name →</a>
-          </div>
                   </div>
-
-          {/* Link to full platform search */}
-          <div className="text-xs text-muted-foreground">
-            Can&apos;t find your platform? <a href="/platforms/search" className="text-amber-500 underline hover:text-amber-600">Search by brand name →</a>
-          </div>
                   <div className="flex items-center gap-3">
                     {connectedInCategory > 0 && (
                       <Badge className={`${category.bgColor} ${category.color}`}>
@@ -333,11 +278,6 @@ export function PlatformsSection() {
                       <ChevronRight className="w-4 h-4 text-muted-foreground" />
                     )}
                   </div>
-
-          {/* Link to full platform search */}
-          <div className="text-xs text-muted-foreground">
-            Can&apos;t find your platform? <a href="/platforms/search" className="text-amber-500 underline hover:text-amber-600">Search by brand name →</a>
-          </div>
                 </button>
 
                 {/* Platform Cards (expanded) */}
@@ -375,23 +315,8 @@ export function PlatformsSection() {
                                     </>
                                   )}
                                 </div>
-
-          {/* Link to full platform search */}
-          <div className="text-xs text-muted-foreground">
-            Can&apos;t find your platform? <a href="/platforms/search" className="text-amber-500 underline hover:text-amber-600">Search by brand name →</a>
-          </div>
                               </div>
-
-          {/* Link to full platform search */}
-          <div className="text-xs text-muted-foreground">
-            Can&apos;t find your platform? <a href="/platforms/search" className="text-amber-500 underline hover:text-amber-600">Search by brand name →</a>
-          </div>
                             </div>
-
-          {/* Link to full platform search */}
-          <div className="text-xs text-muted-foreground">
-            Can&apos;t find your platform? <a href="/platforms/search" className="text-amber-500 underline hover:text-amber-600">Search by brand name →</a>
-          </div>
                             <div className="flex items-center gap-1.5">
                               {connecting === platform.id && (
                                 <RefreshCw className="w-3 h-3 animate-spin text-amber-500" />
@@ -403,17 +328,7 @@ export function PlatformsSection() {
                                 className="scale-75"
                               />
                             </div>
-
-          {/* Link to full platform search */}
-          <div className="text-xs text-muted-foreground">
-            Can&apos;t find your platform? <a href="/platforms/search" className="text-amber-500 underline hover:text-amber-600">Search by brand name →</a>
-          </div>
                           </div>
-
-          {/* Link to full platform search */}
-          <div className="text-xs text-muted-foreground">
-            Can&apos;t find your platform? <a href="/platforms/search" className="text-amber-500 underline hover:text-amber-600">Search by brand name →</a>
-          </div>
 
                           {/* Region badges */}
                           <div className="flex flex-wrap gap-1 mb-2">
@@ -435,11 +350,6 @@ export function PlatformsSection() {
                             )}
                           </div>
 
-          {/* Link to full platform search */}
-          <div className="text-xs text-muted-foreground">
-            Can&apos;t find your platform? <a href="/platforms/search" className="text-amber-500 underline hover:text-amber-600">Search by brand name →</a>
-          </div>
-
                           {platform.connected && (
                             <div className="grid grid-cols-2 gap-2">
                               <div className="bg-muted/50 rounded p-1.5">
@@ -449,46 +359,21 @@ export function PlatformsSection() {
                                     Notifs
                                   </span>
                                 </div>
-
-          {/* Link to full platform search */}
-          <div className="text-xs text-muted-foreground">
-            Can&apos;t find your platform? <a href="/platforms/search" className="text-amber-500 underline hover:text-amber-600">Search by brand name →</a>
-          </div>
                                 <p className="text-sm font-bold">
                                   {platform.notificationsToday}
                                 </p>
                               </div>
-
-          {/* Link to full platform search */}
-          <div className="text-xs text-muted-foreground">
-            Can&apos;t find your platform? <a href="/platforms/search" className="text-amber-500 underline hover:text-amber-600">Search by brand name →</a>
-          </div>
                               <div className="bg-muted/50 rounded p-1.5">
                                 <div className="flex items-center gap-1 mb-0.5">
                                   <span className="text-[9px] text-muted-foreground">
                                     Earned
                                   </span>
                                 </div>
-
-          {/* Link to full platform search */}
-          <div className="text-xs text-muted-foreground">
-            Can&apos;t find your platform? <a href="/platforms/search" className="text-amber-500 underline hover:text-amber-600">Search by brand name →</a>
-          </div>
                                 <p className="text-sm font-bold">
                                   {formatCurrency(platform.earningsToday, platform.currency)}
                                 </p>
                               </div>
-
-          {/* Link to full platform search */}
-          <div className="text-xs text-muted-foreground">
-            Can&apos;t find your platform? <a href="/platforms/search" className="text-amber-500 underline hover:text-amber-600">Search by brand name →</a>
-          </div>
                             </div>
-
-          {/* Link to full platform search */}
-          <div className="text-xs text-muted-foreground">
-            Can&apos;t find your platform? <a href="/platforms/search" className="text-amber-500 underline hover:text-amber-600">Search by brand name →</a>
-          </div>
                           )}
 
                           {!platform.connected && (
@@ -513,18 +398,8 @@ export function PlatformsSection() {
                             </Button>
                           )}
                         </div>
-
-          {/* Link to full platform search */}
-          <div className="text-xs text-muted-foreground">
-            Can&apos;t find your platform? <a href="/platforms/search" className="text-amber-500 underline hover:text-amber-600">Search by brand name →</a>
-          </div>
                       ))}
                     </div>
-
-          {/* Link to full platform search */}
-          <div className="text-xs text-muted-foreground">
-            Can&apos;t find your platform? <a href="/platforms/search" className="text-amber-500 underline hover:text-amber-600">Search by brand name →</a>
-          </div>
                   </CardContent>
                 )}
               </Card>
@@ -546,24 +421,9 @@ export function PlatformsSection() {
                 )}
               </Button>
             </div>
-
-          {/* Link to full platform search */}
-          <div className="text-xs text-muted-foreground">
-            Can&apos;t find your platform? <a href="/platforms/search" className="text-amber-500 underline hover:text-amber-600">Search by brand name →</a>
-          </div>
           )}
         </div>
-
-          {/* Link to full platform search */}
-          <div className="text-xs text-muted-foreground">
-            Can&apos;t find your platform? <a href="/platforms/search" className="text-amber-500 underline hover:text-amber-600">Search by brand name →</a>
-          </div>
       </div>
-
-          {/* Link to full platform search */}
-          <div className="text-xs text-muted-foreground">
-            Can&apos;t find your platform? <a href="/platforms/search" className="text-amber-500 underline hover:text-amber-600">Search by brand name →</a>
-          </div>
     </section>
   );
 }

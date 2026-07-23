@@ -1,17 +1,11 @@
 package com.notifetch.app.ui.components
 
-import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
@@ -37,13 +31,15 @@ import com.notifetch.app.R
 import com.notifetch.app.util.PremiumManager
 
 /**
- * v2.9.83: Premium Status Banner
+ * v2.9.89: Premium Status Banner with LIVE countdown
  *
- * Shows on the Home screen at the top. Displays:
- * - If premium active: "X days premium remaining" with star icon
- * - If expired: "Share your QR to get free premium" with share icon
+ * Shows on Home screen. Displays:
+ * - Live countdown to December 20, 2026 (updates every second)
+ * - Format: "X months Y days Zh Wm Vs" (months, days, hours, minutes, seconds)
+ * - Premium status (active/expired)
  *
- * Updates every 60 seconds for live countdown.
+ * The countdown shows the time remaining until December 20, 2026,
+ * which is the end of the free premium period.
  */
 @Composable
 fun PremiumBanner(
@@ -51,16 +47,15 @@ fun PremiumBanner(
 ) {
     val context = LocalContext.current
     var isPremium by remember { mutableStateOf(PremiumManager.isPremiumActive(context)) }
-    var daysRemaining by remember { mutableLongStateOf(PremiumManager.getDaysRemaining(context)) }
-    var hoursRemaining by remember { mutableLongStateOf(PremiumManager.getHoursRemaining(context)) }
+    
+    // Live countdown — updates every second
+    var timeRemainingMs by remember { mutableLongStateOf(getTimeRemainingToDec20()) }
 
-    // Update every minute
     LaunchedEffect(Unit) {
         while (true) {
             isPremium = PremiumManager.isPremiumActive(context)
-            daysRemaining = PremiumManager.getDaysRemaining(context)
-            hoursRemaining = PremiumManager.getHoursRemaining(context)
-            kotlinx.coroutines.delay(60_000)
+            timeRemainingMs = getTimeRemainingToDec20()
+            kotlinx.coroutines.delay(1000) // Update every second
         }
     }
 
@@ -69,6 +64,9 @@ fun PremiumBanner(
     } else {
         Brush.horizontalGradient(listOf(Color(0xFF4B5563), Color(0xFF374151)))
     }
+
+    // Calculate time components
+    val countdownText = formatCountdown(timeRemainingMs)
 
     Box(
         modifier = modifier
@@ -89,41 +87,65 @@ fun PremiumBanner(
             )
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = stringResource(R.string.premium_countdown_to_dec),
+                    text = if (isPremium) "✨ Premium Active" else "Free Tier",
                     color = Color.White,
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.bodyMedium
                 )
                 Text(
-                    text = if (isPremium) {
-                        when {
-                            daysRemaining > 1 -> stringResource(R.string.premium_days_remaining, daysRemaining.toInt())
-                            daysRemaining == 1L -> stringResource(R.string.premium_one_day_remaining)
-                            else -> stringResource(R.string.premium_hours_remaining, hoursRemaining.toInt())
-                        }
-                    } else {
-                        stringResource(R.string.premium_unlock_more)
-                    },
+                    text = "Premium access till Dec 20, 2026",
                     color = Color.White.copy(alpha = 0.9f),
                     style = MaterialTheme.typography.bodySmall
                 )
             }
-            // Countdown to December 20, 2026
-            val dec20Days = remember {
-                val dec20 = java.util.Calendar.getInstance().apply {
-                    set(2026, java.util.Calendar.DECEMBER, 20, 0, 0, 0)
-                    set(java.util.Calendar.MILLISECOND, 0)
-                }
-                val now = java.util.Calendar.getInstance()
-                val diffMs = dec20.timeInMillis - now.timeInMillis
-                (diffMs / (1000 * 60 * 60 * 24)).coerceAtLeast(0)
-            }
+            // Live countdown
             Text(
-                text = stringResource(R.string.premium_countdown_days, dec20Days.toInt()),
+                text = countdownText,
                 color = Color.White,
                 fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.labelMedium
             )
         }
     }
+}
+
+/**
+ * Get milliseconds remaining until December 20, 2026 00:00:00
+ */
+private fun getTimeRemainingToDec20(): Long {
+    val dec20 = java.util.Calendar.getInstance().apply {
+        set(2026, java.util.Calendar.DECEMBER, 20, 0, 0, 0)
+        set(java.util.Calendar.MILLISECOND, 0)
+    }
+    val now = java.util.Calendar.getInstance()
+    val diff = dec20.timeInMillis - now.timeInMillis
+    return diff.coerceAtLeast(0)
+}
+
+/**
+ * Format milliseconds into a human-readable countdown:
+ * "Xmo Yd Zh Wm Vs" (months, days, hours, minutes, seconds)
+ * Only shows the most relevant units.
+ */
+private fun formatCountdown(ms: Long): String {
+    if (ms <= 0) return "Expired"
+
+    val seconds = ms / 1000
+    val minutes = seconds / 60
+    val hours = minutes / 60
+    val days = hours / 24
+    val months = days / 30
+
+    val remainingDays = days % 30
+    val remainingHours = hours % 24
+    val remainingMinutes = minutes % 60
+    val remainingSeconds = seconds % 60
+
+    return buildString {
+        if (months > 0) append("${months}mo ")
+        if (remainingDays > 0 || months > 0) append("${remainingDays}d ")
+        if (remainingHours > 0 || remainingDays > 0 || months > 0) append("${remainingHours}h ")
+        if (remainingMinutes > 0 || remainingHours > 0 || remainingDays > 0 || months > 0) append("${remainingMinutes}m ")
+        append("${remainingSeconds}s")
+    }.trim()
 }
