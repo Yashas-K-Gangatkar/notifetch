@@ -4,16 +4,9 @@ import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Bell, ArrowRight, ChevronDown, Smartphone, Zap, TrendingUp, Globe, QrCode, Mail, LayoutDashboard, Download, Play } from "lucide-react";
+import { Bell, ArrowRight, ChevronDown, Zap, TrendingUp, Globe, Mail, LayoutDashboard, Download, Play } from "lucide-react";
 import { NFLogo } from "@/components/nf-logo";
 import { PLATFORMS, DELIVERY_CATEGORIES, REGIONS } from "@/lib/data";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
 
 interface HeroProps {
   onNavigate: (sectionId: string) => void;
@@ -30,7 +23,6 @@ interface FloatingNotification {
 }
 
 export function HeroSection({ onNavigate }: HeroProps) {
-  const [showQR, setShowQR] = useState(false);
   const { data: session, status } = useSession();
   // v2.9.81 FIX: Only treat as logged-in when status is definitively "authenticated".
   // During "loading" state, show neither badge — prevents the flicker where logged-in
@@ -224,18 +216,9 @@ export function HeroSection({ onNavigate }: HeroProps) {
               <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
           )}
-          <Button
-            size="lg"
-            variant="outline"
-            onClick={() => setShowQR(true)}
-            className="h-12 px-8 text-base border-border hover:bg-muted"
-          >
-            <QrCode className="w-4 h-4 mr-2" />
-            Scan QR Code
-          </Button>
         </div>
 
-        {/* Play Store download + Open in App buttons */}
+        {/* Play Store download button */}
         <div className="animate-float-up flex flex-col sm:flex-row items-center justify-center gap-3 mb-8" style={{ animationDelay: "0.45s" }}>
           <a
             href="https://play.google.com/store/apps/details?id=com.notifetch.app"
@@ -247,28 +230,6 @@ export function HeroSection({ onNavigate }: HeroProps) {
             Download on Play Store
             <Download className="w-3.5 h-3.5 ml-1" />
           </a>
-          <a
-            href="https://www.notifetch.in/dashboard"
-            className="inline-flex items-center gap-2 bg-amber-500/10 text-amber-600 dark:text-amber-400 font-medium px-6 h-11 rounded-xl border border-amber-500/30 hover:bg-amber-500/20 transition-colors"
-          >
-            <Smartphone className="w-4 h-4" />
-            Open in App
-          </a>
-        </div>
-
-        {/* QR Code inline on hero */}
-        <div className="animate-float-up flex justify-center mb-8" style={{ animationDelay: "0.45s" }}>
-          <div className="bg-white rounded-2xl p-3 shadow-xl border border-border/50 inline-block">
-            <img
-              src="/qr-code.png"
-              alt="Scan QR code to install NotiFetch on your phone"
-              className="w-32 h-32 sm:w-40 sm:h-40 rounded-lg"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.style.display = "none";
-              }}
-            />
-          </div>
         </div>
 
         {/* Stats bar — auth-aware (real data only when logged in) */}
@@ -294,39 +255,6 @@ export function HeroSection({ onNavigate }: HeroProps) {
           <ChevronDown className="w-6 h-6 text-muted-foreground" />
         </div>
       </div>
-
-      {/* QR Code Modal */}
-      <Dialog open={showQR} onOpenChange={setShowQR}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Smartphone className="w-5 h-5 text-amber-500" />
-              Install NotiFetch on Your Phone
-            </DialogTitle>
-            <DialogDescription>
-              Scan this QR code with your phone camera to open NotiFetch, then tap &quot;Add to Home Screen&quot; to install it.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex justify-center py-4">
-            <div className="bg-white rounded-xl p-4">
-              <img
-                src="/qr-code.png"
-                alt="QR code to install NotiFetch"
-                className="w-56 h-56 rounded-lg"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.style.display = "none";
-                }}
-              />
-            </div>
-          </div>
-          <div className="text-center">
-            <p className="text-sm text-muted-foreground">
-              Works on Android &amp; iOS browsers
-            </p>
-          </div>
-        </DialogContent>
-      </Dialog>
     </section>
   );
 }

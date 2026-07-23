@@ -5,14 +5,7 @@ import { useSession, signOut } from "next-auth/react";
 import { NAV_ITEMS } from "@/lib/data";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
-import { Menu, Moon, Sun, LogIn, LogOut, User, QrCode, Smartphone, Download, Play, MessageCircle } from "lucide-react";
+import { Menu, Moon, Sun, LogIn, LogOut, User, Download, Play, MessageCircle } from "lucide-react";
 import { NFLogo } from "@/components/nf-logo";
 import { useTheme } from "next-themes";
 
@@ -24,7 +17,6 @@ interface NavbarProps {
 export function Navbar({ activeSection, onNavigate }: NavbarProps) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [showQR, setShowQR] = useState(false);
   const { setTheme } = useTheme();
   const { data: session, status } = useSession();
 
@@ -117,17 +109,6 @@ export function Navbar({ activeSection, onNavigate }: NavbarProps) {
                 <MessageCircle className="w-3 h-3" />
                 Join
               </a>
-
-              {/* QR Code button */}
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setShowQR(true)}
-                className="h-9 w-9 text-muted-foreground hover:text-amber-500"
-                aria-label="Show QR code"
-              >
-                <QrCode className="h-4 w-4" />
-              </Button>
 
               {/* Theme toggle */}
               <Button
@@ -317,39 +298,6 @@ export function Navbar({ activeSection, onNavigate }: NavbarProps) {
           </div>
         </div>
       </nav>
-
-      {/* QR Code Modal */}
-      <Dialog open={showQR} onOpenChange={setShowQR}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Smartphone className="w-5 h-5 text-amber-500" />
-              Install NotiFetch on Your Phone
-            </DialogTitle>
-            <DialogDescription>
-              Scan this QR code with your phone camera to open NotiFetch, then tap &quot;Add to Home Screen&quot; to install it.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex justify-center py-4">
-            <div className="bg-white rounded-xl p-4">
-              <img
-                src="/qr-code.png"
-                alt="QR code to install NotiFetch"
-                className="w-56 h-56 rounded-lg"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.style.display = "none";
-                }}
-              />
-            </div>
-          </div>
-          <div className="text-center">
-            <p className="text-sm text-muted-foreground">
-              Works on Android &amp; iOS browsers
-            </p>
-          </div>
-        </DialogContent>
-      </Dialog>
     </>
   );
 }
