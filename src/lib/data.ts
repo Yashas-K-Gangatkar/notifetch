@@ -132,33 +132,33 @@ export const PLATFORMS: Platform[] = [
   { id: "meituan", name: "Meituan", category: "food", regions: ["east-asia"], color: "text-yellow-400", bgColor: "bg-yellow-500/10", borderColor: "border-yellow-500/30", icon: "🟡", connected: false, notificationsToday: 25, earningsToday: 350, currency: "CNY" },
   { id: "ele-me", name: "Ele.me", category: "food", regions: ["east-asia"], color: "text-blue-400", bgColor: "bg-blue-500/10", borderColor: "border-blue-500/30", icon: "🐝", connected: false, notificationsToday: 20, earningsToday: 280, currency: "CNY" },
   { id: "demae-can", name: "Demae-can", category: "food", regions: ["east-asia"], color: "text-red-400", bgColor: "bg-red-500/10", borderColor: "border-red-500/30", icon: "🍱", connected: false, notificationsToday: 8, earningsToday: 4500, currency: "JPY" },
-  { id: "talabat", name: "Talabat", category: "food", regions: ["mena"], color: "text-orange-400", bgColor: "bg-orange-500/10", borderColor: "border-orange-500/30", icon: "🟠", connected: false, notificationsToday: 13, earningsToday: 120, currency: "AED" },
-  { id: "menulog", name: "Menulog", category: "food", regions: ["oceania"], color: "text-purple-400", bgColor: "bg-purple-500/10", borderColor: "border-purple-500/30", icon: "📋", connected: false, notificationsToday: 6, earningsToday: 45.00, currency: "AUD" },
+  { id: "talabat", name: "Food Platform 15", category: "food", regions: ["mena"], color: "text-orange-400", bgColor: "bg-orange-500/10", borderColor: "border-orange-500/30", icon: "🟠", connected: false, notificationsToday: 13, earningsToday: 120, currency: "AED" },
+  { id: "menulog", name: "Food Platform 17", category: "food", regions: ["oceania"], color: "text-purple-400", bgColor: "bg-purple-500/10", borderColor: "border-purple-500/30", icon: "📋", connected: false, notificationsToday: 6, earningsToday: 45.00, currency: "AUD" },
 
   // ── Grocery Delivery ───────────────────────────────────────────────────────
   { id: "instacart", name: "Grocery Platform 4", category: "grocery", regions: ["north-america"], color: "text-orange-400", bgColor: "bg-orange-500/10", borderColor: "border-orange-500/30", icon: "🥕", connected: true, notificationsToday: 12, earningsToday: 45.80, currency: "USD" },
-  { id: "gopuff", name: "Gopuff", category: "grocery", regions: ["north-america", "europe"], color: "text-purple-400", bgColor: "bg-purple-500/10", borderColor: "border-purple-500/30", icon: "🟣", connected: false, notificationsToday: 8, earningsToday: 32.00, currency: "USD" },
+  { id: "gopuff", name: "Grocery Platform 5", category: "grocery", regions: ["north-america", "europe"], color: "text-purple-400", bgColor: "bg-purple-500/10", borderColor: "border-purple-500/30", icon: "🟣", connected: false, notificationsToday: 8, earningsToday: 32.00, currency: "USD" },
   { id: "gorillas", name: "Gorillas", category: "grocery", regions: ["europe"], color: "text-lime-400", bgColor: "bg-lime-500/10", borderColor: "border-lime-500/30", icon: "🦍", connected: false, notificationsToday: 6, earningsToday: 28.00, currency: "EUR" },
   { id: "getir", name: "Grocery Platform 1", category: "grocery", regions: ["europe", "mena"], color: "text-purple-400", bgColor: "bg-purple-500/10", borderColor: "border-purple-500/30", icon: "⚡", connected: false, notificationsToday: 7, earningsToday: 25.00, currency: "EUR" },
   { id: "bigbasket", name: "Grocery Platform 3", category: "grocery", regions: ["india"], color: "text-red-400", bgColor: "bg-red-500/10", borderColor: "border-red-500/30", icon: "🛒", connected: false, notificationsToday: 9, earningsToday: 650, currency: "INR" },
   { id: "blinkit", name: "Grocery Platform 2", category: "grocery", regions: ["india"], color: "text-yellow-400", bgColor: "bg-yellow-500/10", borderColor: "border-yellow-500/30", icon: "⚡", connected: false, notificationsToday: 11, earningsToday: 720, currency: "INR" },
-  { id: "mercado", name: "Flink", category: "grocery", regions: ["latin-america"], color: "text-yellow-400", bgColor: "bg-yellow-500/10", borderColor: "border-yellow-500/30", icon: "📦", connected: false, notificationsToday: 5, earningsToday: 45.00, currency: "BRL" },
-  { id: "woolworths", name: "Shipt", category: "grocery", regions: ["oceania"], color: "text-green-400", bgColor: "bg-green-500/10", borderColor: "border-green-500/30", icon: "🟢", connected: false, notificationsToday: 4, earningsToday: 38.00, currency: "AUD" },
+  { id: "mercado", name: "Grocery Platform 6", category: "grocery", regions: ["latin-america"], color: "text-yellow-400", bgColor: "bg-yellow-500/10", borderColor: "border-yellow-500/30", icon: "📦", connected: false, notificationsToday: 5, earningsToday: 45.00, currency: "BRL" },
+  { id: "woolworths", name: "Grocery Platform 7", category: "grocery", regions: ["oceania"], color: "text-green-400", bgColor: "bg-green-500/10", borderColor: "border-green-500/30", icon: "🟢", connected: false, notificationsToday: 4, earningsToday: 38.00, currency: "AUD" },
 
   // ── Package & Parcel ───────────────────────────────────────────────────────
   { id: "amazon-flex", name: "Package Platform 1", category: "package", regions: ["north-america", "europe", "india", "oceania", "sea"], color: "text-teal-400", bgColor: "bg-teal-500/10", borderColor: "border-teal-500/30", icon: "📦", connected: true, notificationsToday: 6, earningsToday: 52.40, currency: "USD" },
-  { id: "fedex", name: "UPS", category: "package", regions: ["north-america", "europe", "mena", "sea", "oceania"], color: "text-purple-400", bgColor: "bg-purple-500/10", borderColor: "border-purple-500/30", icon: "🟪", connected: false, notificationsToday: 5, earningsToday: 48.00, currency: "USD" },
+  { id: "fedex", name: "Package Platform 5", category: "package", regions: ["north-america", "europe", "mena", "sea", "oceania"], color: "text-purple-400", bgColor: "bg-purple-500/10", borderColor: "border-purple-500/30", icon: "🟪", connected: false, notificationsToday: 5, earningsToday: 48.00, currency: "USD" },
   { id: "ups", name: "Package Platform 3", category: "package", regions: ["north-america", "europe"], color: "text-amber-400", bgColor: "bg-amber-500/10", borderColor: "border-amber-500/30", icon: "🟫", connected: false, notificationsToday: 4, earningsToday: 42.00, currency: "USD" },
   { id: "dhl", name: "Lalamove", category: "package", regions: ["europe", "mena", "sea", "east-asia", "oceania"], color: "text-yellow-400", bgColor: "bg-yellow-500/10", borderColor: "border-yellow-500/30", icon: "🟡", connected: false, notificationsToday: 6, earningsToday: 45.00, currency: "EUR" },
   { id: "dunzo", name: "Borzo", category: "package", regions: ["india"], color: "text-cyan-400", bgColor: "bg-cyan-500/10", borderColor: "border-cyan-500/30", icon: "🏃", connected: false, notificationsToday: 8, earningsToday: 550, currency: "INR" },
-  { id: "lalamove", name: "Postmates", category: "package", regions: ["sea", "east-asia", "mena"], color: "text-orange-400", bgColor: "bg-orange-500/10", borderColor: "border-orange-500/30", icon: "🚚", connected: false, notificationsToday: 7, earningsToday: 85.00, currency: "SGD" },
-  { id: "borzo", name: "Roadie", category: "package", regions: ["india", "sea", "mena", "latin-america"], color: "text-green-400", bgColor: "bg-green-500/10", borderColor: "border-green-500/30", icon: "🟢", connected: false, notificationsToday: 5, earningsToday: 420, currency: "INR" },
+  { id: "lalamove", name: "Courier Platform 1", category: "package", regions: ["sea", "east-asia", "mena"], color: "text-orange-400", bgColor: "bg-orange-500/10", borderColor: "border-orange-500/30", icon: "🚚", connected: false, notificationsToday: 7, earningsToday: 85.00, currency: "SGD" },
+  { id: "borzo", name: "Courier Platform 2", category: "package", regions: ["india", "sea", "mena", "latin-america"], color: "text-green-400", bgColor: "bg-green-500/10", borderColor: "border-green-500/30", icon: "🟢", connected: false, notificationsToday: 5, earningsToday: 420, currency: "INR" },
 
   // ── Courier & Express ──────────────────────────────────────────────────────
-  { id: "postmates", name: "Postmates", category: "courier", regions: ["north-america"], color: "text-yellow-400", bgColor: "bg-yellow-500/10", borderColor: "border-yellow-500/30", icon: "🛵", connected: false, notificationsToday: 9, earningsToday: 38.00, currency: "USD" },
-  { id: "roadie", name: "Roadie", category: "courier", regions: ["north-america"], color: "text-blue-400", bgColor: "bg-blue-500/10", borderColor: "border-blue-500/30", icon: "🛣️", connected: false, notificationsToday: 4, earningsToday: 55.00, currency: "USD" },
+  { id: "postmates", name: "Courier Platform 1", category: "courier", regions: ["north-america"], color: "text-yellow-400", bgColor: "bg-yellow-500/10", borderColor: "border-yellow-500/30", icon: "🛵", connected: false, notificationsToday: 9, earningsToday: 38.00, currency: "USD" },
+  { id: "roadie", name: "Courier Platform 2", category: "courier", regions: ["north-america"], color: "text-blue-400", bgColor: "bg-blue-500/10", borderColor: "border-blue-500/30", icon: "🛣️", connected: false, notificationsToday: 4, earningsToday: 55.00, currency: "USD" },
   { id: "deliv", name: "Deliv", category: "courier", regions: ["north-america"], color: "text-sky-400", bgColor: "bg-sky-500/10", borderColor: "border-sky-500/30", icon: "🚐", connected: false, notificationsToday: 3, earningsToday: 35.00, currency: "USD" },
-  { id: "stuart", name: "Stuart", category: "courier", regions: ["europe"], color: "text-indigo-400", bgColor: "bg-indigo-500/10", borderColor: "border-indigo-500/30", icon: "🚴", connected: false, notificationsToday: 5, earningsToday: 32.00, currency: "EUR" },
+  { id: "stuart", name: "Courier Platform 3", category: "courier", regions: ["europe"], color: "text-indigo-400", bgColor: "bg-indigo-500/10", borderColor: "border-indigo-500/30", icon: "🚴", connected: false, notificationsToday: 5, earningsToday: 32.00, currency: "EUR" },
   { id: "gogo-xpress", name: "GoGo Xpress", category: "courier", regions: ["sea"], color: "text-orange-400", bgColor: "bg-orange-500/10", borderColor: "border-orange-500/30", icon: "📦", connected: false, notificationsToday: 4, earningsToday: 380, currency: "PHP" },
 
   // ── Last-Mile Delivery ─────────────────────────────────────────────────────
@@ -345,20 +345,20 @@ export const PICKUP_LOCATIONS: Record<string, string[]> = {
   ],
   "mena": [
     "Carrefour - Dubai Mall", "Spinneys - JBR", "Lulu Hypermarket - Al Barsha",
-    "Talabat Kitchen - Doha", "Waitrose - Abu Dhabi", "Tamimi Markets - Riyadh",
+    "Food Platform 15 Kitchen - Doha", "Waitrose - Abu Dhabi", "Tamimi Markets - Riyadh",
     "Panda Supermarket - Jeddah", "Shoprite - Sandton", "Checkers - Claremont",
     "Jumia Hub - Yaba", "Carrefour - Cairo Festival City",
   ],
   "latin-america": [
-    "iFood Kitchen - Pinheiros", "Carrefour - Paulista", "Pão de Açúcar - Itaim",
-    "Rappi Hub - Chapinero", "Éxito - Poblado", "D1 - Laureles",
+    "Food Platform 11 Kitchen - Pinheiros", "Carrefour - Paulista", "Pão de Açúcar - Itaim",
+    "Food Platform 12 Hub - Chapinero", "Éxito - Poblado", "D1 - Laureles",
     "Mercado Libre Depot - Palermo", "Cencosud - Las Condes", "Wong - San Isidro",
     "Chedraui - Polanco", "Soriana - Del Valle",
   ],
   "oceania": [
     "Woolworths - George St", "Coles - Bourke St", "Aldi - Pitt St",
     "IGA - Chapel St", "Bunnings - Moorabbin", "Chemist Warehouse - Sydney CBD",
-    "Menulog Kitchen - Surry Hills", "Countdown - Queen St", "New World - Victoria St",
+    "Food Platform 17 Kitchen - Surry Hills", "Countdown - Queen St", "New World - Victoria St",
   ],
 };
 
