@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Base application theme — Compose handles the actual Material3 theming.
-         This XML theme is only used for the splash / window background. -->
-    <style name="Theme.NotiFetch" parent="android:Theme.Material.Light.NoActionBar">
+    <style name="Theme.NotiFetch" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:statusBarColor">@color/notifetch_primary</item>
         <item name="android:windowBackground">@color/notifetch_background</item>
     </style>

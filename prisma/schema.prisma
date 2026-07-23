@@ -36,6 +36,11 @@ model User {
   minValue      Float     @default(8.0)
   maxDistance   Float     @default(6.0)
   darkMode      Boolean   @default(true)
+  // v2.9.88: Server-side premium + referral (survives reinstall)
+  premiumUntil  DateTime?
+  referralCode  String?   @unique
+  referralCount Int       @default(0)
+  redeemedCodes String[]  @default([])
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
