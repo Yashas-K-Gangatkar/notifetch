@@ -131,7 +131,7 @@ export function HeroSection({ onNavigate }: HeroProps) {
         </div>
 
         {/* Main heading */}
-        <h1 className="animate-float-up text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight mb-3" style={{ animationDelay: "0.1s" }}>
+        <h1 className="animate-float-up text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight mb-3" style={{ animationDelay: "0.1s" }}>
           <span className="block">One Feed.</span>
           <span className="block">All Platforms.</span>
           <span className="block bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">
@@ -150,14 +150,14 @@ export function HeroSection({ onNavigate }: HeroProps) {
         </div>
 
         {/* Subtitle */}
-        <p className="animate-float-up text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-8 leading-relaxed" style={{ animationDelay: "0.2s" }}>
+        <p className="animate-float-up text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8 leading-relaxed" style={{ animationDelay: "0.2s" }}>
           From food to freight, groceries to pharmacy, same-day to white-glove —
           NotiFetch reads your phone&apos;s existing delivery notifications and aggregates them
           into one real-time feed — no login credentials needed, no API access, zero risk.
         </p>
 
         {/* Problem icons */}
-        <div className="animate-float-up flex items-center justify-center gap-3 sm:gap-4 mb-10 flex-wrap" style={{ animationDelay: "0.3s" }}>
+        <div className="animate-float-up flex items-center justify-center gap-2 sm:gap-3 md:gap-4 mb-10 flex-wrap" style={{ animationDelay: "0.3s" }}>
           {[
             { icon: "🍕", label: "Food" },
             { icon: "🛒", label: "Grocery" },
@@ -168,7 +168,7 @@ export function HeroSection({ onNavigate }: HeroProps) {
           ].map((item, i) => (
             <div
               key={i}
-              className="w-14 h-20 sm:w-16 sm:h-24 rounded-xl bg-muted/60 border border-border flex flex-col items-center justify-center gap-1 shadow-lg"
+              className="w-12 h-16 sm:w-14 sm:h-20 md:w-16 md:h-24 rounded-xl bg-muted/60 border border-border flex flex-col items-center justify-center gap-1 shadow-lg"
             >
               <span className="text-xl sm:text-2xl">{item.icon}</span>
               <span className="text-[10px] text-muted-foreground">
@@ -233,7 +233,7 @@ export function HeroSection({ onNavigate }: HeroProps) {
         </div>
 
         {/* Stats bar — auth-aware (real data only when logged in) */}
-        <div className="animate-float-up flex flex-wrap items-center justify-center gap-6 sm:gap-10" style={{ animationDelay: "0.5s" }}>
+        <div className="animate-float-up grid grid-cols-2 sm:flex sm:flex-wrap items-center justify-center gap-4 sm:gap-6 md:gap-10" style={{ animationDelay: "0.5s" }}>
           {[
             { value: `${PLATFORMS.length}`, label: "Real Platforms", icon: Globe },
             { value: DELIVERY_CATEGORIES.length.toString(), label: "Delivery Categories", icon: Zap },

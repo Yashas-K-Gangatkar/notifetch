@@ -59,7 +59,7 @@ const SAMPLE_NOTIFICATIONS: TickerNotification[] = [
 function TrainCar({ n }: { n: TickerNotification }) {
   return (
     <div
-      className={`flex-shrink-0 mx-2 px-4 py-3 rounded-xl border border-border/60 bg-card/95 backdrop-blur-sm shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all min-w-[280px] max-w-[280px]`}
+      className={`flex-shrink-0 mx-1 sm:mx-2 px-3 sm:px-4 py-2 sm:py-3 rounded-xl border border-border/60 bg-card/95 backdrop-blur-sm shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all min-w-[220px] sm:min-w-[280px] max-w-[220px] sm:max-w-[280px]`}
     >
       {/* Header: platform + value */}
       <div className="flex items-center justify-between mb-2">
