@@ -66,7 +66,7 @@ export function HowItWorksSection({ onNavigate }: HowItWorksSectionProps) {
       icon: Bell,
       title: "Get Real-Time Notifications",
       description:
-        "Whenever Zomato, Swiggy, Uber Eats, DoorDash, or any of your connected apps sends you a delivery notification, NotiFetch captures it instantly and mirrors it to your web dashboard. You see every order in one feed — value, pickup, dropoff, distance.",
+        "Whenever any of your connected delivery apps sends you a delivery notification, NotiFetch captures it instantly and mirrors it to your web dashboard. You see every order in one feed — value, pickup, dropoff, distance.",
       accent: "from-pink-500/10 to-purple-500/10",
       iconBg: "bg-pink-500/10",
       iconColor: "text-pink-500",
@@ -77,7 +77,7 @@ export function HowItWorksSection({ onNavigate }: HowItWorksSectionProps) {
       icon: ArrowLeftRight,
       title: "Open the Specific Delivery App",
       description:
-        "Tap any notification in NotiFetch and it launches the correct delivery app — Zomato opens Zomato, Swiggy opens Swiggy, DoorDash opens DoorDash. You accept the order in the partner app like normal. NotiFetch is just your aggregator and alert system, never a middleman.",
+        "Tap any notification in NotiFetch and it launches the correct delivery app. You accept the order in the partner app like normal. NotiFetch is just your aggregator and alert system, never a middleman.",
       accent: "from-purple-500/10 to-indigo-500/10",
       iconBg: "bg-purple-500/10",
       iconColor: "text-purple-500",

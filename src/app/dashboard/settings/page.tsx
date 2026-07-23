@@ -267,9 +267,9 @@ export default function SettingsPage() {
             </p>
             <div className="space-y-3">
               {[
-                { key: "swiggyEnabled", label: "Swiggy", icon: Zap, color: "text-amber-500" },
-                { key: "zomatoEnabled", label: "Zomato", icon: ShoppingCart, color: "text-red-500" },
-                { key: "amazonEnabled", label: "Amazon", icon: Truck, color: "text-teal-500" },
+                { key: "swiggyEnabled", label: "Platform 136", icon: Zap, color: "text-amber-500" },
+                { key: "zomatoEnabled", label: "Platform 137", icon: ShoppingCart, color: "text-red-500" },
+                { key: "amazonEnabled", label: "Platform 64", icon: Truck, color: "text-teal-500" },
               ].map((item) => (
                 <div key={item.key} className="flex items-center justify-between">
                   <Label className="flex items-center gap-2">
@@ -593,7 +593,7 @@ export default function SettingsPage() {
             <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3">
               <p className="text-xs text-red-500 font-medium">
                 NotiFetch is NOT affiliated with, endorsed by, or connected to any delivery platform
-                (Swiggy, Zomato, Uber, DoorDash, Amazon, etc.). Platform names are used for identification
+                . Platform numbers are used for identification
                 only and are customizable by the user. You are responsible for complying with each
                 platform&apos;s terms of service.
               </p>

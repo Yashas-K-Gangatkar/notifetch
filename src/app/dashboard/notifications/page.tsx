@@ -58,10 +58,10 @@ const PLATFORM_COLORS: Record<string, string> = {
   "Logistics IN": "#42A5F5", "Bike Taxi IN": "#F1C40F",
   "Super App ID": "#66BB6A", "Last Mile IN 3": "#E67E22",
   // Legacy backward compatibility
-  "Swiggy Partner": "#E8751A", "Swiggy Delivery": "#E8751A",
-  "Zomato Delivery": "#D94F4F", "Amazon Flex": "#26A69A",
-  "Uber Driver": "#E8751A", "Ola Driver": "#F1C40F",
-  "DoorDash Dasher": "#D94F4F", "Instacart Shopper": "#E67E22",
+  "Platform 136": "#E8751A", "Platform 136": "#E8751A",
+  "Platform 137": "#D94F4F", "Platform 64": "#26A69A",
+  "Platform 167": "#E8751A", "Platform 163": "#F1C40F",
+  "Platform 141": "#D94F4F", "Platform 157": "#E67E22",
 };
 
 const CATEGORY_ICONS: Record<string, string> = {
@@ -85,15 +85,15 @@ const CATEGORY_COLORS: Record<string, string> = {
 };
 
 const SOURCE_CONFIG: Record<string, { color: string; bgColor: string; label: string }> = {
-  swiggy: { color: "text-amber-500", bgColor: "bg-amber-500/10", label: "Swiggy" },
-  swiggy_partner: { color: "text-amber-500", bgColor: "bg-amber-500/10", label: "Swiggy Partner" },
-  zomato: { color: "text-red-500", bgColor: "bg-red-500/10", label: "Zomato" },
-  zomato_delivery: { color: "text-red-500", bgColor: "bg-red-500/10", label: "Zomato Delivery" },
-  amazon: { color: "text-teal-500", bgColor: "bg-teal-500/10", label: "Amazon" },
-  amazon_flex: { color: "text-teal-500", bgColor: "bg-teal-500/10", label: "Amazon Flex" },
-  zepto: { color: "text-violet-500", bgColor: "bg-violet-500/10", label: "Zepto" },
-  blinkit: { color: "text-yellow-500", bgColor: "bg-yellow-500/10", label: "Blinkit" },
-  bigbasket: { color: "text-green-500", bgColor: "bg-green-500/10", label: "BigBasket" },
+  swiggy: { color: "text-amber-500", bgColor: "bg-amber-500/10", label: "Platform 136" },
+  swiggy_partner: { color: "text-amber-500", bgColor: "bg-amber-500/10", label: "Platform 136" },
+  zomato: { color: "text-red-500", bgColor: "bg-red-500/10", label: "Platform 137" },
+  zomato_delivery: { color: "text-red-500", bgColor: "bg-red-500/10", label: "Platform 137" },
+  amazon: { color: "text-teal-500", bgColor: "bg-teal-500/10", label: "Platform 64" },
+  amazon_flex: { color: "text-teal-500", bgColor: "bg-teal-500/10", label: "Platform 64" },
+  zepto: { color: "text-violet-500", bgColor: "bg-violet-500/10", label: "Platform 158" },
+  blinkit: { color: "text-yellow-500", bgColor: "bg-yellow-500/10", label: "Platform 155" },
+  bigbasket: { color: "text-green-500", bgColor: "bg-green-500/10", label: "Platform 156" },
   dunzo: { color: "text-emerald-500", bgColor: "bg-emerald-500/10", label: "Dunzo" },
   porter: { color: "text-blue-500", bgColor: "bg-blue-500/10", label: "Porter" },
   rapido: { color: "text-yellow-500", bgColor: "bg-yellow-500/10", label: "Rapido" },
@@ -414,10 +414,10 @@ export default function NotificationsPage() {
                   className="mt-4 rounded-xl"
                   onClick={async () => {
                     const testNotifs = [
-                      { title: "New Order Available!", body: "Pick up from Koramangala - ₹45 delivery fee, 3.2 km", source: "swiggy_partner", platform: "Swiggy Partner", category: "NEW_ORDER", orderValue: 45, pickupLocation: "Koramangala", dropoffLocation: "Indiranagar", distance: "3.2 km" },
-                      { title: "Delivery Pickup Ready", body: "Package ready at HSR Layout hub - ₹60 payout", source: "zomato_delivery", platform: "Zomato Delivery", category: "ORDER_UPDATE", orderValue: 60, pickupLocation: "HSR Layout Hub" },
-                      { title: "Order Assigned", body: "Amazon Flex delivery - 4 packages, ₹120 estimated", source: "amazon_flex", platform: "Amazon Flex", category: "NEW_ORDER", orderValue: 120, distance: "8.5 km" },
-                      { title: "Earnings Update", body: "You earned ₹1,250 today across 14 deliveries", source: "swiggy_partner", platform: "Swiggy Partner", category: "EARNINGS", orderValue: 1250 },
+                      { title: "New Order Available!", body: "Pick up from Koramangala - ₹45 delivery fee, 3.2 km", source: "swiggy_partner", platform: "Platform 136", category: "NEW_ORDER", orderValue: 45, pickupLocation: "Koramangala", dropoffLocation: "Indiranagar", distance: "3.2 km" },
+                      { title: "Delivery Pickup Ready", body: "Package ready at HSR Layout hub - ₹60 payout", source: "zomato_delivery", platform: "Platform 137", category: "ORDER_UPDATE", orderValue: 60, pickupLocation: "HSR Layout Hub" },
+                      { title: "Order Assigned", body: "Platform 64 delivery - 4 packages, ₹120 estimated", source: "amazon_flex", platform: "Platform 64", category: "NEW_ORDER", orderValue: 120, distance: "8.5 km" },
+                      { title: "Earnings Update", body: "You earned ₹1,250 today across 14 deliveries", source: "swiggy_partner", platform: "Platform 136", category: "EARNINGS", orderValue: 1250 },
                     ];
                     const i = Math.floor(Math.random() * testNotifs.length);
                     await fetch("/api/notifications", {
