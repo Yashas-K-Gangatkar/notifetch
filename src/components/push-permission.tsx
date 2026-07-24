@@ -9,6 +9,7 @@ import {
   isFirebaseClientConfigured,
 } from "@/lib/firebase-client";
 import { getToken, onMessage } from "firebase/messaging";
+import { track } from "@/lib/analytics";
 
 type PermissionState = "loading" | "prompt" | "granted" | "denied" | "unsupported" | "unconfigured";
 
@@ -168,6 +169,7 @@ export function PushPermission({
       // Register the token with the server
       await registerToken(currentToken);
 
+      track("push_notifications_enabled");
       setPermissionState("granted");
       onPermissionGranted?.();
     } catch (err) {

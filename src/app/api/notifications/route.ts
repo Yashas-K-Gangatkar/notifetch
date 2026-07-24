@@ -5,6 +5,7 @@ import { verifyFirebaseToken, getOrCreateUserFromFirebase } from "@/lib/firebase
 import { db } from "@/lib/db";
 import { rateLimit } from "@/lib/rate-limit";
 import { audit } from "@/lib/audit";
+import { getPostHogClient } from "@/lib/posthog-server";
 
 /**
  * Authenticate a request via NextAuth session or Firebase Bearer token.
@@ -258,6 +259,16 @@ export async function POST(request: NextRequest) {
         receivedAt: (receivedAt && !isNaN(Date.parse(receivedAt))) ? new Date(receivedAt) : null,
       },
     });
+
+    const posthog = getPostHogClient();
+    if (posthog) {
+      posthog.capture({
+        distinctId: userId,
+        event: "notification_received",
+        properties: { source, platform: platform ?? null, category: category ?? null, has_order_value: typeof orderValue === "number" },
+      });
+      await posthog.flush();
+    }
 
     return NextResponse.json({ success: true, notification }, { status: 201 });
   } catch (error) {

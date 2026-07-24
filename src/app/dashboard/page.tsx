@@ -17,7 +17,7 @@ import {
 import { signOut } from "next-auth/react";
 import { PushPermission } from "@/components/push-permission";
 import { BackButton } from "@/components/back-button";
-import { track, identifyUser } from "@/lib/analytics";
+import { track, identifyUser, resetAnalytics } from "@/lib/analytics";
 
 interface UserData {
   id: string;
@@ -347,7 +347,7 @@ export default function DashboardPage() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => signOut({ callbackUrl: "/" })}
+              onClick={() => { track("sign_out"); resetAnalytics(); signOut({ callbackUrl: "/" }); }}
               className="text-muted-foreground hover:text-foreground"
               aria-label="Sign out"
             >
