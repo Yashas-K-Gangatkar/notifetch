@@ -94,3 +94,4 @@ notifetch-android/*.aab
 notifetch-android/app/build/
 notifetch-android/.gradle/
 notifetch-android/local.properties
+.env.local

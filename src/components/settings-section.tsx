@@ -39,6 +39,7 @@ import {
   PLATFORMS,
   type Region,
 } from "@/lib/data";
+import { track } from "@/lib/analytics";
 
 interface Settings {
   soundAlerts: boolean;
@@ -122,6 +123,15 @@ export function SettingsSection() {
   };
 
   const handleSave = () => {
+    track("settings_saved", {
+      region: settings.region,
+      language: settings.language,
+      sound_alerts: settings.soundAlerts,
+      vibration: settings.vibration,
+      voice_alerts: settings.voiceAlerts,
+      auto_accept: settings.autoAccept,
+      ride_safe_mode: settings.rideSafeMode,
+    });
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
@@ -316,7 +326,7 @@ export function SettingsSection() {
                 </div>
                 <Switch
                   checked={settings.autoAccept}
-                  onCheckedChange={(v) => updateSetting("autoAccept", v)}
+                  onCheckedChange={(v) => { track("auto_accept_toggled", { enabled: v }); updateSetting("autoAccept", v); }}
                 />
               </div>
 

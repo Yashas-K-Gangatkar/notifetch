@@ -19,6 +19,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { track } from "@/lib/analytics";
 
 interface NotificationItem {
   id: string;
@@ -176,6 +177,7 @@ export default function NotificationsPage() {
   };
 
   const handleExportCsv = () => {
+    track("notification_export", { format: "csv", source_filter: filter });
     // Build query string from current filters
     const params = new URLSearchParams();
     if (filter && filter !== "all") params.set("source", filter);
@@ -187,6 +189,11 @@ export default function NotificationsPage() {
   };
 
   const handleMarkAsRead = async (id: string, isRead: boolean) => {
+    const notif = notifications.find((n) => n.id === id);
+    track("notification_open", { platform: notif?.platform ?? null, category: notif?.category ?? null });
+    if (!isRead) {
+      track("notifications_marked_read", { count: 1 });
+    }
     try {
       const res = await fetch(`/api/notifications/${id}`, {
         method: "PATCH",
@@ -205,17 +212,19 @@ export default function NotificationsPage() {
   };
 
   const handleMarkAllRead = async () => {
+    const unread = notifications.filter((n) => !n.isRead);
+    if (unread.length > 0) {
+      track("notifications_marked_read", { count: unread.length });
+    }
     try {
       await Promise.all(
-        notifications
-          .filter((n) => !n.isRead)
-          .map((n) =>
-            fetch(`/api/notifications/${n.id}`, {
-              method: "PATCH",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ isRead: true }),
-            })
-          )
+        unread.map((n) =>
+          fetch(`/api/notifications/${n.id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ isRead: true }),
+          })
+        )
       );
       setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
       setUnreadCount(0);
@@ -225,12 +234,13 @@ export default function NotificationsPage() {
   };
 
   const handleDelete = async (id: string) => {
+    const notif = notifications.find((n) => n.id === id);
     try {
       const res = await fetch(`/api/notifications/${id}`, { method: "DELETE" });
       if (res.ok) {
-        const deleted = notifications.find((n) => n.id === id);
+        track("notification_deleted", { platform: notif?.platform ?? null, category: notif?.category ?? null });
         setNotifications((prev) => prev.filter((n) => n.id !== id));
-        if (deleted && !deleted.isRead) {
+        if (notif && !notif.isRead) {
           setUnreadCount((prev) => prev - 1);
         }
       }

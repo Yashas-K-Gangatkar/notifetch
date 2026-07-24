@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { getPostHogClient } from "@/lib/posthog-server";
 
 /**
  * POST /api/payments/webhook
@@ -151,6 +152,16 @@ async function handleRazorpayWebhook(
           },
         });
 
+        const posthog = getPostHogClient();
+        if (posthog) {
+          posthog.capture({
+            distinctId: userId,
+            event: "payment_completed",
+            properties: { provider: "razorpay", plan, period, amount, currency: currency.toLowerCase() },
+          });
+          await posthog.flush();
+        }
+
         console.log("[Webhook] Razorpay payment.captured processed", {
           userId,
           plan,
@@ -213,6 +224,16 @@ async function handleRazorpayWebhook(
             }),
           },
         });
+
+        const posthog = getPostHogClient();
+        if (posthog) {
+          posthog.capture({
+            distinctId: userId,
+            event: "payment_failed",
+            properties: { provider: "razorpay", plan, period, amount, currency, error_code: errorCode ?? null },
+          });
+          await posthog.flush();
+        }
 
         console.log("[Webhook] Razorpay payment.failed logged", {
           userId,
