@@ -80,6 +80,30 @@ export default function RootLayout({
       <head>
         <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "SoftwareApplication",
+              "name": "NotiFetch",
+              "url": "https://notifetch.in",
+              "applicationCategory": "BusinessApplication",
+              "operatingSystem": "Android",
+              "author": {
+                "@type": "Person",
+                "name": "Yashas K",
+                "jobTitle": "Founder & Developer",
+                "url": "https://notifetch.in",
+              },
+              "offers": {
+                "@type": "Offer",
+                "price": "0",
+                "priceCurrency": "INR",
+              },
+            }),
+          }}
+        />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
