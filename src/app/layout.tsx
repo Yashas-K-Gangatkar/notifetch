@@ -80,6 +80,7 @@ export default function RootLayout({
       <head>
         <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="google-site-verification" content="google3343fb98372e9164" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
