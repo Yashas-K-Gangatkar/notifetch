@@ -111,8 +111,6 @@ const PLATFORM_COLORS: Record<string, string> = {
   "Super App ID": "#66BB6A",
   // Legacy brand-name keys for backward compatibility
   "Platform 136": "#E8751A",
-  "Platform 136": "#E8751A",
-  "Platform 137": "#D94F4F",
   "Platform 137": "#D94F4F",
   "Platform 64": "#26A69A",
   "Platform 167": "#E8751A",

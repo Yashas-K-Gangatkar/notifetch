@@ -58,7 +58,7 @@ const PLATFORM_COLORS: Record<string, string> = {
   "Logistics IN": "#42A5F5", "Bike Taxi IN": "#F1C40F",
   "Super App ID": "#66BB6A", "Last Mile IN 3": "#E67E22",
   // Legacy backward compatibility
-  "Platform 136": "#E8751A", "Platform 136": "#E8751A",
+  "Platform 136": "#E8751A",
   "Platform 137": "#D94F4F", "Platform 64": "#26A69A",
   "Platform 167": "#E8751A", "Platform 163": "#F1C40F",
   "Platform 141": "#D94F4F", "Platform 157": "#E67E22",
