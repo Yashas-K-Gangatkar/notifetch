@@ -1,62 +1,108 @@
-# NotiFetch 🚀
+# NotiFetch — Delivery Notification Aggregator for Gig Workers
+
+> **Founded & Developed by [Yashas K](https://github.com/Yashas-K-Gangatkar)** — Bengaluru, India
+> 
+> **Website:** [notifetch.in](https://www.notifetch.in) | **Play Store:** [Download](https://play.google.com/store/apps/details?id=com.notifetch.app)
 
 **One Feed. All Notifications. Every Platform. Worldwide.**
 
-NotiFetch is a passive-income Android app that captures delivery-platform notifications (Swiggy, Zomato, Domino's, DoorDash, Uber Eats, and 119+ more) into a single real-time feed — no credentials needed.
+NotiFetch is a delivery notification aggregator app for gig workers (delivery riders, dashers, drivers). It captures notifications from 119+ delivery platforms — including Swiggy, Zomato, DoorDash, Uber Eats, Amazon Flex, Blinkit, Zepto, and more — into a single real-time feed. No credentials needed, no API access, zero risk.
 
-## 👤 Author
+> ⚠️ **Note:** This is NOT the Linux "notifetch" command-line tool by Flammable-Duck. This is the **NotiFetch delivery app** by **Yashas K** — available on [Google Play Store](https://play.google.com/store/apps/details?id=com.notifetch.app) and [notifetch.in](https://www.notifetch.in).
 
-**Created and Maintained by: [Yashas K](https://github.com/Yashas-K-Gangatkar)**
-- **Status:** Sole Original Creator & Active Developer
-- **Website:** [notifetch.in](https://notifetch.in)
-- **Play Store:** [NotiFetch on Google Play](https://play.google.com/store/apps/details?id=com.notifetch.app)
+---
+
+## 👤 Founder & Developer
+
+**Name:** Yashas K  
+**Role:** Founder & Developer  
+**Location:** Bengaluru, India  
+**GitHub:** [Yashas-K-Gangatkar](https://github.com/Yashas-K-Gangatkar)  
+**Website:** [notifetch.in](https://www.notifetch.in)  
+**Play Store:** [NotiFetch on Google Play](https://play.google.com/store/apps/details?id=com.notifetch.app)  
+
+NotiFetch was founded and developed by Yashas K as an independent project to help gig economy workers never miss a delivery order. It is not affiliated with any delivery platform.
+
+---
 
 ## ✨ Features
 
-- **119+ Platform Support:** Captures notifications from Swiggy, Zomato, DoorDash, Uber Eats, Amazon Flex, Blinkit, Zepto, and 110+ more delivery platforms worldwide
-- **Tap-to-Open Deep Links:** Tap any captured notification to open the exact order/offer page in the source app
-- **Smart Offer Alerts:** Get notified instantly when high-value delivery offers come in
-- **Earnings Tracker:** Track earnings across all platforms in one dashboard
-- **Privacy-First:** All data stays on-device. We never access platform APIs or store credentials
-- **Battery-Friendly Animated Background:** GPU-accelerated gradient shader
-- **Crash Reporting:** Firebase Crashlytics for real-time crash detection
-- **Multi-Language Support:** 6 languages (English, Hindi, Spanish, Arabic, French, German)
+### Core Features
+- **119+ Platform Support:** Captures notifications from all major delivery platforms worldwide
+- **Real-Time Feed:** All notifications from all apps in one unified dashboard
+- **Smart Categorization:** Auto-categorizes notifications (New Order, Earnings, Completed, etc.)
+- **Earnings Tracker:** Automatically calculates daily, weekly, and monthly potential earnings
+- **Tap-to-Open:** Tap any notification to open the source app directly
+- **QR Referral System:** Share your QR code, get free premium days
+- **Live Countdown:** Real-time countdown to premium expiry (seconds/minutes/hours/days/months)
+- **Hindi Language Support:** Full Hindi translation (320+ strings)
+- **Android 16 (API 36) Compliant:** Meets Google Play's latest requirements
+
+### Platform Support (119+ platforms)
+- **Food Delivery:** Swiggy, Zomato, Uber Eats, DoorDash, Grubhub, Deliveroo, Foodpanda, Just Eat, and 10+ more
+- **Grocery Delivery:** Blinkit, Zepto, BigBasket, Instacart, Gopuff, and 5+ more
+- **Package & Parcel:** Amazon Flex, UPS, Dunzo, Porter, and more
+- **Ride & Transport:** Uber, Ola, Rapido
+- **Last-Mile:** Delhivery, Shadowfax, Xpressbees, Ecom Express, Ekart
+- **QSR:** Domino's, McDonald's, KFC, Pizza Hut, Burger King, and 7+ more
+- **And 50+ more across 19 categories**
+
+### Safety Features
+- Uses Android's Notification Listener Service (Google-provided API)
+- Does NOT auto-accept orders
+- Does NOT use accessibility services or auto-clickers
+- Does NOT access delivery platform APIs or credentials
+- Only reads notification text the user has already received
+- Server sync is OFF by default (opt-in only)
+- 90-day automatic data deletion
+- Users can delete all data anytime
+
+---
 
 ## 🛠️ Tech Stack
 
 ### Android App
 - **Language:** Kotlin + Jetpack Compose
 - **Architecture:** MVVM with Hilt DI
-- **Database:** Room (local) + Postgres (backend)
-- **Background:** WorkManager + NotificationListenerService
-- **Crash Reporting:** Firebase Crashlytics
-- **Min SDK:** 24 (Android 7.0)
-- **Target SDK:** 35 (Android 15)
+- **Database:** Room (local) + Postgres (backend via Prisma)
+- **Authentication:** Firebase Auth + NextAuth (web)
+- **Backend:** Next.js API routes
+- **Notifications:** NotificationListenerService + WorkManager
+- **QR Codes:** ZXing (generation + scanning)
+- **Analytics:** PostHog (opt-in)
 
 ### Web App
-- **Framework:** Next.js 16 + TypeScript
-- **UI:** Tailwind CSS + shadcn/ui
-- **Database:** Postgres via Prisma ORM
-- **Hosting:** Vercel (notifetch.in)
-- **Auth:** NextAuth + Firebase
-- **Monitoring:** Sentry + Vercel Analytics
-
-## 📱 Download
-
-**Google Play:** https://play.google.com/store/apps/details?id=com.notifetch.app
-
-**Website:** https://notifetch.in
-
-## 📝 License
-
-Copyright © 2026 Yashas K. All rights reserved.
-
-## 🔗 Links
-
-- **Website:** [notifetch.in](https://notifetch.in)
-- **Play Store:** [NotiFetch](https://play.google.com/store/apps/details?id=com.notifetch.app)
-- **GitHub:** [Yashas-K-Gangatkar](https://github.com/Yashas-K-Gangatkar)
+- **Framework:** Next.js 16 (App Router)
+- **Language:** TypeScript
+- **Styling:** Tailwind CSS 4 + shadcn/ui
+- **Database:** Postgres (Neon) + Prisma ORM
+- **Auth:** NextAuth (Google OAuth + Email OTP)
+- **Hosting:** Vercel
+- **Domain:** notifetch.in
 
 ---
 
-*Doing is Doing — DID* 🎯
+## 📱 Download
+
+- **Google Play Store:** [Download NotiFetch](https://play.google.com/store/apps/details?id=com.notifetch.app)
+- **Direct APK:** [notifetch.in/download](https://www.notifetch.in/download)
+- **Platform Search:** [Find your platform number](https://www.notifetch.in/platforms/search)
+
+---
+
+## 🔗 Links
+
+- **Website:** [notifetch.in](https://www.notifetch.in)
+- **GitHub:** [github.com/Yashas-K-Gangatkar/notifetch](https://github.com/Yashas-K-Gangatkar/notifetch)
+- **Play Store:** [NotiFetch on Google Play](https://play.google.com/store/apps/details?id=com.notifetch.app)
+- **Privacy Policy:** [notifetch.in/privacy](https://www.notifetch.in/privacy)
+- **Terms of Service:** [notifetch.in/terms](https://www.notifetch.in/terms)
+- **Legal:** [notifetch.in/legal-defense](https://www.notifetch.in/legal-defense)
+
+---
+
+## ⚖️ Legal
+
+NotiFetch is NOT affiliated with, endorsed by, or connected to any delivery platform. Platform names are used for identification purposes only under nominative fair use. NotiFetch uses generic platform numbers (Platform 1-119) in the APK. Users can rename any platform to whatever they prefer.
+
+© 2026 NotiFetch. Founded by Yashas K. All rights reserved.
