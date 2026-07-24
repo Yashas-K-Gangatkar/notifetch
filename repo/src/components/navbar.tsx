@@ -1,0 +1,303 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useSession, signOut } from "next-auth/react";
+import { NAV_ITEMS } from "@/lib/data";
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
+import { Menu, Moon, Sun, LogIn, LogOut, User, Download, Play, MessageCircle } from "lucide-react";
+import { NFLogo } from "@/components/nf-logo";
+import { useTheme } from "next-themes";
+
+interface NavbarProps {
+  activeSection: string;
+  onNavigate: (sectionId: string) => void;
+}
+
+export function Navbar({ activeSection, onNavigate }: NavbarProps) {
+  const [scrolled, setScrolled] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const { setTheme } = useTheme();
+  const { data: session, status } = useSession();
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 10);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const handleNavClick = (id: string) => {
+    onNavigate(id);
+    setMobileOpen(false);
+  };
+
+  const isLoggedIn = status === "authenticated" && session?.user;
+  // v2.9.81 FIX: Track loading state to prevent auth flicker in navbar
+  const isAuthLoading = status === "loading";
+
+  const handleLogoClick = () => {
+    if (isLoggedIn) {
+      window.location.href = "/dashboard";
+    } else {
+      handleNavClick("hero");
+    }
+  };
+
+  return (
+    <>
+      <nav
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+          scrolled
+            ? "bg-background border-b border-border shadow-lg"
+            : "bg-transparent"
+        }`}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            {/* Logo */}
+            <button
+              onClick={handleLogoClick}
+              className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+            >
+              <NFLogo className="w-8 h-8" />
+              <span className="text-lg font-bold text-foreground">
+                NotiFetch
+              </span>
+            </button>
+
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center gap-1">
+              {NAV_ITEMS.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => handleNavClick(item.id)}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                    activeSection === item.id
+                      ? "bg-amber-500/10 text-amber-500"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                  }`}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Right side */}
+            <div className="flex items-center gap-2">
+              {/* Play Store download button — always visible */}
+              <a
+                href="https://play.google.com/store/apps/details?id=com.notifetch.app"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hidden sm:inline-flex items-center gap-1.5 bg-black text-white text-xs font-semibold px-3 h-9 rounded-lg hover:bg-black/90 transition-colors"
+                title="Download NotiFetch on Google Play"
+              >
+                <Play className="w-3 h-3 fill-white" />
+                Get App
+              </a>
+
+              {/* WhatsApp Community button */}
+              <a
+                href="https://chat.whatsapp.com/IHYTQwoyu8hDiXg3MRgWko"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hidden sm:inline-flex items-center gap-1.5 bg-[#25D366] text-white text-xs font-semibold px-3 h-9 rounded-lg hover:bg-[#1da851] transition-colors"
+                title="Join NotiFetch WhatsApp Community"
+              >
+                <MessageCircle className="w-3 h-3" />
+                Join
+              </a>
+
+              {/* Theme toggle */}
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  const isDark = document.documentElement.classList.contains("dark");
+                  setTheme(isDark ? "light" : "dark");
+                }}
+                className="h-9 w-9 relative"
+                aria-label="Toggle theme"
+              >
+                <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                <Moon className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+              </Button>
+
+              {isAuthLoading ? (
+                // v2.9.81 FIX: Show nothing during auth loading to prevent flicker
+                <div className="hidden sm:flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-muted animate-pulse" />
+                </div>
+              ) : isLoggedIn ? (
+                <>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => window.location.href = "/dashboard"}
+                    className="hidden sm:flex items-center gap-2 text-muted-foreground hover:text-foreground"
+                  >
+                    {session.user.image ? (
+                      <img
+                        src={session.user.image}
+                        alt={session.user.name || "User"}
+                        className="w-6 h-6 rounded-full"
+                      />
+                    ) : (
+                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center">
+                        <span className="text-[10px] text-white font-bold">
+                          {(session.user.name || session.user.email || "U")[0].toUpperCase()}
+                        </span>
+                      </div>
+                    )}
+                    <span className="max-w-[100px] truncate text-sm">
+                      {session.user.name || session.user.email?.split("@")[0]}
+                    </span>
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => signOut({ callbackUrl: "/" })}
+                    className="hidden sm:flex text-muted-foreground hover:text-foreground"
+                  >
+                    <LogOut className="w-4 h-4 mr-1" />
+                    Sign Out
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => window.location.href = "/auth/signin"}
+                    className="hidden sm:flex text-muted-foreground hover:text-foreground"
+                  >
+                    <LogIn className="w-4 h-4 mr-1" />
+                    Sign In
+                  </Button>
+                  <Button
+                    onClick={() => window.location.href = "/auth/signin"}
+                    className="hidden sm:flex bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-semibold shadow-lg shadow-amber-500/20"
+                  >
+                    Get Started
+                  </Button>
+                </>
+              )}
+
+              {/* Mobile menu */}
+              <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon" className="md:hidden h-9 w-9" aria-label="Open mobile menu">
+                    <Menu className="h-5 w-5" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="right" className="w-72 bg-background">
+                  <SheetTitle className="flex items-center gap-2 mb-6">
+                    <NFLogo className="w-8 h-8" />
+                    <span className="font-bold text-foreground">NotiFetch</span>
+                  </SheetTitle>
+                  <div className="flex flex-col gap-1">
+                    {NAV_ITEMS.map((item) => (
+                      <button
+                        key={item.id}
+                        onClick={() => handleNavClick(item.id)}
+                        className={`px-4 py-3 rounded-lg text-sm font-medium transition-all text-left ${
+                          activeSection === item.id
+                            ? "bg-amber-500/10 text-amber-500"
+                            : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                        }`}
+                      >
+                        {item.label}
+                      </button>
+                    ))}
+                    <div className="mt-4 pt-4 border-t border-border space-y-2">
+                      <a
+                        href="https://play.google.com/store/apps/details?id=com.notifetch.app"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center gap-2 bg-black text-white text-sm font-semibold px-4 h-10 rounded-lg hover:bg-black/90 transition-colors w-full"
+                      >
+                        <Play className="w-4 h-4 fill-white" />
+                        Download on Play Store
+                      </a>
+                      <a
+                        href="https://chat.whatsapp.com/IHYTQwoyu8hDiXg3MRgWko"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center gap-2 bg-[#25D366] text-white text-sm font-semibold px-4 h-10 rounded-lg hover:bg-[#1da851] transition-colors w-full"
+                      >
+                        <MessageCircle className="w-4 h-4" />
+                        Join WhatsApp Community
+                      </a>
+                      {isLoggedIn ? (
+                        <>
+                          <div className="flex items-center gap-3 px-4 py-3">
+                            {session.user.image ? (
+                              <img
+                                src={session.user.image}
+                                alt={session.user.name || "User"}
+                                className="w-8 h-8 rounded-full"
+                              />
+                            ) : (
+                              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center">
+                                <span className="text-xs text-white font-bold">
+                                  {(session.user.name || session.user.email || "U")[0].toUpperCase()}
+                                </span>
+                              </div>
+                            )}
+                            <div className="min-w-0">
+                              <p className="text-sm font-medium truncate">
+                                {session.user.name || "User"}
+                              </p>
+                              <p className="text-xs text-muted-foreground truncate">
+                                {session.user.email}
+                              </p>
+                            </div>
+                          </div>
+                          <Button
+                            variant="outline"
+                            onClick={() => { window.location.href = "/dashboard"; setMobileOpen(false); }}
+                            className="w-full"
+                          >
+                            <User className="w-4 h-4 mr-2" />
+                            My Dashboard
+                          </Button>
+                          <Button
+                            variant="outline"
+                            onClick={() => { signOut({ callbackUrl: "/" }); setMobileOpen(false); }}
+                            className="w-full"
+                          >
+                            <LogOut className="w-4 h-4 mr-2" />
+                            Sign Out
+                          </Button>
+                        </>
+                      ) : (
+                        <>
+                          <Button
+                            variant="outline"
+                            onClick={() => { window.location.href = "/auth/signin"; setMobileOpen(false); }}
+                            className="w-full"
+                          >
+                            <LogIn className="w-4 h-4 mr-2" />
+                            Sign In
+                          </Button>
+                          <Button
+                            onClick={() => { window.location.href = "/auth/signin"; setMobileOpen(false); }}
+                            className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-semibold"
+                          >
+                            Get Started
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </SheetContent>
+              </Sheet>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </>
+  );
+}

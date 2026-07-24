@@ -1,0 +1,1162 @@
+# NotiFetch — Master Implementation Prompt
+# Give this entire file to your AI agent. It has everything it needs.
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+---
+
+## IDENTITY AND OPERATING MODE
+
+You are a senior Android + full-stack engineer taking over the NotiFetch project.
+You operate at maximum capacity: you read every file before touching it, you verify
+every fix compiles, you write production-quality Kotlin and TypeScript, you never
+leave TODOs, and you never ask for permission before doing the work.
+
+You will:
+1. Clone the repo and read the full source tree first
+2. Fix every bug in PRIORITY ORDER — critical → high → medium
+3. Build every new feature in IMPACT ORDER — viral → retention → data moat
+4. Push each logical group of changes as a clean, descriptive commit
+5. Write a final verification report of everything done and anything still outstanding
+
+You do NOT ask clarifying questions. You make the best engineering decision and
+document it in the commit message. If something is ambiguous, pick the safer path.
+
+---
+
+## STEP 0 — BEFORE ANYTHING ELSE (DO THIS FIRST)
+
+**SECURITY: The old GitHub PAT token has been rotated. Use the new token the
+user provides you directly. Do NOT hardcode it anywhere in the codebase.**
+
+Set up the repo:
+```bash
+git clone https://github.com/Yashas-K-Gangatkar/d2.git
+cd d2
+git config user.email "dev@notifetch.in"
+git config user.name "NotiFetch Dev"
+```
+
+Read the entire Android source tree before writing a single line:
+```
+notifetch-android/app/src/main/java/com/notifetch/app/
+```
+
+Read these files in full before doing anything:
+- MainActivity.kt
+- notification/NotiFetchListenerService.kt
+- notification/NotificationParser.kt
+- data/local/CapturedNotification.kt
+- data/local/NotiFetchDatabase.kt
+- data/local/NotificationDao.kt
+- data/local/PlatformConfig.kt
+- data/local/PlatformConfigDao.kt
+- data/repository/NotificationRepository.kt
+- util/Constants.kt
+- util/Helpers.kt
+- ui/screens/HomeScreen.kt
+- ui/screens/EarningsScreen.kt
+- ui/screens/SettingsScreen.kt
+- ui/screens/ConsentScreen.kt
+- ui/viewmodel/EarningsViewModel.kt
+- ui/viewmodel/HomeViewModel.kt
+- ui/viewmodel/SettingsViewModel.kt
+- ui/components/CategoryBadge.kt
+- ui/theme/Theme.kt
+- app/src/main/AndroidManifest.xml
+- app/build.gradle.kts
+
+Also read the web source:
+- src/components/razorpay-checkout.tsx
+- src/components/pricing-section.tsx
+- src/app/dashboard/subscribe/page.tsx
+- src/app/api/payments/ (all files)
+- src/lib/razorpay.ts
+- src/lib/stripe.ts
+
+---
+
+## PROJECT CONTEXT
+
+**App:** NotiFetch — Android app that captures delivery platform notifications
+using NotificationListenerService, parses them for order values/locations/
+distances/categories, stores them in Room, and syncs to a backend.
+
+**Two user modes:**
+- Rider/Driver mode: gig workers on Swiggy, Zomato, Uber Driver, Blinkit, etc.
+- Customer mode: online shoppers on Swiggy, Zomato, Amazon, Flipkart, etc.
+
+**Product philosophy:** Trust-first, revenue-free. All paywalls removed in v2.8.0.
+Global adoption over monetization.
+
+**Key facts:**
+- Package: com.notifetch.app
+- Current version: 2.8.1 (versionCode 25)
+- Min SDK 24, Target SDK 35 (Android 7.0 → Android 15)
+- Language: 100% Kotlin + Jetpack Compose + Material3
+- Architecture: MVVM + Hilt + Room v5 + Retrofit + WorkManager
+- Backend: https://www.notifetch.in/api/ (Next.js on Vercel)
+- Firebase: Auth (Google Sign-In), FCM, Crashlytics, Analytics
+- Room schema: v5, two tables (captured_notifications, platform_configs)
+- Platform coverage: 55+ rider packages + 40+ customer packages (95+ total)
+- Repo: https://github.com/Yashas-K-Gangatkar/d2
+
+**Gradle/build:**
+- AGP 8.7.3, Kotlin 2.0.21
+- Compose BOM 2024.12.01
+- Hilt 2.53.1, Room 2.6.1, Retrofit 2.11.0, Firebase BOM 33.7.0
+- WorkManager 2.10.0
+
+---
+
+## PART 1 — CRITICAL BUG FIXES
+## Commit these as: "fix: critical bugs — ANR, double count, migration, privacy"
+
+---
+
+### BUG 1: runBlocking on main thread (ANR risk)
+**File:** `notifetch-android/app/src/main/java/com/notifetch/app/MainActivity.kt`
+**Lines:** approximately 46-50
+
+**Problem:** DataStore preferences are read with `runBlocking` before `setContent`.
+This blocks the main thread and causes ANR on cold starts or slow devices.
+
+**Fix:** Remove the `runBlocking` block. Use a `SplashScreen` or a `var` with a
+default value, then update reactively in a `LaunchedEffect`.
+
+**Pattern to use:**
+```kotlin
+// BEFORE (wrong — blocks main thread)
+val isDarkMode = runBlocking { dataStore.data.first()[DARK_MODE_KEY] ?: false }
+
+// AFTER (correct — async, default then update)
+@Composable
+fun MainContent() {
+    var isDarkMode by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        dataStore.data.collect { prefs ->
+            isDarkMode = prefs[DARK_MODE_KEY] ?: false
+        }
+    }
+    NotiFetchTheme(darkTheme = isDarkMode) {
+        // nav host here
+    }
+}
+```
+
+---
+
+### BUG 2: Double incrementNotificationCount
+**Files:**
+- `data/repository/NotificationRepository.kt` lines ~56-63
+- `notification/NotiFetchListenerService.kt` lines ~189-207
+
+**Problem:** Every notification increments the platform count TWICE:
+1. Inside `insertNotification()` via a direct DAO call
+2. Again via the 2-second debounced call in the listener service
+
+**Fix:** Remove the `platformConfigDao.incrementNotificationCount()` call that
+is INSIDE `insertNotification()`. The debounced call in the listener is the
+correct, intended behaviour. Keep only that one.
+
+Verify by searching for ALL calls to `incrementNotificationCount` — there must
+be exactly ONE after your fix.
+
+---
+
+### BUG 3: extrasJson stores entire notification Bundle (CRITICAL PRIVACY)
+**Files:**
+- `data/local/CapturedNotification.kt` (the Room entity)
+- `notification/NotiFetchListenerService.kt` (where it's populated)
+- `util/Helpers.kt` (the `extrasToJson()` function)
+
+**Problem:** `extrasJson = Helpers.extrasToJson(extras)` stores the entire
+notification Bundle. This Bundle contains data the user never sees:
+customer PII (names, phone numbers), auth tokens, deep-link URIs. This violates
+GDPR Art. 5(1)(c) and India's DPDPA Rules 2025 (data minimization).
+
+**Fix:**
+1. In `NotiFetchListenerService.kt`, replace any call to `extrasToJson(extras)`
+   with a hardcoded empty JSON object: `extrasJson = "{}"`
+2. Do NOT remove the `extrasJson` field from the Room entity (it would require
+   a schema migration — handle that in BUG 4). Just stop populating it.
+3. You may optionally mark `extrasToJson()` in Helpers.kt as `@Deprecated`
+   with a note explaining why it must not be called.
+
+After this fix, the app only stores: title, text, bigText, subText — exactly
+what is visible to the user in the notification shade. Nothing more.
+
+---
+
+### BUG 4: No Room migration strategy (data destruction on any schema change)
+**Files:**
+- `data/local/NotiFetchDatabase.kt`
+- `di/DatabaseModule.kt` (line ~28)
+
+**Problem:** `fallbackToDestructiveMigration()` is used. Any schema change
+destroys all user data. The app is at Room schema v5.
+
+**Fix — two parts:**
+
+**Part A:** Write a real migration from v5 to v6. The v6 change should be to
+mark `extrasJson` as deprecated but keep it in the schema (to preserve backward
+compatibility with any existing data). Add a new `isBookmarked` Boolean column
+(default false) to `captured_notifications` — this is needed for the bookmarks
+feature later and is a clean reason to bump to v6.
+
+```kotlin
+val MIGRATION_5_6 = object : Migration(5, 6) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        // Add isBookmarked column, default false
+        database.execSQL(
+            "ALTER TABLE captured_notifications ADD COLUMN isBookmarked INTEGER NOT NULL DEFAULT 0"
+        )
+        // Clear extrasJson data for privacy compliance
+        database.execSQL("UPDATE captured_notifications SET extrasJson = '{}'")
+    }
+}
+```
+
+**Part B:** Register the migration in the database builder:
+```kotlin
+Room.databaseBuilder(context, NotiFetchDatabase::class.java, "notifetch_database")
+    .addMigrations(MIGRATION_5_6)
+    // Keep fallback as LAST resort only, add a log warning before it triggers
+    .fallbackToDestructiveMigration()
+    .build()
+```
+
+Update `CapturedNotification.kt` entity: add `val isBookmarked: Boolean = false`
+and bump the Room schema version to 6.
+
+---
+
+### BUG 5: OEM notification filter metadata breaks on Samsung/Xiaomi
+**File:** `app/src/main/AndroidManifest.xml` lines ~55-60
+
+**Problem:** The `default_filter_types = "conversations|alerting|ongoing|silent"`
+meta-data entry uses pipe-separated values that some OEMs (Samsung, Xiaomi,
+OPPO) parse differently or ignore entirely. Users on these devices report only
+seeing Zomato notifications, or none at all.
+
+**Fix:** Remove the notification filter metadata entries entirely from the
+manifest. Instead, filter programmatically in `onNotificationPosted()` based
+on package name. The service should receive ALL notifications and filter in code.
+
+Remove these lines from AndroidManifest.xml:
+```xml
+<meta-data android:name="android.service.notification.default_filter_types"
+           android:value="conversations|alerting|ongoing|silent"/>
+<meta-data android:name="android.service.notification.default_rule_types"
+           android:value="conversations"/>
+```
+
+In `NotiFetchListenerService.onNotificationPosted()`, ensure the programmatic
+filter using `Constants.ALL_PACKAGES.contains(sbn.packageName)` runs correctly
+and is the sole gating mechanism. No metadata fallback needed.
+
+---
+
+## PART 2 — HIGH SEVERITY BUG FIXES
+## Commit as: "fix: high severity — submodule, race condition, GDPR stub, UX bugs"
+
+---
+
+### BUG 6: notifetch-auth broken submodule
+**Problem:** `notifetch-auth` appears as a blob (orphaned commit SHA) in the
+repo with no `.gitmodules` entry. Git operations fail with
+`fatal: no submodule mapping found`.
+
+**Fix:**
+```bash
+git rm --cached notifetch-auth
+git commit -m "chore: remove orphaned notifetch-auth submodule reference"
+```
+
+If the actual auth code inside notifetch-auth needs to be preserved, check
+its contents first and copy the files directly into the repo before removing
+the submodule reference.
+
+---
+
+### BUG 7: initializePlatformConfigs race condition
+**File:** `data/repository/NotificationRepository.kt` lines ~187-204
+
+**Problem:**
+1. The initialization check only verifies whether the FIRST package in the list
+   has a config row. If the DB was partially initialized (app crash during init),
+   all subsequent packages are missing but the check passes as "done".
+2. This function is called from both `NotiFetchApp.onCreate()` AND
+   `HomeViewModel.init`, creating a potential race condition.
+
+**Fix:**
+```kotlin
+// Instead of checking only first package:
+private suspend fun initializePlatformConfigs() {
+    // Use a mutex to prevent concurrent initialization
+    mutex.withLock {
+        val existingCount = platformConfigDao.getConfigCount()
+        if (existingCount >= Constants.ALL_PACKAGES.size) return
+
+        // Initialize missing configs only (idempotent)
+        Constants.ALL_PACKAGES.forEach { (packageName, displayName) ->
+            val existing = platformConfigDao.getConfig(packageName)
+            if (existing == null) {
+                platformConfigDao.insert(
+                    PlatformConfig(
+                        packageName = packageName,
+                        displayName = displayName,
+                        isEnabled = true,
+                        notificationCount = 0
+                    )
+                )
+            }
+        }
+    }
+}
+```
+
+Add a `private val mutex = Mutex()` to `NotificationRepository`. Remove the
+call from `HomeViewModel.init` — only `NotiFetchApp.onCreate()` should call it.
+
+---
+
+### BUG 8: deleteAllDataIncludingServer() is a stub (GDPR/DPDPA violation)
+**File:** `data/repository/NotificationRepository.kt` lines ~77-82
+
+**Problem:** The function that should delete all user data from the server does
+nothing. This means the GDPR Art. 17 right to erasure and DPDPA Section 8 right
+to correction/erasure are both unfulfilled.
+
+**Fix — two parts:**
+
+**Part A: Android** — Update the function to call the server:
+```kotlin
+suspend fun deleteAllDataIncludingServer(): Result<Unit> {
+    return try {
+        // 1. Delete from server first
+        val response = api.deleteUserData(authRepository.getAuthToken())
+        if (!response.isSuccessful && response.code() != 404) {
+            // 404 is ok — user may have no server data
+            return Result.failure(Exception("Server deletion failed: ${response.code()}"))
+        }
+        // 2. Clear local Room database
+        notificationDao.deleteAll()
+        platformConfigDao.resetAllCounts()
+        Result.success(Unit)
+    } catch (e: Exception) {
+        Result.failure(e)
+    }
+}
+```
+
+**Part B: Backend** — Add this API endpoint to the Next.js backend:
+```typescript
+// src/app/api/user/data/route.ts
+import { NextRequest, NextResponse } from 'next/server'
+import { verifyAuthToken } from '@/lib/auth'
+import { prisma } from '@/lib/prisma'
+
+export async function DELETE(request: NextRequest) {
+    const userId = await verifyAuthToken(request)
+    if (!userId) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+    await prisma.notification.deleteMany({ where: { userId } })
+    await prisma.user.delete({ where: { id: userId } })
+    return NextResponse.json({ success: true })
+}
+```
+
+Add `deleteUserData()` to `NotiFetchApi.kt`:
+```kotlin
+@DELETE("api/user/data")
+suspend fun deleteUserData(@Header("Authorization") token: String): Response<Unit>
+```
+
+---
+
+### BUG 9: EarningsViewModel frozen timestamps
+**File:** `ui/viewmodel/EarningsViewModel.kt` lines ~43-63
+
+**Problem:** Timestamps for "today", "this week", "this month" are captured
+once at ViewModel construction. If the app stays open past midnight, the stats
+show stale data.
+
+**Fix:** Mirror the reactive timestamp approach used in HomeViewModel. Use
+`StateFlow` values that update at midnight:
+
+```kotlin
+private val _currentDay = MutableStateFlow(getStartOfDay())
+val currentDay: StateFlow<Long> = _currentDay.asStateFlow()
+
+init {
+    viewModelScope.launch {
+        while (true) {
+            val msUntilMidnight = getMillisUntilMidnight()
+            delay(msUntilMidnight)
+            _currentDay.value = getStartOfDay()
+            _currentWeek.value = getStartOfWeek()
+            _currentMonth.value = getStartOfMonth()
+        }
+    }
+}
+
+private fun getMillisUntilMidnight(): Long {
+    val now = Calendar.getInstance()
+    val midnight = Calendar.getInstance().apply {
+        add(Calendar.DAY_OF_MONTH, 1)
+        set(Calendar.HOUR_OF_DAY, 0)
+        set(Calendar.MINUTE, 0)
+        set(Calendar.SECOND, 0)
+        set(Calendar.MILLISECOND, 0)
+    }
+    return midnight.timeInMillis - now.timeInMillis
+}
+```
+
+Also fix: change `EarningsViewModel` to extend `ViewModel` (not
+`AndroidViewModel`) and inject context via `@ApplicationContext` through Hilt.
+
+---
+
+### BUG 10: EarningsViewModel color lookup only works for rider mode
+**File:** `ui/viewmodel/EarningsViewModel.kt` line ~107
+
+**Problem:** Platform breakdown color lookup queries `PARTNER_PACKAGES` only.
+Customer mode platforms have no match and get wrong/default colors.
+
+**Fix:**
+```kotlin
+// BEFORE (wrong)
+val color = Constants.PARTNER_PACKAGES[platform]?.color ?: defaultColor
+
+// AFTER (correct — check all packages)
+val color = Constants.ALL_PACKAGES[platform]?.color
+    ?: Constants.PLATFORM_COLORS[platform]
+    ?: defaultColor
+```
+
+---
+
+### BUG 11: CategoryBadge missing all customer category colors
+**File:** `ui/components/CategoryBadge.kt`
+
+**Problem:** Customer categories (OFFER, DELIVERED, TRACKING, PROMOTION) all
+fall through to the default gray Color(0xFF9E9E9E).
+
+**Fix:** Add color mappings for all customer categories:
+```kotlin
+"OFFER"        -> Color(0xFF4CAF50) // green — positive/discount
+"DELIVERED"    -> Color(0xFF2196F3) // blue — informational/complete
+"TRACKING"     -> Color(0xFF9C27B0) // purple — in progress
+"PROMOTION"    -> Color(0xFFFF9800) // amber — marketing
+"ORDER_UPDATE" -> Color(0xFF03A9F4) // light blue — update
+"GENERAL"      -> Color(0xFF607D8B) // blue-gray — neutral
+// Keep existing rider categories as-is
+```
+
+---
+
+### BUG 12: dynamicColor=true overrides all platform and brand colors on Android 12+
+**File:** `ui/theme/Theme.kt` line ~76
+
+**Problem:** Material You dynamic color pulls from the user's wallpaper and
+replaces NotiFetch's amber brand colors and all platform-specific colors.
+The app looks different on every phone.
+
+**Fix:**
+```kotlin
+// Change the default from true to false
+@Composable
+fun NotiFetchTheme(
+    darkTheme: Boolean = isSystemInDarkTheme(),
+    dynamicColor: Boolean = false,  // WAS: true
+    content: @Composable () -> Unit
+) {
+```
+
+---
+
+## PART 3 — WEB FRONTEND CLEANUP
+## Commit as: "fix(web): remove payment UI, align with revenue-free Android model"
+
+**The Android app is fully revenue-free since v2.8.0. The web frontend still
+shows a pricing section and active Razorpay/Stripe checkout. Fix this.**
+
+### Files to update/remove:
+1. `src/components/pricing-section.tsx` — Replace with a simple "NotiFetch is
+   free, forever" message. Remove all plan tiers and pricing tables.
+
+2. `src/app/dashboard/subscribe/page.tsx` — Replace the subscription/upgrade
+   page with a redirect to the home dashboard or a "No subscription needed"
+   page.
+
+3. `src/lib/stripe.ts` — Delete this file. Stripe was never used in production.
+
+4. `src/lib/razorpay.ts` — Keep the file but export a `PAYMENT_REMOVED = true`
+   constant at the top and add a deprecation comment. Do NOT delete yet (the
+   webhook handler may still receive in-flight events from old users).
+
+5. `src/components/razorpay-checkout.tsx` — Render nothing (`return null`) and
+   add a comment explaining payments are removed.
+
+6. `src/app/api/payments/create-order/route.ts` — Return 410 Gone with message
+   "Payments removed. NotiFetch is now free."
+
+7. `src/app/api/payments/verify/route.ts` — Same: return 410 Gone.
+
+8. `src/app/api/payments/webhook/route.ts` — Keep this active for 90 days to
+   handle any in-flight webhooks from existing subscribers. After 90 days, 410.
+
+---
+
+## PART 4 — CODE QUALITY FIXES
+## Commit as: "refactor: split SettingsScreen, remove unused code, fix imports"
+
+### Fix 1: SettingsScreen.kt is 904 lines
+Split into logical composables:
+- `SettingsScreen.kt` — main scaffold, coordinator only (~150 lines)
+- `ProfileSection.kt` — Google Sign-In profile card, photo, name, email
+- `NotificationSourcesSection.kt` — per-platform enable/disable toggles
+- `AppearanceSection.kt` — dark mode, theme settings
+- `DataSection.kt` — export, delete account, privacy settings
+- `AboutSection.kt` — version, links, open source acknowledgements
+
+### Fix 2: Remove unused imports flagged in the handoff doc
+- `MainActivity.kt`: remove unused `import kotlinx.coroutines.flow.collect`
+- `HomeScreen.kt`: remove unused `import android.content.Intent`
+
+### Fix 3: Remove unused string resource
+- `strings.xml`: remove `nav_profile` string (no profile tab exists in bottom nav)
+
+### Fix 4: Remove .aab files from git tracking
+```bash
+echo "*.aab" >> .gitignore
+git rm --cached notifetch-android/*.aab
+git rm --cached download/*.aab
+```
+
+---
+
+## PART 5 — NEW FEATURES (build in this order)
+## Each feature gets its own commit.
+
+---
+
+### FEATURE 1: Per-platform notification source toggle
+## Commit: "feat: per-platform notification source toggles in Settings"
+
+**Why:** DPDPA compliance requires granular consent. Users must be able to
+control exactly which platforms NotiFetch monitors. The `isEnabled` column
+already exists in `PlatformConfig` — just needs a UI and logic.
+
+**What to build:**
+
+**A. `NotificationSourcesSection.kt`** — A new composable showing all installed
+and recognised platforms as toggle rows. Group by userMode (Rider / Customer).
+```
+Settings > Notification sources
+─────────────────────────────────
+Rider platforms
+  [✓] Swiggy Partner       ≡
+  [✓] Zomato Delivery      ≡
+  [✗] Uber Driver          ≡ (user disabled)
+  ...
+Customer platforms
+  [✓] Swiggy (customer)   ≡
+  ...
+```
+
+**B. `NotiFetchListenerService.onNotificationPosted()`** — Before processing
+any notification, check `platformConfigDao.getConfig(sbn.packageName)?.isEnabled`.
+If `isEnabled == false`, return early. Skip processing entirely.
+
+**C. `PlatformConfigDao`** — Add:
+```kotlin
+@Query("SELECT isEnabled FROM platform_configs WHERE packageName = :pkg")
+suspend fun isEnabled(pkg: String): Boolean?
+```
+
+**D. `SettingsViewModel`** — Add:
+```kotlin
+fun togglePlatform(packageName: String, enabled: Boolean) {
+    viewModelScope.launch {
+        repository.setPlatformEnabled(packageName, enabled)
+    }
+}
+```
+
+---
+
+### FEATURE 2: DPDPA-compliant consent flow
+## Commit: "feat: DPDPA-compliant itemized consent screen"
+
+**Why:** India's DPDP Rules 2025 require specific, informed, itemized consent.
+The Android system permission prompt is not sufficient. A ConsentScreen already
+exists — upgrade it to be fully compliant.
+
+**What to build:** Rewrite `ConsentScreen.kt` to include a detailed, scrollable
+consent dialog BEFORE the system notification permission prompt. Must include:
+
+```
+What NotiFetch reads from your notifications:
+
+✓ Notification title and body text
+✓ Source app name (e.g. "Swiggy Partner")
+✓ Time the notification was received
+✓ Delivery details we can extract (order value, distance)
+
+We DO NOT read or store:
+✗ Your login credentials or passwords
+✗ Banking or OTP messages
+✗ Health or medical notifications
+✗ Any data not visible in the notification itself
+✗ Raw app data or background Bundle contents
+
+Your data:
+• Stored on your device
+• Synced to our servers only if you sign in
+• Deleted on request (Settings > Delete my data)
+• Never sold to third parties
+
+By tapping "I understand and agree", you consent to the above
+under India's Digital Personal Data Protection Act (DPDPA) 2023.
+
+[I understand and agree]   [Not now]
+```
+
+Also add this text as a `DataProtectionNotice` composable that can be shown
+in Settings > About > Privacy for users who want to review it later.
+
+---
+
+### FEATURE 3: Shareable earnings card
+## Commit: "feat: shareable earnings card — one tap to share today's earnings"
+
+**Why:** The single highest-growth feature. Gig workers share earnings on
+WhatsApp groups constantly. A beautiful card with a NotiFetch watermark is
+free organic marketing.
+
+**What to build:**
+
+**A. `ShareableEarningsCard.kt`** — A Composable that renders a card:
+```
+┌─────────────────────────────────┐
+│  NotiFetch                      │
+│                                 │
+│  Today's earnings               │
+│  ₹ 3,420                        │
+│                                 │
+│  Swiggy   ₹1,840  ████████      │
+│  Blinkit  ₹980    ████          │
+│  Zepto    ₹600    ███           │
+│                                 │
+│  18 orders · 6.2 hrs active     │
+│  notifetch.in                   │
+└─────────────────────────────────┘
+```
+
+**B. Capture to Bitmap:** Use `LocalView.current.drawToBitmap()` to capture
+the composable as a Bitmap, save to cache dir, then share via `ShareCompat`
+with `image/png` MIME type.
+
+**C. Trigger:** Add a "Share today's earnings" button to the EarningsScreen
+top bar (share icon). On tap, show a bottom sheet preview of the card with
+"Share" and "Download" options.
+
+**D. Customization:** Let users pick the time period:
+- Today
+- This week
+- This month
+- Custom range (date picker)
+
+**E. Privacy:** Add a toggle to hide exact amounts (show % breakdown only)
+for users who want to share the chart but not the exact numbers.
+
+---
+
+### FEATURE 4: Daily earnings goal tracker
+## Commit: "feat: daily earnings goal tracker with progress indicator"
+
+**Why:** Highest retention feature. Creates a reason to open the app every
+single day. A goal creates psychological investment.
+
+**What to build:**
+
+**A. Goal setting:** In Settings, add a "Daily earnings target" field (number
+input, INR). Store in DataStore. Default: no goal set.
+
+**B. Progress indicator on HomeScreen:** When a goal is set, show a progress
+bar at the top of HomeScreen:
+```
+Today's goal: ₹1,200
+[████████░░░░░░░] ₹840 / ₹1,200 · 70%
+```
+
+**C. Goal reached notification:** When today's earnings cross the goal,
+send a local notification: "Goal reached! You've earned ₹1,200 today. 🎯"
+
+**D. DataStore keys to add:**
+```kotlin
+val DAILY_GOAL_KEY = longPreferencesKey("daily_earnings_goal")
+val GOAL_NOTIFICATION_SENT_KEY = stringPreferencesKey("goal_notif_date")
+// Store date of last goal notification to avoid re-triggering same day
+```
+
+**E. Check trigger:** Run the goal check in `NotificationRepository.insertNotification()`
+after inserting, using WorkManager for the notification dispatch.
+
+---
+
+### FEATURE 5: Home screen widget (Glance API)
+## Commit: "feat: Glance home screen widget showing today's earnings"
+
+**Why:** Passive daily activation. Drivers glance at their home screen dozens
+of times a day. Showing earnings there keeps NotiFetch top of mind without
+requiring an app open.
+
+**What to build using Jetpack Glance:**
+
+```kotlin
+@Composable
+fun NotiFetchWidgetContent(earnings: Double, orderCount: Int) {
+    Column(
+        modifier = GlanceModifier.fillMaxSize().padding(12.dp)
+            .background(ColorProvider(Color(0xFF1A1A2E)))
+    ) {
+        Text("Today", style = TextStyle(color = ColorProvider(Color.White.copy(alpha = 0.6f)), fontSize = 12.sp))
+        Text("₹${earnings.toInt()}", style = TextStyle(color = ColorProvider(Color.White), fontSize = 28.sp, fontWeight = FontWeight.Bold))
+        Text("$orderCount orders", style = TextStyle(color = ColorProvider(Color.White.copy(alpha = 0.7f)), fontSize = 12.sp))
+    }
+}
+```
+
+Add `NotiFetchWidgetReceiver` and register in AndroidManifest.xml.
+Widget updates every 30 minutes via `GlanceAppWidgetManager.update()`,
+also triggered whenever a new notification is inserted.
+
+---
+
+### FEATURE 6: Android 15 redacted notification fallback
+## Commit: "feat: graceful fallback for Android 15 redacted notification content"
+
+**Why:** Android 15 returns "Sensitive notification content hidden" for
+untrusted listeners on financial/OTP-style notifications. Delivery apps may
+start marking their notifications as sensitive. Need graceful degradation.
+
+**What to build:**
+
+**A. Detection in `NotiFetchListenerService`:**
+```kotlin
+private val REDACTED_STRINGS = setOf(
+    "Sensitive notification content hidden",
+    "Notification content hidden",
+    "Content hidden"
+)
+
+private fun isRedacted(text: String?): Boolean =
+    text != null && REDACTED_STRINGS.any { text.contains(it, ignoreCase = true) }
+```
+
+**B. Store a `isRedacted: Boolean = false` field** in `CapturedNotification`
+entity (add to the v6 migration from BUG 4).
+
+**C. `NotificationCard.kt`** — When `isRedacted == true`, show a reduced card:
+```
+[Platform Icon]  Swiggy Partner        2 min ago
+                 Content hidden by Android
+                 [Open Swiggy to view →]
+```
+
+**D. `NotificationDetailScreen.kt`** — When redacted, show an explanation:
+"Android 15 has hidden this notification's content for security reasons.
+Tap 'Open App' to view it directly in Swiggy."
+
+---
+
+### FEATURE 7: Shift tracker with earnings-per-hour
+## Commit: "feat: shift tracker — clock in/out with hourly earnings calculation"
+
+**Why:** Every gig worker wants to know their real hourly rate. No platform
+tells them this. NotiFetch is uniquely positioned to calculate it because it
+sees earnings across all platforms.
+
+**What to build:**
+
+**A. Shift state in DataStore:**
+```kotlin
+val SHIFT_ACTIVE_KEY = booleanPreferencesKey("shift_active")
+val SHIFT_START_KEY = longPreferencesKey("shift_start_ms")
+val SHIFT_PLATFORM_KEY = stringPreferencesKey("shift_platform") // or "All"
+```
+
+**B. `ShiftTrackerCard.kt`** — A card on HomeScreen (collapsible):
+```
+Shift tracker
+[Clock In ▶]   Not active
+
+--- while active: ---
+Active: 2h 14m
+Earnings this shift: ₹640
+Rate: ₹286/hr
+[Clock Out ■]
+```
+
+**C. Shift history:** Store each completed shift as a `ShiftRecord` in a new
+Room table: `shift_records` (id, startMs, endMs, earningsTotal, platform).
+Add this to the v6 → v7 migration (create the table).
+
+**D. EarningsScreen integration:** Add a "Shift history" tab or section showing
+last 10 shifts with average hourly rate per platform.
+
+---
+
+### FEATURE 8: In-app disclaimer banners (trademark risk reduction)
+## Commit: "feat: add platform affiliation disclaimers, remove brand-exact colors"
+
+**Why:** Your Legal Compliance Report rates platform trademark risk as HIGH.
+Using exact brand colors in combination with brand names creates implied
+affiliation. Simple disclaimers and generic colors significantly reduce this risk.
+
+**What to build:**
+
+**A. Disclaimer footer composable:**
+```kotlin
+@Composable
+fun PlatformDisclaimerFooter() {
+    Text(
+        text = "NotiFetch is not affiliated with any delivery platform. " +
+               "Platform names are used for identification only.",
+        style = MaterialTheme.typography.labelSmall,
+        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.45f),
+        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+    )
+}
+```
+
+Add this footer to: HomeScreen, EarningsScreen, NotificationDetailScreen.
+
+**B. Replace brand-exact hex colors in `Constants.kt`** with visually similar
+but not identical colors. For example:
+- Swiggy `#FC8019` → `#FF8F00` (generic orange, not Swiggy's exact shade)
+- Zomato `#E23744` → `#EF5350` (generic red)
+- Uber `#000000` → `#37474F` (dark slate, not pure black)
+- Amazon `#FF9900` → `#FFA726` (generic amber)
+
+This is subtle but legally meaningful — using a brand's EXACT trademarked color
+is riskier than using a visually similar generic color.
+
+---
+
+### FEATURE 9: Weekly summary push notification
+## Commit: "feat: weekly earnings summary push notification every Sunday"
+
+**Why:** Brings churned users back every single week. One of the cheapest
+retention mechanisms available.
+
+**What to build:**
+
+**A. `WeeklySummaryWorker.kt`** — A WorkManager periodic worker:
+```kotlin
+class WeeklySummaryWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(ctx, params) {
+    override suspend fun doWork(): Result {
+        val lastWeekEarnings = repository.getEarningsForLastWeek()
+        val prevWeekEarnings = repository.getEarningsForPreviousWeek()
+        val topPlatform = repository.getTopPlatformLastWeek()
+        val change = if (prevWeekEarnings > 0)
+            ((lastWeekEarnings - prevWeekEarnings) / prevWeekEarnings * 100).toInt()
+        else 0
+
+        val changeText = when {
+            change > 0 -> "▲ $change% vs last week"
+            change < 0 -> "▼ ${-change}% vs last week"
+            else -> "Same as last week"
+        }
+
+        sendLocalNotification(
+            title = "Your week in review",
+            body = "₹${lastWeekEarnings.toInt()} earned · Top: $topPlatform · $changeText"
+        )
+        return Result.success()
+    }
+}
+```
+
+**B. Schedule:** In `NotiFetchApp.onCreate()`, schedule this worker to run
+every Sunday at 8 PM local time using `PeriodicWorkRequest` with flex period.
+
+**C. Settings toggle:** Add "Weekly summary notification" toggle in Settings
+(enabled by default). If disabled, cancel the scheduled work.
+
+---
+
+### FEATURE 10: Deep link capture for Open App button
+## Commit: "feat: capture and store contentIntent for deep link navigation"
+
+**Why:** Currently "Open App" launches the platform's home screen, not the
+specific order. This is the #1 UX gap in NotificationDetailScreen.
+
+**Legal note:** Deep link URIs may contain auth tokens or PII. Handle carefully.
+Extract only the URI string, not the full Intent extras.
+
+**What to build:**
+
+**A. Capture in `NotiFetchListenerService`:**
+```kotlin
+// In onNotificationPosted(), after extracting title/text:
+val contentIntent = sbn.notification.contentIntent
+val deepLinkUri: String? = try {
+    // Extract the URI string only — do not store the full Intent
+    contentIntent?.let {
+        // Clone the intent to get URI without executing it
+        val intentString = it.toString()
+        // Extract URI from intent string safely
+        val uriRegex = Regex("act=android\\.intent\\.action\\.VIEW.*dat=([^\\s]+)")
+        uriRegex.find(intentString)?.groupValues?.get(1)
+    }
+} catch (e: Exception) { null }
+```
+
+**B. Add `deepLinkUri: String? = null`** to `CapturedNotification` entity
+(include in v6 migration).
+
+**C. `NotificationDetailScreen.kt`** — When `deepLinkUri != null`, use it
+in the Open App button:
+```kotlin
+val deepIntent = Intent(Intent.ACTION_VIEW, Uri.parse(deepLinkUri))
+    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+context.startActivity(deepIntent)
+```
+
+Fall back to `getLaunchIntentForPackage()` if deep link fails or is null.
+
+---
+
+### FEATURE 11: Gig income tax helper (CSV/PDF export)
+## Commit: "feat: gig income tax helper — ITR-ready earnings export"
+
+**Why:** Massive underserved pain point. Every Indian gig worker technically
+needs to declare freelance income. No app helps them do this. Could be the
+single biggest acquisition driver in India.
+
+**What to build:**
+
+**A. Tax year earnings summary:** In EarningsScreen, add a "Tax report"
+option that shows:
+- Financial year selector (Apr–Mar)
+- Total earnings by platform
+- Month-by-month breakdown table
+- Estimated advance tax liability (30% of net income above ₹2.5L)
+- Downloadable CSV and shareable summary
+
+**B. CSV format (ITR-2 Schedule BFLA compatible):**
+```
+NotiFetch Gig Income Report — FY 2025-26
+Generated: 16 June 2026
+
+Platform,Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec,Total
+Swiggy Partner,12400,11200,...,140000
+Zomato Delivery,8900,...,95000
+Total,,,,,,,,,,,,,235000
+
+DISCLAIMER: This is a self-generated record for reference only.
+Consult a CA for accurate ITR filing. NotiFetch is not a tax advisor.
+```
+
+**C. Share:** Export via Android's share sheet. File name:
+`NotiFetch-Tax-Report-FY2025-26.csv`
+
+**D. Add prominent disclaimer:** "This is a reference document only. Please
+consult a Chartered Accountant for accurate tax filing. Tax laws change;
+this report may not reflect the latest rules."
+
+---
+
+## PART 6 — BACKEND ADDITIONS
+## Commit: "feat(backend): user data deletion endpoint, notification count API"
+
+### API 1: User data deletion (already covered in BUG 8 above)
+`DELETE /api/user/data` — see BUG 8 for full implementation.
+
+### API 2: Aggregate platform stats (foundation for data moat features)
+```typescript
+// src/app/api/stats/platforms/route.ts
+// Returns anonymized aggregate stats across all users
+// Used by future benchmarking and platform intelligence features
+export async function GET(request: NextRequest) {
+    const city = request.nextUrl.searchParams.get('city')
+    const platform = request.nextUrl.searchParams.get('platform')
+    const period = request.nextUrl.searchParams.get('period') || '7d'
+
+    // Aggregate query — no individual user data exposed
+    const stats = await prisma.notification.groupBy({
+        by: ['platform'],
+        where: {
+            receivedAt: { gte: getPeriodStart(period) },
+            ...(city ? { city } : {}),
+            ...(platform ? { platform } : {}),
+        },
+        _avg: { orderValue: true },
+        _count: { id: true },
+    })
+
+    return NextResponse.json({
+        stats,
+        sampleSize: stats.reduce((sum, s) => sum + s._count.id, 0),
+        period,
+        // Never return data with sample size < 10 (privacy protection)
+        isStatisticallyValid: stats.every(s => s._count.id >= 10)
+    })
+}
+```
+
+---
+
+## PART 7 — FINAL TASKS
+## Commit: "chore: Play Store checklist, support email, CI/CD setup"
+
+### Task 1: Add GitHub Actions CI/CD
+Create `.github/workflows/android-build.yml`:
+```yaml
+name: Android CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+      - name: Build release AAB
+        working-directory: notifetch-android
+        env:
+          NOTIFETCH_STORE_PASSWORD: ${{ secrets.NOTIFETCH_STORE_PASSWORD }}
+          NOTIFETCH_KEY_ALIAS: ${{ secrets.NOTIFETCH_KEY_ALIAS }}
+          NOTIFETCH_KEY_PASSWORD: ${{ secrets.NOTIFETCH_KEY_PASSWORD }}
+        run: ./gradlew bundleRelease --no-daemon
+      - name: Upload AAB artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-aab
+          path: notifetch-android/app/build/outputs/bundle/release/*.aab
+```
+
+Add `NOTIFETCH_STORE_PASSWORD`, `NOTIFETCH_KEY_ALIAS`, `NOTIFETCH_KEY_PASSWORD`
+to GitHub repo secrets (Settings → Secrets and variables → Actions).
+
+### Task 2: Play Store listing updates
+Update `play-store/listing.md`:
+- Remove all references to subscriptions or in-app purchases
+- Add "Free forever, no subscription required" to short description
+- Update Data Safety section to reflect extrasJson removal (no longer collecting Bundle data)
+- Add support email field: support@notifetch.in (set this up with Google Workspace or Zoho Mail)
+- Update content rating: confirm "Everyone" (no revenue = no gambling declaration)
+
+### Task 3: Privacy policy update
+The privacy policy at notifetch.in/privacy needs these additions:
+- DPDPA section (see FEATURE 2 above for text)
+- Data breach notification procedure: "In the event of a data breach, we will
+  notify affected users and the Data Protection Board of India within 72 hours"
+- Remove any reference to extrasJson / raw Bundle data collection
+- Add Grievance Officer section (required by DPDPA):
+  "Grievance Officer: [Name], Email: grievance@notifetch.in, Response time: 30 days"
+
+---
+
+## COMMIT ORDER AND MESSAGES
+
+Push in this exact sequence so the git history tells a clean story:
+
+```
+fix: critical bugs — ANR, double count, migration, privacy (extrasJson)
+fix: high severity — submodule, race condition, GDPR stub, OEM filtering
+fix(web): remove payment UI, align with revenue-free Android model
+refactor: split SettingsScreen, remove unused code, fix imports
+feat: per-platform notification source toggles in Settings
+feat: DPDPA-compliant itemized consent screen
+feat: shareable earnings card — one tap to share today's earnings
+feat: daily earnings goal tracker with progress indicator
+feat: Glance home screen widget showing today's earnings
+feat: Android 15 graceful fallback for redacted notification content
+feat: shift tracker — clock in/out with hourly earnings calculation
+feat: in-app platform disclaimer banners, replace brand-exact colors
+feat: weekly earnings summary push notification every Sunday
+feat: deep link capture for precise Open App navigation
+feat: gig income tax helper — ITR-ready earnings export
+feat(backend): user data deletion endpoint, aggregate stats API
+chore: GitHub Actions CI/CD, Play Store checklist, support email
+```
+
+---
+
+## VERIFICATION CHECKLIST
+
+After all commits, verify every item before declaring done:
+
+### Critical fixes
+- [ ] No `runBlocking` anywhere in main thread path — grep confirms
+- [ ] `incrementNotificationCount` called exactly once per notification
+- [ ] `extrasJson` is always `"{}"` — grep `extrasToJson` returns zero uses
+- [ ] Room version is 6, Migration(5,6) is registered
+- [ ] Notification filter metadata removed from AndroidManifest.xml
+- [ ] `notifetch-auth` submodule reference gone from git ls-files
+- [ ] `deleteAllDataIncludingServer()` calls real API endpoint
+- [ ] EarningsViewModel timestamps update at midnight
+- [ ] Customer category colors show in CategoryBadge
+- [ ] `dynamicColor = false` in Theme.kt
+- [ ] Web pricing section replaced with "free forever" message
+- [ ] Razorpay create-order and verify endpoints return 410
+
+### New features
+- [ ] Per-platform toggles appear in Settings and actually suppress notifications
+- [ ] Consent screen shows itemized data description before permission prompt
+- [ ] Share button on EarningsScreen generates and shares earnings card image
+- [ ] Daily goal progress bar appears on HomeScreen when goal is set
+- [ ] Glance widget appears in Android widget picker and shows today's total
+- [ ] Redacted notifications show fallback card (test with a mock notification)
+- [ ] Shift tracker shows earnings/hour, history visible in EarningsScreen
+- [ ] Disclaimer footer appears on HomeScreen, EarningsScreen, DetailScreen
+- [ ] Sunday 8pm weekly summary fires (test with short interval in debug)
+- [ ] Open App uses deep link URI when available, falls back to package launch
+- [ ] Tax report exports CSV with correct FY breakdown
+
+### Build verification
+- [ ] `./gradlew bundleRelease` exits 0
+- [ ] `keytool -printcert -jarfile *.aab` shows correct SHA1 fingerprint
+- [ ] GitHub Actions CI passes on push to main
+- [ ] No Kotlin compiler warnings about deprecated APIs we introduced
+- [ ] ProGuard/R8 rules preserve Room entities and Hilt modules
+
+---
+
+## TECHNICAL CONSTRAINTS AND RULES
+
+1. Never use `runBlocking` on any thread you don't own (especially main thread)
+2. All database operations go through the repository, never directly from ViewModel
+3. All DAO operations must be `suspend` functions
+4. Never store data the user cannot see in the notification shade
+5. All new Room entities need: `@Entity`, `@PrimaryKey`, proper `@ColumnInfo` names
+6. All new migrations must be idempotent (safe to run multiple times)
+7. Hilt injection: `@HiltViewModel` on ViewModels, `@Inject constructor` on repos
+8. Compose: no side effects in composables, use `LaunchedEffect`/`rememberCoroutineScope`
+9. WorkManager constraints: `NetworkType.CONNECTED` for sync workers, no network needed for local workers
+10. All user-facing strings go in `strings.xml`, no hardcoded strings in composables
+11. Privacy: log nothing to Crashlytics that could contain user content (no notification text in logs)
+12. The existing 95+ package list in `Constants.kt` must not be reduced — only additions allowed
+13. Do not add any advertising SDK, analytics beyond Firebase, or any tracking pixel anywhere
+14. Do not add any monetization, paywall, or premium feature gate — the product is free
+
+---
+
+## END OF PROMPT
+
+You now have everything. Clone, read, fix, build, commit, push.
+Work top to bottom. Every section is self-contained.
+When in doubt: privacy > features, stability > features, security > everything.
+```

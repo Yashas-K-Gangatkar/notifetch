@@ -1,0 +1,287 @@
+import { NextRequest, NextResponse } from "next/server";
+import { authenticateRequest } from "@/lib/auth-helpers";
+import { db } from "@/lib/db";
+
+/**
+ * GET /api/platforms
+ * List the authenticated user's notification sources.
+ * Returns customName alongside platformName for display name resolution.
+ */
+export async function GET(request: NextRequest) {
+  try {
+    const userId = await authenticateRequest(request);
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const sources = await db.notificationSource.findMany({
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+    });
+
+    // Add resolvedDisplayName to each source (custom → default)
+    const enrichedSources = sources.map(source => ({
+      ...source,
+      resolvedDisplayName: source.customName || source.platformName,
+    }));
+
+    return NextResponse.json({ sources: enrichedSources });
+  } catch (error) {
+    console.error("[API] Error fetching notification sources:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch notification sources" },
+      { status: 500 }
+    );
+  }
+}
+
+/**
+ * POST /api/platforms
+ * Enable a notification source for the authenticated user.
+ *
+ * Body: { platformId, platformName, category, packageName? }
+ */
+export async function POST(request: NextRequest) {
+  try {
+    const userId = await authenticateRequest(request);
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const body = await request.json();
+    const { platformId, platformName, category, packageName } = body;
+
+    if (!platformId || !platformName || !category) {
+      return NextResponse.json(
+        { error: "platformId, platformName, and category are required" },
+        { status: 400 }
+      );
+    }
+
+    // Check if already exists
+    const existing = await db.notificationSource.findUnique({
+      where: {
+        userId_platformId: {
+          userId,
+          platformId,
+        },
+      },
+    });
+
+    if (existing) {
+      // Update existing source — re-enable listening
+      const updated = await db.notificationSource.update({
+        where: { id: existing.id },
+        data: {
+          listening: true,
+          packageName: packageName ?? existing.packageName,
+          lastSyncAt: new Date(),
+        },
+      });
+
+      return NextResponse.json({
+        source: {
+          ...updated,
+          resolvedDisplayName: updated.customName || updated.platformName,
+        }
+      });
+    }
+
+    // Create new notification source
+    const source = await db.notificationSource.create({
+      data: {
+        userId,
+        platformId,
+        platformName,
+        category,
+        listening: true,
+        packageName,
+        lastSyncAt: new Date(),
+      },
+    });
+
+    // Audit log
+    await db.auditLog.create({
+      data: {
+        userId,
+        action: "ENABLE_NOTIFICATION_SOURCE",
+        entity: "NotificationSource",
+        entityId: source.id,
+        details: JSON.stringify({ platformId, platformName, category, packageName }),
+      },
+    });
+
+    return NextResponse.json({
+      source: {
+        ...source,
+        resolvedDisplayName: source.customName || source.platformName,
+      }
+    }, { status: 201 });
+  } catch (error) {
+    console.error("[API] Error enabling notification source:", error);
+    return NextResponse.json(
+      { error: "Failed to enable notification source" },
+      { status: 500 }
+    );
+  }
+}
+
+/**
+ * PATCH /api/platforms
+ * Update a notification source — primarily for renaming (customName).
+ *
+ * Body: { platformId, customName? }
+ *
+ * Pass customName to set a user's custom display name.
+ * Pass customName: null to reset to the default brand name.
+ *
+ * This is the core of the "user choice" legal model:
+ * - Default names use real brand names (nominative fair use)
+ * - Users can rename to anything they prefer
+ * - This provides a legal defense: "We gave users the choice"
+ */
+export async function PATCH(request: NextRequest) {
+  try {
+    const userId = await authenticateRequest(request);
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const body = await request.json();
+    const { platformId, customName } = body;
+
+    if (!platformId) {
+      return NextResponse.json(
+        { error: "platformId is required" },
+        { status: 400 }
+      );
+    }
+
+    const existing = await db.notificationSource.findUnique({
+      where: {
+        userId_platformId: {
+          userId,
+          platformId,
+        },
+      },
+    });
+
+    if (!existing) {
+      return NextResponse.json(
+        { error: "Notification source not found" },
+        { status: 404 }
+      );
+    }
+
+    // Build update data
+    const updateData: Record<string, unknown> = {};
+    if (customName !== undefined) {
+      updateData.customName = customName; // null resets to default
+    }
+
+    const updated = await db.notificationSource.update({
+      where: { id: existing.id },
+      data: updateData,
+    });
+
+    // Audit log
+    await db.auditLog.create({
+      data: {
+        userId,
+        action: "UPDATE_NOTIFICATION_SOURCE",
+        entity: "NotificationSource",
+        entityId: updated.id,
+        details: JSON.stringify({ platformId, customName }),
+      },
+    });
+
+    return NextResponse.json({
+      source: {
+        ...updated,
+        resolvedDisplayName: updated.customName || updated.platformName,
+      }
+    });
+  } catch (error) {
+    console.error("[API] Error updating notification source:", error);
+    return NextResponse.json(
+      { error: "Failed to update notification source" },
+      { status: 500 }
+    );
+  }
+}
+
+/**
+ * DELETE /api/platforms
+ * Disable a notification source for the authenticated user.
+ *
+ * Body: { platformId } or query param ?platformId=...
+ */
+export async function DELETE(request: NextRequest) {
+  try {
+    const userId = await authenticateRequest(request);
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Support both body and query param
+    let platformId: string | undefined;
+
+    const url = new URL(request.url);
+    platformId = url.searchParams.get("platformId") ?? undefined;
+
+    if (!platformId) {
+      const body = await request.json().catch(() => ({}));
+      platformId = body.platformId;
+    }
+
+    if (!platformId) {
+      return NextResponse.json(
+        { error: "platformId is required" },
+        { status: 400 }
+      );
+    }
+
+    const existing = await db.notificationSource.findUnique({
+      where: {
+        userId_platformId: {
+          userId,
+          platformId,
+        },
+      },
+    });
+
+    if (!existing) {
+      return NextResponse.json(
+        { error: "Notification source not found" },
+        { status: 404 }
+      );
+    }
+
+    // Set listening to false instead of deleting the record
+    await db.notificationSource.update({
+      where: { id: existing.id },
+      data: {
+        listening: false,
+      },
+    });
+
+    // Audit log
+    await db.auditLog.create({
+      data: {
+        userId,
+        action: "DISABLE_NOTIFICATION_SOURCE",
+        entity: "NotificationSource",
+        entityId: existing.id,
+        details: JSON.stringify({ platformId }),
+      },
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("[API] Error disabling notification source:", error);
+    return NextResponse.json(
+      { error: "Failed to disable notification source" },
+      { status: 500 }
+    );
+  }
+}

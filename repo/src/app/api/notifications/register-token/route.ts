@@ -1,0 +1,73 @@
+import { NextRequest, NextResponse } from "next/server";
+import { authenticateRequest } from "@/lib/auth-helpers";
+import { db } from "@/lib/db";
+
+/**
+ * POST /api/notifications/register-token
+ *
+ * Register an FCM push token for the authenticated user.
+ * This token is saved to the User record and used for sending push notifications.
+ *
+ * Body: { fcmToken: string }
+ */
+export async function POST(request: NextRequest) {
+  try {
+    const userId = await authenticateRequest(request);
+
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const body = await request.json();
+    const { fcmToken } = body;
+
+    if (!fcmToken || typeof fcmToken !== "string") {
+      return NextResponse.json(
+        { error: "fcmToken is required and must be a string" },
+        { status: 400 }
+      );
+    }
+
+    // Validate token format (FCM tokens are typically long strings)
+    if (fcmToken.length < 10) {
+      return NextResponse.json(
+        { error: "Invalid FCM token format" },
+        { status: 400 }
+      );
+    }
+
+    // Update the user's FCM token
+    await db.user.update({
+      where: { id: userId },
+      data: { fcmToken },
+    });
+
+    // Log the token registration
+    await db.auditLog.create({
+      data: {
+        userId,
+        action: "REGISTER_FCM_TOKEN",
+        entity: "User",
+        entityId: userId,
+        details: "FCM push token registered/updated",
+      },
+    });
+
+    // v2.9.81 SECURITY FIX: Removed console.log that wrote first 20 chars of
+    // FCM token to logs. Even partial tokens are sensitive — Vercel logs are
+    // accessible to anyone with dashboard access. Audit log already records
+    // the registration event without the token value.
+    console.log("[API] FCM token registered for user:", userId);
+
+    return NextResponse.json({
+      success: true,
+      message: "FCM token registered successfully",
+    });
+  } catch (error) {
+    console.error("[API] Error registering FCM token:", error);
+    return NextResponse.json(
+      { error: "Failed to register FCM token" },
+      { status: 500 }
+    );
+  }
+}
