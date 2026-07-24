@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.CardGiftcard
 import androidx.compose.material.icons.filled.QrCode
 import androidx.compose.material.icons.filled.QrCodeScanner
@@ -89,12 +90,10 @@ fun ReferralQrCard(
     // Generate QR code bitmap
     val qrBitmap: Bitmap? = remember { QrCodeGenerator.generateReferralQrCode(referralCode) }
 
-    // Premium days earned from referrals (3 days per referral + 30 day bonus at 10)
-    val premiumDaysEarned = remember {
-        val baseDays = referralCount * PremiumManager.REFERRER_REWARD_DAYS
-        val bonusDays = if (referralCount >= PremiumManager.MONTH_BONUS_THRESHOLD) 30 else 0
-        baseDays + bonusDays
-    }
+    // v2.9.93: Locked bonus months system
+    val unlockedMonths = remember { PremiumManager.getUnlockedMonths(context) }
+    val progressToNext = remember { PremiumManager.getProgressToNextMonth(context) }
+    val referralsPerMonth = PremiumManager.REFERRALS_PER_MONTH
 
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -217,21 +216,62 @@ fun ReferralQrCard(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // Stats row
+            // v2.9.93: Stats row — referrals + locked bonus months
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                StatItem(
-                    icon = Icons.Default.Star,
-                    value = referralCount.toString(),
-                    label = stringResource(R.string.referral_total_referrals)
-                )
-                StatItem(
-                    icon = Icons.Default.CardGiftcard,
-                    value = premiumDaysEarned.toString(),
-                    label = stringResource(R.string.referral_premium_earned)
-                )
+                // Total Referrals
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Star,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(28.dp)
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = referralCount.toString(),
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = stringResource(R.string.referral_total_referrals),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                // Bonus Months — locked/unlocked
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    // Show lock icon if no months unlocked, star if unlocked
+                    Icon(
+                        imageVector = if (unlockedMonths > 0) Icons.Default.Star else Icons.Default.Lock,
+                        contentDescription = null,
+                        tint = if (unlockedMonths > 0) MaterialTheme.colorScheme.primary
+                               else MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(28.dp)
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = if (unlockedMonths > 0) "${unlockedMonths}mo"
+                               else "🔒 1mo",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = if (unlockedMonths > 0) MaterialTheme.colorScheme.primary
+                                else MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        text = if (unlockedMonths > 0) "Bonus Unlocked"
+                               else "Locked ($progressToNext/$referralsPerMonth)",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(20.dp))

@@ -60,8 +60,8 @@
     <string name="home_empty_subtitle">Notifications from delivery partner apps will appear here once captured</string>
     <string name="home_mark_all_read">Mark all read</string>
     <string name="home_search_placeholder">Search notifications…</string>
-    <string name="home_today">Today</string>
-    <string name="home_this_week">This Week</string>
+    <string name="home_today">Today (Potential)</string>
+    <string name="home_this_week">This Week (Potential)</string>
     <string name="home_filter_all">All</string>
     <string name="home_export_cd">Export</string>
     <string name="home_export_subject">NotiFetch %1$s Notifications Export</string>
@@ -279,9 +279,9 @@
 
     <!-- ============ Earnings ============ -->
     <string name="earnings_title">Earnings</string>
-    <string name="earnings_today">Today</string>
-    <string name="earnings_week">This Week</string>
-    <string name="earnings_month">This Month</string>
+    <string name="earnings_today">Today (Potential)</string>
+    <string name="earnings_week">This Week (Potential)</string>
+    <string name="earnings_month">This Month (Potential)</string>
     <string name="earnings_total">Total Estimated</string>
     <string name="earnings_cash_out">Cash Out</string>
     <string name="earnings_waitlist">Join Cash Out Waitlist</string>

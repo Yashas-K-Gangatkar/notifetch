@@ -60,8 +60,8 @@
     <string name="home_empty_subtitle">डिलीवरी पार्टनर ऐप्स से सूचनाएं यहां दिखाई देंगी</string>
     <string name="home_mark_all_read">सभी पढ़ा हुआ चिह्नित करें</string>
     <string name="home_search_placeholder">सूचनाएं खोजें…</string>
-    <string name="home_today">आज</string>
-    <string name="home_this_week">इस सप्ताह</string>
+    <string name="home_today">आज (संभावित)</string>
+    <string name="home_this_week">इस सप्ताह (संभावित)</string>
     <string name="home_filter_all">सभी</string>
     <string name="home_export_cd">निर्यात करें</string>
     <string name="home_export_subject">NotiFetch %1$s सूचनाएं निर्यात</string>
@@ -279,9 +279,9 @@
 
     <!-- ============ Earnings ============ -->
     <string name="earnings_title">कमाई</string>
-    <string name="earnings_today">आज</string>
-    <string name="earnings_week">इस सप्ताह</string>
-    <string name="earnings_month">इस महीने</string>
+    <string name="earnings_today">आज (संभावित)</string>
+    <string name="earnings_week">इस सप्ताह (संभावित)</string>
+    <string name="earnings_month">इस महीने (संभावित)</string>
     <string name="earnings_total">कुल अनुमानित</string>
     <string name="earnings_cash_out">निकासी</string>
     <string name="earnings_waitlist">निकासी वेटलिस्ट में शामिल हों</string>
